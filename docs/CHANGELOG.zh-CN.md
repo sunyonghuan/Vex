@@ -157,3 +157,5 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并完成 Debug 启动烟测。
 - 🔧[优化]-新建文档默认模板和兜底文件名改走 `VexL` 资源。
 - 🧪[测试]-校验 JSON 资源、构建 `Vex.slnx`、执行 `git diff --check`、检索旧硬编码模板，并截图确认默认文档本地化显示。
+- 🔧[优化]-将编辑器查找/替换行为拆入 `MarkdownEditorSearchService`，`MarkdownEditorController.cs` 从 493 行降到 298 行。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并在搜索服务重构后截图确认启动窗口正常渲染。

@@ -186,6 +186,11 @@
 - 验证全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并检索确认旧的 `# Untitled` 与中文模板正文不再硬编码在服务代码中。
 - 启动 Debug 桌面程序并使用窗口句柄截图，确认默认中文新文档模板在编辑器和预览区同步显示。截图路径：`%TEMP%\VexScreenshots\localized-new-document-template-window.png`。
 - 本轮未新增第三方依赖。
+- 新增 `IMarkdownEditorSearchService`/`MarkdownEditorSearchService`，查找、查找下一个、替换下一个、全部替换和匹配计数从 `MarkdownEditorController` 抽离。
+- `MarkdownEditorController.cs` 从 493 行降到 298 行，控制器继续负责编辑器生命周期、文本同步、编辑动作和导航，搜索服务专注搜索/替换结果发布。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并启动 Debug 桌面程序使用窗口句柄截图确认默认编辑器与预览仍正常渲染。截图路径：`%TEMP%\VexScreenshots\editor-search-service-refactor-startup.png`。
+- 自动快捷键注入未稳定打开查找栏，因此本轮不把查找栏交互截图作为通过证据；搜索服务路径由编译和保留的 EventBus 入口覆盖，后续可补自动化 UI 测试。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -457,4 +462,9 @@
 - `ShellDocumentInfoViewModel` now initializes its fallback snapshot with the localized default file name instead of a hard-coded string.
 - Verified all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and searched to confirm the old `# Untitled` plus Chinese body placeholder no longer live in service code.
 - Launched the Debug desktop app and captured a window-handle screenshot confirming the default Chinese new-document template renders in both the editor and preview. Screenshot path: `%TEMP%\VexScreenshots\localized-new-document-template-window.png`.
+- Added no new third-party dependency.
+- Added `IMarkdownEditorSearchService`/`MarkdownEditorSearchService`, moving find, find-next, replace-next, replace-all, and match-count behavior out of `MarkdownEditorController`.
+- Reduced `MarkdownEditorController.cs` from 493 lines to 298 lines; the controller keeps editor lifetime, text sync, editor actions, and navigation while the search service owns search-result publication.
+- Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window-handle screenshot confirming the editor and preview still render. Screenshot path: `%TEMP%\VexScreenshots\editor-search-service-refactor-startup.png`.
+- Keyboard injection did not reliably open the find bar in this session, so this iteration does not claim an interactive find-bar screenshot; the search path is covered by compilation and the retained EventBus entry point.
 - Added no new third-party dependency.

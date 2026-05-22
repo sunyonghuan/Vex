@@ -149,3 +149,5 @@
 - Built `Vex.slnx`, ran `git diff --check`, and completed a Debug startup smoke run.
 - Localized the new-document default template and fallback default file name through `VexL` resources.
 - Validated JSON resources, built `Vex.slnx`, ran `git diff --check`, searched for the old hard-coded template, and captured a window screenshot of the localized default document.
+- Split editor search/replace behavior into `MarkdownEditorSearchService`, reducing `MarkdownEditorController.cs` from 493 to 298 lines.
+- Built `Vex.slnx`, ran `git diff --check`, and captured a startup window screenshot after the search-service refactor.

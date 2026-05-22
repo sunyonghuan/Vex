@@ -9,18 +9,18 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
 {
     private readonly IEventBus _eventBus;
     private readonly IMarkdownEditorMutationService _textMutationService;
-    private readonly IAppLocalizer _localizer;
+    private readonly IMarkdownEditorSearchService _searchService;
     private TextEditor? _editor;
     private bool _suppressTextChanged;
 
     public MarkdownEditorController(
         IEventBus eventBus,
         IMarkdownEditorMutationService textMutationService,
-        IAppLocalizer localizer)
+        IMarkdownEditorSearchService searchService)
     {
         _eventBus = eventBus;
         _textMutationService = textMutationService;
-        _localizer = localizer;
+        _searchService = searchService;
         eventBus.Subscribe(this);
     }
 
@@ -194,27 +194,7 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
             return;
         }
 
-        if (string.IsNullOrEmpty(command.SearchText))
-        {
-            PublishSearchResult(VexL.StatusEnterSearchTextFirst);
-            return;
-        }
-
-        switch (command.Action)
-        {
-            case EditorSearchAction.Count:
-                CountMatches(command.SearchText);
-                break;
-            case EditorSearchAction.FindNext:
-                FindNext(command.SearchText, _editor.CaretOffset + Math.Max(0, _editor.SelectionLength));
-                break;
-            case EditorSearchAction.ReplaceNext:
-                ReplaceNext(command.SearchText, command.ReplacementText);
-                break;
-            case EditorSearchAction.ReplaceAll:
-                ReplaceAll(command.SearchText, command.ReplacementText);
-                break;
-        }
+        _searchService.Search(_editor, command, RunTextMutation, PublishTextChanged);
     }
 
     [EventHandler]
@@ -288,181 +268,6 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
     private void ClearFormatting()
     {
         MutateEditor(_textMutationService.ClearFormatting);
-    }
-
-    private void FindNext(string searchText, int startOffset)
-    {
-        if (_editor?.Document is null)
-        {
-            return;
-        }
-
-        var text = _editor.Text ?? string.Empty;
-        var matches = FindMatches(text, searchText);
-        var matchIndex = GetNextMatchIndex(matches, startOffset);
-        var index = matchIndex >= 0 ? matches[matchIndex] : -1;
-        if (index < 0)
-        {
-            PublishSearchResultFormat(VexL.EditorSearchNoMatchFormat, searchText);
-            return;
-        }
-
-        _editor.Select(index, searchText.Length);
-        _editor.CaretOffset = index + searchText.Length;
-        _editor.TextArea.Caret.BringCaretToView();
-        _editor.Focus();
-        var line = _editor.Document.GetLineByOffset(index).LineNumber;
-        _eventBus.Publish(new EditorSearchResultCommand(
-            _localizer.Format(VexL.EditorSearchFoundOnLineFormat, searchText, line, matchIndex + 1, matches.Count),
-            matchIndex + 1,
-            matches.Count));
-        PublishTextChanged();
-    }
-
-    private void ReplaceNext(string searchText, string replacementText)
-    {
-        if (_editor is null)
-        {
-            return;
-        }
-
-        var text = _editor.Text ?? string.Empty;
-        var start = Math.Clamp(_editor.SelectionStart, 0, text.Length);
-        var length = Math.Clamp(_editor.SelectionLength, 0, text.Length - start);
-        var selected = length > 0 ? text.Substring(start, length) : string.Empty;
-
-        if (!selected.Equals(searchText, StringComparison.CurrentCultureIgnoreCase))
-        {
-            FindNext(searchText, _editor.CaretOffset);
-            return;
-        }
-
-        RunTextMutation(() =>
-        {
-            _editor.Text = text[..start] + replacementText + text[(start + length)..];
-            _editor.CaretOffset = start + replacementText.Length;
-            _editor.Select(start, replacementText.Length);
-        });
-        PublishSearchResultFormat(VexL.EditorSearchReplacedNextFormat, searchText);
-        FindNext(searchText, start + replacementText.Length);
-    }
-
-    private void ReplaceAll(string searchText, string replacementText)
-    {
-        if (_editor is null)
-        {
-            return;
-        }
-
-        var text = _editor.Text ?? string.Empty;
-        var comparison = StringComparison.CurrentCultureIgnoreCase;
-        var builder = new System.Text.StringBuilder(text.Length);
-        var offset = 0;
-        var count = 0;
-
-        while (offset < text.Length)
-        {
-            var index = text.IndexOf(searchText, offset, comparison);
-            if (index < 0)
-            {
-                builder.Append(text, offset, text.Length - offset);
-                break;
-            }
-
-            builder.Append(text, offset, index - offset);
-            builder.Append(replacementText);
-            offset = index + searchText.Length;
-            count++;
-        }
-
-        if (count == 0)
-        {
-            PublishSearchResultFormat(VexL.EditorSearchNoMatchFormat, searchText);
-            return;
-        }
-
-        RunTextMutation(() =>
-        {
-            _editor.Text = builder.ToString();
-            _editor.CaretOffset = 0;
-            _editor.SelectionLength = 0;
-        });
-        PublishSearchResultFormat(VexL.EditorSearchReplacedAllFormat, count);
-    }
-
-    private void CountMatches(string searchText)
-    {
-        if (_editor is null)
-        {
-            return;
-        }
-
-        var matches = FindMatches(_editor.Text ?? string.Empty, searchText);
-        if (matches.Count == 0)
-        {
-            PublishSearchResultFormat(VexL.EditorSearchNoMatchFormat, searchText);
-            return;
-        }
-
-        var matchIndex = GetNextMatchIndex(matches, _editor.CaretOffset);
-        _eventBus.Publish(new EditorSearchResultCommand(
-            _localizer.Format(VexL.EditorSearchMatchCountFormat, matches.Count, searchText),
-            matchIndex >= 0 ? matchIndex + 1 : 1,
-            matches.Count));
-    }
-
-    private void PublishSearchResult(string key)
-    {
-        _eventBus.Publish(new EditorSearchResultCommand(_localizer.Get(key)));
-    }
-
-    private void PublishSearchResultFormat(string key, params object?[] args)
-    {
-        _eventBus.Publish(new EditorSearchResultCommand(_localizer.Format(key, args)));
-    }
-
-    private static List<int> FindMatches(string text, string searchText)
-    {
-        if (text.Length == 0 || searchText.Length == 0)
-        {
-            return [];
-        }
-
-        List<int> matches = [];
-        var comparison = StringComparison.CurrentCultureIgnoreCase;
-        var offset = 0;
-        while (offset <= text.Length - searchText.Length)
-        {
-            var index = text.IndexOf(searchText, offset, comparison);
-            if (index < 0)
-            {
-                break;
-            }
-
-            matches.Add(index);
-            offset = index + Math.Max(1, searchText.Length);
-        }
-
-        return matches;
-    }
-
-    private static int GetNextMatchIndex(IReadOnlyList<int> matches, int startOffset)
-    {
-        if (matches.Count == 0)
-        {
-            return -1;
-        }
-
-        var start = Math.Max(0, startOffset);
-        for (var i = 0; i < matches.Count; i++)
-        {
-            if (matches[i] >= start)
-            {
-                return i;
-            }
-        }
-
-        return 0;
     }
 
     private void PrefixCurrentLine(string prefix)
