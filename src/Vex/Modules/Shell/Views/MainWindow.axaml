@@ -103,7 +103,7 @@
                         <Separator />
                         <MenuItem Header="保存" Command="{Binding SaveAsync}" InputGesture="Ctrl+S" />
                         <MenuItem Header="另存为..." Command="{Binding SaveAsAsync}" InputGesture="Ctrl+Shift+S" />
-                        <MenuItem Header="保存全部打开的文件..." Command="{Binding SaveAsync}" />
+                        <MenuItem Header="保存全部打开的文件..." Command="{Binding SaveAllAsync}" />
                         <Separator />
                         <MenuItem Header="属性..." Command="{Binding ShowProperties}" InputGesture="Alt+Enter" />
                         <MenuItem Header="打开文件位置..." Command="{Binding OpenFileLocationAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />

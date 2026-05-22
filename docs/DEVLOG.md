@@ -120,6 +120,11 @@
 - 行号显示状态由 `ShellEditorDisplayViewModel` 管理，切换时通过 CodeWF.EventBus 发布状态栏反馈；模块内补充中文注释说明 Workspace 视图只绑定显示偏好。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并截图确认行号列显示正常、正文未被挤压、状态栏反馈为 `Line numbers shown.`。截图路径：`%TEMP%\VexScreenshots\editor-line-numbers.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 文件菜单“保存全部打开的文件”改为独立 `SaveAllAsync`，当前单文档阶段会保存当前文档并明确提示多文档保存尚不可用，避免沿用 `SaveAsync` 造成语义误导。
+- PDF/PNG 等未实现导出格式的状态栏提示改为 `not implemented yet`，比原先 queued wording 更直接。
+- 在 `SaveAllAsync` 中补充中文维护注释，说明当前阶段“保存全部”只保存当前文档的产品边界。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并通过临时 Markdown 文件截图确认状态栏提示为 `Saved current document. Multi-document save is not available yet.`。截图路径：`%TEMP%\VexScreenshots\save-all-current-document.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -266,4 +271,8 @@
 - Added a View menu toggle for editor line numbers, binding AvaloniaEdit `ShowLineNumbers` to `EditorDisplay.ShowLineNumbers`.
 - Kept the line-number display preference in `ShellEditorDisplayViewModel` and publish status feedback through CodeWF.EventBus when toggled.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming line numbers render without crowding the editor. Screenshot path: `%TEMP%\VexScreenshots\editor-line-numbers.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Changed Save All to a dedicated `SaveAllAsync` path that saves the current document in this single-document stage and clearly reports that multi-document save is not available yet.
+- Updated unsupported export feedback for PDF/PNG-style formats to say the export is not implemented yet.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the Save All status message is explicit. Screenshot path: `%TEMP%\VexScreenshots\save-all-current-document.png`.
 - Added no new third-party dependency, so no additional license review was required.

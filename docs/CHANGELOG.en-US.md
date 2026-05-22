@@ -53,6 +53,7 @@
 - Added a Markdown editor context menu for clipboard, formatting, heading, quote, list, and clear-formatting actions.
 - Improved status-bar caret tracking so editor caret movement updates line and column badges through CodeWF.EventBus.
 - Added a View menu toggle for editor line numbers.
+- Clarified Save All so it saves the current document in the current single-document stage and reports that multi-document save is not available yet.
 
 ### Changed
 
@@ -104,3 +105,4 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the editor context-menu popup.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the status bar after moving the caret to the document end.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the editor line-number column.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the Save All status feedback.

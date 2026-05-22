@@ -322,6 +322,15 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
+    public async Task SaveAllAsync()
+    {
+        // 当前仍是单文档编辑器，保留“保存全部”入口时必须明确只保存当前文档。
+        await SaveAsync();
+        SetStatus(IsModified
+            ? "Save all canceled. Current document is still modified."
+            : "Saved current document. Multi-document save is not available yet.");
+    }
+
     public Task DeleteAsync()
     {
         if (CurrentFilePath is not { Length: > 0 } path)
@@ -451,7 +460,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             return;
         }
 
-        SetStatus($"Export {format ?? "document"} is queued for implementation.");
+        SetStatus($"{format?.ToUpperInvariant() ?? "Document"} export is not implemented yet.");
     }
 
     public async Task Print()
