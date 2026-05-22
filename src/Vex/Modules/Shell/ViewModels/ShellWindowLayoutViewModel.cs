@@ -76,8 +76,16 @@ public sealed class ShellWindowLayoutViewModel : ReactiveObject
     public bool IsFullScreen
     {
         get => _isFullScreen;
-        set => SetProperty(ref _isFullScreen, value);
+        set
+        {
+            if (SetProperty(ref _isFullScreen, value))
+            {
+                OnPropertyChanged(nameof(CurrentWindowState));
+            }
+        }
     }
+
+    public WindowState CurrentWindowState => IsFullScreen ? WindowState.FullScreen : WindowState.Normal;
 
     public bool IsSourceMode
     {

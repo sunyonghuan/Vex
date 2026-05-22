@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -35,30 +34,13 @@ public partial class MainWindow : UrsaWindow
         _droppedPaths = droppedPaths;
         _keyboardShortcuts = keyboardShortcuts;
         DataContext = viewModel;
-        viewModel.Layout.PropertyChanged += OnLayoutPropertyChanged;
         viewModel.CloseWindowRequested += OnCloseWindowRequested;
-        ApplyWindowState(viewModel.Layout);
         Opened += async (_, _) => await viewModel.OpenStartupDocumentAsync(Environment.GetCommandLineArgs().Skip(1));
     }
 
     private void WindowKeyDown(object? sender, KeyEventArgs e)
     {
         e.Handled = _keyboardShortcuts?.HandleKeyDown(e.Key, e.KeyModifiers) == true;
-    }
-
-    private void OnLayoutPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (sender is ShellWindowLayoutViewModel layout
-            && e.PropertyName is nameof(ShellWindowLayoutViewModel.IsAlwaysOnTop) or nameof(ShellWindowLayoutViewModel.IsFullScreen))
-        {
-            ApplyWindowState(layout);
-        }
-    }
-
-    private void ApplyWindowState(ShellWindowLayoutViewModel layout)
-    {
-        Topmost = layout.IsAlwaysOnTop;
-        WindowState = layout.IsFullScreen ? WindowState.FullScreen : WindowState.Normal;
     }
 
     protected override async Task<bool> CanClose()

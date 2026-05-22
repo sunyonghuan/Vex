@@ -17,6 +17,8 @@
     Icon="/Assets/logo.ico"
     ExtendClientAreaToDecorationsHint="True"
     IsManagedResizerVisible="{OnPlatform {x:False}, Linux={x:True}}"
+    Topmost="{Binding Layout.IsAlwaysOnTop}"
+    WindowState="{Binding Layout.CurrentWindowState}"
     WindowStartupLocation="CenterScreen">
 
     <u:UrsaWindow.LeftContent>

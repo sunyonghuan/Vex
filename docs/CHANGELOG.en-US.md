@@ -171,3 +171,5 @@
 - Built `Vex.slnx`, ran `git diff --check`, and captured a startup screenshot after the dropped-path reader refactor.
 - Added the reusable `FocusOnVisible` attached behavior and moved find-bar focus/select-all handling out of `ShellFindBarView.axaml.cs`.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified `Ctrl+F` opens the find bar with the search box focused.
+- Bound shell topmost and full-screen window state directly from `ShellWindowLayoutViewModel`, removing the manual `PropertyChanged` bridge from `MainWindow.axaml.cs`.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the shell still renders after the window-state binding refactor.

@@ -565,3 +565,7 @@
 - The behavior listens to the host container visibility and rechecks effective visibility before focusing, matching the find bar scenario without coupling the View to `ShellFindBarViewModel`.
 - Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a `Ctrl+F` screenshot confirming the find bar opens and the search box receives focus. Screenshot path: `%TEMP%\VexScreenshots\findbar-focus-behavior-startup.png`.
 - Added no new third-party dependency.
+- Added `ShellWindowLayoutViewModel.CurrentWindowState` and bound `MainWindow.Topmost`/`MainWindow.WindowState` directly in XAML.
+- `MainWindow.axaml.cs` no longer subscribes to `ShellWindowLayoutViewModel.PropertyChanged` only to mirror topmost and full-screen state; the ViewModel now raises the derived window-state property when full screen changes.
+- Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window screenshot confirming the shell still renders after the window-state binding refactor. Screenshot path: `%TEMP%\VexScreenshots\window-state-binding-startup.png`.
+- Added no new third-party dependency.

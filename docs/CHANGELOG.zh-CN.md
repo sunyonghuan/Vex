@@ -179,3 +179,5 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并在拖放路径读取服务重构后完成启动截图。
 - 🔧[优化]-新增可复用 `FocusOnVisible` 附加行为，将查找栏聚焦和全选逻辑从 `ShellFindBarView.axaml.cs` 抽离。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证 `Ctrl+F` 可打开查找栏且搜索框获得焦点。
+- 🔧[优化]-将 Shell 置顶和全屏窗口状态改为直接绑定 `ShellWindowLayoutViewModel`，移除 `MainWindow.axaml.cs` 中手写的 `PropertyChanged` 桥接。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认窗口状态绑定重构后 Shell 仍正常渲染。
