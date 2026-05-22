@@ -169,6 +169,34 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
     }
 
     [EventHandler]
+    public void Search(EditorSearchCommand command)
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(command.SearchText))
+        {
+            _eventBus.Publish(new EditorSearchResultCommand("Enter search text first."));
+            return;
+        }
+
+        switch (command.Action)
+        {
+            case EditorSearchAction.FindNext:
+                FindNext(command.SearchText, _editor.CaretOffset + Math.Max(0, _editor.SelectionLength));
+                break;
+            case EditorSearchAction.ReplaceNext:
+                ReplaceNext(command.SearchText, command.ReplacementText);
+                break;
+            case EditorSearchAction.ReplaceAll:
+                ReplaceAll(command.SearchText, command.ReplacementText);
+                break;
+        }
+    }
+
+    [EventHandler]
     public void NavigateTo(NavigateToLineCommand command)
     {
         if (_editor?.Document is null)
@@ -243,6 +271,114 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
             _editor.Text = text[..start] + insertion + text[(start + length)..];
             _editor.CaretOffset = start + insertion.Length;
         });
+    }
+
+    private void FindNext(string searchText, int startOffset)
+    {
+        if (_editor?.Document is null)
+        {
+            return;
+        }
+
+        var text = _editor.Text ?? string.Empty;
+        var index = IndexOfWrapped(text, searchText, startOffset);
+        if (index < 0)
+        {
+            _eventBus.Publish(new EditorSearchResultCommand($"No match for \"{searchText}\"."));
+            return;
+        }
+
+        _editor.Select(index, searchText.Length);
+        _editor.CaretOffset = index + searchText.Length;
+        _editor.TextArea.Caret.BringCaretToView();
+        _editor.Focus();
+        var line = _editor.Document.GetLineByOffset(index).LineNumber;
+        _eventBus.Publish(new EditorSearchResultCommand($"Found \"{searchText}\" on line {line}."));
+        PublishTextChanged();
+    }
+
+    private void ReplaceNext(string searchText, string replacementText)
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        var text = _editor.Text ?? string.Empty;
+        var start = Math.Clamp(_editor.SelectionStart, 0, text.Length);
+        var length = Math.Clamp(_editor.SelectionLength, 0, text.Length - start);
+        var selected = length > 0 ? text.Substring(start, length) : string.Empty;
+
+        if (!selected.Equals(searchText, StringComparison.CurrentCultureIgnoreCase))
+        {
+            FindNext(searchText, _editor.CaretOffset);
+            return;
+        }
+
+        RunTextMutation(() =>
+        {
+            _editor.Text = text[..start] + replacementText + text[(start + length)..];
+            _editor.CaretOffset = start + replacementText.Length;
+            _editor.Select(start, replacementText.Length);
+        });
+        _eventBus.Publish(new EditorSearchResultCommand($"Replaced next \"{searchText}\"."));
+        FindNext(searchText, start + replacementText.Length);
+    }
+
+    private void ReplaceAll(string searchText, string replacementText)
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        var text = _editor.Text ?? string.Empty;
+        var comparison = StringComparison.CurrentCultureIgnoreCase;
+        var builder = new System.Text.StringBuilder(text.Length);
+        var offset = 0;
+        var count = 0;
+
+        while (offset < text.Length)
+        {
+            var index = text.IndexOf(searchText, offset, comparison);
+            if (index < 0)
+            {
+                builder.Append(text, offset, text.Length - offset);
+                break;
+            }
+
+            builder.Append(text, offset, index - offset);
+            builder.Append(replacementText);
+            offset = index + searchText.Length;
+            count++;
+        }
+
+        if (count == 0)
+        {
+            _eventBus.Publish(new EditorSearchResultCommand($"No match for \"{searchText}\"."));
+            return;
+        }
+
+        RunTextMutation(() =>
+        {
+            _editor.Text = builder.ToString();
+            _editor.CaretOffset = 0;
+            _editor.SelectionLength = 0;
+        });
+        _eventBus.Publish(new EditorSearchResultCommand($"Replaced {count} occurrence(s)."));
+    }
+
+    private static int IndexOfWrapped(string text, string searchText, int startOffset)
+    {
+        if (text.Length == 0)
+        {
+            return -1;
+        }
+
+        var start = Math.Clamp(startOffset, 0, text.Length);
+        var comparison = StringComparison.CurrentCultureIgnoreCase;
+        var index = text.IndexOf(searchText, start, comparison);
+        return index >= 0 ? index : text.IndexOf(searchText, 0, comparison);
     }
 
     private void PrefixCurrentLine(string prefix)

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Vex.Modules.Shell.ViewModels;
 
 namespace Vex.Modules.Shell.Views;
@@ -10,6 +11,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        AddHandler(KeyDownEvent, WindowKeyDown, RoutingStrategies.Tunnel);
     }
 
     public MainWindow(MainWindowViewModel viewModel)
@@ -41,6 +43,35 @@ public partial class MainWindow : Window
     private void CloseClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void WindowKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel viewModel)
+        {
+            return;
+        }
+
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.F)
+        {
+            viewModel.ShowFindPanel();
+            e.Handled = true;
+        }
+        else if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.H)
+        {
+            viewModel.ShowReplacePanel();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.F3)
+        {
+            viewModel.FindNext();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Escape && viewModel.IsFindPanelVisible)
+        {
+            viewModel.CloseFindPanel();
+            e.Handled = true;
+        }
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

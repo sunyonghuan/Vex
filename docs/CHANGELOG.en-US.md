@@ -18,6 +18,7 @@
 - Added trimming roots to preserve Vex, Avalonia, Prism, ReactiveUI, CodeWF, and SVG rendering assemblies for trimmed publishes.
 - Added unsaved document indicators in the window title and status bar, with the current file encoding shown in the status bar.
 - Added recent files, clearing recent files, quick open, and close current document actions to the File menu.
+- Added a find/replace bar with find next, replace next, replace all, and `Ctrl+F`, `Ctrl+H`, `F3`, and `Esc` shortcuts.
 
 ### Changed
 
@@ -33,3 +34,4 @@
 - Improved the properties action to show document state, encoding, size, and path details.
 - Tested `Vex.slnx` build, dependency vulnerability scanning, desktop smoke startup, and the `win-x64` Release Native AOT plus `linux-x64` self-contained single-file publish paths.
 - Tested `publish_vex_all.bat` and confirmed all five Vex publish profiles complete successfully.
+- Tested `Vex.slnx` build for the find/replace changes and captured a desktop screenshot for the base window layout.

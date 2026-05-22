@@ -30,6 +30,8 @@
 - 增加文档修改状态跟踪，标题栏用 `*` 标记未保存内容，状态栏显示 Saved/Modified 与当前编码。
 - 增加最近文件持久化、文件菜单最近文件子菜单、快速打开和关闭当前文档入口，并让属性状态展示文档状态、编码、大小和路径。
 - 验证 `dotnet build Vex.slnx`，并截图检查主窗口标题栏、三栏布局和状态栏徽标没有挤压错位。
+- 增加查找/替换栏，查找和替换动作通过 CodeWF.EventBus 发送到 AvaloniaEdit 控制器处理，并提供窗口级快捷键兜底。
+- 验证 `dotnet build Vex.slnx`，截图检查主窗口基础布局；当前自动化桌面无法稳定把快捷键注入窗口，后续人工交互可直接验证查找栏显示。
 
 ### en-US
 
@@ -59,3 +61,5 @@
 - Added document dirty-state tracking, with `*` in the window title for unsaved edits and Saved/Modified plus encoding badges in the status bar.
 - Added recent file persistence, the recent files submenu, quick open, and close current document actions, and expanded the properties status text with state, encoding, size, and path details.
 - Verified `dotnet build Vex.slnx` and captured a desktop screenshot to check the title bar, three-pane layout, and status bar badges for visual fit.
+- Added the find/replace bar, with find and replace actions routed through CodeWF.EventBus to the AvaloniaEdit controller and window-level shortcut handling.
+- Verified `dotnet build Vex.slnx` and captured a desktop screenshot for the base window layout; this desktop automation session could not reliably inject shortcuts into the window, so the visible find bar path still needs manual interaction confirmation.

@@ -14,6 +14,7 @@
     MinWidth="980"
     MinHeight="640"
     Icon="/Assets/logo.ico"
+    KeyDown="WindowKeyDown"
     WindowDecorations="None"
     WindowStartupLocation="CenterScreen">
 
@@ -51,7 +52,7 @@
         </DataTemplate>
     </Window.DataTemplates>
 
-    <Grid RowDefinitions="34,*,Auto" Background="#FFFDFDFD">
+    <Grid RowDefinitions="34,Auto,*,Auto" Background="#FFFDFDFD">
         <Border
             Grid.Row="0"
             Background="#FFF7F8FA"
@@ -126,8 +127,8 @@
                         <MenuItem Header="粘贴" Command="{Binding Paste}" />
                         <MenuItem Header="全选" Command="{Binding SelectAll}" />
                         <Separator />
-                        <MenuItem Header="查找..." Command="{Binding OpenHelpTopic}" CommandParameter="search" />
-                        <MenuItem Header="替换..." Command="{Binding OpenHelpTopic}" CommandParameter="replace" />
+                        <MenuItem Header="查找..." Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
+                        <MenuItem Header="替换..." Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
                     </MenuItem>
 
                     <MenuItem Header="段落(P)">
@@ -163,7 +164,7 @@
                         <MenuItem Header="显示 / 隐藏侧边栏" Command="{Binding ToggleSidebar}" />
                         <MenuItem Header="大纲" Command="{Binding ShowOutline}" />
                         <MenuItem Header="文档列表" Command="{Binding ShowFiles}" />
-                        <MenuItem Header="搜索" Command="{Binding OpenHelpTopic}" CommandParameter="search" />
+                        <MenuItem Header="搜索" Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
                         <Separator />
                         <MenuItem Header="源代码模式" Command="{Binding ToggleSourceMode}" />
                         <MenuItem Header="显示状态栏" Command="{Binding ToggleStatusBar}" />
@@ -229,7 +230,61 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1">
+        <Border
+            Grid.Row="1"
+            Background="#FFFFFFFF"
+            BorderBrush="#E4E7EC"
+            BorderThickness="0 0 0 1"
+            IsVisible="{Binding IsFindPanelVisible}"
+            Padding="10 8">
+            <Grid ColumnDefinitions="Auto,220,Auto,220,Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
+                <TextBlock
+                    Classes="muted"
+                    Text="Find"
+                    VerticalAlignment="Center" />
+                <TextBox
+                    Grid.Column="1"
+                    MinHeight="30"
+                    Text="{Binding SearchText, Mode=TwoWay}"
+                    PlaceholderText="Text" />
+                <TextBlock
+                    Grid.Column="2"
+                    Classes="muted"
+                    IsVisible="{Binding IsReplaceVisible}"
+                    Text="Replace"
+                    VerticalAlignment="Center" />
+                <TextBox
+                    Grid.Column="3"
+                    IsVisible="{Binding IsReplaceVisible}"
+                    MinHeight="30"
+                    Text="{Binding ReplacementText, Mode=TwoWay}"
+                    PlaceholderText="Text" />
+                <Button
+                    Grid.Column="4"
+                    Command="{Binding FindNext}"
+                    Content="Next"
+                    MinWidth="72" />
+                <Button
+                    Grid.Column="5"
+                    Command="{Binding ReplaceNext}"
+                    Content="Replace"
+                    IsVisible="{Binding IsReplaceVisible}"
+                    MinWidth="82" />
+                <Button
+                    Grid.Column="6"
+                    Command="{Binding ReplaceAll}"
+                    Content="All"
+                    IsVisible="{Binding IsReplaceVisible}"
+                    MinWidth="64" />
+                <Button
+                    Grid.Column="7"
+                    Command="{Binding CloseFindPanel}"
+                    Content="X"
+                    MinWidth="42" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding SidebarColumnWidth}" MinWidth="0" />
                 <ColumnDefinition Width="{Binding SidebarSplitterWidth}" />
@@ -284,7 +339,7 @@
         </Grid>
 
         <Border
-            Grid.Row="2"
+            Grid.Row="3"
             Background="#FFF7F8FA"
             BorderBrush="#E4E7EC"
             BorderThickness="0 1 0 0"

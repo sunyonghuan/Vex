@@ -36,6 +36,10 @@ public sealed class MainWindowViewModel : ReactiveObject
     private bool _isAlwaysOnTop;
     private bool _isFullScreen;
     private bool _isCompactLayout;
+    private bool _isFindPanelVisible;
+    private bool _isReplaceVisible;
+    private string _searchText = string.Empty;
+    private string _replacementText = string.Empty;
     private double _editorZoom = 1.0;
     private ThemeOption? _selectedTheme;
     private TypographyOption? _selectedTypography;
@@ -230,6 +234,30 @@ public sealed class MainWindowViewModel : ReactiveObject
                 OnPropertyChanged(nameof(CurrentTypographySize));
             }
         }
+    }
+
+    public bool IsFindPanelVisible
+    {
+        get => _isFindPanelVisible;
+        set => SetProperty(ref _isFindPanelVisible, value);
+    }
+
+    public bool IsReplaceVisible
+    {
+        get => _isReplaceVisible;
+        set => SetProperty(ref _isReplaceVisible, value);
+    }
+
+    public string SearchText
+    {
+        get => _searchText;
+        set => SetProperty(ref _searchText, value ?? string.Empty);
+    }
+
+    public string ReplacementText
+    {
+        get => _replacementText;
+        set => SetProperty(ref _replacementText, value ?? string.Empty);
     }
 
     public double EditorZoom
@@ -535,6 +563,12 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
+    [EventHandler]
+    public void ApplyEditorSearchResult(EditorSearchResultCommand command)
+    {
+        SetStatus(command.Message);
+    }
+
     private void RefreshMarkdownDerivedState()
     {
         Statistics = _statisticsService.Count(Markdown);
@@ -627,6 +661,60 @@ public sealed class MainWindowViewModel : ReactiveObject
     public void WordCount()
     {
         SetStatus($"Words {Statistics.Words}, Characters {Statistics.Characters}, Lines {Statistics.Lines}.");
+    }
+
+    public void ShowFindPanel()
+    {
+        IsFindPanelVisible = true;
+        IsReplaceVisible = false;
+        SetStatus("Find is ready.");
+    }
+
+    public void ShowReplacePanel()
+    {
+        IsFindPanelVisible = true;
+        IsReplaceVisible = true;
+        SetStatus("Replace is ready.");
+    }
+
+    public void CloseFindPanel()
+    {
+        IsFindPanelVisible = false;
+        SetStatus("Find closed.");
+        PublishEditorAction(EditorActionKind.FocusEditor);
+    }
+
+    public void FindNext()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            SetStatus("Enter search text first.");
+            return;
+        }
+
+        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.FindNext, SearchText));
+    }
+
+    public void ReplaceNext()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            SetStatus("Enter search text first.");
+            return;
+        }
+
+        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.ReplaceNext, SearchText, ReplacementText));
+    }
+
+    public void ReplaceAll()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            SetStatus("Enter search text first.");
+            return;
+        }
+
+        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.ReplaceAll, SearchText, ReplacementText));
     }
 
     public void Undo()
