@@ -232,6 +232,11 @@
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并检索确认 Workspace 模块不再引用 `ShellEditorDisplayViewModel` 或 `EditorDisplay.` 绑定。
 - 启动 Debug 桌面程序并使用窗口句柄截图，确认显示状态服务接入后编辑器、预览和状态栏仍正常渲染。截图路径：`%TEMP%\VexScreenshots\editor-display-state-startup.png`。
 - 本轮未新增第三方依赖。
+- 新增 `IShellDroppedPathReader`/`ShellDroppedPathReader`，集中读取拖放事件中的第一个可访问本地路径。
+- `MainWindow.axaml.cs` 不再直接引用 `Avalonia.Platform.Storage`、`TryGetFiles`、`TryGetLocalPath`、`File.Exists` 或 `Directory.Exists`，窗口只根据服务结果设置拖放效果并转发路径给主文档流程。
+- `MainWindow.axaml.cs` 本轮缩短到 108 行，拖放路径服务 33 行。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并启动 Debug 桌面程序使用窗口句柄截图确认 Shell、编辑器、预览和状态栏仍正常渲染。截图路径：`%TEMP%\VexScreenshots\dropped-path-reader-startup.png`。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -549,4 +554,9 @@
 - `MarkdownEditorViewModel` no longer references `ShellEditorDisplayViewModel`, and `MarkdownEditorView.axaml` now binds directly to `EditorFontSize` and `ShowLineNumbers`.
 - Verified `dotnet build Vex.slnx`, ran `git diff --check`, and searched to confirm the Workspace module no longer references `ShellEditorDisplayViewModel` or `EditorDisplay.` bindings.
 - Launched the Debug desktop app and captured a window-handle screenshot confirming the editor, preview, and status bar still render after the display-state service wiring. Screenshot path: `%TEMP%\VexScreenshots\editor-display-state-startup.png`.
+- Added no new third-party dependency.
+- Added `IShellDroppedPathReader`/`ShellDroppedPathReader`, centralizing extraction of the first accessible local path from drag/drop events.
+- `MainWindow.axaml.cs` no longer directly references `Avalonia.Platform.Storage`, `TryGetFiles`, `TryGetLocalPath`, `File.Exists`, or `Directory.Exists`; the window only sets drag/drop effects from the service result and forwards paths to the main document flow.
+- `MainWindow.axaml.cs` is down to 108 lines, with the dropped-path reader at 33 lines.
+- Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window-handle screenshot confirming the shell, editor, preview, and status bar still render. Screenshot path: `%TEMP%\VexScreenshots\dropped-path-reader-startup.png`.
 - Added no new third-party dependency.

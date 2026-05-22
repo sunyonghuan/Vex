@@ -175,3 +175,5 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认编辑器仍能同步初始文档。
 - 🔧[优化]-新增 `IEditorDisplayState`/`EditorDisplayState`，Workspace 编辑器通过 Core 服务契约读取编辑器显示设置，不再依赖 Shell 显示 ViewModel。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`、检索 Workspace 对 Shell 显示 ViewModel 的引用，并完成启动截图。
+- 🔧[优化]-新增 `ShellDroppedPathReader`，将拖放本地路径读取、Storage API 和文件系统检查从 `MainWindow.axaml.cs` 抽离。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并在拖放路径读取服务重构后完成启动截图。
