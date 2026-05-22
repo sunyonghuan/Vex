@@ -8,8 +8,10 @@
     xmlns:i18n="https://codewf.com"
     xmlns:l="clr-namespace:Vex"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
-    x:DataType="vm:MainWindowViewModel"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="using:Vex.Modules.Workspace.ViewModels"
+    x:DataType="vm:MarkdownEditorViewModel"
+    prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
     <Border Background="White" Padding="34 28">
         <edit:TextEditor
@@ -24,25 +26,25 @@
             <!-- 右键菜单只转发 Shell 编辑动作，实际文本变更仍由 Workspace 控制器通过 EventBus 执行。 -->
             <edit:TextEditor.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Undo}}" Command="{Binding EditorActions.Undo}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Redo}}" Command="{Binding EditorActions.Redo}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Undo}}" Command="{Binding Undo}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Redo}}" Command="{Binding Redo}" />
                     <Separator />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Cut}}" Command="{Binding EditorActions.Cut}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Copy}}" Command="{Binding EditorActions.Copy}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Paste}}" Command="{Binding EditorActions.Paste}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.SelectAll}}" Command="{Binding EditorActions.SelectAll}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Cut}}" Command="{Binding Cut}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Copy}}" Command="{Binding Copy}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Paste}}" Command="{Binding Paste}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.SelectAll}}" Command="{Binding SelectAll}" />
                     <Separator />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Bold}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Italic}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.InlineCode}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Link}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Bold}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Italic}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.InlineCode}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Link}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
                     <Separator />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading1}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Quote}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.UnorderedList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TaskList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading1}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.Quote}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.UnorderedList}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TaskList}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
                     <Separator />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ClearFormatting}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ClearFormatting}}" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
                 </ContextMenu>
             </edit:TextEditor.ContextMenu>
         </edit:TextEditor>

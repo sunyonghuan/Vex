@@ -223,6 +223,10 @@
 - 启动 Debug 桌面程序并使用窗口句柄截图，确认模板服务接入后 Shell、编辑器、预览和状态栏仍正常渲染。截图路径：`%TEMP%\VexScreenshots\editor-template-service-startup.png`。
 - 本轮未做编辑动作交互截图，模板路径由编译、IoC 注册和 `MarkdownEditorActionService` 调用覆盖，后续可补自动化 UI 用例。
 - 本轮未新增第三方依赖。
+- 新增 `MarkdownEditorViewModel`，通过 Prism AutoWire 管理编辑器控制器附着、初始文档同步、文档变更同步、Tab 缩进动作和右键菜单编辑动作发布。
+- `MarkdownEditorView.axaml.cs` 不再依赖 `MainWindowViewModel`、`ContainerLocator`、`IEventBus` 或编辑器控制器，只保留 TextEditor 视觉配置、附着/分离和键盘事件转发；文件缩短到 48 行。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并启动 Debug 桌面程序使用窗口句柄截图确认编辑器仍能同步初始文档，预览和状态栏正常渲染。截图路径：`%TEMP%\VexScreenshots\markdown-editor-viewmodel-startup.png`。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -531,4 +535,8 @@
 - Verified all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and searched to confirm the old placeholder templates now only remain in resource files.
 - Launched the Debug desktop app and captured a window-handle screenshot confirming the shell, editor, preview, and status bar still render after the template service wiring. Screenshot path: `%TEMP%\VexScreenshots\editor-template-service-startup.png`.
 - This iteration does not claim an interactive editor-action screenshot; the template path is covered by compilation, IoC registration, and `MarkdownEditorActionService` calls. UI automation can be added later.
+- Added no new third-party dependency.
+- Added `MarkdownEditorViewModel`, using Prism AutoWire to manage editor-controller attachment, initial document sync, document-change sync, Tab indent actions, and context-menu editor action publication.
+- `MarkdownEditorView.axaml.cs` no longer depends on `MainWindowViewModel`, `ContainerLocator`, `IEventBus`, or the editor controller; it keeps only TextEditor visual setup, attach/detach forwarding, and keyboard event forwarding, and is down to 48 lines.
+- Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window-handle screenshot confirming the editor still syncs the initial document while the preview and status bar render normally. Screenshot path: `%TEMP%\VexScreenshots\markdown-editor-viewmodel-startup.png`.
 - Added no new third-party dependency.

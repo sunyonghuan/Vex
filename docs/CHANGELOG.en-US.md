@@ -163,3 +163,5 @@
 - Built `Vex.slnx`, ran `git diff --check`, and captured a startup screenshot confirming the editor and preview still render.
 - Added `MarkdownEditorTemplateService` and localized editor insertion placeholders/templates for formatting, links, images, tables, code blocks, and math blocks.
 - Validated JSON resources, built `Vex.slnx`, ran `git diff --check`, searched for old hard-coded templates, and captured a startup screenshot.
+- Added `MarkdownEditorViewModel` with Prism AutoWire, removing direct `MainWindowViewModel` and `ContainerLocator` dependencies from `MarkdownEditorView.axaml.cs`.
+- Built `Vex.slnx`, ran `git diff --check`, and captured a startup screenshot confirming the editor still syncs the initial document.

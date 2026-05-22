@@ -101,6 +101,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<ShellStatusViewModel>();
         containerRegistry.RegisterSingleton<ShellTitleMenuViewModel>();
         containerRegistry.RegisterSingleton<ShellWindowLayoutViewModel>();
+        containerRegistry.RegisterSingleton<MarkdownEditorViewModel>();
         containerRegistry.RegisterSingleton<MarkdownPreviewViewModel>();
         containerRegistry.RegisterSingleton<ShellActionCoordinator>();
         containerRegistry.RegisterSingleton<MainWindowViewModel>();

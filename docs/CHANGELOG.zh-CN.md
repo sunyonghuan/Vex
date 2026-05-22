@@ -171,3 +171,5 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认编辑器和预览仍正常渲染。
 - 🔧[优化]-新增 `MarkdownEditorTemplateService`，将格式化、链接、图片、表格、代码块和公式块的插入占位模板接入本地化资源。
 - 🧪[测试]-校验 JSON 资源、构建 `Vex.slnx`、执行 `git diff --check`、检索旧硬编码模板，并完成启动截图。
+- 🔧[优化]-新增 Prism AutoWire 的 `MarkdownEditorViewModel`，移除 `MarkdownEditorView.axaml.cs` 对 `MainWindowViewModel` 和 `ContainerLocator` 的直接依赖。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认编辑器仍能同步初始文档。
