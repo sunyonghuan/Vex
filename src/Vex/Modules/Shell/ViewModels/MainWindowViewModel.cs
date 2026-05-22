@@ -44,6 +44,8 @@ public sealed class MainWindowViewModel : ReactiveObject
     private bool _isReplaceVisible;
     private bool _isStatisticsPanelVisible;
     private bool _isAboutPanelVisible;
+    private bool _isDeleteConfirmVisible;
+    private string? _pendingDeletePath;
     private string _searchText = string.Empty;
     private string _replacementText = string.Empty;
     private double _editorZoom = 1.0;
@@ -298,6 +300,18 @@ public sealed class MainWindowViewModel : ReactiveObject
         set => SetProperty(ref _isAboutPanelVisible, value);
     }
 
+    public bool IsDeleteConfirmVisible
+    {
+        get => _isDeleteConfirmVisible;
+        set => SetProperty(ref _isDeleteConfirmVisible, value);
+    }
+
+    public string DeleteConfirmText => _pendingDeletePath is { Length: > 0 }
+        ? $"Delete {Path.GetFileName(_pendingDeletePath)}?"
+        : "Delete current file?";
+
+    public string DeleteConfirmPath => _pendingDeletePath ?? string.Empty;
+
     public double EditorZoom
     {
         get => _editorZoom;
@@ -518,17 +532,45 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
-    public async Task DeleteAsync()
+    public Task DeleteAsync()
     {
         if (CurrentFilePath is not { Length: > 0 } path)
         {
+            return Task.CompletedTask;
+        }
+
+        _pendingDeletePath = path;
+        OnPropertyChanged(nameof(DeleteConfirmText));
+        OnPropertyChanged(nameof(DeleteConfirmPath));
+        IsDeleteConfirmVisible = true;
+        return Task.CompletedTask;
+    }
+
+    public async Task ConfirmDeleteAsync()
+    {
+        if (_pendingDeletePath is not { Length: > 0 } path)
+        {
+            IsDeleteConfirmVisible = false;
             return;
         }
 
         await _documentService.DeleteAsync(path);
         RemoveRecentDocument(path);
+        IsDeleteConfirmVisible = false;
+        _pendingDeletePath = null;
+        OnPropertyChanged(nameof(DeleteConfirmText));
+        OnPropertyChanged(nameof(DeleteConfirmPath));
         NewDocument();
         SetStatus("File deleted.");
+    }
+
+    public void CancelDelete()
+    {
+        _pendingDeletePath = null;
+        OnPropertyChanged(nameof(DeleteConfirmText));
+        OnPropertyChanged(nameof(DeleteConfirmPath));
+        IsDeleteConfirmVisible = false;
+        SetStatus("Delete canceled.");
     }
 
     public async Task OpenFileLocationAsync()

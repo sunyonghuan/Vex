@@ -24,6 +24,7 @@
 - Added a floating word-count panel with word, character, line, encoding, and saved-state details.
 - Added an about panel with Vex, its Chinese name, author, CodeWF, and official website details.
 - Added print preview by generating temporary HTML and opening it with the system browser.
+- Added a delete confirmation overlay that warns about permanent deletion and shows the target file path.
 
 ### Changed
 
@@ -49,3 +50,4 @@
 - Built `Vex.slnx` to verify the word-count panel.
 - Built `Vex.slnx` to verify the about panel.
 - Built `Vex.slnx` to verify the print-preview path.
+- Built `Vex.slnx` to verify the delete confirmation overlay.

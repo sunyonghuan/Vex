@@ -46,6 +46,8 @@
 - 验证 `dotnet build Vex.slnx`。
 - 打印入口改为生成临时 HTML 打印预览文件，并通过系统默认浏览器打开，为后续原生打印对话框预留扩展点。
 - 验证 `dotnet build Vex.slnx`。
+- 删除文件前增加确认浮层，明确提示永久删除并展示目标文件路径。
+- 验证 `dotnet build Vex.slnx`。
 
 ### en-US
 
@@ -90,4 +92,6 @@
 - Added an about panel with Vex, Chinese name, author, CodeWF, and `https://codewf.com` details.
 - Verified `dotnet build Vex.slnx`.
 - Updated print to generate a temporary HTML print-preview file and open it through the system browser, leaving room for a native print dialog later.
+- Verified `dotnet build Vex.slnx`.
+- Added a delete confirmation overlay that warns about permanent deletion and shows the target file path.
 - Verified `dotnet build Vex.slnx`.
