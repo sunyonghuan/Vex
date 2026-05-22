@@ -159,3 +159,5 @@
 - Validated JSON resources, built `Vex.slnx`, ran `git diff --check`, searched for hard-coded `Ready`, and captured a startup screenshot showing the localized status text.
 - Extracted startup, drag/drop, and recent-file path classification into `ShellExternalPathResolver`, keeping file-system checks out of `MainWindowViewModel`.
 - Built `Vex.slnx`, ran `git diff --check`, and captured a startup-argument screenshot confirming a Markdown file opens through the resolver.
+- Split editor action execution into `MarkdownEditorActionService`, reducing `MarkdownEditorController.cs` from 298 to 166 lines.
+- Built `Vex.slnx`, ran `git diff --check`, and captured a startup screenshot confirming the editor and preview still render.

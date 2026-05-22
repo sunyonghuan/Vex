@@ -71,6 +71,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IWorkspaceDocumentState, WorkspaceDocumentState>();
         containerRegistry.RegisterSingleton<IMarkdownExportService, MarkdownExportService>();
         containerRegistry.RegisterSingleton<IMarkdownEditorMutationService, MarkdownEditorMutationService>();
+        containerRegistry.RegisterSingleton<IMarkdownEditorActionService, MarkdownEditorActionService>();
         containerRegistry.RegisterSingleton<IMarkdownEditorSearchService, MarkdownEditorSearchService>();
         containerRegistry.RegisterSingleton<IMarkdownEditorController, MarkdownEditorController>();
         containerRegistry.RegisterSingleton<IMarkdownOutlineService, MarkdownOutlineService>();

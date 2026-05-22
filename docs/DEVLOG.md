@@ -212,6 +212,11 @@
 - `MainWindowViewModel.cs` 本轮保持 496 行，仍低于 500 行检查线。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并用临时 Markdown 文件作为启动参数启动 Debug 桌面程序，截图确认文件标题、编辑器、预览和状态栏都正确更新。截图路径：`%TEMP%\VexScreenshots\external-path-resolver-startup-file.png`。
 - 本轮未新增第三方依赖。
+- 新增 `IMarkdownEditorActionService`/`MarkdownEditorActionService`，将撤销、重做、剪切、粘贴、格式化、段落前缀、列表、表格、代码块等编辑动作映射从 `MarkdownEditorController` 抽离。
+- `MarkdownEditorController.cs` 从 298 行降到 166 行，控制器继续负责编辑器生命周期、文本同步、EventBus 入口、搜索和跳转。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并启动 Debug 桌面程序使用窗口句柄截图确认编辑器、预览和状态栏仍正常渲染。截图路径：`%TEMP%\VexScreenshots\editor-action-service-startup.png`。
+- 本轮未做编辑动作交互截图，动作路径由编译、IoC 注册和保留的 `EditorActionCommand` 入口覆盖，后续可补自动化 UI 用例。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -509,4 +514,9 @@
 - `MainWindowViewModel` no longer calls `File.Exists`, `Directory.Exists`, or `IDocumentService.IsSupportedDocumentPath` for path classification; file-system checks now sit in a Shell service.
 - `MainWindowViewModel.cs` remains at 496 lines, still below the 500-line check threshold.
 - Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a temporary Markdown file as the startup argument; the screenshot confirms the file title, editor, preview, and status bar all update. Screenshot path: `%TEMP%\VexScreenshots\external-path-resolver-startup-file.png`.
+- Added no new third-party dependency.
+- Added `IMarkdownEditorActionService`/`MarkdownEditorActionService`, moving undo, redo, cut, paste, formatting, paragraph prefixes, lists, tables, and code-block action mapping out of `MarkdownEditorController`.
+- Reduced `MarkdownEditorController.cs` from 298 lines to 166 lines; the controller keeps editor lifetime, text sync, EventBus entry points, search, and navigation.
+- Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window-handle screenshot confirming the editor, preview, and status bar still render. Screenshot path: `%TEMP%\VexScreenshots\editor-action-service-startup.png`.
+- This iteration does not claim an interactive editor-action screenshot; the action path is covered by compilation, IoC registration, and the retained `EditorActionCommand` entry point. UI automation can be added later.
 - Added no new third-party dependency.

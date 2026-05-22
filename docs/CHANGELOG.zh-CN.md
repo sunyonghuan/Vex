@@ -167,3 +167,5 @@
 - 🧪[测试]-校验 JSON 资源、构建 `Vex.slnx`、执行 `git diff --check`、检索硬编码 `Ready`，并截图确认启动状态文案已本地化。
 - 🔧[优化]-将启动参数、拖放和最近文件路径分类拆入 `ShellExternalPathResolver`，文件系统检查不再散落在 `MainWindowViewModel`。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并用启动参数截图确认 Markdown 文件可通过解析服务直接打开。
+- 🔧[优化]-将编辑器动作执行拆入 `MarkdownEditorActionService`，`MarkdownEditorController.cs` 从 298 行降到 166 行。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认编辑器和预览仍正常渲染。
