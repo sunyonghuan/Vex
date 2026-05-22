@@ -134,6 +134,13 @@
 - 在 View 与控制器中补充中文维护注释，说明按键处理只发布编辑动作、缩进文本边界集中在 Workspace 控制器维护。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并截图确认 Tab 后目标行被缩进、预览按 Markdown 代码块渲染、状态栏进入 Modified。截图路径：`%TEMP%\VexScreenshots\editor-tab-indent.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 接入 Vex 应用级 i18n/l10n 基础：沿用 CodeWF.Markdown 的 `Lang.Avalonia.Json`、`I18n/*.json` 与强类型资源 key 类方式，新增 `VexL` 和 `I18n\Language.tt`，资源复制到输出目录 `I18n\Vex`。
+- 将标题栏菜单拆分为独立 `ShellTitleMenuView` 与 `ShellTitleMenuViewModel`，并通过 Prism `ViewModelLocator.AutoWireViewModel=True` 自动解析 ViewModel；菜单不再继承主窗口 DataContext。
+- 新增 `ShellActionCommand`/`ShellActionKind` 与 `ShellActionCoordinator`，标题栏菜单只通过 CodeWF.EventBus 发布文件类用户动作，协调器再转回主 Shell 的未保存确认、最近文件打开、编码重开、导出和打印等流程。
+- 主窗口、查找栏、状态栏和文档展示状态首批文案改为 `{I18n}` 绑定或 `I18nManager.GetResource`，语言切换时 `ShellDocumentInfoViewModel` 会主动刷新保存状态、统计文本和未保存路径文案。
+- 在标题栏菜单 ViewModel 与文档展示状态 ViewModel 中补充中文维护注释，说明菜单事件边界和语言切换派生文案刷新点。
+- 验证 `dotnet build Vex.slnx`，并分别截图确认默认中文与 `en-US` 下标题栏菜单、侧栏、状态栏标签和保存状态本地化显示正常。截图路径：`%TEMP%\VexScreenshots\i18n-title-menu.png`、`%TEMP%\VexScreenshots\i18n-title-menu-en.png`。
+- 本轮未新增第三方依赖，复用已有自研 `Lang.Avalonia.Json`，无需额外许可证核查。
 
 ### en-US
 
@@ -293,3 +300,9 @@
 - Indent inserts four spaces when there is no selection and prefixes selected lines; outdent removes one tab or up to four leading spaces per selected line.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming Tab indents the target line and updates the document state. Screenshot path: `%TEMP%\VexScreenshots\editor-tab-indent.png`.
 - Added no new third-party dependency, so no additional license review was required.
+- Added Vex application i18n/l10n groundwork using the same `Lang.Avalonia.Json`, `I18n/*.json`, and strongly typed key pattern as CodeWF.Markdown. Added `VexL` and `I18n\Language.tt`, with JSON resources copied to `I18n\Vex`.
+- Split the title-bar menu into `ShellTitleMenuView` and `ShellTitleMenuViewModel`, with Prism `ViewModelLocator.AutoWireViewModel=True` resolving the menu ViewModel instead of inheriting the main-window DataContext.
+- Added `ShellActionCommand`/`ShellActionKind` plus `ShellActionCoordinator` so the title menu publishes file-level user intent through CodeWF.EventBus before the coordinator routes it back to the main shell's unsaved prompt, recent file, encoding reopen, export, and print flows.
+- Moved the first main-window, find-bar, status-bar, and document-display strings to `{I18n}` bindings or `I18nManager.GetResource`; `ShellDocumentInfoViewModel` now refreshes derived localized strings on culture changes.
+- Verified `dotnet build Vex.slnx`, and captured screenshots confirming the localized title menu, sidebar, status badges, and saved-state text in default Chinese and `en-US`. Screenshot paths: `%TEMP%\VexScreenshots\i18n-title-menu.png`, `%TEMP%\VexScreenshots\i18n-title-menu-en.png`.
+- Added no new third-party dependency, reusing the existing first-party `Lang.Avalonia.Json` dependency.

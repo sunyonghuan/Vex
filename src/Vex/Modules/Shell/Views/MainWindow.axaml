@@ -2,7 +2,8 @@
     x:Class="Vex.Modules.Shell.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:core="using:Vex.Core.Messaging"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
     xmlns:md="https://codewf.com"
     xmlns:models="using:Vex.Core.Models"
     xmlns:shell="using:Vex.Modules.Shell.Views"
@@ -74,146 +75,7 @@
                         VerticalAlignment="Center" />
                 </StackPanel>
 
-                <Menu
-                    Grid.Column="1"
-                    Classes="title-menu"
-                    VerticalAlignment="Center">
-                    <MenuItem Header="文件(F)">
-                        <MenuItem Header="新建" Command="{Binding NewDocument}" InputGesture="Ctrl+N" />
-                        <MenuItem Header="新建窗口" Command="{Binding NewWindow}" />
-                        <Separator />
-                        <MenuItem Header="打开..." Command="{Binding OpenAsync}" InputGesture="Ctrl+O" />
-                        <MenuItem Header="打开文件夹..." Command="{Binding OpenFolderAsync}" />
-                        <MenuItem Header="快速打开..." Command="{Binding QuickOpenAsync}" />
-                        <MenuItem Header="打开最近文件" IsEnabled="{Binding Recent.HasRecentDocuments}">
-                            <MenuItem Header="{Binding Recent.RecentDocument1Text}" Command="{Binding OpenRecentDocument1Async}" IsVisible="{Binding Recent.HasRecentDocument1}" />
-                            <MenuItem Header="{Binding Recent.RecentDocument2Text}" Command="{Binding OpenRecentDocument2Async}" IsVisible="{Binding Recent.HasRecentDocument2}" />
-                            <MenuItem Header="{Binding Recent.RecentDocument3Text}" Command="{Binding OpenRecentDocument3Async}" IsVisible="{Binding Recent.HasRecentDocument3}" />
-                            <MenuItem Header="{Binding Recent.RecentDocument4Text}" Command="{Binding OpenRecentDocument4Async}" IsVisible="{Binding Recent.HasRecentDocument4}" />
-                            <MenuItem Header="{Binding Recent.RecentDocument5Text}" Command="{Binding OpenRecentDocument5Async}" IsVisible="{Binding Recent.HasRecentDocument5}" />
-                            <Separator />
-                            <MenuItem Header="清空最近文件" Command="{Binding Recent.ClearRecentDocuments}" />
-                        </MenuItem>
-                        <MenuItem Header="选择编码重新打开">
-                            <MenuItem Header="UTF-8" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="utf-8" />
-                            <MenuItem Header="UTF-8 BOM" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="utf-8-bom" />
-                            <MenuItem Header="GB18030" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="GB18030" />
-                            <MenuItem Header="Big5" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="Big5" />
-                        </MenuItem>
-                        <Separator />
-                        <MenuItem Header="保存" Command="{Binding SaveAsync}" InputGesture="Ctrl+S" />
-                        <MenuItem Header="另存为..." Command="{Binding SaveAsAsync}" InputGesture="Ctrl+Shift+S" />
-                        <MenuItem Header="保存全部打开的文件..." Command="{Binding SaveAllAsync}" />
-                        <Separator />
-                        <MenuItem Header="属性..." Command="{Binding ShowProperties}" InputGesture="Alt+Enter" />
-                        <MenuItem Header="打开文件位置..." Command="{Binding OpenFileLocationAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
-                        <MenuItem Header="删除..." Command="{Binding DeleteAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
-                        <Separator />
-                        <MenuItem Header="导出">
-                            <MenuItem Header="HTML" Command="{Binding Export}" CommandParameter="HTML" />
-                            <MenuItem Header="PDF" Command="{Binding Export}" CommandParameter="PDF" />
-                            <MenuItem Header="PNG" Command="{Binding Export}" CommandParameter="PNG" />
-                        </MenuItem>
-                        <MenuItem Header="打印..." Command="{Binding Print}" InputGesture="Ctrl+P" />
-                        <Separator />
-                        <MenuItem Header="关闭" Command="{Binding CloseDocument}" InputGesture="Ctrl+W" />
-                    </MenuItem>
-
-                    <MenuItem Header="编辑(E)">
-                        <MenuItem Header="撤销" Command="{Binding EditorActions.Undo}" InputGesture="Ctrl+Z" />
-                        <MenuItem Header="重做" Command="{Binding EditorActions.Redo}" InputGesture="Ctrl+Y" />
-                        <Separator />
-                        <MenuItem Header="剪切" Command="{Binding EditorActions.Cut}" InputGesture="Ctrl+X" />
-                        <MenuItem Header="复制" Command="{Binding EditorActions.Copy}" InputGesture="Ctrl+C" />
-                        <MenuItem Header="粘贴" Command="{Binding EditorActions.Paste}" InputGesture="Ctrl+V" />
-                        <MenuItem Header="全选" Command="{Binding EditorActions.SelectAll}" InputGesture="Ctrl+A" />
-                        <Separator />
-                        <MenuItem Header="查找..." Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
-                        <MenuItem Header="替换..." Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
-                    </MenuItem>
-
-                    <MenuItem Header="段落(P)">
-                        <MenuItem Header="段落" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Paragraph}" />
-                        <MenuItem Header="标题 1" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
-                        <MenuItem Header="标题 2" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading2}" />
-                        <MenuItem Header="标题 3" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading3}" />
-                        <MenuItem Header="标题 4" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading4}" />
-                        <MenuItem Header="标题 5" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading5}" />
-                        <MenuItem Header="标题 6" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading6}" />
-                        <Separator />
-                        <MenuItem Header="表格" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
-                        <MenuItem Header="代码块" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.CodeFence}" />
-                        <MenuItem Header="公式块" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.MathBlock}" />
-                        <MenuItem Header="引用" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
-                        <MenuItem Header="有序列表" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.OrderedList}" />
-                        <MenuItem Header="无序列表" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
-                        <MenuItem Header="任务列表" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
-                        <MenuItem Header="水平分割线" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.HorizontalRule}" />
-                    </MenuItem>
-
-                    <MenuItem Header="格式(O)">
-                        <MenuItem Header="加粗" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
-                        <MenuItem Header="斜体" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
-                        <MenuItem Header="代码" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
-                        <Separator />
-                        <MenuItem Header="链接" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
-                        <MenuItem Header="图像" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Image}" />
-                        <MenuItem Header="清除样式" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
-                    </MenuItem>
-
-                    <MenuItem Header="视图(V)">
-                        <MenuItem Header="显示 / 隐藏侧边栏" Command="{Binding Layout.ToggleSidebar}" />
-                        <MenuItem Header="大纲" Command="{Binding Layout.ShowOutline}" />
-                        <MenuItem Header="文档列表" Command="{Binding Layout.ShowFiles}" />
-                        <MenuItem Header="搜索" Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
-                        <Separator />
-                        <MenuItem Header="源代码模式" Command="{Binding Layout.ToggleSourceMode}" />
-                        <MenuItem Header="显示行号" Command="{Binding EditorDisplay.ToggleLineNumbers}" />
-                        <MenuItem Header="显示状态栏" Command="{Binding Layout.ToggleStatusBar}" />
-                        <MenuItem Header="字数统计窗口" Command="{Binding WordCount}" />
-                        <Separator />
-                        <MenuItem Header="切换全屏" Command="{Binding Layout.ToggleFullScreen}" InputGesture="F11" />
-                        <MenuItem Header="保持窗口在最前端" Command="{Binding Layout.ToggleAlwaysOnTop}" />
-                        <Separator />
-                        <MenuItem Header="实际大小" Command="{Binding EditorDisplay.ActualSize}" />
-                        <MenuItem Header="放大" Command="{Binding EditorDisplay.ZoomIn}" />
-                        <MenuItem Header="缩小" Command="{Binding EditorDisplay.ZoomOut}" />
-                    </MenuItem>
-
-                    <MenuItem Header="主题(T)">
-                        <MenuItem Header="主题色">
-                            <MenuItem Header="Light" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="light" />
-                            <MenuItem Header="Dark" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dark" />
-                            <MenuItem Header="System" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="system" />
-                        </MenuItem>
-                        <MenuItem Header="排版">
-                            <MenuItem Header="简洁" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Simple" />
-                            <MenuItem Header="Basic" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Basic" />
-                            <MenuItem Header="橙心" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="OrangeHeart" />
-                            <MenuItem Header="墨黑" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="InkBlack" />
-                            <MenuItem Header="科技蓝" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="TechnologyBlue" />
-                            <Separator />
-                            <MenuItem Header="紧凑布局" Command="{Binding Appearance.ToggleCompactLayout}" />
-                        </MenuItem>
-                    </MenuItem>
-
-                    <MenuItem Header="国际化(L)">
-                        <MenuItem Header="简体中文" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-CN" />
-                        <MenuItem Header="繁體中文" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-Hant" />
-                        <MenuItem Header="English" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="en-US" />
-                        <MenuItem Header="日本語" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="ja-JP" />
-                    </MenuItem>
-
-                    <MenuItem Header="帮助(H)">
-                        <MenuItem Header="更新日志" Command="{Binding Help.OpenHelpTopic}" CommandParameter="changelog" />
-                        <MenuItem Header="快速开始（引导）" Command="{Binding Help.OpenHelpTopic}" CommandParameter="quick-start" />
-                        <MenuItem Header="鸣谢" Command="{Binding Help.OpenHelpTopic}" CommandParameter="thanks" />
-                        <Separator />
-                        <MenuItem Header="官方网站" Command="{Binding Help.OpenHelpTopic}" CommandParameter="website" />
-                        <MenuItem Header="反馈" Command="{Binding Help.OpenHelpTopic}" CommandParameter="feedback" />
-                        <MenuItem Header="关于" Command="{Binding Help.OpenHelpTopic}" CommandParameter="about" />
-                    </MenuItem>
-                </Menu>
+                <shell:ShellTitleMenuView Grid.Column="1" />
 
                 <TextBlock
                     Grid.Column="2"
@@ -245,7 +107,7 @@
 
             <Border Grid.Column="0" Classes="panel" IsVisible="{Binding Layout.IsSidebarVisible}">
                 <TabControl SelectedIndex="{Binding Navigation.SelectedSideTabIndex, Mode=TwoWay}">
-                    <TabItem Header="文件">
+                    <TabItem Header="{i18n:I18n {x:Static l:VexL.SidebarFiles}}">
                         <Grid>
                             <ListBox
                                 Classes="side-list"
@@ -258,12 +120,12 @@
                                 VerticalAlignment="Top">
                                 <TextBlock
                                     Classes="muted"
-                                    Text="No files"
+                                    Text="{i18n:I18n {x:Static l:VexL.EmptyNoFiles}}"
                                     TextAlignment="Center" />
                             </Border>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="大纲">
+                    <TabItem Header="{i18n:I18n {x:Static l:VexL.SidebarOutline}}">
                         <Grid>
                             <ListBox
                                 Classes="side-list"
@@ -276,7 +138,7 @@
                                 VerticalAlignment="Top">
                                 <TextBlock
                                     Classes="muted"
-                                    Text="No headings"
+                                    Text="{i18n:I18n {x:Static l:VexL.EmptyNoHeadings}}"
                                     TextAlignment="Center" />
                             </Border>
                         </Grid>
@@ -332,13 +194,13 @@
                     Orientation="Horizontal"
                     Spacing="8"
                     VerticalAlignment="Center">
-                    <md:VexStatusBadge Label="State" Value="{Binding DocumentInfo.DocumentStateText}" />
-                    <md:VexStatusBadge Label="Encoding" Value="{Binding DocumentInfo.CurrentEncodingText}" />
+                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusState}}" Value="{Binding DocumentInfo.DocumentStateText}" />
+                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" Value="{Binding DocumentInfo.CurrentEncodingText}" />
                     <TextBlock Classes="muted" Text="{Binding EditorDisplay.ZoomText}" VerticalAlignment="Center" />
-                    <md:VexStatusBadge Label="Line" Value="{Binding Status.CaretLine}" />
-                    <md:VexStatusBadge Label="Col" Value="{Binding Status.CaretColumn}" />
-                    <md:VexStatusBadge Label="Words" Value="{Binding DocumentInfo.Statistics.Words}" />
-                    <md:VexStatusBadge Label="Chars" Value="{Binding DocumentInfo.Statistics.Characters}" />
+                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusLine}}" Value="{Binding Status.CaretLine}" />
+                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusColumn}}" Value="{Binding Status.CaretColumn}" />
+                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusWords}}" Value="{Binding DocumentInfo.Statistics.Words}" />
+                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusCharacters}}" Value="{Binding DocumentInfo.Statistics.Characters}" />
                 </StackPanel>
             </Grid>
         </Border>

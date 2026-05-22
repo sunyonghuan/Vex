@@ -102,7 +102,9 @@ public sealed class ShellAppearanceViewModel : ReactiveObject
             if (SetProperty(ref _selectedLanguage, value) && value is not null)
             {
                 I18nManager.Instance.Culture = new CultureInfo(value.CultureName);
-                SetStatus($"Language switched to {value.DisplayName}.");
+                SetStatus(string.Format(
+                    I18nManager.Instance.GetResource(VexL.StatusLanguageSwitched),
+                    value.DisplayName));
             }
         }
     }

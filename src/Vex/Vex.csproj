@@ -67,6 +67,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="I18n\Language.cs">
+      <DependentUpon>Language.tt</DependentUpon>
+    </Compile>
+    <None Update="I18n\Language.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Language.cs</LastGenOutput>
+    </None>
     <None Update="I18n\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>I18n\Vex\%(Filename)%(Extension)</TargetPath>

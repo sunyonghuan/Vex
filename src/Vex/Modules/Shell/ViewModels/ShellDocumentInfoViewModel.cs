@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text;
+using Lang.Avalonia;
 using ReactiveUI;
 using Vex.Core.Models;
 
@@ -13,6 +14,11 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
     private string _lastSavedMarkdown = string.Empty;
     private MarkdownStatistics _statistics = new(0, 0, 1);
 
+    public ShellDocumentInfoViewModel()
+    {
+        I18nManager.Instance.CultureChanged += OnCultureChanged;
+    }
+
     public string WindowTitle => $"{(IsModified ? "*" : string.Empty)}{_document.FileName} - Vex";
 
     public string CurrentDocumentTitle => $"{(IsModified ? "*" : string.Empty)}{_document.FileName}";
@@ -23,7 +29,9 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
 
     public bool IsModified => !string.Equals(_markdown, _lastSavedMarkdown, StringComparison.Ordinal);
 
-    public string DocumentStateText => IsModified ? "Modified" : "Saved";
+    public string DocumentStateText => IsModified
+        ? I18nManager.Instance.GetResource(VexL.DocumentStateModified)
+        : I18nManager.Instance.GetResource(VexL.DocumentStateSaved);
 
     public string CurrentEncodingText => GetEncodingDisplayName(_document.Encoding);
 
@@ -41,15 +49,21 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
         }
     }
 
-    public string WordCountText => $"{Statistics.Words} words";
+    public string WordCountText => string.Format(
+        I18nManager.Instance.GetResource(VexL.WordCountFormat),
+        Statistics.Words);
 
-    public string CharacterCountText => $"{Statistics.Characters} chars";
+    public string CharacterCountText => string.Format(
+        I18nManager.Instance.GetResource(VexL.CharacterCountFormat),
+        Statistics.Characters);
 
-    public string LineCountText => $"{Statistics.Lines} lines";
+    public string LineCountText => string.Format(
+        I18nManager.Instance.GetResource(VexL.LineCountFormat),
+        Statistics.Lines);
 
     public string PropertyNameText => _document.FileName;
 
-    public string PropertyLocationText => CurrentFilePath ?? "Unsaved document";
+    public string PropertyLocationText => CurrentFilePath ?? I18nManager.Instance.GetResource(VexL.UnsavedDocument);
 
     public string PropertySizeText => CurrentFilePath is { Length: > 0 } path && File.Exists(path)
         ? FormatFileSize(new FileInfo(path).Length)
@@ -76,6 +90,16 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
         OnPropertyChanged(nameof(PropertyNameText));
         OnPropertyChanged(nameof(PropertyLocationText));
         OnPropertyChanged(nameof(PropertySizeText));
+    }
+
+    private void OnCultureChanged(object? sender, EventArgs e)
+    {
+        // 这些字段是从当前文档派生出来的展示文案，语言切换时必须主动通知绑定刷新。
+        OnPropertyChanged(nameof(DocumentStateText));
+        OnPropertyChanged(nameof(WordCountText));
+        OnPropertyChanged(nameof(CharacterCountText));
+        OnPropertyChanged(nameof(LineCountText));
+        OnPropertyChanged(nameof(PropertyLocationText));
     }
 
     private static string FormatFileSize(long bytes)

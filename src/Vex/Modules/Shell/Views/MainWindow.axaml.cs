@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Vex.Modules.Shell.Services;
 using Vex.Modules.Shell.ViewModels;
 
 namespace Vex.Modules.Shell.Views;
@@ -21,9 +22,11 @@ public partial class MainWindow : Window
         Closing += WindowClosing;
     }
 
-    public MainWindow(MainWindowViewModel viewModel)
+    public MainWindow(MainWindowViewModel viewModel, ShellActionCoordinator actionCoordinator)
         : this()
     {
+        // 强制解析 ShellActionCoordinator，使标题栏菜单的 EventBus 动作路由在窗口创建时完成订阅。
+        _ = actionCoordinator;
         DataContext = viewModel;
         viewModel.Layout.PropertyChanged += OnLayoutPropertyChanged;
         viewModel.CloseWindowRequested += OnCloseWindowRequested;

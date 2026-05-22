@@ -1,0 +1,150 @@
+<UserControl
+    x:Class="Vex.Modules.Shell.Views.ShellTitleMenuView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="using:Vex.Core.Messaging"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellTitleMenuViewModel"
+    prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <Menu Classes="title-menu" VerticalAlignment="Center">
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuFile}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.NewDocument}}" Command="{Binding NewDocument}" InputGesture="Ctrl+N" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.NewWindow}}" Command="{Binding NewWindow}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenFile}}" Command="{Binding OpenAsync}" InputGesture="Ctrl+O" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenFolder}}" Command="{Binding OpenFolderAsync}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.QuickOpen}}" Command="{Binding QuickOpenAsync}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenRecent}}" IsEnabled="{Binding Recent.HasRecentDocuments}">
+                <MenuItem Header="{Binding Recent.RecentDocument1Text}" Command="{Binding OpenRecentDocument1Async}" IsVisible="{Binding Recent.HasRecentDocument1}" />
+                <MenuItem Header="{Binding Recent.RecentDocument2Text}" Command="{Binding OpenRecentDocument2Async}" IsVisible="{Binding Recent.HasRecentDocument2}" />
+                <MenuItem Header="{Binding Recent.RecentDocument3Text}" Command="{Binding OpenRecentDocument3Async}" IsVisible="{Binding Recent.HasRecentDocument3}" />
+                <MenuItem Header="{Binding Recent.RecentDocument4Text}" Command="{Binding OpenRecentDocument4Async}" IsVisible="{Binding Recent.HasRecentDocument4}" />
+                <MenuItem Header="{Binding Recent.RecentDocument5Text}" Command="{Binding OpenRecentDocument5Async}" IsVisible="{Binding Recent.HasRecentDocument5}" />
+                <Separator />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.ClearRecent}}" Command="{Binding Recent.ClearRecentDocuments}" />
+            </MenuItem>
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ReopenWithEncoding}}">
+                <MenuItem Header="UTF-8" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="utf-8" />
+                <MenuItem Header="UTF-8 BOM" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="utf-8-bom" />
+                <MenuItem Header="GB18030" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="GB18030" />
+                <MenuItem Header="Big5" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="Big5" />
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Save}}" Command="{Binding SaveAsync}" InputGesture="Ctrl+S" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.SaveAs}}" Command="{Binding SaveAsAsync}" InputGesture="Ctrl+Shift+S" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.SaveAll}}" Command="{Binding SaveAllAsync}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Properties}}" Command="{Binding ShowProperties}" InputGesture="Alt+Enter" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenFileLocation}}" Command="{Binding OpenFileLocationAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Delete}}" Command="{Binding DeleteAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Export}}">
+                <MenuItem Header="HTML" Command="{Binding Export}" CommandParameter="HTML" />
+                <MenuItem Header="PDF" Command="{Binding Export}" CommandParameter="PDF" />
+                <MenuItem Header="PNG" Command="{Binding Export}" CommandParameter="PNG" />
+            </MenuItem>
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Print}}" Command="{Binding Print}" InputGesture="Ctrl+P" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Close}}" Command="{Binding CloseDocument}" InputGesture="Ctrl+W" />
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuEdit}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Undo}}" Command="{Binding EditorActions.Undo}" InputGesture="Ctrl+Z" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Redo}}" Command="{Binding EditorActions.Redo}" InputGesture="Ctrl+Y" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Cut}}" Command="{Binding EditorActions.Cut}" InputGesture="Ctrl+X" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Copy}}" Command="{Binding EditorActions.Copy}" InputGesture="Ctrl+C" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Paste}}" Command="{Binding EditorActions.Paste}" InputGesture="Ctrl+V" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.SelectAll}}" Command="{Binding EditorActions.SelectAll}" InputGesture="Ctrl+A" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Find}}" Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Replace}}" Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuParagraph}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Paragraph}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Paragraph}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading1}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading2}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading2}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading3}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading3}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading4}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading4}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading5}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading5}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading6}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading6}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Table}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.CodeBlock}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.CodeFence}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.MathBlock}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.MathBlock}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Quote}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.OrderedList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.OrderedList}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.UnorderedList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.TaskList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.HorizontalRule}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.HorizontalRule}" />
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuFormat}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Bold}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Italic}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.InlineCode}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Link}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Image}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Image}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ClearFormatting}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuView}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ToggleSidebar}}" Command="{Binding Layout.ToggleSidebar}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Outline}}" Command="{Binding Layout.ShowOutline}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.DocumentList}}" Command="{Binding Layout.ShowFiles}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Search}}" Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.SourceMode}}" Command="{Binding Layout.ToggleSourceMode}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ShowLineNumbers}}" Command="{Binding EditorDisplay.ToggleLineNumbers}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ShowStatusBar}}" Command="{Binding Layout.ToggleStatusBar}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.WordCount}}" Command="{Binding WordCount}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ToggleFullScreen}}" Command="{Binding Layout.ToggleFullScreen}" InputGesture="F11" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.AlwaysOnTop}}" Command="{Binding Layout.ToggleAlwaysOnTop}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ActualSize}}" Command="{Binding EditorDisplay.ActualSize}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ZoomIn}}" Command="{Binding EditorDisplay.ZoomIn}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ZoomOut}}" Command="{Binding EditorDisplay.ZoomOut}" />
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuTheme}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeColor}}">
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeLight}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="light" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDark}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dark" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeSystem}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="system" />
+            </MenuItem>
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Typography}}">
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographySimple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Simple" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyBasic}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Basic" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyOrangeHeart}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="OrangeHeart" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyInkBlack}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="InkBlack" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyTechnologyBlue}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="TechnologyBlue" />
+                <Separator />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.CompactLayout}}" Command="{Binding Appearance.ToggleCompactLayout}" />
+            </MenuItem>
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuLanguage}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageZhCn}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-CN" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageZhHant}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-Hant" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageEnUs}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="en-US" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageJaJp}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="ja-JP" />
+        </MenuItem>
+
+        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuHelp}}">
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Changelog}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="changelog" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.QuickStart}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="quick-start" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Thanks}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="thanks" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Website}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="website" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Feedback}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="feedback" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.About}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="about" />
+        </MenuItem>
+    </Menu>
+</UserControl>

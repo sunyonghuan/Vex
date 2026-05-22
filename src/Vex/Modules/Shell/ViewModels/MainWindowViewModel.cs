@@ -515,7 +515,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
     }
 
-    private async Task OpenRecentDocumentAsync(int index)
+    public async Task OpenRecentDocumentAsync(int index)
     {
         if (!Recent.TryGetDocument(index, out var recent) || recent is null)
         {

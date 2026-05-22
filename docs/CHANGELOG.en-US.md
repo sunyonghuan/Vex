@@ -56,6 +56,8 @@
 - Clarified Save All so it saves the current document in the current single-document stage and reports that multi-document save is not available yet.
 - Added `.mdown` support for folder scanning and dropped/startup path validation.
 - Added editor Tab and Shift+Tab indentation actions, including selected-line indentation and outdent.
+- Added `Vex.VexL` JSON localization resources for the first title-menu, sidebar, find-bar, and status-bar strings.
+- Split the title-bar menu into `ShellTitleMenuView` and `ShellTitleMenuViewModel`, using Prism AutoWireViewModel and CodeWF.EventBus to decouple it from the main window.
 
 ### Changed
 
@@ -110,3 +112,4 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the Save All status feedback.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified opening a temporary `.mdown` file through startup arguments.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified Tab indentation in the editor and preview.
+- Built `Vex.slnx` and screenshot-verified the localized title menu, sidebar, and status bar in default Chinese and `en-US`.

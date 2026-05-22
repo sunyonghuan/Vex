@@ -13,6 +13,7 @@ using Vex.Modules.Appearance.Services;
 using Vex.Modules.Help;
 using Vex.Modules.Help.Services;
 using Vex.Modules.Shell;
+using Vex.Modules.Shell.Services;
 using Vex.Modules.Shell.ViewModels;
 using Vex.Modules.Shell.Views;
 using Vex.Modules.Workspace;
@@ -70,7 +71,9 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<ShellNavigationViewModel>();
         containerRegistry.RegisterSingleton<ShellRecentDocumentsViewModel>();
         containerRegistry.RegisterSingleton<ShellStatusViewModel>();
+        containerRegistry.RegisterSingleton<ShellTitleMenuViewModel>();
         containerRegistry.RegisterSingleton<ShellWindowLayoutViewModel>();
+        containerRegistry.RegisterSingleton<ShellActionCoordinator>();
         containerRegistry.RegisterSingleton<MainWindowViewModel>();
         containerRegistry.Register<MainWindow>();
     }

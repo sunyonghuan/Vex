@@ -22,6 +22,8 @@
 - [优化] “保存全部打开的文件”改为独立当前文档保存流程，并明确提示多文档保存尚不可用。
 - [新增] 文件夹扫描、拖放和启动路径打开补齐 `.mdown` 文档扩展支持。
 - [新增] 编辑器支持 Tab/Shift+Tab 缩进与反缩进，选区会按行批量处理。
+- [新增] 接入 `Vex.VexL` JSON 本地化资源，标题栏菜单、侧栏、查找栏和状态栏首批文案支持运行时语言切换。
+- [优化] 标题栏菜单拆分为独立 `ShellTitleMenuView` 与 `ShellTitleMenuViewModel`，通过 Prism AutoWireViewModel 和 CodeWF.EventBus 降低主窗口耦合。
 
 - 创建 Vex（维刻）Markdown 编辑器基础版本。
 - 完善作者、码坊 CodeWF 与官方网站信息。
@@ -68,6 +70,8 @@
 - 🔧[优化]-PDF/PNG 等未实现导出格式的状态栏提示改为明确的 `not implemented yet`。
 - 🔧[优化]-`DocumentService` 抽出文档扩展名判断，确保文件夹扫描与文件选择器支持范围一致。
 - 🔧[优化]-Tab 键处理通过 CodeWF.EventBus 转为编辑器动作，文本修改仍集中在 Workspace 控制器。
+- 🔧[优化]-本地化资源沿用 CodeWF.Markdown 的 JSON + 强类型 key 类组织方式，`I18n\Language.tt` 可辅助后续维护资源 key。
+- 🔧[优化]-文件类菜单动作改为由标题栏菜单 ViewModel 发布 `ShellActionCommand`，主 Shell 仍统一处理未保存确认和文件 I/O。
 
 ### 优化
 
@@ -115,3 +119,4 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证保存全部当前阶段的状态栏提示不误导。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证 `.mdown` 文件可通过启动参数正常打开。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证 Tab 缩进后编辑区和预览区同步更新。
+- 🧪[测试]-构建 `Vex.slnx`，并分别截图验证默认中文与 `en-US` 下标题栏菜单、侧栏和状态栏本地化显示正常。
