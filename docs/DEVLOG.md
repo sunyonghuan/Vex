@@ -48,6 +48,8 @@
 - 验证 `dotnet build Vex.slnx`。
 - 删除文件前增加确认浮层，明确提示永久删除并展示目标文件路径。
 - 验证 `dotnet build Vex.slnx`。
+- 为常用文件操作、全屏和缩放补充菜单快捷键提示，并在窗口级处理 `Ctrl+N/O/S/Shift+S/P/W`、`F11`、`Ctrl+加减号/0`。
+- 验证 `dotnet build Vex.slnx`。
 
 ### en-US
 
@@ -94,4 +96,6 @@
 - Updated print to generate a temporary HTML print-preview file and open it through the system browser, leaving room for a native print dialog later.
 - Verified `dotnet build Vex.slnx`.
 - Added a delete confirmation overlay that warns about permanent deletion and shows the target file path.
+- Verified `dotnet build Vex.slnx`.
+- Added menu shortcut hints and window-level handlers for common file, full-screen, and zoom shortcuts.
 - Verified `dotnet build Vex.slnx`.

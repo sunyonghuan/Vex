@@ -78,10 +78,10 @@
                     Classes="title-menu"
                     VerticalAlignment="Center">
                     <MenuItem Header="文件(F)">
-                        <MenuItem Header="新建" Command="{Binding NewDocument}" />
+                        <MenuItem Header="新建" Command="{Binding NewDocument}" InputGesture="Ctrl+N" />
                         <MenuItem Header="新建窗口" Command="{Binding NewWindow}" />
                         <Separator />
-                        <MenuItem Header="打开..." Command="{Binding OpenAsync}" />
+                        <MenuItem Header="打开..." Command="{Binding OpenAsync}" InputGesture="Ctrl+O" />
                         <MenuItem Header="打开文件夹..." Command="{Binding OpenFolderAsync}" />
                         <MenuItem Header="快速打开..." Command="{Binding QuickOpenAsync}" />
                         <MenuItem Header="打开最近文件" IsEnabled="{Binding HasRecentDocuments}">
@@ -100,8 +100,8 @@
                             <MenuItem Header="Big5" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="Big5" />
                         </MenuItem>
                         <Separator />
-                        <MenuItem Header="保存" Command="{Binding SaveAsync}" />
-                        <MenuItem Header="另存为..." Command="{Binding SaveAsAsync}" />
+                        <MenuItem Header="保存" Command="{Binding SaveAsync}" InputGesture="Ctrl+S" />
+                        <MenuItem Header="另存为..." Command="{Binding SaveAsAsync}" InputGesture="Ctrl+Shift+S" />
                         <MenuItem Header="保存全部打开的文件..." Command="{Binding SaveAsync}" />
                         <Separator />
                         <MenuItem Header="属性..." Command="{Binding ShowProperties}" />
@@ -113,19 +113,19 @@
                             <MenuItem Header="PDF" Command="{Binding Export}" CommandParameter="PDF" />
                             <MenuItem Header="PNG" Command="{Binding Export}" CommandParameter="PNG" />
                         </MenuItem>
-                        <MenuItem Header="打印..." Command="{Binding Print}" />
+                        <MenuItem Header="打印..." Command="{Binding Print}" InputGesture="Ctrl+P" />
                         <Separator />
-                        <MenuItem Header="关闭" Command="{Binding CloseDocument}" />
+                        <MenuItem Header="关闭" Command="{Binding CloseDocument}" InputGesture="Ctrl+W" />
                     </MenuItem>
 
                     <MenuItem Header="编辑(E)">
-                        <MenuItem Header="撤销" Command="{Binding Undo}" />
-                        <MenuItem Header="重做" Command="{Binding Redo}" />
+                        <MenuItem Header="撤销" Command="{Binding Undo}" InputGesture="Ctrl+Z" />
+                        <MenuItem Header="重做" Command="{Binding Redo}" InputGesture="Ctrl+Y" />
                         <Separator />
-                        <MenuItem Header="剪切" Command="{Binding Cut}" />
-                        <MenuItem Header="复制" Command="{Binding Copy}" />
-                        <MenuItem Header="粘贴" Command="{Binding Paste}" />
-                        <MenuItem Header="全选" Command="{Binding SelectAll}" />
+                        <MenuItem Header="剪切" Command="{Binding Cut}" InputGesture="Ctrl+X" />
+                        <MenuItem Header="复制" Command="{Binding Copy}" InputGesture="Ctrl+C" />
+                        <MenuItem Header="粘贴" Command="{Binding Paste}" InputGesture="Ctrl+V" />
+                        <MenuItem Header="全选" Command="{Binding SelectAll}" InputGesture="Ctrl+A" />
                         <Separator />
                         <MenuItem Header="查找..." Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
                         <MenuItem Header="替换..." Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
@@ -170,7 +170,7 @@
                         <MenuItem Header="显示状态栏" Command="{Binding ToggleStatusBar}" />
                         <MenuItem Header="字数统计窗口" Command="{Binding WordCount}" />
                         <Separator />
-                        <MenuItem Header="切换全屏" Command="{Binding ToggleFullScreen}" />
+                        <MenuItem Header="切换全屏" Command="{Binding ToggleFullScreen}" InputGesture="F11" />
                         <MenuItem Header="保持窗口在最前端" Command="{Binding ToggleAlwaysOnTop}" />
                         <Separator />
                         <MenuItem Header="实际大小" Command="{Binding ActualSize}" />

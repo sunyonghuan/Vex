@@ -45,19 +45,72 @@ public partial class MainWindow : Window
         Close();
     }
 
-    private void WindowKeyDown(object? sender, KeyEventArgs e)
+    private async void WindowKeyDown(object? sender, KeyEventArgs e)
     {
         if (DataContext is not MainWindowViewModel viewModel)
         {
             return;
         }
 
-        if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.F)
+        var hasControl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        var hasShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+
+        if (hasControl && !hasShift && e.Key == Key.N)
+        {
+            viewModel.NewDocument();
+            e.Handled = true;
+        }
+        else if (hasControl && !hasShift && e.Key == Key.O)
+        {
+            e.Handled = true;
+            await viewModel.OpenAsync();
+        }
+        else if (hasControl && !hasShift && e.Key == Key.S)
+        {
+            e.Handled = true;
+            await viewModel.SaveAsync();
+        }
+        else if (hasControl && hasShift && e.Key == Key.S)
+        {
+            e.Handled = true;
+            await viewModel.SaveAsAsync();
+        }
+        else if (hasControl && !hasShift && e.Key == Key.P)
+        {
+            e.Handled = true;
+            await viewModel.Print();
+        }
+        else if (hasControl && !hasShift && e.Key == Key.W)
+        {
+            viewModel.CloseDocument();
+            e.Handled = true;
+        }
+        else if (hasControl && !hasShift && IsZoomInKey(e.Key))
+        {
+            viewModel.ZoomIn();
+            e.Handled = true;
+        }
+        else if (hasControl && !hasShift && IsZoomOutKey(e.Key))
+        {
+            viewModel.ZoomOut();
+            e.Handled = true;
+        }
+        else if (hasControl && !hasShift && IsActualSizeKey(e.Key))
+        {
+            viewModel.ActualSize();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.F11)
+        {
+            viewModel.ToggleFullScreen();
+            e.Handled = true;
+        }
+        else if (hasControl && e.Key == Key.F)
         {
             viewModel.ShowFindPanel();
             e.Handled = true;
         }
-        else if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.H)
+        else if (hasControl && e.Key == Key.H)
         {
             viewModel.ShowReplacePanel();
             e.Handled = true;
@@ -72,6 +125,21 @@ public partial class MainWindow : Window
             viewModel.CloseFindPanel();
             e.Handled = true;
         }
+    }
+
+    private static bool IsZoomInKey(Key key)
+    {
+        return key is Key.OemPlus or Key.Add;
+    }
+
+    private static bool IsZoomOutKey(Key key)
+    {
+        return key is Key.OemMinus or Key.Subtract;
+    }
+
+    private static bool IsActualSizeKey(Key key)
+    {
+        return key is Key.D0 or Key.NumPad0;
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

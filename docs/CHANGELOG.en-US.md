@@ -25,6 +25,7 @@
 - Added an about panel with Vex, its Chinese name, author, CodeWF, and official website details.
 - Added print preview by generating temporary HTML and opening it with the system browser.
 - Added a delete confirmation overlay that warns about permanent deletion and shows the target file path.
+- Added menu shortcut hints and window-level shortcuts for new, open, save, save as, print, close, full screen, and zoom actions.
 
 ### Changed
 
@@ -51,3 +52,4 @@
 - Built `Vex.slnx` to verify the about panel.
 - Built `Vex.slnx` to verify the print-preview path.
 - Built `Vex.slnx` to verify the delete confirmation overlay.
+- Built `Vex.slnx` to verify the shortcut bindings.
