@@ -181,3 +181,5 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证 `Ctrl+F` 可打开查找栏且搜索框获得焦点。
 - 🔧[优化]-将 Shell 置顶和全屏窗口状态改为直接绑定 `ShellWindowLayoutViewModel`，移除 `MainWindow.axaml.cs` 中手写的 `PropertyChanged` 桥接。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认窗口状态绑定重构后 Shell 仍正常渲染。
+- 🔧[优化]-拖放本地路径改为通过 `ShellDroppedPathCommand` 和 `ShellDropTargetHandler` 路由，`MainWindow.axaml.cs` 不再直接调用文档打开流程。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认拖放路由重构后 Shell 仍正常渲染。

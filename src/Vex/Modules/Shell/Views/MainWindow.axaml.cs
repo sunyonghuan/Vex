@@ -9,7 +9,7 @@ namespace Vex.Modules.Shell.Views;
 
 public partial class MainWindow : UrsaWindow
 {
-    private IShellDroppedPathReader? _droppedPaths;
+    private IShellDropTargetHandler? _dropTargetHandler;
     private ShellKeyboardShortcutViewModel? _keyboardShortcuts;
     private bool _isCloseConfirmed;
 
@@ -25,13 +25,13 @@ public partial class MainWindow : UrsaWindow
     public MainWindow(
         MainWindowViewModel viewModel,
         ShellActionCoordinator actionCoordinator,
-        IShellDroppedPathReader droppedPaths,
+        IShellDropTargetHandler dropTargetHandler,
         ShellKeyboardShortcutViewModel keyboardShortcuts)
         : this()
     {
         // 强制解析 ShellActionCoordinator，让标题栏菜单的 EventBus 动作路由在窗口创建时完成订阅。
         _ = actionCoordinator;
-        _droppedPaths = droppedPaths;
+        _dropTargetHandler = dropTargetHandler;
         _keyboardShortcuts = keyboardShortcuts;
         DataContext = viewModel;
         viewModel.CloseWindowRequested += OnCloseWindowRequested;
@@ -67,24 +67,13 @@ public partial class MainWindow : UrsaWindow
 
     private void WindowDragOver(object? sender, DragEventArgs e)
     {
-        e.DragEffects = _droppedPaths?.GetFirstLocalPath(e) is null
-            ? DragDropEffects.None
-            : DragDropEffects.Copy;
+        e.DragEffects = _dropTargetHandler?.GetDragEffects(e) ?? DragDropEffects.None;
         e.Handled = true;
     }
 
-    private async void WindowDrop(object? sender, DragEventArgs e)
+    private void WindowDrop(object? sender, DragEventArgs e)
     {
         e.Handled = true;
-        if (DataContext is not MainWindowViewModel viewModel)
-        {
-            return;
-        }
-
-        var path = _droppedPaths?.GetFirstLocalPath(e);
-        if (path is not null)
-        {
-            await viewModel.OpenDroppedPathAsync(path);
-        }
+        _dropTargetHandler?.PublishDroppedPath(e);
     }
 }

@@ -569,3 +569,7 @@
 - `MainWindow.axaml.cs` no longer subscribes to `ShellWindowLayoutViewModel.PropertyChanged` only to mirror topmost and full-screen state; the ViewModel now raises the derived window-state property when full screen changes.
 - Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window screenshot confirming the shell still renders after the window-state binding refactor. Screenshot path: `%TEMP%\VexScreenshots\window-state-binding-startup.png`.
 - Added no new third-party dependency.
+- Added `ShellDroppedPathCommand` plus `IShellDropTargetHandler`/`ShellDropTargetHandler` to route dropped local paths through CodeWF.EventBus.
+- `MainWindow.axaml.cs` now only asks the drop handler for drag effects and publishes dropped paths; `MainWindowViewModel` handles the dropped-path command and keeps unsaved-confirmation/opening behavior in the document workflow.
+- Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a startup screenshot confirming the shell still renders after the drop-routing refactor. Screenshot path: `%TEMP%\VexScreenshots\drop-target-handler-startup.png`.
+- Added no new third-party dependency.

@@ -173,3 +173,5 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified `Ctrl+F` opens the find bar with the search box focused.
 - Bound shell topmost and full-screen window state directly from `ShellWindowLayoutViewModel`, removing the manual `PropertyChanged` bridge from `MainWindow.axaml.cs`.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the shell still renders after the window-state binding refactor.
+- Routed dropped local paths through `ShellDroppedPathCommand` and `ShellDropTargetHandler`, so `MainWindow.axaml.cs` no longer directly calls the document-opening workflow.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the shell still renders after the drop-routing refactor.

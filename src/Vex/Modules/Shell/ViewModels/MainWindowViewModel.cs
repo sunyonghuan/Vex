@@ -413,6 +413,9 @@ public sealed class MainWindowViewModel : ReactiveObject
         _ = OpenDocumentFileAsync(command.File, command.PreviousSelection);
     }
 
+    [EventHandler]
+    public void ApplyShellDroppedPath(ShellDroppedPathCommand command) => _ = OpenDroppedPathAsync(command.Path);
+
     private void RefreshMarkdownDerivedState()
     {
         _workspaceDocumentState.UpdateMarkdown(Markdown);
