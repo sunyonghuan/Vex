@@ -8,9 +8,52 @@
     xmlns:vexThemes="https://codewf.com"
     RequestedThemeVariant="Light">
     <prism:PrismApplication.Resources>
-        <FontFamily x:Key="ContentControlThemeFontFamily">Inter, Microsoft YaHei UI, Segoe UI</FontFamily>
-        <FontFamily x:Key="ControlContentThemeFontFamily">Inter, Microsoft YaHei UI, Segoe UI</FontFamily>
-        <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="VexShellBackgroundBrush" Color="#FFFDFDFD" />
+                    <SolidColorBrush x:Key="VexPanelBackgroundBrush" Color="#FFFFFFFF" />
+                    <SolidColorBrush x:Key="VexPanelBorderBrush" Color="#E4E7EC" />
+                    <SolidColorBrush x:Key="VexMutedTextBrush" Color="#667085" />
+                    <SolidColorBrush x:Key="VexSideHeadingTextBrush" Color="#98A2B3" />
+                    <SolidColorBrush x:Key="VexSplitterBrush" Color="#F2F4F7" />
+                    <SolidColorBrush x:Key="VexEditorBackgroundBrush" Color="#FFFFFFFF" />
+                    <SolidColorBrush x:Key="VexEditorForegroundBrush" Color="#101828" />
+                    <SolidColorBrush x:Key="VexEditorCurrentLineBackgroundBrush" Color="#FFF4F7FB" />
+                    <SolidColorBrush x:Key="VexEditorCurrentLineBorderBrush" Color="#FFE4E9F2" />
+                    <SolidColorBrush x:Key="VexPreviewBackgroundBrush" Color="#FFFFFFFF" />
+                    <SolidColorBrush x:Key="VexStatusBarBackgroundBrush" Color="#FFF7F8FA" />
+                    <SolidColorBrush x:Key="VexStatusBarBorderBrush" Color="#E4E7EC" />
+                    <SolidColorBrush x:Key="VexStatusBadgeBackgroundBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="VexStatusBadgeBorderBrush" Color="#D8DEE8" />
+                    <SolidColorBrush x:Key="VexStatusBadgeLabelBrush" Color="#667085" />
+                    <SolidColorBrush x:Key="VexStatusBadgeValueBrush" Color="#1D2939" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="VexShellBackgroundBrush" Color="#111827" />
+                    <SolidColorBrush x:Key="VexPanelBackgroundBrush" Color="#151B26" />
+                    <SolidColorBrush x:Key="VexPanelBorderBrush" Color="#2B3443" />
+                    <SolidColorBrush x:Key="VexMutedTextBrush" Color="#AAB4C3" />
+                    <SolidColorBrush x:Key="VexSideHeadingTextBrush" Color="#7D8999" />
+                    <SolidColorBrush x:Key="VexSplitterBrush" Color="#232B38" />
+                    <SolidColorBrush x:Key="VexEditorBackgroundBrush" Color="#111827" />
+                    <SolidColorBrush x:Key="VexEditorForegroundBrush" Color="#E5E7EB" />
+                    <SolidColorBrush x:Key="VexEditorCurrentLineBackgroundBrush" Color="#1B2533" />
+                    <SolidColorBrush x:Key="VexEditorCurrentLineBorderBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="VexPreviewBackgroundBrush" Color="#111827" />
+                    <SolidColorBrush x:Key="VexStatusBarBackgroundBrush" Color="#151B26" />
+                    <SolidColorBrush x:Key="VexStatusBarBorderBrush" Color="#2B3443" />
+                    <SolidColorBrush x:Key="VexStatusBadgeBackgroundBrush" Color="#1B2533" />
+                    <SolidColorBrush x:Key="VexStatusBadgeBorderBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="VexStatusBadgeLabelBrush" Color="#AAB4C3" />
+                    <SolidColorBrush x:Key="VexStatusBadgeValueBrush" Color="#F3F4F6" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <FontFamily x:Key="ContentControlThemeFontFamily">Inter, Microsoft YaHei UI, Segoe UI</FontFamily>
+            <FontFamily x:Key="ControlContentThemeFontFamily">Inter, Microsoft YaHei UI, Segoe UI</FontFamily>
+            <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>
+        </ResourceDictionary>
     </prism:PrismApplication.Resources>
 
     <prism:PrismApplication.Styles>

@@ -13,12 +13,13 @@
     x:DataType="vm:MarkdownEditorViewModel"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-    <Border Background="White" Padding="34 28">
+    <Border Background="{DynamicResource VexEditorBackgroundBrush}" Padding="34 28">
         <edit:TextEditor
             x:Name="MarkdownEditor"
-            Background="White"
+            Background="{DynamicResource VexEditorBackgroundBrush}"
             FontFamily="Cascadia Mono, Consolas, Microsoft YaHei UI"
             FontSize="{Binding EditorFontSize}"
+            Foreground="{DynamicResource VexEditorForegroundBrush}"
             HorizontalScrollBarVisibility="Disabled"
             ShowLineNumbers="{Binding ShowLineNumbers}"
             VerticalScrollBarVisibility="Auto"

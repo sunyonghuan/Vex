@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Styling;
 using AvaloniaEdit.Highlighting;
 using Vex.Modules.Workspace.ViewModels;
 
@@ -14,6 +15,7 @@ public partial class MarkdownEditorView : UserControl
         InitializeComponent();
         MarkdownEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("MarkDown");
         ConfigureEditorVisuals();
+        ActualThemeVariantChanged += (_, _) => ConfigureEditorVisuals();
         MarkdownEditor.AddHandler(InputElement.KeyDownEvent, OnEditorKeyDown, RoutingStrategies.Tunnel);
         DataContextChanged += (_, _) => AttachEditorController();
         AttachedToVisualTree += (_, _) => AttachEditorController();
@@ -23,8 +25,8 @@ public partial class MarkdownEditorView : UserControl
     private void ConfigureEditorVisuals()
     {
         MarkdownEditor.Options.HighlightCurrentLine = true;
-        MarkdownEditor.TextArea.TextView.CurrentLineBackground = new SolidColorBrush(Color.Parse("#FFF4F7FB"));
-        MarkdownEditor.TextArea.TextView.CurrentLineBorder = new Pen(new SolidColorBrush(Color.Parse("#FFE4E9F2")), 1);
+        MarkdownEditor.TextArea.TextView.CurrentLineBackground = GetBrush("VexEditorCurrentLineBackgroundBrush");
+        MarkdownEditor.TextArea.TextView.CurrentLineBorder = new Pen(GetBrush("VexEditorCurrentLineBorderBrush"), 1);
     }
 
     private void OnEditorKeyDown(object? sender, KeyEventArgs e)
@@ -45,4 +47,11 @@ public partial class MarkdownEditorView : UserControl
     }
 
     private MarkdownEditorViewModel? ViewModel => DataContext as MarkdownEditorViewModel;
+
+    private IBrush GetBrush(string key)
+    {
+        return this.TryGetResource(key, ActualThemeVariant, out var resource) && resource is IBrush brush
+            ? brush
+            : Brushes.Transparent;
+    }
 }

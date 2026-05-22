@@ -242,6 +242,9 @@
 - Shell 布局与编辑器显示设置现在会持久化侧栏、预览区、状态栏、置顶、侧栏页签、编辑器缩放、行号和窗口尺寸；源码模式临时隐藏侧栏/预览时不会覆盖用户原布局。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`、NuGet 漏洞扫描，并启动 Debug 桌面程序使用 `PrintWindow` 截图确认主窗口、编辑器、预览和状态栏正常渲染。截图路径：`%TEMP%\VexScreenshots\app-config-settings-startup.png`。
 - 新增 NuGet 依赖 `CodeWF.Tools.Files` 1.3.13.2；本地仓库 `D:\github\libs\CodeWF.Tools` 与 NuGet 元数据均标注 MIT 许可证，源码公开可追溯，间接依赖许可证已在该仓库 README 中记录。
+- 增加深色模式基础适配：Shell 背景、侧栏、编辑器、预览区、状态栏和状态徽标改为主题资源，编辑器当前行高亮随主题刷新。
+- 验证 `dotnet build Vex.slnx`，并通过 Debug 输出配置切换深色主题截图确认主要工作区和状态栏均为深色。截图路径：`%TEMP%\VexScreenshots\dark-shell-statusbar-theme.png`。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -587,3 +590,6 @@
 - Shell layout and editor display settings now persist sidebar, preview, status bar, topmost, sidebar tab, editor zoom, line numbers, and window size; temporary source-mode sidebar/preview hiding does not overwrite the saved layout.
 - Verified `dotnet build Vex.slnx`, ran `git diff --check`, completed a NuGet vulnerability scan, and launched the Debug desktop app with a `PrintWindow` screenshot confirming the main window, editor, preview, and status bar render correctly. Screenshot path: `%TEMP%\VexScreenshots\app-config-settings-startup.png`.
 - Added the `CodeWF.Tools.Files` 1.3.13.2 NuGet dependency; the local repository at `D:\github\libs\CodeWF.Tools` and NuGet metadata identify it as MIT licensed, source-available, and its transitive dependency license notes are recorded in that repository README.
+- Added baseline dark-mode adaptation: shell background, sidebar, editor, preview, status bar, and status badges now use theme resources, and the editor current-line highlight refreshes with the theme.
+- Verified `dotnet build Vex.slnx`, then switched the Debug output config to dark mode and captured a screenshot confirming the main workspace and status bar render dark. Screenshot path: `%TEMP%\VexScreenshots\dark-shell-statusbar-theme.png`.
+- Added no new third-party dependency.

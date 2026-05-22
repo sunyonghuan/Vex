@@ -12,8 +12,8 @@
     prism:ViewModelLocator.AutoWireViewModel="True">
 
     <Border
-        Background="#FFF7F8FA"
-        BorderBrush="#E4E7EC"
+        Background="{DynamicResource VexStatusBarBackgroundBrush}"
+        BorderBrush="{DynamicResource VexStatusBarBorderBrush}"
         BorderThickness="0 1 0 0"
         Padding="10 4">
         <Grid ColumnDefinitions="*,Auto" MinHeight="28">

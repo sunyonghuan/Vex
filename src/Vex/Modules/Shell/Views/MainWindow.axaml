@@ -47,7 +47,10 @@
             VerticalAlignment="Center" />
     </u:UrsaWindow.TitleBarContent>
 
-    <Grid RowDefinitions="Auto,*,Auto" Background="#FFFDFDFD" Margin="0 32 0 0">
+    <Grid
+        Background="{DynamicResource VexShellBackgroundBrush}"
+        Margin="0 32 0 0"
+        RowDefinitions="Auto,*,Auto">
         <shell:ShellFindBarView Grid.Row="0" DataContext="{Binding FindBar}" />
 
         <Grid Grid.Row="1">

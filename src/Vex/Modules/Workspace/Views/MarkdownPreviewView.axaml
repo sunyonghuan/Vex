@@ -9,7 +9,7 @@
     prism:ViewModelLocator.AutoWireViewModel="True">
 
     <Border
-        Background="White"
+        Background="{DynamicResource VexPreviewBackgroundBrush}"
         Padding="34 28 34 0">
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <md:MarkdownViewer
