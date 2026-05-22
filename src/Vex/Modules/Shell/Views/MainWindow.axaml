@@ -2,10 +2,9 @@
     x:Class="Vex.Modules.Shell.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:i18n="https://codewf.com"
-    xmlns:l="clr-namespace:Vex"
+    xmlns:regions="using:Vex.Core.Regions"
     xmlns:md="https://codewf.com"
-    xmlns:models="using:Vex.Core.Models"
+    xmlns:prism="http://prismlibrary.com/"
     xmlns:shell="using:Vex.Modules.Shell.Views"
     xmlns:u="https://irihi.tech/ursa"
     xmlns:workspace="using:Vex.Modules.Workspace.Views"
@@ -48,40 +47,6 @@
             VerticalAlignment="Center" />
     </u:UrsaWindow.TitleBarContent>
 
-    <u:UrsaWindow.DataTemplates>
-        <DataTemplate DataType="models:DocumentFile">
-            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
-                <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Classes="side-heading" Text="{Binding FolderName}" />
-                    <TextBlock
-                        Grid.Column="1"
-                        Classes="muted"
-                        FontSize="11"
-                        Text="{Binding ModifiedText}" />
-                </Grid>
-                <TextBlock
-                    Grid.Row="1"
-                    FontWeight="SemiBold"
-                    Text="{Binding Name}"
-                    TextTrimming="CharacterEllipsis" />
-                <TextBlock
-                    Grid.Row="2"
-                    Classes="muted"
-                    MaxHeight="38"
-                    Text="{Binding Preview}"
-                    TextTrimming="CharacterEllipsis"
-                    TextWrapping="Wrap" />
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate DataType="models:OutlineItem">
-            <TextBlock
-                Margin="{Binding IndentMargin}"
-                Text="{Binding Title}"
-                TextTrimming="CharacterEllipsis" />
-        </DataTemplate>
-    </u:UrsaWindow.DataTemplates>
-
     <Grid RowDefinitions="Auto,*,Auto" Background="#FFFDFDFD" Margin="0 32 0 0">
         <shell:ShellFindBarView Grid.Row="0" DataContext="{Binding FindBar}" />
 
@@ -95,44 +60,9 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Classes="panel" IsVisible="{Binding Layout.IsSidebarVisible}">
-                <TabControl SelectedIndex="{Binding Navigation.SelectedSideTabIndex, Mode=TwoWay}">
-                    <TabItem Header="{i18n:I18n {x:Static l:VexL.SidebarFiles}}">
-                        <Grid>
-                            <ListBox
-                                Classes="side-list"
-                                IsVisible="{Binding Navigation.HasDocumentFiles}"
-                                ItemsSource="{Binding Navigation.DocumentFiles}"
-                                SelectedItem="{Binding Navigation.SelectedDocumentFile, Mode=TwoWay}" />
-                            <Border
-                                IsVisible="{Binding Navigation.IsDocumentFilesEmpty}"
-                                Padding="18"
-                                VerticalAlignment="Top">
-                                <TextBlock
-                                    Classes="muted"
-                                    Text="{i18n:I18n {x:Static l:VexL.EmptyNoFiles}}"
-                                    TextAlignment="Center" />
-                            </Border>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="{i18n:I18n {x:Static l:VexL.SidebarOutline}}">
-                        <Grid>
-                            <ListBox
-                                Classes="side-list"
-                                IsVisible="{Binding Navigation.HasOutlineItems}"
-                                ItemsSource="{Binding Navigation.OutlineItems}"
-                                SelectedItem="{Binding Navigation.SelectedOutlineItem, Mode=TwoWay}" />
-                            <Border
-                                IsVisible="{Binding Navigation.IsOutlineEmpty}"
-                                Padding="18"
-                                VerticalAlignment="Top">
-                                <TextBlock
-                                    Classes="muted"
-                                    Text="{i18n:I18n {x:Static l:VexL.EmptyNoHeadings}}"
-                                    TextAlignment="Center" />
-                            </Border>
-                        </Grid>
-                    </TabItem>
-                </TabControl>
+                <TabControl
+                    prism:RegionManager.RegionName="{x:Static regions:RegionNames.ShellSidebarRegion}"
+                    SelectedIndex="{Binding Navigation.SelectedSideTabIndex, Mode=TwoWay}" />
             </Border>
 
             <GridSplitter
@@ -165,33 +95,6 @@
             <shell:ShellOverlaysView Grid.ColumnSpan="5" />
         </Grid>
 
-        <Border
-            Grid.Row="2"
-            Background="#FFF7F8FA"
-            BorderBrush="#E4E7EC"
-            BorderThickness="0 1 0 0"
-            IsVisible="{Binding Layout.IsStatusBarVisible}"
-            Padding="10 4">
-            <Grid ColumnDefinitions="*,Auto" MinHeight="28">
-                <TextBlock
-                    Classes="muted"
-                    Text="{Binding Status.StatusText}"
-                    TextTrimming="CharacterEllipsis"
-                    VerticalAlignment="Center" />
-                <StackPanel
-                    Grid.Column="1"
-                    Orientation="Horizontal"
-                    Spacing="8"
-                    VerticalAlignment="Center">
-                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusState}}" Value="{Binding DocumentInfo.DocumentStateText}" />
-                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" Value="{Binding DocumentInfo.CurrentEncodingText}" />
-                    <TextBlock Classes="muted" Text="{Binding EditorDisplay.ZoomText}" VerticalAlignment="Center" />
-                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusLine}}" Value="{Binding Status.CaretLine}" />
-                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusColumn}}" Value="{Binding Status.CaretColumn}" />
-                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusWords}}" Value="{Binding DocumentInfo.Statistics.Words}" />
-                    <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusCharacters}}" Value="{Binding DocumentInfo.Statistics.Characters}" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        <shell:ShellStatusBarView Grid.Row="2" />
     </Grid>
 </u:UrsaWindow>

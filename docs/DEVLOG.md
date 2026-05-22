@@ -146,6 +146,13 @@
 - 关闭未保存确认改为重写 `UrsaWindow.CanClose()`，保留原有 `ShellDialogsViewModel` 保存确认流程，同时避免继续订阅普通 `Window.Closing` 事件。
 - 验证 `dotnet build Vex.slnx`，并截图确认 Ursa 标题栏内置控制按钮、标题栏菜单、文档标题、侧栏、编辑区、预览区和状态栏显示正常。截图路径：`%TEMP%\VexScreenshots\ursa-window-shell-foreground.png`。
 - 本轮未新增第三方依赖，复用已有 `Irihi.Ursa.Themes.Semi` 依赖。
+- 拆分主窗口状态栏为 `ShellStatusBarView` 与 `ShellStatusBarViewModel`，状态文本、文档信息、编辑器显示和布局开关仍由各自子 ViewModel 提供，主窗口只保留组合入口。
+- 将文件与大纲页签拆分为 `ShellFilesView`/`ShellFilesViewModel` 和 `ShellOutlineView`/`ShellOutlineViewModel`，并把文件列表模板、大纲模板和空状态移出 `MainWindow.axaml`。
+- 新增 Vex 自有 `TabControlRegionAdapter`、`RegionNames.ShellSidebarRegion` 与 `RegionTab.HeaderKey`，侧边栏 `TabControl` 改为 Prism Region 注入，页签标题继续走 `Lang.Avalonia` 本地化绑定。
+- 文件列表刷新、大纲刷新、文件选择恢复和侧边栏页签选择改为通过 CodeWF.EventBus 消息分发，避免文件/大纲/布局 ViewModel 互相直接持有。
+- `MainWindow.axaml` 降至约 100 行，文件、大纲、状态栏 View 均保持独立文件，便于后续按模块维护。
+- 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并用临时 Markdown 文件夹截图确认 Prism Region 文件页签、文件列表、状态栏和大纲页签均可正常渲染。截图路径：`%TEMP%\VexScreenshots\sidebar-region-tabs.png`、`%TEMP%\VexScreenshots\sidebar-region-outline-uia.png`。
+- 本轮未新增第三方依赖，复用现有 Prism.Avalonia、CodeWF.EventBus 和 Lang.Avalonia 依赖。
 
 ### en-US
 
@@ -316,3 +323,10 @@
 - Moved unsaved-close protection to `UrsaWindow.CanClose()`, preserving the existing `ShellDialogsViewModel` confirmation flow without subscribing to the plain `Window.Closing` event.
 - Verified `dotnet build Vex.slnx`, and captured a screenshot confirming the Ursa title bar, built-in caption buttons, title menu, document title, sidebar, editor, preview, and status bar render correctly. Screenshot path: `%TEMP%\VexScreenshots\ursa-window-shell-foreground.png`.
 - Added no new third-party dependency, reusing the existing `Irihi.Ursa.Themes.Semi` dependency.
+- Split the main-window status bar into `ShellStatusBarView` and `ShellStatusBarViewModel`, keeping status text, document information, editor display, and layout visibility owned by their focused child ViewModels.
+- Split the files and outline sidebar tabs into `ShellFilesView`/`ShellFilesViewModel` and `ShellOutlineView`/`ShellOutlineViewModel`, moving item templates and empty states out of `MainWindow.axaml`.
+- Added Vex-owned `TabControlRegionAdapter`, `RegionNames.ShellSidebarRegion`, and `RegionTab.HeaderKey`, so the sidebar `TabControl` is populated through a Prism Region while tab headers still use `Lang.Avalonia` localization bindings.
+- Changed document-file refresh, outline refresh, file-selection restore, and sidebar-tab selection to CodeWF.EventBus messages, avoiding direct ViewModel-to-ViewModel references between files, outline, and layout modules.
+- Reduced `MainWindow.axaml` to about 100 lines, leaving files, outline, and status bar views as independent module files.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured screenshots with a temporary Markdown folder confirming the Prism Region files tab, file list, status bar, and outline tab render correctly. Screenshot paths: `%TEMP%\VexScreenshots\sidebar-region-tabs.png`, `%TEMP%\VexScreenshots\sidebar-region-outline-uia.png`.
+- Added no new third-party dependency, reusing the existing Prism.Avalonia, CodeWF.EventBus, and Lang.Avalonia dependencies.

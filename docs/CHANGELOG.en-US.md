@@ -59,6 +59,9 @@
 - Added `Vex.VexL` JSON localization resources for the first title-menu, sidebar, find-bar, and status-bar strings.
 - Split the title-bar menu into `ShellTitleMenuView` and `ShellTitleMenuViewModel`, using Prism AutoWireViewModel and CodeWF.EventBus to decouple it from the main window.
 - Changed the main window to inherit Ursa `UrsaWindow`, using Ursa's built-in title-bar drag area and caption buttons.
+- Split the status bar into `ShellStatusBarView` and `ShellStatusBarViewModel`.
+- Split the files and outline sidebar tabs into `ShellFilesView`, `ShellOutlineView`, and their ViewModels, registered through a Prism sidebar region.
+- Added a Vex `TabControlRegionAdapter` and localized region tab header support for the sidebar.
 
 ### Changed
 
@@ -115,3 +118,4 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified Tab indentation in the editor and preview.
 - Built `Vex.slnx` and screenshot-verified the localized title menu, sidebar, and status bar in default Chinese and `en-US`.
 - Built `Vex.slnx` and screenshot-verified the Ursa title bar, built-in caption buttons, title menu, document title, and three-pane layout.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the Prism Region files tab, file list, status bar, and outline tab.

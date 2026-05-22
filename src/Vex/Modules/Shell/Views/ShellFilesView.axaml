@@ -1,0 +1,58 @@
+<UserControl
+    x:Class="Vex.Modules.Shell.Views.ShellFilesView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:models="using:Vex.Core.Models"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:regions="using:Vex.Core.Regions"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellFilesViewModel"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    regions:RegionTab.HeaderKey="{x:Static l:VexL.SidebarFiles}">
+
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="models:DocumentFile">
+            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="side-heading" Text="{Binding FolderName}" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Classes="muted"
+                        FontSize="11"
+                        Text="{Binding ModifiedText}" />
+                </Grid>
+                <TextBlock
+                    Grid.Row="1"
+                    FontWeight="SemiBold"
+                    Text="{Binding Name}"
+                    TextTrimming="CharacterEllipsis" />
+                <TextBlock
+                    Grid.Row="2"
+                    Classes="muted"
+                    MaxHeight="38"
+                    Text="{Binding Preview}"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="Wrap" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <Grid>
+        <ListBox
+            Classes="side-list"
+            IsVisible="{Binding HasDocumentFiles}"
+            ItemsSource="{Binding DocumentFiles}"
+            SelectedItem="{Binding SelectedDocumentFile, Mode=TwoWay}" />
+        <Border
+            IsVisible="{Binding IsDocumentFilesEmpty}"
+            Padding="18"
+            VerticalAlignment="Top">
+            <TextBlock
+                Classes="muted"
+                Text="{i18n:I18n {x:Static l:VexL.EmptyNoFiles}}"
+                TextAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CodeWF.DryIoc.EventBus;
 using Lang.Avalonia;
@@ -7,6 +8,8 @@ using Lang.Avalonia.Json;
 using Prism.DryIoc;
 using Prism.Ioc;
 using Prism.Modularity;
+using Prism.Regions;
+using Vex.Core.Regions;
 using Vex.Core.Services;
 using Vex.Modules.Appearance;
 using Vex.Modules.Appearance.Services;
@@ -51,6 +54,12 @@ public partial class App : PrismApplication
         return Container.Resolve<MainWindow>();
     }
 
+    protected override void ConfigureRegionAdapterMappings(RegionAdapterMappings regionAdapterMappings)
+    {
+        base.ConfigureRegionAdapterMappings(regionAdapterMappings);
+        regionAdapterMappings.RegisterMapping(typeof(TabControl), Container.Resolve<TabControlRegionAdapter>());
+    }
+
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
         containerRegistry.AddEventBus();
@@ -66,10 +75,13 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<ShellDialogsViewModel>();
         containerRegistry.RegisterSingleton<ShellEditorActionsViewModel>();
         containerRegistry.RegisterSingleton<ShellEditorDisplayViewModel>();
+        containerRegistry.RegisterSingleton<ShellFilesViewModel>();
         containerRegistry.RegisterSingleton<ShellFindBarViewModel>();
         containerRegistry.RegisterSingleton<ShellHelpViewModel>();
         containerRegistry.RegisterSingleton<ShellNavigationViewModel>();
+        containerRegistry.RegisterSingleton<ShellOutlineViewModel>();
         containerRegistry.RegisterSingleton<ShellRecentDocumentsViewModel>();
+        containerRegistry.RegisterSingleton<ShellStatusBarViewModel>();
         containerRegistry.RegisterSingleton<ShellStatusViewModel>();
         containerRegistry.RegisterSingleton<ShellTitleMenuViewModel>();
         containerRegistry.RegisterSingleton<ShellWindowLayoutViewModel>();

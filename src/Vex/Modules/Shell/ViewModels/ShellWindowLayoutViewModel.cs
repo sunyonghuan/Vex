@@ -10,7 +10,6 @@ namespace Vex.Modules.Shell.ViewModels;
 public sealed class ShellWindowLayoutViewModel : ReactiveObject
 {
     private readonly IEventBus _eventBus;
-    private readonly ShellNavigationViewModel _navigation;
     private bool _isSidebarVisible = true;
     private bool _isStatusBarVisible = true;
     private bool _isPreviewVisible = true;
@@ -20,10 +19,9 @@ public sealed class ShellWindowLayoutViewModel : ReactiveObject
     private bool _sidebarBeforeSourceMode = true;
     private bool _previewBeforeSourceMode = true;
 
-    public ShellWindowLayoutViewModel(IEventBus eventBus, ShellNavigationViewModel navigation)
+    public ShellWindowLayoutViewModel(IEventBus eventBus)
     {
         _eventBus = eventBus;
-        _navigation = navigation;
     }
 
     public bool IsSidebarVisible
@@ -92,13 +90,13 @@ public sealed class ShellWindowLayoutViewModel : ReactiveObject
     public void ShowOutline()
     {
         IsSidebarVisible = true;
-        _navigation.SelectedSideTabIndex = 1;
+        SelectSidebarTab(1);
     }
 
     public void ShowFiles()
     {
         IsSidebarVisible = true;
-        _navigation.SelectedSideTabIndex = 0;
+        SelectSidebarTab(0);
     }
 
     public void TogglePreview()
@@ -146,6 +144,11 @@ public sealed class ShellWindowLayoutViewModel : ReactiveObject
     private void FocusEditor()
     {
         _eventBus.Publish(new EditorActionCommand(EditorActionKind.FocusEditor));
+    }
+
+    private void SelectSidebarTab(int selectedIndex)
+    {
+        _eventBus.Publish(new ShellSidebarTabSelectedCommand(selectedIndex));
     }
 
     private void SetStatus(string message)

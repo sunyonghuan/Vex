@@ -1,0 +1,40 @@
+<UserControl
+    x:Class="Vex.Modules.Shell.Views.ShellOutlineView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:models="using:Vex.Core.Models"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:regions="using:Vex.Core.Regions"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellOutlineViewModel"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    regions:RegionTab.HeaderKey="{x:Static l:VexL.SidebarOutline}">
+
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="models:OutlineItem">
+            <TextBlock
+                Margin="{Binding IndentMargin}"
+                Text="{Binding Title}"
+                TextTrimming="CharacterEllipsis" />
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <Grid>
+        <ListBox
+            Classes="side-list"
+            IsVisible="{Binding HasOutlineItems}"
+            ItemsSource="{Binding OutlineItems}"
+            SelectedItem="{Binding SelectedOutlineItem, Mode=TwoWay}" />
+        <Border
+            IsVisible="{Binding IsOutlineEmpty}"
+            Padding="18"
+            VerticalAlignment="Top">
+            <TextBlock
+                Classes="muted"
+                Text="{i18n:I18n {x:Static l:VexL.EmptyNoHeadings}}"
+                TextAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>

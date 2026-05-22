@@ -1,0 +1,40 @@
+<UserControl
+    x:Class="Vex.Modules.Shell.Views.ShellStatusBarView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:md="https://codewf.com"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellStatusBarViewModel"
+    IsVisible="{Binding Layout.IsStatusBarVisible}"
+    prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <Border
+        Background="#FFF7F8FA"
+        BorderBrush="#E4E7EC"
+        BorderThickness="0 1 0 0"
+        Padding="10 4">
+        <Grid ColumnDefinitions="*,Auto" MinHeight="28">
+            <TextBlock
+                Classes="muted"
+                Text="{Binding Status.StatusText}"
+                TextTrimming="CharacterEllipsis"
+                VerticalAlignment="Center" />
+            <StackPanel
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Spacing="8"
+                VerticalAlignment="Center">
+                <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusState}}" Value="{Binding DocumentInfo.DocumentStateText}" />
+                <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" Value="{Binding DocumentInfo.CurrentEncodingText}" />
+                <TextBlock Classes="muted" Text="{Binding EditorDisplay.ZoomText}" VerticalAlignment="Center" />
+                <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusLine}}" Value="{Binding Status.CaretLine}" />
+                <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusColumn}}" Value="{Binding Status.CaretColumn}" />
+                <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusWords}}" Value="{Binding DocumentInfo.Statistics.Words}" />
+                <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusCharacters}}" Value="{Binding DocumentInfo.Statistics.Characters}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

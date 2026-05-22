@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using CodeWF.EventBus;
@@ -17,6 +16,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private readonly IMarkdownStatisticsService _statisticsService;
     private readonly IEventBus _eventBus;
     private DocumentSnapshot _document;
+    private IReadOnlyList<DocumentFile> _documentFiles = [];
     private string _lastSavedMarkdown = string.Empty;
     private string _markdown = string.Empty;
 
@@ -187,7 +187,8 @@ public sealed class MainWindowViewModel : ReactiveObject
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
         Markdown = _document.Markdown;
-        Navigation.ClearDocumentFiles();
+        _documentFiles = [];
+        _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles));
         SetStatus("Document closed.");
         NotifyDocumentChanged();
         EditorActions.FocusEditor();
@@ -220,9 +221,9 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public async Task QuickOpenAsync()
     {
-        if (Navigation.HasDocumentFiles)
+        if (_documentFiles.Count > 0)
         {
-            Navigation.SelectedSideTabIndex = 0;
+            SelectSidebarTab(0);
             SetStatus("Choose a document from the loaded folder.");
             return;
         }
@@ -255,19 +256,20 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private async Task ApplyDocumentFilesAsync(IReadOnlyList<DocumentFile> files, bool bypassUnsavedPrompt = false)
     {
-        Navigation.SetDocumentFiles(files);
+        _documentFiles = files.ToArray();
+        var firstFile = _documentFiles.FirstOrDefault();
+        _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles, firstFile));
 
-        SetStatus(files.Count == 0 ? "No markdown files loaded." : $"Loaded {files.Count} markdown files.");
-        if (files.Count > 0)
+        SetStatus(_documentFiles.Count == 0 ? "No markdown files loaded." : $"Loaded {_documentFiles.Count} markdown files.");
+        if (firstFile is not null)
         {
-            Navigation.SelectDocumentFileSilently(files[0]);
             if (bypassUnsavedPrompt)
             {
-                await OpenDocumentFileCoreAsync(files[0]);
+                await OpenDocumentFileCoreAsync(firstFile);
             }
             else
             {
-                await OpenDocumentFileAsync(files[0], null);
+                await OpenDocumentFileAsync(firstFile, null);
             }
         }
     }
@@ -283,7 +285,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             "Save changes before switching files?",
             $"Save changes to {_document.FileName} before opening {file.Name}?",
             () => OpenDocumentFileCoreAsync(file),
-            () => Navigation.RestoreSelectedDocumentFile(previousSelection));
+            () => RestoreDocumentFileSelection(previousSelection));
     }
 
     private async Task OpenDocumentFileCoreAsync(DocumentFile file)
@@ -437,7 +439,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private void RefreshMarkdownDerivedState()
     {
         RefreshDocumentInfo();
-        Navigation.SetOutlineItems(_outlineService.BuildOutline(Markdown));
+        _eventBus.Publish(new OutlineItemsChangedCommand(_outlineService.BuildOutline(Markdown)));
     }
 
     private void RefreshDocumentInfo()
@@ -513,6 +515,16 @@ public sealed class MainWindowViewModel : ReactiveObject
     private void SetStatus(string message)
     {
         _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
+    }
+
+    private void SelectSidebarTab(int selectedIndex)
+    {
+        _eventBus.Publish(new ShellSidebarTabSelectedCommand(selectedIndex));
+    }
+
+    private void RestoreDocumentFileSelection(DocumentFile? previousSelection)
+    {
+        _eventBus.Publish(new DocumentFileSelectionChangedCommand(previousSelection));
     }
 
     public async Task OpenRecentDocumentAsync(int index)
