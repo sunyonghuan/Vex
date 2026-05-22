@@ -17,6 +17,7 @@ namespace Vex.Modules.Shell.ViewModels;
 
 public sealed class MainWindowViewModel : ReactiveObject
 {
+    private const int MaxRecentDocuments = 5;
     private readonly IDocumentService _documentService;
     private readonly IMarkdownOutlineService _outlineService;
     private readonly IMarkdownStatisticsService _statisticsService;
@@ -58,6 +59,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _helpService = helpService;
         _eventBus = eventBus;
         _eventBus.Subscribe(this);
+        LoadRecentDocuments();
 
         ThemeOptions = new ObservableCollection<ThemeOption>(_themeService.GetThemeOptions());
         TypographyOptions = new ObservableCollection<TypographyOption>(
@@ -83,6 +85,8 @@ public sealed class MainWindowViewModel : ReactiveObject
     public ObservableCollection<DocumentFile> DocumentFiles { get; } = [];
 
     public ObservableCollection<OutlineItem> OutlineItems { get; } = [];
+
+    public ObservableCollection<RecentDocument> RecentDocuments { get; } = [];
 
     public ObservableCollection<ThemeOption> ThemeOptions { get; }
 
@@ -111,6 +115,28 @@ public sealed class MainWindowViewModel : ReactiveObject
     public string? CurrentFilePath => _document.FilePath;
 
     public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath);
+
+    public bool HasRecentDocuments => RecentDocuments.Count > 0;
+
+    public bool HasRecentDocument1 => RecentDocuments.Count > 0;
+
+    public bool HasRecentDocument2 => RecentDocuments.Count > 1;
+
+    public bool HasRecentDocument3 => RecentDocuments.Count > 2;
+
+    public bool HasRecentDocument4 => RecentDocuments.Count > 3;
+
+    public bool HasRecentDocument5 => RecentDocuments.Count > 4;
+
+    public string RecentDocument1Text => GetRecentDocumentText(0);
+
+    public string RecentDocument2Text => GetRecentDocumentText(1);
+
+    public string RecentDocument3Text => GetRecentDocumentText(2);
+
+    public string RecentDocument4Text => GetRecentDocumentText(3);
+
+    public string RecentDocument5Text => GetRecentDocumentText(4);
 
     public bool IsModified => !string.Equals(Markdown, _lastSavedMarkdown, StringComparison.Ordinal);
 
@@ -322,6 +348,19 @@ public sealed class MainWindowViewModel : ReactiveObject
         PublishEditorAction(EditorActionKind.FocusEditor);
     }
 
+    public void CloseDocument()
+    {
+        _document = _documentService.CreateNew();
+        _lastSavedMarkdown = _document.Markdown;
+        Markdown = _document.Markdown;
+        DocumentFiles.Clear();
+        SelectedDocumentFile = null;
+        SelectedOutlineItem = null;
+        SetStatus("Document closed.");
+        NotifyDocumentChanged();
+        PublishEditorAction(EditorActionKind.FocusEditor);
+    }
+
     public void NewWindow()
     {
         if (!string.IsNullOrWhiteSpace(Environment.ProcessPath))
@@ -337,6 +376,18 @@ public sealed class MainWindowViewModel : ReactiveObject
         {
             ApplyDocument(snapshot);
         }
+    }
+
+    public async Task QuickOpenAsync()
+    {
+        if (DocumentFiles.Count > 0)
+        {
+            SelectedSideTabIndex = 0;
+            SetStatus("Choose a document from the loaded folder.");
+            return;
+        }
+
+        await OpenAsync();
     }
 
     public async Task OpenFolderAsync()
@@ -359,6 +410,24 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         var snapshot = await _documentService.OpenPathAsync(file.Path);
         ApplyDocument(snapshot);
+    }
+
+    public Task OpenRecentDocument1Async() => OpenRecentDocumentAsync(0);
+
+    public Task OpenRecentDocument2Async() => OpenRecentDocumentAsync(1);
+
+    public Task OpenRecentDocument3Async() => OpenRecentDocumentAsync(2);
+
+    public Task OpenRecentDocument4Async() => OpenRecentDocumentAsync(3);
+
+    public Task OpenRecentDocument5Async() => OpenRecentDocumentAsync(4);
+
+    public void ClearRecentDocuments()
+    {
+        RecentDocuments.Clear();
+        SaveRecentDocuments();
+        NotifyRecentDocumentsChanged();
+        SetStatus("Recent files cleared.");
     }
 
     public async Task SaveAsync()
@@ -389,6 +458,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         await _documentService.DeleteAsync(path);
+        RemoveRecentDocument(path);
         NewDocument();
         SetStatus("File deleted.");
     }
@@ -417,6 +487,11 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         _document = snapshot;
         _lastSavedMarkdown = snapshot.Markdown;
+        if (snapshot.FilePath is { Length: > 0 } path)
+        {
+            AddRecentDocument(path);
+        }
+
         if (updateMarkdown)
         {
             Markdown = snapshot.Markdown;
@@ -477,7 +552,11 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public void ShowProperties()
     {
-        SetStatus(CurrentFilePath ?? "Untitled document");
+        var location = CurrentFilePath ?? "Untitled document";
+        var size = CurrentFilePath is { Length: > 0 } path && File.Exists(path)
+            ? FormatFileSize(new FileInfo(path).Length)
+            : $"{Encoding.UTF8.GetByteCount(Markdown):N0} B";
+        SetStatus($"{CurrentDocumentTitle} | {DocumentStateText} | {CurrentEncodingText} | {size} | {location}");
     }
 
     public void Export(string? format)
@@ -674,6 +753,113 @@ public sealed class MainWindowViewModel : ReactiveObject
         _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
     }
 
+    private async Task OpenRecentDocumentAsync(int index)
+    {
+        if (index < 0 || index >= RecentDocuments.Count)
+        {
+            SetStatus("Recent file is unavailable.");
+            return;
+        }
+
+        var recent = RecentDocuments[index];
+        if (!File.Exists(recent.Path))
+        {
+            RemoveRecentDocument(recent.Path);
+            SetStatus("Recent file was removed because it no longer exists.");
+            return;
+        }
+
+        ApplyDocument(await _documentService.OpenPathAsync(recent.Path));
+    }
+
+    private void AddRecentDocument(string path)
+    {
+        var fullPath = Path.GetFullPath(path);
+        var existing = RecentDocuments.FirstOrDefault(item => item.Path.Equals(fullPath, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
+        {
+            RecentDocuments.Remove(existing);
+        }
+
+        RecentDocuments.Insert(0, new RecentDocument(fullPath));
+        while (RecentDocuments.Count > MaxRecentDocuments)
+        {
+            RecentDocuments.RemoveAt(RecentDocuments.Count - 1);
+        }
+
+        SaveRecentDocuments();
+        NotifyRecentDocumentsChanged();
+    }
+
+    private void RemoveRecentDocument(string path)
+    {
+        var fullPath = Path.GetFullPath(path);
+        var existing = RecentDocuments.FirstOrDefault(item => item.Path.Equals(fullPath, StringComparison.OrdinalIgnoreCase));
+        if (existing is null)
+        {
+            return;
+        }
+
+        RecentDocuments.Remove(existing);
+        SaveRecentDocuments();
+        NotifyRecentDocumentsChanged();
+    }
+
+    private void LoadRecentDocuments()
+    {
+        if (!File.Exists(RecentDocumentsPath))
+        {
+            return;
+        }
+
+        var paths = File.ReadAllLines(RecentDocumentsPath);
+        foreach (var path in paths.Where(File.Exists).Take(MaxRecentDocuments))
+        {
+            RecentDocuments.Add(new RecentDocument(Path.GetFullPath(path)));
+        }
+
+        NotifyRecentDocumentsChanged();
+    }
+
+    private void SaveRecentDocuments()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(RecentDocumentsPath)!);
+        var paths = RecentDocuments.Select(item => item.Path).ToArray();
+        File.WriteAllLines(RecentDocumentsPath, paths);
+    }
+
+    private void NotifyRecentDocumentsChanged()
+    {
+        OnPropertyChanged(nameof(HasRecentDocuments));
+        OnPropertyChanged(nameof(HasRecentDocument1));
+        OnPropertyChanged(nameof(HasRecentDocument2));
+        OnPropertyChanged(nameof(HasRecentDocument3));
+        OnPropertyChanged(nameof(HasRecentDocument4));
+        OnPropertyChanged(nameof(HasRecentDocument5));
+        OnPropertyChanged(nameof(RecentDocument1Text));
+        OnPropertyChanged(nameof(RecentDocument2Text));
+        OnPropertyChanged(nameof(RecentDocument3Text));
+        OnPropertyChanged(nameof(RecentDocument4Text));
+        OnPropertyChanged(nameof(RecentDocument5Text));
+    }
+
+    private string GetRecentDocumentText(int index)
+    {
+        return index >= 0 && index < RecentDocuments.Count
+            ? RecentDocuments[index].DisplayText
+            : "No recent files";
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        return bytes switch
+        {
+            < 1024 => $"{bytes:N0} B",
+            < 1024 * 1024 => $"{bytes / 1024d:N1} KB",
+            _ => $"{bytes / 1024d / 1024d:N1} MB"
+        };
+    }
+
     private static string GetEncodingDisplayName(Encoding encoding)
     {
         if (encoding is UTF8Encoding { Preamble.Length: > 0 })
@@ -688,6 +874,13 @@ public sealed class MainWindowViewModel : ReactiveObject
 
         return encoding.WebName.ToUpperInvariant();
     }
+
+    private static string RecentDocumentsPath =>
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "CodeWF",
+            "Vex",
+            "recent-files.txt");
 
     private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
     {

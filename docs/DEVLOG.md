@@ -28,6 +28,8 @@
 - 增加 `Properties\Trimming\TrimmerRoots.xml`，为裁剪发布保留 Vex、Avalonia、Prism、ReactiveUI、CodeWF.EventBus、CodeWF.Markdown、Semi/Ursa 与 SVG 渲染相关程序集。
 - 将 Prism 8.x 带入的 `Avalonia.Markup.Xaml.Loader` 传递版本钉到 Avalonia 12.0.3，避免发布时混入 Avalonia 11 运行时加载器。
 - 增加文档修改状态跟踪，标题栏用 `*` 标记未保存内容，状态栏显示 Saved/Modified 与当前编码。
+- 增加最近文件持久化、文件菜单最近文件子菜单、快速打开和关闭当前文档入口，并让属性状态展示文档状态、编码、大小和路径。
+- 验证 `dotnet build Vex.slnx`，并截图检查主窗口标题栏、三栏布局和状态栏徽标没有挤压错位。
 
 ### en-US
 
@@ -55,3 +57,5 @@
 - Added `Properties\Trimming\TrimmerRoots.xml` to preserve Vex, Avalonia, Prism, ReactiveUI, CodeWF.EventBus, CodeWF.Markdown, Semi/Ursa, and SVG rendering assemblies during trimmed publishes.
 - Pinned the Prism 8.x transitive `Avalonia.Markup.Xaml.Loader` version to Avalonia 12.0.3 to avoid publishing the Avalonia 11 runtime loader.
 - Added document dirty-state tracking, with `*` in the window title for unsaved edits and Saved/Modified plus encoding badges in the status bar.
+- Added recent file persistence, the recent files submenu, quick open, and close current document actions, and expanded the properties status text with state, encoding, size, and path details.
+- Verified `dotnet build Vex.slnx` and captured a desktop screenshot to check the title bar, three-pane layout, and status bar badges for visual fit.
