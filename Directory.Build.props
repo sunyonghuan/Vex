@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Authors>沙漠尽头的狼</Authors>
+    <Company>码坊</Company>
+    <Product>Vex</Product>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/dotnet9/Vex</RepositoryUrl>
+    <PackageProjectUrl>https://codewf.com</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright (c) 2026 码坊 CodeWF</Copyright>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+</Project>

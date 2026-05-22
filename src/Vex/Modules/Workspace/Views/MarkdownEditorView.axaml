@@ -1,0 +1,22 @@
+<UserControl
+    x:Class="Vex.Modules.Workspace.Views.MarkdownEditorView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:MainWindowViewModel"
+    mc:Ignorable="d">
+    <Border Background="White" Padding="34 28">
+        <edit:TextEditor
+            x:Name="MarkdownEditor"
+            Background="White"
+            FontFamily="Cascadia Mono, Consolas, Microsoft YaHei UI"
+            FontSize="{Binding EditorFontSize}"
+            HorizontalScrollBarVisibility="Disabled"
+            ShowLineNumbers="False"
+            VerticalScrollBarVisibility="Auto"
+            WordWrap="True" />
+    </Border>
+</UserControl>

@@ -1,0 +1,38 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vex="https://codewf.com">
+    <Design.PreviewWith>
+        <StackPanel Width="220" Spacing="8">
+            <vex:VexStatusBadge Label="Words" Value="128" />
+            <vex:VexStatusBadge Label="Encoding" Value="UTF-8" />
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type vex:VexStatusBadge}" TargetType="vex:VexStatusBadge">
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Padding" Value="9 3" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type vex:VexStatusBadge}">
+                <Border
+                    Background="{DynamicResource VexStatusBadgeBackgroundBrush}"
+                    BorderBrush="{DynamicResource VexStatusBadgeBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{DynamicResource VexStatusBadgeCornerRadius}"
+                    Padding="{TemplateBinding Padding}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource VexStatusBadgeLabelBrush}"
+                            Text="{TemplateBinding Label}" />
+                        <TextBlock
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Foreground="{DynamicResource VexStatusBadgeValueBrush}"
+                            Text="{TemplateBinding Value}" />
+                    </StackPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

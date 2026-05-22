@@ -1,0 +1,18 @@
+<prism:PrismApplication
+    x:Class="Vex.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:markdownThemes="https://codewf.com"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:semi="https://irihi.tech/semi"
+    xmlns:vexThemes="https://codewf.com"
+    RequestedThemeVariant="Light">
+    <prism:PrismApplication.Styles>
+        <FluentTheme />
+        <semi:SemiTheme Locale="zh-CN" />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        <markdownThemes:MarkdownThemes TypographyTheme="Simple" />
+        <vexThemes:VexControlsTheme />
+        <StyleInclude Source="Styles/App.axaml" />
+    </prism:PrismApplication.Styles>
+</prism:PrismApplication>
