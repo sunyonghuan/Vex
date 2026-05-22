@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using ReactiveUI;
 using Vex.Core.Models;
+using Vex.Core.Services;
 using Vex.Modules.Shell.Services;
 
 namespace Vex.Modules.Shell.ViewModels;
@@ -9,10 +10,12 @@ namespace Vex.Modules.Shell.ViewModels;
 public sealed class ShellRecentDocumentsViewModel : ReactiveObject
 {
     private const int MaxRecentDocuments = 5;
+    private readonly IAppLocalizer _localizer;
     private readonly IShellStatusPublisher _statusPublisher;
 
-    public ShellRecentDocumentsViewModel(IShellStatusPublisher statusPublisher)
+    public ShellRecentDocumentsViewModel(IAppLocalizer localizer, IShellStatusPublisher statusPublisher)
     {
+        _localizer = localizer;
         _statusPublisher = statusPublisher;
         LoadRecentDocuments();
     }
@@ -136,7 +139,7 @@ public sealed class ShellRecentDocumentsViewModel : ReactiveObject
     {
         return index >= 0 && index < RecentDocuments.Count
             ? RecentDocuments[index].DisplayText
-            : "No recent files";
+            : _localizer.Get(VexL.RecentNoFiles);
     }
 
     private static string RecentDocumentsPath =>

@@ -111,6 +111,7 @@ public static class VexL
     public static readonly string SidebarOutline = "Vex.VexL.SidebarOutline";
     public static readonly string EmptyNoFiles = "Vex.VexL.EmptyNoFiles";
     public static readonly string EmptyNoHeadings = "Vex.VexL.EmptyNoHeadings";
+    public static readonly string RecentNoFiles = "Vex.VexL.RecentNoFiles";
     public static readonly string FindBarFind = "Vex.VexL.FindBarFind";
     public static readonly string FindBarText = "Vex.VexL.FindBarText";
     public static readonly string FindBarReplace = "Vex.VexL.FindBarReplace";
@@ -141,6 +142,13 @@ public static class VexL
     public static readonly string WordCountFormat = "Vex.VexL.WordCountFormat";
     public static readonly string CharacterCountFormat = "Vex.VexL.CharacterCountFormat";
     public static readonly string LineCountFormat = "Vex.VexL.LineCountFormat";
+    public static readonly string DocumentModifiedYesterday = "Vex.VexL.DocumentModifiedYesterday";
+    public static readonly string DocumentModifiedDaysAgoFormat = "Vex.VexL.DocumentModifiedDaysAgoFormat";
+    public static readonly string DialogOpenMarkdownTitle = "Vex.VexL.DialogOpenMarkdownTitle";
+    public static readonly string DialogOpenFolderTitle = "Vex.VexL.DialogOpenFolderTitle";
+    public static readonly string DialogSaveMarkdownTitle = "Vex.VexL.DialogSaveMarkdownTitle";
+    public static readonly string FileTypeMarkdown = "Vex.VexL.FileTypeMarkdown";
+    public static readonly string FileTypeText = "Vex.VexL.FileTypeText";
     public static readonly string StatusLanguageSwitched = "Vex.VexL.StatusLanguageSwitched";
     public static readonly string StatusLineNumbersShown = "Vex.VexL.StatusLineNumbersShown";
     public static readonly string StatusLineNumbersHidden = "Vex.VexL.StatusLineNumbersHidden";
@@ -149,6 +157,7 @@ public static class VexL
     public static readonly string StatusOpenedQuickStart = "Vex.VexL.StatusOpenedQuickStart";
     public static readonly string StatusOpenedAcknowledgements = "Vex.VexL.StatusOpenedAcknowledgements";
     public static readonly string StatusAboutVex = "Vex.VexL.StatusAboutVex";
+    public static readonly string StatusNavigatedToOutlineFormat = "Vex.VexL.StatusNavigatedToOutlineFormat";
     public static readonly string StatusHelpQueuedFormat = "Vex.VexL.StatusHelpQueuedFormat";
     public static readonly string StatusDroppedItemUnavailable = "Vex.VexL.StatusDroppedItemUnavailable";
     public static readonly string StatusDropMarkdownOrTextFile = "Vex.VexL.StatusDropMarkdownOrTextFile";

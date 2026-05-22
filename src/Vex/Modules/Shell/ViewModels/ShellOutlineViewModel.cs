@@ -5,17 +5,20 @@ using ReactiveUI;
 using Vex.Core.Messaging;
 using Vex.Core.Models;
 using Vex.Core.Regions;
+using Vex.Modules.Shell.Services;
 
 namespace Vex.Modules.Shell.ViewModels;
 
 public sealed class ShellOutlineViewModel : ReactiveObject, IRegionTabItem
 {
     private readonly IEventBus _eventBus;
+    private readonly IShellStatusPublisher _statusPublisher;
     private OutlineItem? _selectedOutlineItem;
 
-    public ShellOutlineViewModel(IEventBus eventBus)
+    public ShellOutlineViewModel(IEventBus eventBus, IShellStatusPublisher statusPublisher)
     {
         _eventBus = eventBus;
+        _statusPublisher = statusPublisher;
         eventBus.Subscribe(this);
     }
 
@@ -35,7 +38,7 @@ public sealed class ShellOutlineViewModel : ReactiveObject, IRegionTabItem
             if (SetProperty(ref _selectedOutlineItem, value) && value is not null)
             {
                 _eventBus.Publish(new NavigateToLineCommand(value.Line));
-                _eventBus.Publish(new WorkspaceStatusChangedCommand($"Navigated to {value.Title}."));
+                _statusPublisher.PublishResourceFormat(VexL.StatusNavigatedToOutlineFormat, value.Title);
             }
         }
     }

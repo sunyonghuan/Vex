@@ -5,6 +5,8 @@ namespace Vex.Core.Services;
 
 public sealed class AppLocalizer : IAppLocalizer
 {
+    public CultureInfo Culture => I18nManager.Instance.Culture ?? CultureInfo.CurrentCulture;
+
     public string Get(string key)
     {
         // 应用级运行时文案统一走这里，Shell 与 Workspace 都不直接依赖 I18nManager。
@@ -13,6 +15,6 @@ public sealed class AppLocalizer : IAppLocalizer
 
     public string Format(string key, params object?[] args)
     {
-        return string.Format(CultureInfo.CurrentCulture, Get(key), args);
+        return string.Format(Culture, Get(key), args);
     }
 }

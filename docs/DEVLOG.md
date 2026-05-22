@@ -158,6 +158,12 @@
 - `MainWindow.axaml.cs` 从约 160 行降至约 125 行，快捷键判断、缩放、查找、全屏和 Esc 关闭浮层逻辑迁移到独立 ViewModel。
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并启动桌面程序发送 `Ctrl+F` 截图确认查找栏仍能通过快捷键打开并聚焦。截图路径：`%TEMP%\VexScreenshots\keyboard-shortcuts-findbar.png`。
 - 本轮未新增第三方依赖，继续复用 Prism IoC 与 CodeWF.EventBus。
+- 抽取 `IDocumentFileFactory`/`DocumentFileFactory`，文件夹列表的目录名、修改时间和预览摘要统一在工厂生成，`DocumentFile` 保持简单展示模型。
+- 本地化文件选择器标题、文件类型名称、最近文件空文案、文件列表相对修改时间和大纲跳转状态反馈。
+- `DocumentService` 通过 Prism IoC 注入应用本地化门面和文件列表工厂，避免 Workspace 服务继续保留硬编码英文对话框文案。
+- 验证全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并用临时 Markdown 文件夹启动 Debug 桌面程序确认主窗口句柄可创建。
+- 当前桌面会话仍无法稳定截图：`CopyFromScreen` 返回 `The handle is invalid`，因此本轮仅记录启动烟测和机器校验结果。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -401,4 +407,10 @@
 - `MarkdownEditorController.cs` remains below the 500-line maintenance threshold after the search-message migration.
 - Verified all Vex JSON localization resources with `ConvertFrom-Json`, built `Vex.slnx`, ran `git diff --check`, searched for the old search-message literals, and launched the Debug desktop app to confirm the main window handle is created.
 - Visual screenshot capture remains blocked by the current desktop-session limitation.
+- Added no new third-party dependency.
+- Extracted `IDocumentFileFactory`/`DocumentFileFactory`, so folder-list display fields are formatted in one service while `DocumentFile` stays a simple display model.
+- Localized file-picker titles, file-type labels, recent-file empty text, file-list relative modified times, and outline-navigation status feedback.
+- `DocumentService` now receives the app localizer and document-file factory through Prism IoC instead of keeping hard-coded English picker strings.
+- Verified all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a temporary Markdown folder to confirm the main window handle is created.
+- Visual screenshot capture remains blocked in this desktop session: `CopyFromScreen` returned `The handle is invalid`, so this iteration used startup smoke and machine validation.
 - Added no new third-party dependency.

@@ -146,3 +146,6 @@
 - 🧪[测试]-校验全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并启动 Debug 桌面程序确认主窗口句柄可创建。
 - 🧪[测试]-校验全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并检索确认本轮迁移的英文状态文本不再留在 Shell ViewModel 中。
 - 🧪[测试]-校验全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并检索确认旧编辑器搜索结果英文文案已迁移。
+- 🔧[优化]-本地化文件选择器标题、文件类型名称、最近文件空文案、文件列表修改时间和大纲跳转反馈。
+- 🔧[优化]-抽取 `IDocumentFileFactory`/`DocumentFileFactory`，让 `DocumentFile` 保持简单展示模型，Workspace 展示格式化逻辑可复用。
+- 🧪[测试]-校验全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并用临时 Markdown 文件夹启动 Debug 程序；当前桌面会话仍阻止自动截图。

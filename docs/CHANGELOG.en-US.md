@@ -138,3 +138,6 @@
 - Validated all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app to confirm the main window handle is created.
 - Validated all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and searched Shell ViewModels for the migrated hard-coded English status strings.
 - Validated all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and searched for the old editor search-result message literals.
+- Localized file-picker titles, file-type labels, recent-file empty text, file-list modified-time labels, and outline navigation feedback.
+- Extracted `IDocumentFileFactory`/`DocumentFileFactory` so `DocumentFile` stays a simple display model and Workspace formatting stays reusable.
+- Validated all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and launched the Debug app with a temporary Markdown folder; screenshot capture is still blocked by the current desktop session.

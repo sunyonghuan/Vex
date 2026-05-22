@@ -63,6 +63,8 @@ public partial class App : PrismApplication
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
         containerRegistry.AddEventBus();
+        containerRegistry.RegisterSingleton<IAppLocalizer, AppLocalizer>();
+        containerRegistry.RegisterSingleton<IDocumentFileFactory, DocumentFileFactory>();
         containerRegistry.RegisterSingleton<IDocumentService, DocumentService>();
         containerRegistry.RegisterSingleton<IMarkdownExportService, MarkdownExportService>();
         containerRegistry.RegisterSingleton<IMarkdownEditorMutationService, MarkdownEditorMutationService>();
@@ -71,7 +73,6 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IMarkdownStatisticsService, MarkdownStatisticsService>();
         containerRegistry.RegisterSingleton<IThemeService, ThemeService>();
         containerRegistry.RegisterSingleton<IHelpService, HelpService>();
-        containerRegistry.RegisterSingleton<IAppLocalizer, AppLocalizer>();
         containerRegistry.RegisterSingleton<IShellStatusPublisher, ShellStatusPublisher>();
         containerRegistry.RegisterSingleton<IShellDocumentWorkflowText, ShellDocumentWorkflowText>();
         containerRegistry.RegisterSingleton<ShellAppearanceViewModel>();

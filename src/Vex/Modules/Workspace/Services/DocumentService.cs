@@ -12,6 +12,14 @@ namespace Vex.Modules.Workspace.Services;
 public sealed class DocumentService : IDocumentService
 {
     private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
+    private readonly IDocumentFileFactory _documentFileFactory;
+    private readonly IAppLocalizer _localizer;
+
+    public DocumentService(IDocumentFileFactory documentFileFactory, IAppLocalizer localizer)
+    {
+        _documentFileFactory = documentFileFactory;
+        _localizer = localizer;
+    }
 
     public DocumentSnapshot CreateNew()
     {
@@ -34,9 +42,9 @@ public sealed class DocumentService : IDocumentService
 
         var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Open Markdown",
+            Title = _localizer.Get(VexL.DialogOpenMarkdownTitle),
             AllowMultiple = false,
-            FileTypeFilter = MarkdownFileTypes
+            FileTypeFilter = CreateMarkdownFileTypes()
         });
 
         var path = files.Count > 0 ? files[0].TryGetLocalPath() : null;
@@ -60,7 +68,7 @@ public sealed class DocumentService : IDocumentService
 
         var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Open Folder",
+            Title = _localizer.Get(VexL.DialogOpenFolderTitle),
             AllowMultiple = false
         });
 
@@ -82,7 +90,7 @@ public sealed class DocumentService : IDocumentService
             .Where(IsSupportedDocumentPath)
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
             .Take(300)
-            .Select(path => new DocumentFile(path, folder))
+            .Select(path => _documentFileFactory.Create(path, folder))
             .ToList();
         return Task.FromResult(files);
     }
@@ -117,10 +125,10 @@ public sealed class DocumentService : IDocumentService
 
         var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save Markdown",
+            Title = _localizer.Get(VexL.DialogSaveMarkdownTitle),
             SuggestedFileName = document.FileName,
             DefaultExtension = "md",
-            FileTypeChoices = MarkdownFileTypes
+            FileTypeChoices = CreateMarkdownFileTypes()
         });
 
         var path = file?.TryGetLocalPath();
@@ -192,18 +200,21 @@ public sealed class DocumentService : IDocumentService
         return Encoding.GetEncoding(encodingName);
     }
 
-    private static IReadOnlyList<FilePickerFileType> MarkdownFileTypes { get; } =
-    [
-        new("Markdown")
-        {
-            Patterns = ["*.md", "*.markdown", "*.mdown"]
-        },
-        new("Text")
-        {
-            Patterns = ["*.txt"]
-        },
-        FilePickerFileTypes.All
-    ];
+    private IReadOnlyList<FilePickerFileType> CreateMarkdownFileTypes()
+    {
+        return
+        [
+            new(_localizer.Get(VexL.FileTypeMarkdown))
+            {
+                Patterns = ["*.md", "*.markdown", "*.mdown"]
+            },
+            new(_localizer.Get(VexL.FileTypeText))
+            {
+                Patterns = ["*.txt"]
+            },
+            FilePickerFileTypes.All
+        ];
+    }
 
     private static Window? GetMainWindow()
     {
