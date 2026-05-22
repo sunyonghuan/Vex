@@ -26,12 +26,14 @@
     <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="CodeWF.EventBus" />
+    <PackageReference Include="CodeWF.Markdown" />
+    <PackageReference Include="CodeWF.Markdown.Themes" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Lang.Avalonia.Json" />
     <PackageReference Include="Prism.Avalonia" />
     <PackageReference Include="Prism.DryIoc.Avalonia" />
     <PackageReference Include="Semi.Avalonia" />
-    <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="VC-LTL" />
     <PackageReference Include="YY-Thunks" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
   </ItemGroup>
@@ -39,8 +41,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Vex.Controls\Vex.Controls.csproj" />
     <ProjectReference Include="..\Vex.Controls.Themes\Vex.Controls.Themes.csproj" />
-    <ProjectReference Include="..\..\..\CodeWF.EventBus\src\CodeWF.EventBus\CodeWF.EventBus.csproj" />
-    <ProjectReference Include="..\..\..\CodeWF.Markdown\src\CodeWF.Markdown.Themes\CodeWF.Markdown.Themes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

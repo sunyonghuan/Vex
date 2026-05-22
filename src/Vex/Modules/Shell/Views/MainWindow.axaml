@@ -241,7 +241,8 @@
                     <TabItem Header="大纲">
                         <ListBox
                             Classes="side-list"
-                            ItemsSource="{Binding OutlineItems}" />
+                            ItemsSource="{Binding OutlineItems}"
+                            SelectedItem="{Binding SelectedOutlineItem, Mode=TwoWay}" />
                     </TabItem>
                 </TabControl>
             </Border>

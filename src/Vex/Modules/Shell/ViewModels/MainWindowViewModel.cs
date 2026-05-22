@@ -39,6 +39,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private LanguageOption? _selectedLanguage;
     private MarkdownStatistics _statistics = new(0, 0, 1);
     private DocumentFile? _selectedDocumentFile;
+    private OutlineItem? _selectedOutlineItem;
 
     public MainWindowViewModel(
         IDocumentService documentService,
@@ -425,6 +426,20 @@ public sealed class MainWindowViewModel : ObservableObject
             if (SetProperty(ref _selectedDocumentFile, value) && value is not null)
             {
                 _ = OpenDocumentFileAsync(value);
+            }
+        }
+    }
+
+    public OutlineItem? SelectedOutlineItem
+    {
+        get => _selectedOutlineItem;
+        set
+        {
+            if (SetProperty(ref _selectedOutlineItem, value) && value is not null)
+            {
+                SelectedSideTabIndex = 1;
+                _eventBus.Publish(new NavigateToLineCommand(value.Line));
+                SetStatus($"Navigated to {value.Title}.");
             }
         }
     }

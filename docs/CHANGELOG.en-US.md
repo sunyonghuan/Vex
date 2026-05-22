@@ -11,3 +11,9 @@
 - Added initial commands for edit, paragraph, format, view, theme, language, and help menus.
 - Added theme variant, typography theme, compact layout, and language switching entry points.
 - Added `Vex.Controls` and `Vex.Controls.Themes` packages for Vex-specific controls and themes.
+- Added outline navigation to jump to the matching editor heading line.
+
+### Changed
+
+- Switched the solution file to `.slnx`.
+- Moved CodeWF dependencies to NuGet package references.

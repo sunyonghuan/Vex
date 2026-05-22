@@ -38,6 +38,7 @@ public partial class MarkdownEditorView : UserControl
         if (_eventBus is not null)
         {
             _eventBus.Unsubscribe<EditorActionCommand>(OnEditorAction);
+            _eventBus.Unsubscribe<NavigateToLineCommand>(OnNavigateToLine);
         }
 
         _viewModel = viewModel;
@@ -51,6 +52,7 @@ public partial class MarkdownEditorView : UserControl
         if (_eventBus is not null)
         {
             _eventBus.Subscribe<EditorActionCommand>(OnEditorAction);
+            _eventBus.Subscribe<NavigateToLineCommand>(OnNavigateToLine);
         }
 
         SyncEditorFromViewModel();
@@ -176,6 +178,21 @@ public partial class MarkdownEditorView : UserControl
                 MarkdownEditor.Focus();
                 break;
         }
+    }
+
+    private void OnNavigateToLine(NavigateToLineCommand command)
+    {
+        if (MarkdownEditor.Document is null)
+        {
+            return;
+        }
+
+        var line = Math.Clamp(command.Line, 1, MarkdownEditor.Document.LineCount);
+        var offset = MarkdownEditor.Document.GetLineByNumber(line).Offset;
+        MarkdownEditor.CaretOffset = offset;
+        MarkdownEditor.TextArea.Caret.BringCaretToView();
+        MarkdownEditor.Focus();
+        PublishEditorText();
     }
 
     private void WrapSelection(string prefix, string suffix, string placeholder)

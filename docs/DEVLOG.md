@@ -11,6 +11,8 @@
 - 接入 CodeWF.EventBus，用于编辑器视图和 Shell ViewModel 之间传递编辑动作与 Markdown 内容变化。
 - 接入 CodeWF.Markdown.Themes，提供排版主题和紧凑布局切换入口。
 - 创建双语更新日志、快速开始和鸣谢文档。
+- 使用 `.slnx` 解决方案格式，并将 CodeWF 相关依赖切换为 NuGet 包引用。
+- 增加大纲点击跳转编辑器行号功能，通过 CodeWF.EventBus 在 Shell 与编辑器视图之间传递导航消息。
 
 ### en-US
 
@@ -21,3 +23,5 @@
 - Wired CodeWF.EventBus for editor action and Markdown content communication between the editor view and shell ViewModel.
 - Integrated CodeWF.Markdown.Themes entry points for typography themes and compact layout switching.
 - Added bilingual changelog, quick start, and acknowledgements documents.
+- Switched the solution to `.slnx` and moved CodeWF dependencies to NuGet package references.
+- Added outline-to-editor navigation via CodeWF.EventBus messages.
