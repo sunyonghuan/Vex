@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using Vex.Modules.Shell.ViewModels;
 
 namespace Vex.Modules.Shell.Views;
@@ -140,7 +139,7 @@ public partial class MainWindow : Window
         {
             e.Handled = true;
         }
-        else if (e.Key == Key.Escape && viewModel.IsFindPanelVisible)
+        else if (e.Key == Key.Escape && viewModel.FindBar.IsVisible)
         {
             viewModel.CloseFindPanel();
             e.Handled = true;
@@ -170,15 +169,6 @@ public partial class MainWindow : Window
             ApplyWindowState(viewModel);
         }
 
-        if (sender is MainWindowViewModel { IsFindPanelVisible: true }
-            && e.PropertyName is nameof(MainWindowViewModel.IsFindPanelVisible))
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                FindTextBox.Focus();
-                FindTextBox.SelectAll();
-            });
-        }
     }
 
     private void ApplyWindowState(MainWindowViewModel viewModel)

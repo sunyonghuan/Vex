@@ -78,6 +78,12 @@
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图确认抽出的关于浮层可正常继承 DataContext、显示内容和状态栏反馈。截图路径：`%TEMP%\VexScreenshots\overlay-refactor-about.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
 
+- 拆分查找/替换功能模块：新增 `ShellFindBarView` 与 `ShellFindBarViewModel`，主窗口仅负责组合，菜单和快捷键继续转发到独立模块。
+- 查找模块通过 Prism IoC 注入，并使用 CodeWF.EventBus 发布 `EditorSearchCommand`、订阅 `EditorSearchResultCommand`，同时通过 `WorkspaceStatusChangedCommand` 回写状态栏，降低 Shell 主 ViewModel 与编辑器控制器的耦合。
+- `MainWindow.axaml` 从约 405 行降至 345 行，新增 `ShellFindBarView.axaml` 约 68 行；`MainWindowViewModel.cs` 删除查找状态与事件处理，新增 `ShellFindBarViewModel.cs` 约 160 行，避免继续在主窗口和主 ViewModel 中堆叠查找逻辑。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并截图确认独立查找控件可显示、自动聚焦、结果计数 `1/1` 与状态栏反馈正常。截图路径：`%TEMP%\VexScreenshots\findbar-module-refactor.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
+
 ### en-US
 
 - Added project identity metadata for author, CodeWF, and `https://codewf.com`.
@@ -152,4 +158,9 @@
 - Split shell overlay XAML into a new `ShellOverlaysView` that owns statistics, about, properties, delete confirmation, and unsaved-change confirmation overlays, leaving the main window focused on layout composition.
 - Reduced `MainWindow.axaml` from about 659 lines to about 405 lines, with `ShellOverlaysView.axaml` at about 256 lines, avoiding further overlay growth in the main window file.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the extracted about overlay still inherits DataContext and shows content plus status feedback correctly. Screenshot path: `%TEMP%\VexScreenshots\overlay-refactor-about.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Split find/replace into a dedicated `ShellFindBarView` and `ShellFindBarViewModel`, leaving the main window responsible for composition while menu and shortcut handlers delegate to the module.
+- Registered the find bar ViewModel through Prism IoC and used CodeWF.EventBus to publish `EditorSearchCommand`, handle `EditorSearchResultCommand`, and forward status feedback through `WorkspaceStatusChangedCommand`.
+- Reduced `MainWindow.axaml` from about 405 lines to 345 lines, added `ShellFindBarView.axaml` at about 68 lines, and moved find state plus search-result handling out of `MainWindowViewModel.cs` into a focused 160-line ViewModel.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the extracted find bar displays, focuses the search box, shows `1/1`, and updates the status bar. Screenshot path: `%TEMP%\VexScreenshots\findbar-module-refactor.png`.
 - Added no new third-party dependency, so no additional license review was required.

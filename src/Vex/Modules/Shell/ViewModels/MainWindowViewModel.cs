@@ -40,8 +40,6 @@ public sealed class MainWindowViewModel : ReactiveObject
     private bool _isSourceMode;
     private bool _sidebarBeforeSourceMode = true;
     private bool _previewBeforeSourceMode = true;
-    private bool _isFindPanelVisible;
-    private bool _isReplaceVisible;
     private bool _isStatisticsPanelVisible;
     private bool _isAboutPanelVisible;
     private bool _isPropertiesPanelVisible;
@@ -50,9 +48,6 @@ public sealed class MainWindowViewModel : ReactiveObject
     private string? _pendingDeletePath;
     private Func<Task>? _pendingUnsavedContinuation;
     private Action? _pendingUnsavedCancellation;
-    private string _searchText = string.Empty;
-    private string _replacementText = string.Empty;
-    private string _searchResultText = "0/0";
     private string _unsavedConfirmTitle = "Save changes?";
     private string _unsavedConfirmMessage = "Save changes before continuing?";
     private string _unsavedConfirmPath = "Unsaved document";
@@ -71,6 +66,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         IMarkdownStatisticsService statisticsService,
         IThemeService themeService,
         IHelpService helpService,
+        ShellFindBarViewModel findBar,
         IEventBus eventBus)
     {
         _documentService = documentService;
@@ -79,6 +75,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _statisticsService = statisticsService;
         _themeService = themeService;
         _helpService = helpService;
+        FindBar = findBar;
         _eventBus = eventBus;
         _eventBus.Subscribe(this);
         LoadRecentDocuments();
@@ -109,6 +106,8 @@ public sealed class MainWindowViewModel : ReactiveObject
     }
 
     public event EventHandler? CloseWindowRequested;
+
+    public ShellFindBarViewModel FindBar { get; }
 
     public async Task OpenStartupDocumentAsync(IEnumerable<string> arguments)
     {
@@ -317,42 +316,6 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         get => _isSourceMode;
         set => SetProperty(ref _isSourceMode, value);
-    }
-
-    public bool IsFindPanelVisible
-    {
-        get => _isFindPanelVisible;
-        set => SetProperty(ref _isFindPanelVisible, value);
-    }
-
-    public bool IsReplaceVisible
-    {
-        get => _isReplaceVisible;
-        set => SetProperty(ref _isReplaceVisible, value);
-    }
-
-    public string SearchText
-    {
-        get => _searchText;
-        set
-        {
-            if (SetProperty(ref _searchText, value ?? string.Empty))
-            {
-                RefreshSearchResultCount();
-            }
-        }
-    }
-
-    public string ReplacementText
-    {
-        get => _replacementText;
-        set => SetProperty(ref _replacementText, value ?? string.Empty);
-    }
-
-    public string SearchResultText
-    {
-        get => _searchResultText;
-        set => SetProperty(ref _searchResultText, value);
     }
 
     public bool IsStatisticsPanelVisible
@@ -839,12 +802,9 @@ public sealed class MainWindowViewModel : ReactiveObject
     }
 
     [EventHandler]
-    public void ApplyEditorSearchResult(EditorSearchResultCommand command)
+    public void ApplyWorkspaceStatusChanged(WorkspaceStatusChangedCommand command)
     {
-        SearchResultText = command.TotalCount > 0
-            ? $"{Math.Max(1, command.CurrentIndex)}/{command.TotalCount}"
-            : "0/0";
-        SetStatus(command.Message);
+        StatusText = command.Message;
     }
 
     private void RefreshMarkdownDerivedState()
@@ -1022,74 +982,32 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public void ShowFindPanel()
     {
-        IsFindPanelVisible = true;
-        IsReplaceVisible = false;
-        RefreshSearchResultCount();
-        SetStatus("Find is ready.");
+        FindBar.ShowFindPanel();
     }
 
     public void ShowReplacePanel()
     {
-        IsFindPanelVisible = true;
-        IsReplaceVisible = true;
-        RefreshSearchResultCount();
-        SetStatus("Replace is ready.");
+        FindBar.ShowReplacePanel();
     }
 
     public void CloseFindPanel()
     {
-        IsFindPanelVisible = false;
-        SetStatus("Find closed.");
-        PublishEditorAction(EditorActionKind.FocusEditor);
+        FindBar.CloseFindPanel();
     }
 
     public void FindNext()
     {
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
-            SetStatus("Enter search text first.");
-            return;
-        }
-
-        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.FindNext, SearchText));
+        FindBar.FindNext();
     }
 
     public void ReplaceNext()
     {
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
-            SetStatus("Enter search text first.");
-            return;
-        }
-
-        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.ReplaceNext, SearchText, ReplacementText));
+        FindBar.ReplaceNext();
     }
 
     public void ReplaceAll()
     {
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
-            SetStatus("Enter search text first.");
-            return;
-        }
-
-        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.ReplaceAll, SearchText, ReplacementText));
-    }
-
-    private void RefreshSearchResultCount()
-    {
-        if (!IsFindPanelVisible)
-        {
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
-            SearchResultText = "0/0";
-            return;
-        }
-
-        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.Count, SearchText));
+        FindBar.ReplaceAll();
     }
 
     public void Undo()
