@@ -217,6 +217,12 @@
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并启动 Debug 桌面程序使用窗口句柄截图确认编辑器、预览和状态栏仍正常渲染。截图路径：`%TEMP%\VexScreenshots\editor-action-service-startup.png`。
 - 本轮未做编辑动作交互截图，动作路径由编译、IoC 注册和保留的 `EditorActionCommand` 入口覆盖，后续可补自动化 UI 用例。
 - 本轮未新增第三方依赖。
+- 新增 `IMarkdownEditorTemplateService`/`MarkdownEditorTemplateService`，将粗体、斜体、行内代码、链接、图片、代码块、表格和公式块的插入占位模板接入 `VexL` 资源。
+- `MarkdownEditorActionService` 不再保留英文占位文案，切换语言后后续插入动作会读取当前语言资源。
+- 验证全部 Vex JSON 本地化资源、构建 `Vex.slnx`、执行 `git diff --check`，并检索确认旧占位模板只保留在资源文件中。
+- 启动 Debug 桌面程序并使用窗口句柄截图，确认模板服务接入后 Shell、编辑器、预览和状态栏仍正常渲染。截图路径：`%TEMP%\VexScreenshots\editor-template-service-startup.png`。
+- 本轮未做编辑动作交互截图，模板路径由编译、IoC 注册和 `MarkdownEditorActionService` 调用覆盖，后续可补自动化 UI 用例。
+- 本轮未新增第三方依赖。
 
 ### en-US
 
@@ -519,4 +525,10 @@
 - Reduced `MarkdownEditorController.cs` from 298 lines to 166 lines; the controller keeps editor lifetime, text sync, EventBus entry points, search, and navigation.
 - Verified `dotnet build Vex.slnx`, ran `git diff --check`, and launched the Debug desktop app with a window-handle screenshot confirming the editor, preview, and status bar still render. Screenshot path: `%TEMP%\VexScreenshots\editor-action-service-startup.png`.
 - This iteration does not claim an interactive editor-action screenshot; the action path is covered by compilation, IoC registration, and the retained `EditorActionCommand` entry point. UI automation can be added later.
+- Added no new third-party dependency.
+- Added `IMarkdownEditorTemplateService`/`MarkdownEditorTemplateService`, localizing insertion placeholders/templates for bold, italic, inline code, links, images, code blocks, tables, and math blocks through `VexL`.
+- `MarkdownEditorActionService` no longer keeps English placeholder text; future insertions read the current language resources after a language switch.
+- Verified all Vex JSON localization resources, built `Vex.slnx`, ran `git diff --check`, and searched to confirm the old placeholder templates now only remain in resource files.
+- Launched the Debug desktop app and captured a window-handle screenshot confirming the shell, editor, preview, and status bar still render after the template service wiring. Screenshot path: `%TEMP%\VexScreenshots\editor-template-service-startup.png`.
+- This iteration does not claim an interactive editor-action screenshot; the template path is covered by compilation, IoC registration, and `MarkdownEditorActionService` calls. UI automation can be added later.
 - Added no new third-party dependency.

@@ -5,10 +5,14 @@ namespace Vex.Modules.Workspace.Services;
 
 public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
 {
+    private readonly IMarkdownEditorTemplateService _templates;
     private readonly IMarkdownEditorMutationService _textMutationService;
 
-    public MarkdownEditorActionService(IMarkdownEditorMutationService textMutationService)
+    public MarkdownEditorActionService(
+        IMarkdownEditorTemplateService templates,
+        IMarkdownEditorMutationService textMutationService)
     {
+        _templates = templates;
         _textMutationService = textMutationService;
     }
 
@@ -36,19 +40,19 @@ public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
                 editor.SelectAll();
                 break;
             case EditorActionKind.Bold:
-                WrapSelection(editor, "**", "**", "bold text", runTextMutation);
+                WrapSelection(editor, "**", "**", _templates.BoldPlaceholder, runTextMutation);
                 break;
             case EditorActionKind.Italic:
-                WrapSelection(editor, "*", "*", "italic text", runTextMutation);
+                WrapSelection(editor, "*", "*", _templates.ItalicPlaceholder, runTextMutation);
                 break;
             case EditorActionKind.InlineCode:
-                WrapSelection(editor, "`", "`", "code", runTextMutation);
+                WrapSelection(editor, "`", "`", _templates.InlineCodePlaceholder, runTextMutation);
                 break;
             case EditorActionKind.Link:
-                WrapSelection(editor, "[", "](https://example.com)", "link text", runTextMutation);
+                WrapSelection(editor, "[", "](https://example.com)", _templates.LinkPlaceholder, runTextMutation);
                 break;
             case EditorActionKind.Image:
-                InsertText(editor, "![alt text](image.png)", runTextMutation);
+                InsertText(editor, _templates.ImageInsertion, runTextMutation);
                 break;
             case EditorActionKind.ClearFormatting:
                 MutateEditor(editor, _textMutationService.ClearFormatting, runTextMutation);
@@ -87,13 +91,13 @@ public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
                 PrefixCurrentLine(editor, "- [ ] ", runTextMutation);
                 break;
             case EditorActionKind.CodeFence:
-                WrapSelection(editor, "```csharp\n", "\n```", "Console.WriteLine(\"Vex\");", runTextMutation);
+                WrapSelection(editor, "```csharp\n", "\n```", _templates.CodeFencePlaceholder, runTextMutation);
                 break;
             case EditorActionKind.Table:
-                InsertText(editor, "\n| Column | Value |\n| --- | --- |\n| Item | Description |\n", runTextMutation);
+                InsertText(editor, _templates.TableInsertion, runTextMutation);
                 break;
             case EditorActionKind.MathBlock:
-                WrapSelection(editor, "$$\n", "\n$$", "E = mc^2", runTextMutation);
+                WrapSelection(editor, "$$\n", "\n$$", _templates.MathPlaceholder, runTextMutation);
                 break;
             case EditorActionKind.HorizontalRule:
                 InsertText(editor, "\n---\n", runTextMutation);

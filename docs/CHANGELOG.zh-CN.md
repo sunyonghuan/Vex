@@ -169,3 +169,5 @@
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并用启动参数截图确认 Markdown 文件可通过解析服务直接打开。
 - 🔧[优化]-将编辑器动作执行拆入 `MarkdownEditorActionService`，`MarkdownEditorController.cs` 从 298 行降到 166 行。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图确认编辑器和预览仍正常渲染。
+- 🔧[优化]-新增 `MarkdownEditorTemplateService`，将格式化、链接、图片、表格、代码块和公式块的插入占位模板接入本地化资源。
+- 🧪[测试]-校验 JSON 资源、构建 `Vex.slnx`、执行 `git diff --check`、检索旧硬编码模板，并完成启动截图。

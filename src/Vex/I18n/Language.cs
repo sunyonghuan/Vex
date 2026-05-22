@@ -225,6 +225,17 @@ public static class VexL
     public static readonly string StatusReplaceReady = "Vex.VexL.StatusReplaceReady";
     public static readonly string StatusFindClosed = "Vex.VexL.StatusFindClosed";
     public static readonly string StatusEnterSearchTextFirst = "Vex.VexL.StatusEnterSearchTextFirst";
+    public static readonly string EditorTemplateBoldText = "Vex.VexL.EditorTemplateBoldText";
+    public static readonly string EditorTemplateItalicText = "Vex.VexL.EditorTemplateItalicText";
+    public static readonly string EditorTemplateInlineCode = "Vex.VexL.EditorTemplateInlineCode";
+    public static readonly string EditorTemplateLinkText = "Vex.VexL.EditorTemplateLinkText";
+    public static readonly string EditorTemplateImageAltText = "Vex.VexL.EditorTemplateImageAltText";
+    public static readonly string EditorTemplateCodeFence = "Vex.VexL.EditorTemplateCodeFence";
+    public static readonly string EditorTemplateTableColumn = "Vex.VexL.EditorTemplateTableColumn";
+    public static readonly string EditorTemplateTableValue = "Vex.VexL.EditorTemplateTableValue";
+    public static readonly string EditorTemplateTableItem = "Vex.VexL.EditorTemplateTableItem";
+    public static readonly string EditorTemplateTableDescription = "Vex.VexL.EditorTemplateTableDescription";
+    public static readonly string EditorTemplateMath = "Vex.VexL.EditorTemplateMath";
     public static readonly string EditorSearchNoMatchFormat = "Vex.VexL.EditorSearchNoMatchFormat";
     public static readonly string EditorSearchFoundOnLineFormat = "Vex.VexL.EditorSearchFoundOnLineFormat";
     public static readonly string EditorSearchReplacedNextFormat = "Vex.VexL.EditorSearchReplacedNextFormat";

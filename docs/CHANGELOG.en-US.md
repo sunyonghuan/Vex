@@ -161,3 +161,5 @@
 - Built `Vex.slnx`, ran `git diff --check`, and captured a startup-argument screenshot confirming a Markdown file opens through the resolver.
 - Split editor action execution into `MarkdownEditorActionService`, reducing `MarkdownEditorController.cs` from 298 to 166 lines.
 - Built `Vex.slnx`, ran `git diff --check`, and captured a startup screenshot confirming the editor and preview still render.
+- Added `MarkdownEditorTemplateService` and localized editor insertion placeholders/templates for formatting, links, images, tables, code blocks, and math blocks.
+- Validated JSON resources, built `Vex.slnx`, ran `git diff --check`, searched for old hard-coded templates, and captured a startup screenshot.
