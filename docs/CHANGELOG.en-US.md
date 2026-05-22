@@ -5,6 +5,13 @@
 ### Added
 
 - Added editor-to-preview scroll synchronization so the preview follows the current editor position.
+- Improved preview synchronization to use CodeWF.Markdown source-line bounds first, with ratio scrolling as fallback.
+- Added auto-save drafts and crash recovery for unsaved edits when reopening the same document.
+- Fixed single-file opening so the sidebar file list shows the opened Markdown file.
+- Added the full Semi theme menu: system, light, dark, aquatic, desert, dusk, and night sky.
+- Added the built-in CodeWF.Markdown.Themes typography themes to the typography menu.
+- Improved language switching so Semi and Ursa control resources switch with the Vex locale.
+- Improved folder opening by scanning in the background and skipping inaccessible folders or unreadable previews.
 - Added context-aware table, link, and image insertion for selected URLs, image paths, and delimited text.
 - Built `Vex.slnx` and screenshot-verified that the preview follows a long document after jumping to the end.
 - Added App.config-backed user settings persistence for theme, typography, compact layout, language, window size, sidebar/preview/status-bar layout, editor zoom, and line-number display.

@@ -47,7 +47,9 @@ public partial class MarkdownPreviewView : UserControl
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(MarkdownPreviewViewModel.PreviewScrollRatio) or nameof(MarkdownPreviewViewModel.Markdown))
+        if (e.PropertyName is nameof(MarkdownPreviewViewModel.PreviewSourceLine)
+            or nameof(MarkdownPreviewViewModel.PreviewScrollRatio)
+            or nameof(MarkdownPreviewViewModel.Markdown))
         {
             QueueScrollToEditorPosition();
         }
@@ -65,8 +67,31 @@ public partial class MarkdownPreviewView : UserControl
             return;
         }
 
+        if (TryScrollToSourceLine())
+        {
+            return;
+        }
+
         var scrollableHeight = Math.Max(0d, PreviewScrollViewer.Extent.Height - PreviewScrollViewer.Viewport.Height);
         var targetY = scrollableHeight * Math.Clamp(_viewModel.PreviewScrollRatio, 0d, 1d);
         PreviewScrollViewer.Offset = new Vector(0d, targetY);
+    }
+
+    private bool TryScrollToSourceLine()
+    {
+        if (_viewModel is null || !PreviewMarkdownViewer.TryGetSourceLineBounds(_viewModel.PreviewSourceLine, out var bounds))
+        {
+            return false;
+        }
+
+        var scrollableHeight = Math.Max(0d, PreviewScrollViewer.Extent.Height - PreviewScrollViewer.Viewport.Height);
+        if (scrollableHeight <= 0d)
+        {
+            return true;
+        }
+
+        var targetY = Math.Clamp(bounds.Y, 0d, scrollableHeight);
+        PreviewScrollViewer.Offset = new Vector(0d, targetY);
+        return true;
     }
 }

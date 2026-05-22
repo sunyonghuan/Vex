@@ -30,7 +30,16 @@ public sealed class DocumentFileFactory : IDocumentFileFactory
             return string.Empty;
         }
 
-        var lastWriteTime = new DateTimeOffset(File.GetLastWriteTime(path));
+        DateTimeOffset lastWriteTime;
+        try
+        {
+            lastWriteTime = new DateTimeOffset(File.GetLastWriteTime(path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return string.Empty;
+        }
+
         var age = DateTimeOffset.Now - lastWriteTime;
         return age.TotalDays switch
         {
@@ -68,13 +77,20 @@ public sealed class DocumentFileFactory : IDocumentFileFactory
             return string.Empty;
         }
 
-        foreach (var line in File.ReadLines(path).Take(8))
+        try
         {
-            var trimmed = line.Trim().TrimStart('#', '-', '*', '>', ' ');
-            if (!string.IsNullOrWhiteSpace(trimmed))
+            foreach (var line in File.ReadLines(path).Take(8))
             {
-                return trimmed.Length > 96 ? $"{trimmed[..96]}..." : trimmed;
+                var trimmed = line.Trim().TrimStart('#', '-', '*', '>', ' ');
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                {
+                    return trimmed.Length > 96 ? $"{trimmed[..96]}..." : trimmed;
+                }
             }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return string.Empty;
         }
 
         return string.Empty;

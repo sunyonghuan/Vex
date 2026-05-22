@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Styling;
+using Semi.Avalonia;
 using Vex.Core.Models;
 using Vex.Core.Services;
 
@@ -9,9 +10,13 @@ public sealed class ThemeService : IThemeService
 {
     private static readonly ThemeOption[] Themes =
     [
+        new("System", "system", ThemeVariant.Default),
         new("Light", "light", ThemeVariant.Light),
         new("Dark", "dark", ThemeVariant.Dark),
-        new("System", "system", ThemeVariant.Default)
+        new("Aquatic", "aquatic", SemiTheme.Aquatic),
+        new("Desert", "desert", SemiTheme.Desert),
+        new("Dusk", "dusk", SemiTheme.Dusk),
+        new("NightSky", "night-sky", SemiTheme.NightSky)
     ];
 
     public IReadOnlyList<ThemeOption> GetThemeOptions() => Themes;

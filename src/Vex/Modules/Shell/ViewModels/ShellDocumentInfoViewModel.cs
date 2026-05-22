@@ -30,7 +30,7 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
 
     public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath);
 
-    public bool IsModified => !string.Equals(_markdown, _lastSavedMarkdown, StringComparison.Ordinal);
+    public bool IsModified => !MarkdownEquals(_markdown, _lastSavedMarkdown);
 
     public string DocumentStateText => IsModified
         ? _localizer.Get(VexL.DocumentStateModified)
@@ -126,6 +126,11 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
         }
 
         return encoding.WebName.ToUpperInvariant();
+    }
+
+    private static bool MarkdownEquals(string left, string right)
+    {
+        return string.Equals(left.ReplaceLineEndings("\n"), right.ReplaceLineEndings("\n"), StringComparison.Ordinal);
     }
 
     private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)

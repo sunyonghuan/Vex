@@ -87,6 +87,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IShellUnsavedChangesGuard, ShellUnsavedChangesGuard>();
         containerRegistry.RegisterSingleton<IShellDocumentUtilityActions, ShellDocumentUtilityActions>();
         containerRegistry.RegisterSingleton<IShellExternalPathResolver, ShellExternalPathResolver>();
+        containerRegistry.RegisterSingleton<IAutoSaveDraftService, AutoSaveDraftService>();
         containerRegistry.RegisterSingleton<IShellDroppedPathReader, ShellDroppedPathReader>();
         containerRegistry.RegisterSingleton<IShellDropTargetHandler, ShellDropTargetHandler>();
         containerRegistry.RegisterSingleton<IShellStartupArgumentPublisher, ShellStartupArgumentPublisher>();

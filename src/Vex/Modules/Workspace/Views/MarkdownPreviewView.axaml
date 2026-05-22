@@ -16,6 +16,7 @@
             HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Auto">
             <md:MarkdownViewer
+                x:Name="PreviewMarkdownViewer"
                 Markdown="{Binding Markdown}"
                 TypographySize="{Binding TypographySize}"
                 TypographyTheme="{Binding TypographyTheme}" />

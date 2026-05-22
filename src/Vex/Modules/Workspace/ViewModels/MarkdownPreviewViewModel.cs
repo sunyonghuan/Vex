@@ -9,6 +9,7 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
 {
     private readonly IEditorAppearanceState _appearanceState;
     private string _markdown;
+    private int _previewSourceLine = 1;
     private double _previewScrollRatio;
     private string _typographySize;
     private string? _typographyTheme;
@@ -38,6 +39,12 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
         private set => this.RaiseAndSetIfChanged(ref _previewScrollRatio, value);
     }
 
+    public int PreviewSourceLine
+    {
+        get => _previewSourceLine;
+        private set => this.RaiseAndSetIfChanged(ref _previewSourceLine, value);
+    }
+
     public string TypographySize
     {
         get => _typographySize;
@@ -59,6 +66,7 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
     [EventHandler]
     public void ApplyMarkdownTextChanged(MarkdownTextChangedCommand command)
     {
+        PreviewSourceLine = command.CaretLine;
         PreviewScrollRatio = CalculatePreviewScrollRatio(command.Markdown, command.CaretLine);
     }
 

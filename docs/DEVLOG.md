@@ -78,6 +78,14 @@
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图确认抽出的关于浮层可正常继承 DataContext、显示内容和状态栏反馈。截图路径：`%TEMP%\VexScreenshots\overlay-refactor-about.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
 - 增加编辑器到预览的滚动同步：光标行变化时，预览区按文档位置比例滚动，便于长文档双栏定位。
+- CodeWF.Markdown 新增源码行/源码偏移渲染区域查询 API，Vex 预览同步优先按源码行定位，失败时回退比例滚动。
+- 自动保存草稿写入本地 `%LOCALAPPDATA%\Vex\Drafts`，崩溃或强制退出后重新打开同一文档可恢复未保存内容。
+- 直接打开单个 Markdown 文件时，左侧文件列表会同步显示该文件，文件夹列表内切换仍保持原列表。
+- 主题菜单补齐 Semi 的跟随系统、浅色、深色、水生、沙漠、黄昏、夜空；排版菜单补齐 CodeWF.Markdown.Themes 内置排版主题。
+- 语言切换同步 Semi 与 Ursa 控件资源，减少第三方控件固定语言问题。
+- 打开文件夹改为后台扫描，使用 `EnumerationOptions.IgnoreInaccessible` 跳过无权限目录，并让文件列表摘要读取失败时降级为空摘要。
+- 依赖更新到一方 MIT 包 `CodeWF.Markdown.Themes` 12.0.3.3；源码在 `D:\github\libs\CodeWF.Markdown`，本轮使用本地 NuGet 包源验证。
+- 验证 `dotnet build Vex.slnx`、JSON 本地化资源解析、`Assets.Dotnet9` 真实文件夹打开、真实大文件单文件打开、长文档预览同步滚动、主题/排版菜单截图和自动保存崩溃恢复。
 - 验证 `dotnet build Vex.slnx`，并截图确认长文档跳转到末尾后预览同步滚动。截图路径：`%TEMP%\VexScreenshots\scroll-sync-after-end-fixed.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
 - 增强表格、链接、图片插入辅助：选中 URL 可生成链接，选中图片路径或 URL 可生成图片，选中 CSV/TSV/管道分隔文本可转换为 Markdown 表格。

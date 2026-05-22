@@ -13,11 +13,14 @@ public sealed class MainWindowViewModel : ReactiveObject
     private readonly IWorkspaceDocumentState _workspaceDocumentState;
     private readonly IMarkdownOutlineService _outlineService;
     private readonly IMarkdownStatisticsService _statisticsService;
+    private readonly IDocumentFileFactory _documentFileFactory;
     private readonly IEventBus _eventBus;
     private readonly IShellDocumentWorkflowText _text;
     private readonly IShellUnsavedChangesGuard _unsavedChanges;
     private readonly IShellDocumentUtilityActions _documentUtilities;
     private readonly IShellExternalPathResolver _externalPaths;
+    private readonly IAutoSaveDraftService _drafts;
+    private readonly IShellStatusPublisher _statusPublisher;
     private DocumentSnapshot _document;
     private IReadOnlyList<DocumentFile> _documentFiles = [];
     private string _lastSavedMarkdown = string.Empty;
@@ -28,6 +31,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         IWorkspaceDocumentState workspaceDocumentState,
         IMarkdownOutlineService outlineService,
         IMarkdownStatisticsService statisticsService,
+        IDocumentFileFactory documentFileFactory,
         ShellAppearanceViewModel appearance,
         ShellDocumentInfoViewModel documentInfo,
         ShellDialogsViewModel dialogs,
@@ -43,12 +47,15 @@ public sealed class MainWindowViewModel : ReactiveObject
         IShellUnsavedChangesGuard unsavedChanges,
         IShellDocumentUtilityActions documentUtilities,
         IShellExternalPathResolver externalPaths,
+        IAutoSaveDraftService drafts,
+        IShellStatusPublisher statusPublisher,
         IEventBus eventBus)
     {
         _documentService = documentService;
         _workspaceDocumentState = workspaceDocumentState;
         _outlineService = outlineService;
         _statisticsService = statisticsService;
+        _documentFileFactory = documentFileFactory;
         Appearance = appearance;
         DocumentInfo = documentInfo;
         Dialogs = dialogs;
@@ -64,13 +71,20 @@ public sealed class MainWindowViewModel : ReactiveObject
         _unsavedChanges = unsavedChanges;
         _documentUtilities = documentUtilities;
         _externalPaths = externalPaths;
+        _drafts = drafts;
+        _statusPublisher = statusPublisher;
         _eventBus = eventBus;
         _eventBus.Subscribe(this);
 
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
+        _document = RestoreDraftIfAvailable(_document, out var restoredInitialDraft);
         Markdown = _document.Markdown;
         RefreshDocumentInfo();
+        if (restoredInitialDraft)
+        {
+            _statusPublisher.PublishResource(VexL.StatusRecoveredAutoSaveDraft);
+        }
     }
 
     public event EventHandler? CloseWindowRequested;
@@ -97,13 +111,19 @@ public sealed class MainWindowViewModel : ReactiveObject
 
         if (target.Kind == ShellExternalPathKind.Folder)
         {
-            await ApplyDocumentFilesAsync(await _documentService.OpenFolderPathAsync(path), true);
+            await RequestUnsavedConfirmationAsync(
+                _text.TitleBeforeOpeningFolder,
+                _text.BeforeOpeningFolder(_document.FileName),
+                async () => await ApplyDocumentFilesAsync(await _documentService.OpenFolderPathAsync(path), true));
             return;
         }
 
         if (target.Kind == ShellExternalPathKind.File)
         {
-            ApplyDocument(await _documentService.OpenPathAsync(path));
+            await RequestUnsavedConfirmationAsync(
+                _text.TitleBeforeOpening,
+                _text.BeforeOpeningFile(_document.FileName, target.FileName ?? path),
+                async () => ApplyDocument(await _documentService.OpenPathAsync(path)));
         }
     }
 
@@ -168,6 +188,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void NewDocumentCore()
     {
+        _drafts.Clear(_document);
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
         Markdown = _document.Markdown;
@@ -190,6 +211,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void CloseDocumentCore()
     {
+        _drafts.Clear(_document);
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
         Markdown = _document.Markdown;
@@ -297,7 +319,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         var saved = await _documentService.SaveAsync(_document with { Markdown = Markdown });
         if (saved is not null)
         {
-            ApplyDocument(saved, false);
+            ApplyDocument(saved, false, false);
             _text.PublishSaved(saved.FileName);
         }
     }
@@ -307,7 +329,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         var saved = await _documentService.SaveAsAsync(_document with { Markdown = Markdown });
         if (saved is not null)
         {
-            ApplyDocument(saved, false);
+            ApplyDocument(saved, false, false);
             _text.PublishSavedAs(saved.FileName);
         }
     }
@@ -345,6 +367,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         await _documentService.DeleteAsync(path);
+        _drafts.Clear(_document);
         Recent.RemoveRecentDocument(path);
         Dialogs.ClearDeleteConfirmation();
         NewDocumentCore();
@@ -379,22 +402,34 @@ public sealed class MainWindowViewModel : ReactiveObject
         _text.PublishReopenedWithEncoding(encodingName);
     }
 
-    private void ApplyDocument(DocumentSnapshot snapshot, bool updateMarkdown = true)
+    private void ApplyDocument(DocumentSnapshot snapshot, bool updateMarkdown = true, bool restoreDraft = true)
     {
-        _document = snapshot;
+        if (!IsSameDocument(_document, snapshot))
+        {
+            _drafts.Clear(_document);
+        }
+
+        var restoredDraft = false;
+        _document = restoreDraft ? RestoreDraftIfAvailable(snapshot, out restoredDraft) : snapshot;
         _lastSavedMarkdown = snapshot.Markdown;
         if (snapshot.FilePath is { Length: > 0 } path)
         {
             Recent.AddRecentDocument(path);
+            SyncDocumentFileList(path);
         }
 
         if (updateMarkdown)
         {
-            Markdown = snapshot.Markdown;
+            Markdown = _document.Markdown;
         }
 
         RefreshDocumentInfo();
         _text.PublishOpened(snapshot.FileName);
+        if (restoredDraft)
+        {
+            _statusPublisher.PublishResource(VexL.StatusRecoveredAutoSaveDraft);
+        }
+
         EditorActions.FocusEditor();
     }
 
@@ -426,6 +461,21 @@ public sealed class MainWindowViewModel : ReactiveObject
     private void RefreshDocumentInfo()
     {
         DocumentInfo.Refresh(_document, Markdown, _lastSavedMarkdown, _statisticsService.Count(Markdown));
+        _drafts.QueueSave(_document, Markdown, _lastSavedMarkdown);
+    }
+
+    private void SyncDocumentFileList(string path)
+    {
+        var selected = _documentFiles.FirstOrDefault(file => file.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+        if (selected is null)
+        {
+            selected = _documentFileFactory.Create(path);
+            _documentFiles = [selected];
+            _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles, selected));
+            return;
+        }
+
+        _eventBus.Publish(new DocumentFileSelectionChangedCommand(selected));
     }
 
     public void ShowProperties() => _documentUtilities.ShowProperties(Dialogs, DocumentInfo);
@@ -464,11 +514,13 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public Task BeginWindowCloseAsync()
     {
+        _drafts.Flush();
         return RequestUnsavedConfirmationAsync(
             _text.TitleBeforeClosingVex,
             _text.BeforeClosingVex(_document.FileName),
             () =>
             {
+                _drafts.Clear(_document);
                 CloseWindowRequested?.Invoke(this, EventArgs.Empty);
                 return Task.CompletedTask;
             });
@@ -496,4 +548,27 @@ public sealed class MainWindowViewModel : ReactiveObject
             DocumentInfo.CurrentFilePath,
             continuation,
             cancellation);
+
+    private DocumentSnapshot RestoreDraftIfAvailable(DocumentSnapshot document, out bool restoredDraft)
+    {
+        var restored = _drafts.TryRestore(document);
+        if (restored is null)
+        {
+            restoredDraft = false;
+            return document;
+        }
+
+        restoredDraft = true;
+        return restored;
+    }
+
+    private static bool IsSameDocument(DocumentSnapshot left, DocumentSnapshot right)
+    {
+        if (left.FilePath is { Length: > 0 } leftPath && right.FilePath is { Length: > 0 } rightPath)
+        {
+            return leftPath.Equals(rightPath, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return string.IsNullOrWhiteSpace(left.FilePath) && string.IsNullOrWhiteSpace(right.FilePath);
+    }
 }

@@ -81,14 +81,23 @@ public sealed class DocumentService : IDocumentService
             return Task.FromResult<IReadOnlyList<DocumentFile>>([]);
         }
 
-        IReadOnlyList<DocumentFile> files = Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories)
-            // 与文件选择器保持一致，文件夹扫描也识别常见 Markdown 扩展名。
-            .Where(IsSupportedDocumentPath)
-            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
-            .Take(300)
-            .Select(path => _documentFileFactory.Create(path, folder))
-            .ToList();
-        return Task.FromResult(files);
+        return Task.Run<IReadOnlyList<DocumentFile>>(() =>
+        {
+            var options = new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                IgnoreInaccessible = true,
+                ReturnSpecialDirectories = false
+            };
+
+            return Directory.EnumerateFiles(folder, "*.*", options)
+                // 与文件选择器保持一致，文件夹扫描也识别常见 Markdown 扩展名。
+                .Where(IsSupportedDocumentPath)
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .Take(300)
+                .Select(path => _documentFileFactory.Create(path, folder))
+                .ToList();
+        });
     }
 
     public bool IsSupportedDocumentPath(string path)
