@@ -45,6 +45,7 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
                 OnPropertyChanged(nameof(WordCountText));
                 OnPropertyChanged(nameof(CharacterCountText));
                 OnPropertyChanged(nameof(LineCountText));
+                OnPropertyChanged(nameof(ReadingMinutesText));
             }
         }
     }
@@ -60,6 +61,10 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
     public string LineCountText => string.Format(
         I18nManager.Instance.GetResource(VexL.LineCountFormat),
         Statistics.Lines);
+
+    public string ReadingMinutesText => string.Format(
+        I18nManager.Instance.GetResource(VexL.ReadingMinutesFormat),
+        Statistics.ReadingMinutes);
 
     public string PropertyNameText => _document.FileName;
 
@@ -99,6 +104,7 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
         OnPropertyChanged(nameof(WordCountText));
         OnPropertyChanged(nameof(CharacterCountText));
         OnPropertyChanged(nameof(LineCountText));
+        OnPropertyChanged(nameof(ReadingMinutesText));
         OnPropertyChanged(nameof(PropertyLocationText));
     }
 

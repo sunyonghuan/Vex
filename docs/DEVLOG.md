@@ -359,3 +359,9 @@
 - Changed `ShellOverlaysView.axaml` to bind the about overlay title, slogan, Chinese name, author, brand, and description through `VexL` instead of hard-coded Chinese/English text.
 - Verified all Vex JSON localization resources with `ConvertFrom-Json`, built `Vex.slnx`, and captured a screenshot confirming the about overlay renders the localized resource text. Screenshot path: `%TEMP%\VexScreenshots\about-overlay-i18n.png`.
 - Added no new third-party dependency, reusing the existing `Lang.Avalonia.Json` resource pipeline.
+- Localized the remaining shell overlay labels for statistics, properties, delete confirmation, and unsaved confirmation buttons, reusing existing `VexL` keys such as `StatusWords`, `StatusEncoding`, `Properties`, `Delete`, and `Save` where possible.
+- Added only the missing generic overlay keys such as paragraph/headings/reading labels, property name/size/path labels, delete warning text, cancel, and don't-save text across zh-CN, zh-Hant, en-US, and ja-JP resources.
+- Added `ShellDocumentInfoViewModel.ReadingMinutesText` so the reading-time value uses the localized `ReadingMinutesFormat` resource instead of a hard-coded XAML `min` suffix.
+- Verified all Vex JSON localization resources with `ConvertFrom-Json`, built `Vex.slnx`, and captured a desktop startup smoke screenshot after the overlay label binding changes. Screenshot path: `%TEMP%\VexScreenshots\overlay-labels-i18n-statistics.png`.
+- Popup-menu automation could not reliably open the statistics panel in this desktop session; the XAML and resource bindings are still covered by the successful Avalonia build.
+- Added no new third-party dependency.

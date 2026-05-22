@@ -23,7 +23,7 @@
                     <TextBlock
                         FontSize="15"
                         FontWeight="SemiBold"
-                        Text="Statistics" />
+                        Text="{i18n:I18n {x:Static l:VexL.StatisticsTitle}}" />
                     <Button
                         Grid.Column="1"
                         Command="{Binding Dialogs.CloseStatisticsPanel}"
@@ -36,21 +36,21 @@
                     ColumnDefinitions="*,Auto"
                     RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                     RowSpacing="8">
-                    <TextBlock Classes="muted" Text="Words" />
+                    <TextBlock Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusWords}}" />
                     <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.Statistics.Words}" />
-                    <TextBlock Grid.Row="1" Classes="muted" Text="Characters" />
+                    <TextBlock Grid.Row="1" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusCharacters}}" />
                     <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.Statistics.Characters}" />
-                    <TextBlock Grid.Row="2" Classes="muted" Text="Lines" />
+                    <TextBlock Grid.Row="2" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsLines}}" />
                     <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.Statistics.Lines}" />
-                    <TextBlock Grid.Row="3" Classes="muted" Text="Paragraphs" />
+                    <TextBlock Grid.Row="3" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsParagraphs}}" />
                     <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.Statistics.Paragraphs}" />
-                    <TextBlock Grid.Row="4" Classes="muted" Text="Headings" />
+                    <TextBlock Grid.Row="4" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsHeadings}}" />
                     <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.Statistics.Headings}" />
-                    <TextBlock Grid.Row="5" Classes="muted" Text="Reading" />
-                    <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.Statistics.ReadingMinutes, StringFormat={}{0} min}" />
-                    <TextBlock Grid.Row="6" Classes="muted" Text="Encoding" />
+                    <TextBlock Grid.Row="5" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsReading}}" />
+                    <TextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.ReadingMinutesText}" />
+                    <TextBlock Grid.Row="6" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" />
                     <TextBlock Grid.Row="6" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.CurrentEncodingText}" />
-                    <TextBlock Grid.Row="7" Classes="muted" Text="State" />
+                    <TextBlock Grid.Row="7" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusState}}" />
                     <TextBlock Grid.Row="7" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.DocumentStateText}" />
                 </Grid>
             </Grid>
@@ -119,7 +119,7 @@
                     <TextBlock
                         FontSize="17"
                         FontWeight="SemiBold"
-                        Text="Properties" />
+                        Text="{i18n:I18n {x:Static l:VexL.Properties}}" />
                     <Button
                         Grid.Column="1"
                         Command="{Binding Dialogs.ClosePropertiesPanel}"
@@ -133,15 +133,15 @@
                     RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                     RowSpacing="9"
                     ColumnSpacing="16">
-                    <TextBlock Classes="muted" Text="Name" />
+                    <TextBlock Classes="muted" Text="{i18n:I18n {x:Static l:VexL.PropertyNameLabel}}" />
                     <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentInfo.PropertyNameText}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Grid.Row="1" Classes="muted" Text="State" />
+                    <TextBlock Grid.Row="1" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusState}}" />
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DocumentInfo.DocumentStateText}" />
-                    <TextBlock Grid.Row="2" Classes="muted" Text="Encoding" />
+                    <TextBlock Grid.Row="2" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" />
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DocumentInfo.CurrentEncodingText}" />
-                    <TextBlock Grid.Row="3" Classes="muted" Text="Size" />
+                    <TextBlock Grid.Row="3" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.PropertySizeLabel}}" />
                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DocumentInfo.PropertySizeText}" />
-                    <TextBlock Grid.Row="4" Classes="muted" Text="Path" />
+                    <TextBlock Grid.Row="4" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.PropertyPathLabel}}" />
                     <TextBlock
                         Grid.Row="4"
                         Grid.Column="1"
@@ -170,7 +170,7 @@
                     <TextBlock
                         Grid.Row="1"
                         Classes="muted"
-                        Text="This file will be permanently deleted from disk."
+                        Text="{i18n:I18n {x:Static l:VexL.DeletePermanentWarning}}"
                         TextWrapping="Wrap" />
                     <Border
                         Grid.Row="2"
@@ -193,11 +193,11 @@
                         Spacing="8">
                         <Button
                             Command="{Binding Dialogs.CancelDelete}"
-                            Content="Cancel"
+                            Content="{i18n:I18n {x:Static l:VexL.Cancel}}"
                             MinWidth="86" />
                         <Button
                             Command="{Binding ConfirmDeleteAsync}"
-                            Content="Delete"
+                            Content="{i18n:I18n {x:Static l:VexL.Delete}}"
                             MinWidth="86" />
                     </StackPanel>
                 </Grid>
@@ -246,15 +246,15 @@
                         Spacing="8">
                         <Button
                             Command="{Binding Dialogs.CancelPendingAction}"
-                            Content="Cancel"
+                            Content="{i18n:I18n {x:Static l:VexL.Cancel}}"
                             MinWidth="84" />
                         <Button
                             Command="{Binding DiscardPendingActionAsync}"
-                            Content="Don't Save"
+                            Content="{i18n:I18n {x:Static l:VexL.DoNotSave}}"
                             MinWidth="104" />
                         <Button
                             Command="{Binding SavePendingActionAsync}"
-                            Content="Save"
+                            Content="{i18n:I18n {x:Static l:VexL.Save}}"
                             MinWidth="84" />
                     </StackPanel>
                 </Grid>
