@@ -169,3 +169,8 @@
 - Reduced `MainWindowViewModel.cs` from about 1394 lines to 1260 lines, with the new appearance ViewModel at about 177 lines.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a startup screenshot confirming the nested appearance bindings still render the Markdown preview. Screenshot path: `%TEMP%\VexScreenshots\appearance-module-refactor.png`.
 - Added no new third-party dependency, so no additional license review was required.
+- Split editor action routing into `ShellEditorActionsViewModel`, covering undo, redo, clipboard actions, select all, focus editor, and paragraph/format insertion commands.
+- Registered the editor-actions ViewModel through Prism IoC and moved edit/paragraph/format menu bindings to `EditorActions.*`, leaving the main shell ViewModel to call only the focus action when document/layout flows need to return focus to the editor.
+- Reduced `MainWindowViewModel.cs` from about 1260 lines to 1219 lines, with the new editor-actions ViewModel at about 59 lines.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a startup smoke screenshot after the nested command-binding refactor. Screenshot path: `%TEMP%\VexScreenshots\editor-actions-module-refactor.png`.
+- Added no new third-party dependency, so no additional license review was required.

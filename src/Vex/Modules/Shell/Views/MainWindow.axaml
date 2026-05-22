@@ -120,45 +120,45 @@
                     </MenuItem>
 
                     <MenuItem Header="编辑(E)">
-                        <MenuItem Header="撤销" Command="{Binding Undo}" InputGesture="Ctrl+Z" />
-                        <MenuItem Header="重做" Command="{Binding Redo}" InputGesture="Ctrl+Y" />
+                        <MenuItem Header="撤销" Command="{Binding EditorActions.Undo}" InputGesture="Ctrl+Z" />
+                        <MenuItem Header="重做" Command="{Binding EditorActions.Redo}" InputGesture="Ctrl+Y" />
                         <Separator />
-                        <MenuItem Header="剪切" Command="{Binding Cut}" InputGesture="Ctrl+X" />
-                        <MenuItem Header="复制" Command="{Binding Copy}" InputGesture="Ctrl+C" />
-                        <MenuItem Header="粘贴" Command="{Binding Paste}" InputGesture="Ctrl+V" />
-                        <MenuItem Header="全选" Command="{Binding SelectAll}" InputGesture="Ctrl+A" />
+                        <MenuItem Header="剪切" Command="{Binding EditorActions.Cut}" InputGesture="Ctrl+X" />
+                        <MenuItem Header="复制" Command="{Binding EditorActions.Copy}" InputGesture="Ctrl+C" />
+                        <MenuItem Header="粘贴" Command="{Binding EditorActions.Paste}" InputGesture="Ctrl+V" />
+                        <MenuItem Header="全选" Command="{Binding EditorActions.SelectAll}" InputGesture="Ctrl+A" />
                         <Separator />
                         <MenuItem Header="查找..." Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
                         <MenuItem Header="替换..." Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
                     </MenuItem>
 
                     <MenuItem Header="段落(P)">
-                        <MenuItem Header="段落" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Paragraph}" />
-                        <MenuItem Header="标题 1" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
-                        <MenuItem Header="标题 2" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading2}" />
-                        <MenuItem Header="标题 3" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading3}" />
-                        <MenuItem Header="标题 4" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading4}" />
-                        <MenuItem Header="标题 5" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading5}" />
-                        <MenuItem Header="标题 6" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading6}" />
+                        <MenuItem Header="段落" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Paragraph}" />
+                        <MenuItem Header="标题 1" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
+                        <MenuItem Header="标题 2" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading2}" />
+                        <MenuItem Header="标题 3" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading3}" />
+                        <MenuItem Header="标题 4" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading4}" />
+                        <MenuItem Header="标题 5" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading5}" />
+                        <MenuItem Header="标题 6" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading6}" />
                         <Separator />
-                        <MenuItem Header="表格" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
-                        <MenuItem Header="代码块" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.CodeFence}" />
-                        <MenuItem Header="公式块" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.MathBlock}" />
-                        <MenuItem Header="引用" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
-                        <MenuItem Header="有序列表" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.OrderedList}" />
-                        <MenuItem Header="无序列表" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
-                        <MenuItem Header="任务列表" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
-                        <MenuItem Header="水平分割线" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.HorizontalRule}" />
+                        <MenuItem Header="表格" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
+                        <MenuItem Header="代码块" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.CodeFence}" />
+                        <MenuItem Header="公式块" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.MathBlock}" />
+                        <MenuItem Header="引用" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
+                        <MenuItem Header="有序列表" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.OrderedList}" />
+                        <MenuItem Header="无序列表" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
+                        <MenuItem Header="任务列表" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
+                        <MenuItem Header="水平分割线" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.HorizontalRule}" />
                     </MenuItem>
 
                     <MenuItem Header="格式(O)">
-                        <MenuItem Header="加粗" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
-                        <MenuItem Header="斜体" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
-                        <MenuItem Header="代码" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
+                        <MenuItem Header="加粗" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
+                        <MenuItem Header="斜体" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
+                        <MenuItem Header="代码" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
                         <Separator />
-                        <MenuItem Header="链接" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
-                        <MenuItem Header="图像" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Image}" />
-                        <MenuItem Header="清除样式" Command="{Binding InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
+                        <MenuItem Header="链接" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
+                        <MenuItem Header="图像" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Image}" />
+                        <MenuItem Header="清除样式" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
                     </MenuItem>
 
                     <MenuItem Header="视图(V)">

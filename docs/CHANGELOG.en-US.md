@@ -40,6 +40,7 @@
 - Split statistics, about, properties, and confirmation overlays into a dedicated `ShellOverlaysView` to reduce main-window XAML complexity.
 - Split find/replace into a dedicated `ShellFindBarView` and `ShellFindBarViewModel` that communicate with the editor through CodeWF.EventBus.
 - Split theme, typography, compact-layout, and language switching state into a dedicated `ShellAppearanceViewModel`.
+- Split editor actions into a dedicated `ShellEditorActionsViewModel` for undo, redo, clipboard, select-all, focus, and Markdown insertion commands.
 
 ### Changed
 
@@ -78,3 +79,4 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the extracted about overlay.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the extracted find bar focus, `1/1` count, and status feedback.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the nested appearance bindings still render the Markdown preview.
+- Built `Vex.slnx`, ran `git diff --check`, and captured a startup smoke screenshot after moving editor command bindings under `EditorActions`.

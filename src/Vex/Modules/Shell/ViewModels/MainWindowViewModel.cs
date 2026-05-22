@@ -58,6 +58,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         IMarkdownStatisticsService statisticsService,
         IHelpService helpService,
         ShellAppearanceViewModel appearance,
+        ShellEditorActionsViewModel editorActions,
         ShellFindBarViewModel findBar,
         IEventBus eventBus)
     {
@@ -67,6 +68,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _statisticsService = statisticsService;
         _helpService = helpService;
         Appearance = appearance;
+        EditorActions = editorActions;
         FindBar = findBar;
         _eventBus = eventBus;
         _eventBus.Subscribe(this);
@@ -80,6 +82,8 @@ public sealed class MainWindowViewModel : ReactiveObject
     public event EventHandler? CloseWindowRequested;
 
     public ShellAppearanceViewModel Appearance { get; }
+
+    public ShellEditorActionsViewModel EditorActions { get; }
 
     public ShellFindBarViewModel FindBar { get; }
 
@@ -407,7 +411,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         Markdown = _document.Markdown;
         SetStatus("New document created.");
         NotifyDocumentChanged();
-        PublishEditorAction(EditorActionKind.FocusEditor);
+        EditorActions.FocusEditor();
     }
 
     public Task CloseDocument()
@@ -433,7 +437,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         NotifyDocumentFilesChanged();
         SetStatus("Document closed.");
         NotifyDocumentChanged();
-        PublishEditorAction(EditorActionKind.FocusEditor);
+        EditorActions.FocusEditor();
     }
 
     public void NewWindow()
@@ -678,7 +682,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
         NotifyDocumentChanged();
         SetStatus($"Opened {snapshot.FileName}.");
-        PublishEditorAction(EditorActionKind.FocusEditor);
+        EditorActions.FocusEditor();
     }
 
     private void NotifyDocumentChanged()
@@ -730,11 +734,6 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         NotifyOutlineChanged();
-    }
-
-    private void PublishEditorAction(EditorActionKind action)
-    {
-        _eventBus.Publish(new EditorActionCommand(action));
     }
 
     public void ShowProperties()
@@ -798,7 +797,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             IsPreviewVisible = false;
             IsSourceMode = true;
             SetStatus("Source mode enabled.");
-            PublishEditorAction(EditorActionKind.FocusEditor);
+            EditorActions.FocusEditor();
             return;
         }
 
@@ -806,7 +805,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         IsPreviewVisible = _previewBeforeSourceMode;
         IsSourceMode = false;
         SetStatus("Source mode disabled.");
-        PublishEditorAction(EditorActionKind.FocusEditor);
+        EditorActions.FocusEditor();
     }
 
     public void ToggleAlwaysOnTop()
@@ -921,46 +920,6 @@ public sealed class MainWindowViewModel : ReactiveObject
     public void ReplaceAll()
     {
         FindBar.ReplaceAll();
-    }
-
-    public void Undo()
-    {
-        PublishEditorAction(EditorActionKind.Undo);
-    }
-
-    public void Redo()
-    {
-        PublishEditorAction(EditorActionKind.Redo);
-    }
-
-    public void Cut()
-    {
-        PublishEditorAction(EditorActionKind.Cut);
-    }
-
-    public void Copy()
-    {
-        PublishEditorAction(EditorActionKind.Copy);
-    }
-
-    public void Paste()
-    {
-        PublishEditorAction(EditorActionKind.Paste);
-    }
-
-    public void SelectAll()
-    {
-        PublishEditorAction(EditorActionKind.SelectAll);
-    }
-
-    public void FocusEditor()
-    {
-        PublishEditorAction(EditorActionKind.FocusEditor);
-    }
-
-    public void InsertAction(EditorActionKind action)
-    {
-        PublishEditorAction(action);
     }
 
     public async Task OpenHelpTopic(string? topic)
