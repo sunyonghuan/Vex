@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Media;
 using AvaloniaEdit.Highlighting;
 using Prism.Ioc;
 using Vex.Modules.Shell.ViewModels;
@@ -16,6 +17,7 @@ public partial class MarkdownEditorView : UserControl
     {
         InitializeComponent();
         MarkdownEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("MarkDown");
+        ConfigureEditorVisuals();
         DataContextChanged += (_, _) => AttachViewModel(DataContext as MainWindowViewModel);
         AttachedToVisualTree += (_, _) =>
         {
@@ -24,6 +26,13 @@ public partial class MarkdownEditorView : UserControl
         };
         DetachedFromVisualTree += (_, _) => DetachEditorController();
         AttachViewModel(DataContext as MainWindowViewModel);
+    }
+
+    private void ConfigureEditorVisuals()
+    {
+        MarkdownEditor.Options.HighlightCurrentLine = true;
+        MarkdownEditor.TextArea.TextView.CurrentLineBackground = new SolidColorBrush(Color.Parse("#FFF4F7FB"));
+        MarkdownEditor.TextArea.TextView.CurrentLineBorder = new Pen(new SolidColorBrush(Color.Parse("#FFE4E9F2")), 1);
     }
 
     private void AttachViewModel(MainWindowViewModel? viewModel)

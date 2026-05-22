@@ -70,6 +70,9 @@
 - 拖放打开复用未保存内容保护流程，存在未保存编辑时会先显示保存确认；不支持的文件类型会在状态栏提示。
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图确认拖放路径打开后的标题、编辑区、预览和状态栏均正确更新。截图路径：`%TEMP%\VexScreenshots\drag-drop-open-file.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 增加编辑器当前行高亮体验，使用 AvaloniaEdit 内置 `HighlightCurrentLine` 与当前行背景/边框配置，避免引入自定义渲染器。
+- 验证 `dotnet build Vex.slnx` 与桌面截图，确认当前行高亮可见但不干扰 Markdown 编辑和预览。截图路径：`%TEMP%\VexScreenshots\current-line-highlight.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -138,4 +141,7 @@
 - Added drag-and-drop opening for local files and folders; dropped Markdown/TXT files open as documents, while dropped folders load the document list and open the first document.
 - Reused the unsaved-change protection flow for dropped paths, and show a status-bar message for unsupported file types.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the title, editor, preview, and status bar after opening through the dropped-path flow. Screenshot path: `%TEMP%\VexScreenshots\drag-drop-open-file.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Added current-line highlighting for the editor by using AvaloniaEdit's built-in `HighlightCurrentLine` option plus current-line background and border styling, avoiding a custom renderer.
+- Verified `dotnet build Vex.slnx` and captured a desktop screenshot to confirm the current-line highlight is visible without disrupting Markdown editing or preview. Screenshot path: `%TEMP%\VexScreenshots\current-line-highlight.png`.
 - Added no new third-party dependency, so no additional license review was required.
