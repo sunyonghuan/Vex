@@ -63,6 +63,9 @@
 - Split the files and outline sidebar tabs into `ShellFilesView`, `ShellOutlineView`, and their ViewModels, registered through a Prism sidebar region.
 - Added a Vex `TabControlRegionAdapter` and localized region tab header support for the sidebar.
 - Split window-level shortcut routing into `ShellKeyboardShortcutViewModel`, leaving the main-window code-behind to forward key events.
+- Localized the Markdown editor context menu through `Vex.VexL` resources for undo, redo, clipboard, formatting, heading, quote, list, task-list, and clear-formatting actions.
+- Updated zh-CN, zh-Hant, and ja-JP sidebar empty-state strings to native-language labels.
+- Documented the future Typora-like visual editing mode, including an editable CodeWF.Markdown preview switch and a Vex layout where the source editor can stay hidden by default.
 
 ### Changed
 

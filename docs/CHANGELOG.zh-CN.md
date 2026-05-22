@@ -29,6 +29,9 @@
 - [优化] 文件和大纲侧栏拆分为独立 `ShellFilesView`、`ShellOutlineView` 及对应 ViewModel，并通过 Prism Region 注入到侧栏 `TabControl`。
 - [优化] 文件列表、大纲列表、文件选择恢复和侧栏页签切换改为 CodeWF.EventBus 消息通信，减少 ViewModel 之间的直接引用。
 - [优化] 窗口级快捷键路由迁移到独立 `ShellKeyboardShortcutViewModel`，主窗口 code-behind 只负责转交键盘事件。
+- [优化] Markdown 编辑器右键菜单改为使用 `Vex.VexL` 本地化资源绑定，撤销、重做、剪贴板、格式和列表等动作不再硬编码中文。
+- [优化] 中文、繁中、日文侧栏空状态文案改为本地语言显示，减少英文 fallback。
+- [规划] 需求文档补充 Typora 风格可视化编辑模式，后续 CodeWF.Markdown 需支持可编辑预览开关，Vex 默认隐藏源码编辑器并允许预览区直接编辑。
 
 - 创建 Vex（维刻）Markdown 编辑器基础版本。
 - 完善作者、码坊 CodeWF 与官方网站信息。

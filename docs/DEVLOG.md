@@ -340,3 +340,8 @@
 - Reduced `MainWindow.axaml.cs` from about 160 lines to about 125 lines by moving shortcut decisions, zoom, find, full-screen, and Esc overlay handling into a dedicated ViewModel.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, launched the desktop app, sent `Ctrl+F`, and captured a screenshot confirming the find bar still opens and focuses from the shortcut. Screenshot path: `%TEMP%\VexScreenshots\keyboard-shortcuts-findbar.png`.
 - Added no new third-party dependency, reusing Prism IoC and CodeWF.EventBus.
+- Localized the Markdown editor context menu by replacing hard-coded headers with `Vex.VexL` resource bindings for undo, redo, clipboard, inline formatting, heading, quote, list, task-list, and clear-formatting actions.
+- Updated zh-CN, zh-Hant, and ja-JP empty sidebar strings to native-language labels instead of English fallback text.
+- Updated `docs/Vex需求文档.md` with the Typora-like visual editing requirement: CodeWF.Markdown should grow an editable preview switch, while Vex defaults to hidden source editor plus directly editable Markdown preview once that control capability is ready.
+- Verified all Vex JSON localization resources with `ConvertFrom-Json`, built `Vex.slnx`, and launched the desktop app to capture the localized editor context menu. Screenshot path: `%TEMP%\VexScreenshots\editor-context-menu-i18n-popup.png`.
+- Added no new third-party dependency, reusing the existing `Lang.Avalonia.Json` localization pipeline.
