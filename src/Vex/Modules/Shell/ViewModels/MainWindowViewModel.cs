@@ -127,6 +127,34 @@ public sealed class MainWindowViewModel : ReactiveObject
         ApplyDocument(await _documentService.OpenPathAsync(path));
     }
 
+    public Task OpenDroppedPathAsync(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            return RequestUnsavedConfirmationAsync(
+                "Save changes before opening a folder?",
+                $"Save changes to {_document.FileName} before opening the dropped folder?",
+                () => OpenFolderPathCoreAsync(path));
+        }
+
+        if (!File.Exists(path))
+        {
+            SetStatus("Dropped item is unavailable.");
+            return Task.CompletedTask;
+        }
+
+        if (!IsSupportedDocumentPath(path))
+        {
+            SetStatus("Drop a Markdown or text file.");
+            return Task.CompletedTask;
+        }
+
+        return RequestUnsavedConfirmationAsync(
+            "Save changes before opening?",
+            $"Save changes to {_document.FileName} before opening {Path.GetFileName(path)}?",
+            () => OpenPathCoreAsync(path));
+    }
+
     public ObservableCollection<DocumentFile> DocumentFiles { get; } = [];
 
     public ObservableCollection<OutlineItem> OutlineItems { get; } = [];
@@ -580,6 +608,16 @@ public sealed class MainWindowViewModel : ReactiveObject
     private async Task OpenFolderAsyncCore()
     {
         await ApplyDocumentFilesAsync(await _documentService.OpenFolderAsync(), true);
+    }
+
+    private async Task OpenPathCoreAsync(string path)
+    {
+        ApplyDocument(await _documentService.OpenPathAsync(path));
+    }
+
+    private async Task OpenFolderPathCoreAsync(string folder)
+    {
+        await ApplyDocumentFilesAsync(await _documentService.OpenFolderPathAsync(folder), true);
     }
 
     private async Task ApplyDocumentFilesAsync(IReadOnlyList<DocumentFile> files, bool bypassUnsavedPrompt = false)
@@ -1403,6 +1441,14 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         return encoding.WebName.ToUpperInvariant();
+    }
+
+    private static bool IsSupportedDocumentPath(string path)
+    {
+        var extension = Path.GetExtension(path);
+        return extension.Equals(".md", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".markdown", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".txt", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string RecentDocumentsPath =>

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Vex.Modules.Shell.ViewModels;
 
@@ -15,6 +16,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         AddHandler(KeyDownEvent, WindowKeyDown, RoutingStrategies.Tunnel);
+        DragDrop.SetAllowDrop(this, true);
+        AddHandler(DragDrop.DragOverEvent, WindowDragOver);
+        AddHandler(DragDrop.DropEvent, WindowDrop);
         Closing += WindowClosing;
     }
 
@@ -201,5 +205,48 @@ public partial class MainWindow : Window
     {
         _isCloseConfirmed = true;
         Close();
+    }
+
+    private void WindowDragOver(object? sender, DragEventArgs e)
+    {
+        e.DragEffects = GetFirstDroppedLocalPath(e) is null
+            ? DragDropEffects.None
+            : DragDropEffects.Copy;
+        e.Handled = true;
+    }
+
+    private async void WindowDrop(object? sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        if (DataContext is not MainWindowViewModel viewModel)
+        {
+            return;
+        }
+
+        var path = GetFirstDroppedLocalPath(e);
+        if (path is not null)
+        {
+            await viewModel.OpenDroppedPathAsync(path);
+        }
+    }
+
+    private static string? GetFirstDroppedLocalPath(DragEventArgs e)
+    {
+        var files = e.DataTransfer.TryGetFiles();
+        if (files is null)
+        {
+            return null;
+        }
+
+        foreach (var item in files)
+        {
+            var path = item.TryGetLocalPath();
+            if (!string.IsNullOrWhiteSpace(path) && (File.Exists(path) || Directory.Exists(path)))
+            {
+                return path;
+            }
+        }
+
+        return null;
     }
 }

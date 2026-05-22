@@ -66,6 +66,10 @@
 - 编辑器搜索结果消息增加当前序号和总数，查找、搜索文本变化和替换后的下一次查找都会同步更新 `1/12` 形式的计数。
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图检查查找栏输入框聚焦、计数显示和状态栏匹配提示。截图路径：`%TEMP%\VexScreenshots\find-panel-count.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 增加拖放打开文件/文件夹入口：窗口接受本地文件或文件夹拖放，拖入 Markdown/TXT 文件会打开文档，拖入文件夹会加载文档列表并打开首个文档。
+- 拖放打开复用未保存内容保护流程，存在未保存编辑时会先显示保存确认；不支持的文件类型会在状态栏提示。
+- 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图确认拖放路径打开后的标题、编辑区、预览和状态栏均正确更新。截图路径：`%TEMP%\VexScreenshots\drag-drop-open-file.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -130,4 +134,8 @@
 - Improved the find bar so opening find or replace automatically focuses and selects the search input, and the bar now shows the current match index and total match count.
 - Extended editor search result messages with current index and total count, keeping `1/12` style counts in sync after find, search-text changes, and replace-next follow-up searches.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot to check find-input focus, count display, and status-bar match feedback. Screenshot path: `%TEMP%\VexScreenshots\find-panel-count.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Added drag-and-drop opening for local files and folders; dropped Markdown/TXT files open as documents, while dropped folders load the document list and open the first document.
+- Reused the unsaved-change protection flow for dropped paths, and show a status-bar message for unsupported file types.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the title, editor, preview, and status bar after opening through the dropped-path flow. Screenshot path: `%TEMP%\VexScreenshots\drag-drop-open-file.png`.
 - Added no new third-party dependency, so no additional license review was required.

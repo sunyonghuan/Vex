@@ -34,6 +34,8 @@
 - Improved the save-confirmation overlay with Save, Don't Save, and Cancel paths so risky actions no longer discard edits immediately.
 - Added current/total match counts to the find bar, such as `1/12`.
 - Improved find and replace opening so the search input is focused and selected automatically.
+- Added drag-and-drop opening for Markdown/TXT files and folders; dropped folders load the document list and open the first document.
+- Improved dropped-path handling so it reuses unsaved-change protection and reports unsupported file types in the status bar.
 
 ### Changed
 
@@ -67,3 +69,4 @@
 - Built `Vex.slnx` to verify the overlay `Esc` close handling.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the save-confirmation overlay placement and button fit.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified find-bar focus, match counts, and status-bar match feedback.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the title, editor, preview, and status bar after opening through the dropped-path flow.
