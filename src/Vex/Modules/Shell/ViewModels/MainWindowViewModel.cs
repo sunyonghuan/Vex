@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using CodeWF.EventBus;
 using ReactiveUI;
 using Vex.Core.Messaging;
@@ -119,7 +117,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             return Task.CompletedTask;
         }
 
-        if (!IsSupportedDocumentPath(path))
+        if (!_documentService.IsSupportedDocumentPath(path))
         {
             SetStatus("Drop a Markdown or text file.");
             return Task.CompletedTask;
@@ -136,17 +134,15 @@ public sealed class MainWindowViewModel : ReactiveObject
         get => _markdown;
         set
         {
-            if (SetProperty(ref _markdown, value ?? string.Empty))
+            var normalized = value ?? string.Empty;
+            if (_markdown != normalized)
             {
+                this.RaiseAndSetIfChanged(ref _markdown, normalized);
                 _document = _document with { Markdown = _markdown };
                 RefreshMarkdownDerivedState();
             }
         }
     }
-
-    private string? CurrentFilePath => DocumentInfo.CurrentFilePath;
-
-    private bool IsModified => DocumentInfo.IsModified;
 
     public Task NewDocument()
     {
@@ -166,7 +162,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _lastSavedMarkdown = _document.Markdown;
         Markdown = _document.Markdown;
         SetStatus("New document created.");
-        NotifyDocumentChanged();
+        RefreshDocumentInfo();
         EditorActions.FocusEditor();
     }
 
@@ -190,16 +186,8 @@ public sealed class MainWindowViewModel : ReactiveObject
         _documentFiles = [];
         _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles));
         SetStatus("Document closed.");
-        NotifyDocumentChanged();
+        RefreshDocumentInfo();
         EditorActions.FocusEditor();
-    }
-
-    public void NewWindow()
-    {
-        if (!string.IsNullOrWhiteSpace(Environment.ProcessPath))
-        {
-            Process.Start(new ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = true });
-        }
     }
 
     public async Task OpenAsync()
@@ -276,7 +264,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private async Task OpenDocumentFileAsync(DocumentFile file, DocumentFile? previousSelection)
     {
-        if (CurrentFilePath?.Equals(file.Path, StringComparison.OrdinalIgnoreCase) == true)
+        if (DocumentInfo.CurrentFilePath?.Equals(file.Path, StringComparison.OrdinalIgnoreCase) == true)
         {
             return;
         }
@@ -293,16 +281,6 @@ public sealed class MainWindowViewModel : ReactiveObject
         var snapshot = await _documentService.OpenPathAsync(file.Path);
         ApplyDocument(snapshot);
     }
-
-    public Task OpenRecentDocument1Async() => OpenRecentDocumentAsync(0);
-
-    public Task OpenRecentDocument2Async() => OpenRecentDocumentAsync(1);
-
-    public Task OpenRecentDocument3Async() => OpenRecentDocumentAsync(2);
-
-    public Task OpenRecentDocument4Async() => OpenRecentDocumentAsync(3);
-
-    public Task OpenRecentDocument5Async() => OpenRecentDocumentAsync(4);
 
     public async Task SaveAsync()
     {
@@ -328,14 +306,14 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         // 当前仍是单文档编辑器，保留“保存全部”入口时必须明确只保存当前文档。
         await SaveAsync();
-        SetStatus(IsModified
+        SetStatus(DocumentInfo.IsModified
             ? "Save all canceled. Current document is still modified."
             : "Saved current document. Multi-document save is not available yet.");
     }
 
     public Task DeleteAsync()
     {
-        if (CurrentFilePath is not { Length: > 0 } path)
+        if (DocumentInfo.CurrentFilePath is not { Length: > 0 } path)
         {
             return Task.CompletedTask;
         }
@@ -367,7 +345,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public async Task OpenFileLocationAsync()
     {
-        if (CurrentFilePath is { Length: > 0 } path)
+        if (DocumentInfo.CurrentFilePath is { Length: > 0 } path)
         {
             await _documentService.OpenFileLocationAsync(path);
         }
@@ -375,7 +353,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public async Task ReopenWithEncodingAsync(string? encodingName)
     {
-        if (CurrentFilePath is not { Length: > 0 } path || string.IsNullOrWhiteSpace(encodingName))
+        if (DocumentInfo.CurrentFilePath is not { Length: > 0 } path || string.IsNullOrWhiteSpace(encodingName))
         {
             SetStatus("Open a file before choosing an encoding.");
             return;
@@ -411,14 +389,9 @@ public sealed class MainWindowViewModel : ReactiveObject
             RefreshDocumentInfo();
         }
 
-        NotifyDocumentChanged();
+        RefreshDocumentInfo();
         SetStatus($"Opened {snapshot.FileName}.");
         EditorActions.FocusEditor();
-    }
-
-    private void NotifyDocumentChanged()
-    {
-        RefreshDocumentInfo();
     }
 
     [EventHandler]
@@ -477,40 +450,19 @@ public sealed class MainWindowViewModel : ReactiveObject
         SetStatus($"Words {DocumentInfo.Statistics.Words}, Characters {DocumentInfo.Statistics.Characters}, Lines {DocumentInfo.Statistics.Lines}, Reading {DocumentInfo.Statistics.ReadingMinutes} min.");
     }
 
-    public bool CloseFloatingPanel()
-    {
-        return Dialogs.CloseFloatingPanel();
-    }
+    public bool CloseFloatingPanel() => Dialogs.CloseFloatingPanel();
 
-    public void ShowFindPanel()
-    {
-        FindBar.ShowFindPanel();
-    }
+    public void ShowFindPanel() => FindBar.ShowFindPanel();
 
-    public void ShowReplacePanel()
-    {
-        FindBar.ShowReplacePanel();
-    }
+    public void ShowReplacePanel() => FindBar.ShowReplacePanel();
 
-    public void CloseFindPanel()
-    {
-        FindBar.CloseFindPanel();
-    }
+    public void CloseFindPanel() => FindBar.CloseFindPanel();
 
-    public void FindNext()
-    {
-        FindBar.FindNext();
-    }
+    public void FindNext() => FindBar.FindNext();
 
-    public void ReplaceNext()
-    {
-        FindBar.ReplaceNext();
-    }
+    public void ReplaceNext() => FindBar.ReplaceNext();
 
-    public void ReplaceAll()
-    {
-        FindBar.ReplaceAll();
-    }
+    public void ReplaceAll() => FindBar.ReplaceAll();
 
     private void SetStatus(string message)
     {
@@ -568,7 +520,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         await SaveAsync();
-        if (IsModified)
+        if (DocumentInfo.IsModified)
         {
             SetStatus("Save canceled. Action was not completed.");
             return;
@@ -588,7 +540,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         Func<Task> continuation,
         Action? cancellation = null)
     {
-        if (!IsModified)
+        if (!DocumentInfo.IsModified)
         {
             await continuation();
             return;
@@ -611,28 +563,4 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
-    private static bool IsSupportedDocumentPath(string path)
-    {
-        var extension = Path.GetExtension(path);
-        return extension.Equals(".md", StringComparison.OrdinalIgnoreCase)
-               || extension.Equals(".markdown", StringComparison.OrdinalIgnoreCase)
-               || extension.Equals(".mdown", StringComparison.OrdinalIgnoreCase)
-               || extension.Equals(".txt", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(storage, value))
-        {
-            return false;
-        }
-
-        this.RaiseAndSetIfChanged(ref storage, value, propertyName);
-        return true;
-    }
-
-    private void OnPropertyChanged(string propertyName)
-    {
-        this.RaisePropertyChanged(propertyName);
-    }
 }

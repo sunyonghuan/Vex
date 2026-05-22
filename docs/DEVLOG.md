@@ -350,3 +350,8 @@
 - Reduced `MarkdownEditorController.cs` from about 603 lines to about 425 lines, with the new mutation service at about 179 lines and its interface at about 11 lines.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, launched the desktop app with a temporary Markdown file, sent Tab into the editor, and captured a screenshot confirming the document enters Modified state through the refactored mutation path. Screenshot path: `%TEMP%\VexScreenshots\editor-mutation-service-refactor.png`.
 - Added no new third-party dependency, reusing AvaloniaEdit and Prism IoC already present in the workspace.
+- Trimmed `MainWindowViewModel.cs` from about 540 lines to about 480 lines by removing unused recent-file wrappers, inlining tiny find-bar forwarding methods, and replacing the `NotifyDocumentChanged` wrapper with direct document-info refresh calls.
+- Moved the new-window process launch into `ShellActionCoordinator`, keeping process-start concerns near Shell action routing instead of the main document ViewModel.
+- Promoted supported Markdown/TXT path detection to `IDocumentService.IsSupportedDocumentPath`, so drag/drop validation and folder scanning share the same document service rule.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, launched the desktop app with a temporary Markdown file, and captured a screenshot confirming the title, editor, preview, and status bar still load correctly. Screenshot path: `%TEMP%\VexScreenshots\main-viewmodel-trim-startup.png`.
+- Added no new third-party dependency.
