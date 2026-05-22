@@ -55,6 +55,7 @@
 - Added a View menu toggle for editor line numbers.
 - Clarified Save All so it saves the current document in the current single-document stage and reports that multi-document save is not available yet.
 - Added `.mdown` support for folder scanning and dropped/startup path validation.
+- Added editor Tab and Shift+Tab indentation actions, including selected-line indentation and outdent.
 
 ### Changed
 
@@ -108,3 +109,4 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the editor line-number column.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the Save All status feedback.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified opening a temporary `.mdown` file through startup arguments.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified Tab indentation in the editor and preview.

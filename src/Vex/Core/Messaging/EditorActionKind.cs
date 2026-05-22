@@ -29,5 +29,7 @@ public enum EditorActionKind
     Table,
     MathBlock,
     HorizontalRule,
+    Indent,
+    Outdent,
     FocusEditor
 }

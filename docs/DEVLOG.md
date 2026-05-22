@@ -129,6 +129,11 @@
 - `DocumentService` 中抽出扩展名判断方法，并补充中文注释说明文件夹扫描需与文件选择器保持一致。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并用启动参数打开临时 `.mdown` 文件截图确认标题、编辑器、预览和状态栏正常更新。截图路径：`%TEMP%\VexScreenshots\mdown-open-support.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 增加编辑器 Tab/Shift+Tab 缩进行为：`MarkdownEditorView` 拦截 Tab 键并通过 CodeWF.EventBus 发布 `EditorActionKind.Indent/Outdent`，具体文本修改仍由 `MarkdownEditorController` 统一执行。
+- 控制器支持无选区插入 4 个空格、有选区时按行批量缩进，Shift+Tab 会移除每行一个 Tab 或最多 4 个前导空格。
+- 在 View 与控制器中补充中文维护注释，说明按键处理只发布编辑动作、缩进文本边界集中在 Workspace 控制器维护。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并截图确认 Tab 后目标行被缩进、预览按 Markdown 代码块渲染、状态栏进入 Modified。截图路径：`%TEMP%\VexScreenshots\editor-tab-indent.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -283,4 +288,8 @@
 - Added consistent `.mdown` support for folder scanning and dropped/startup path validation, matching the existing file picker extension list.
 - Extracted document-extension checks inside `DocumentService` and documented why folder scanning should stay aligned with picker support.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot opening a temporary `.mdown` file through startup arguments. Screenshot path: `%TEMP%\VexScreenshots\mdown-open-support.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Added editor Tab and Shift+Tab behavior through `EditorActionKind.Indent` and `EditorActionKind.Outdent`, keeping key handling in the view and text mutation in the Workspace editor controller via CodeWF.EventBus.
+- Indent inserts four spaces when there is no selection and prefixes selected lines; outdent removes one tab or up to four leading spaces per selected line.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming Tab indents the target line and updates the document state. Screenshot path: `%TEMP%\VexScreenshots\editor-tab-indent.png`.
 - Added no new third-party dependency, so no additional license review was required.

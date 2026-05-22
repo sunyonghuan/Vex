@@ -6,6 +6,7 @@ namespace Vex.Modules.Workspace.Services;
 
 public sealed class MarkdownEditorController : IMarkdownEditorController
 {
+    private const string IndentText = "    ";
     private readonly IEventBus _eventBus;
     private TextEditor? _editor;
     private bool _suppressTextChanged;
@@ -166,6 +167,12 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
             case EditorActionKind.HorizontalRule:
                 InsertText("\n---\n");
                 break;
+            case EditorActionKind.Indent:
+                IndentSelection();
+                break;
+            case EditorActionKind.Outdent:
+                OutdentSelection();
+                break;
             case EditorActionKind.FocusEditor:
                 _editor.Focus();
                 break;
@@ -286,6 +293,52 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
             var length = Math.Clamp(_editor.SelectionLength, 0, text.Length - start);
             _editor.Text = text[..start] + insertion + text[(start + length)..];
             _editor.CaretOffset = start + insertion.Length;
+        });
+    }
+
+    private void IndentSelection()
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        if (_editor.SelectionLength == 0)
+        {
+            InsertText(IndentText);
+            return;
+        }
+
+        RunTextMutation(() =>
+        {
+            var text = _editor.Text ?? string.Empty;
+            var range = GetSelectedLineRange(text, _editor.SelectionStart, _editor.SelectionLength);
+            var selectedLines = text[range.Start..range.End];
+            var replacement = IndentText + selectedLines.Replace("\n", "\n" + IndentText, StringComparison.Ordinal);
+            _editor.Text = text[..range.Start] + replacement + text[range.End..];
+            _editor.SelectionStart = range.Start;
+            _editor.SelectionLength = replacement.Length;
+            _editor.CaretOffset = range.Start + replacement.Length;
+        });
+    }
+
+    private void OutdentSelection()
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        RunTextMutation(() =>
+        {
+            var text = _editor.Text ?? string.Empty;
+            var range = GetSelectedLineRange(text, _editor.SelectionStart, _editor.SelectionLength);
+            var selectedLines = text[range.Start..range.End];
+            var replacement = OutdentLines(selectedLines);
+            _editor.Text = text[..range.Start] + replacement + text[range.End..];
+            _editor.SelectionStart = range.Start;
+            _editor.SelectionLength = replacement.Length;
+            _editor.CaretOffset = range.Start + replacement.Length;
         });
     }
 
@@ -488,6 +541,56 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         }
 
         return 0;
+    }
+
+    private static (int Start, int End) GetSelectedLineRange(string text, int selectionStart, int selectionLength)
+    {
+        var start = Math.Clamp(selectionStart, 0, text.Length);
+        var end = Math.Clamp(selectionStart + selectionLength, start, text.Length);
+
+        var lineStart = text.LastIndexOf('\n', Math.Max(0, start - 1));
+        lineStart = lineStart < 0 ? 0 : lineStart + 1;
+
+        if (selectionLength == 0)
+        {
+            var lineEnd = text.IndexOf('\n', start);
+            return (lineStart, lineEnd < 0 ? text.Length : lineEnd);
+        }
+
+        if (end > start && end <= text.Length && text[end - 1] == '\n')
+        {
+            end--;
+        }
+
+        var nextLine = text.IndexOf('\n', end);
+        return (lineStart, nextLine < 0 ? text.Length : nextLine);
+    }
+
+    private static string OutdentLines(string text)
+    {
+        var lines = text.Split('\n');
+        for (var i = 0; i < lines.Length; i++)
+        {
+            lines[i] = OutdentLine(lines[i]);
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    private static string OutdentLine(string line)
+    {
+        if (line.StartsWith('\t'))
+        {
+            return line[1..];
+        }
+
+        var spaces = 0;
+        while (spaces < Math.Min(IndentText.Length, line.Length) && line[spaces] == ' ')
+        {
+            spaces++;
+        }
+
+        return line[spaces..];
     }
 
     private void PrefixCurrentLine(string prefix)
