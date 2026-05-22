@@ -1,4 +1,5 @@
 using System.Net;
+using System.Diagnostics;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -39,6 +40,16 @@ public sealed class MarkdownExportService : IMarkdownExportService
         }
 
         await File.WriteAllTextAsync(path, BuildHtml(document), Utf8NoBom);
+        return path;
+    }
+
+    public async Task<string?> OpenHtmlPrintPreviewAsync(DocumentSnapshot document)
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "Vex", "PrintPreview");
+        Directory.CreateDirectory(folder);
+        var path = Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(document.FileName)}-{Guid.NewGuid():N}.html");
+        await File.WriteAllTextAsync(path, BuildHtml(document), Utf8NoBom);
+        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
         return path;
     }
 

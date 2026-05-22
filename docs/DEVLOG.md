@@ -44,6 +44,8 @@
 - 验证 `dotnet build Vex.slnx`。
 - 增加关于浮动面板，展示 Vex、中文名“维刻”、作者“沙漠尽头的狼”、CodeWF（码坊）和 `https://codewf.com`。
 - 验证 `dotnet build Vex.slnx`。
+- 打印入口改为生成临时 HTML 打印预览文件，并通过系统默认浏览器打开，为后续原生打印对话框预留扩展点。
+- 验证 `dotnet build Vex.slnx`。
 
 ### en-US
 
@@ -86,4 +88,6 @@
 - Added a floating word-count panel that reuses the current statistics model for words, characters, lines, encoding, and saved state.
 - Verified `dotnet build Vex.slnx`.
 - Added an about panel with Vex, Chinese name, author, CodeWF, and `https://codewf.com` details.
+- Verified `dotnet build Vex.slnx`.
+- Updated print to generate a temporary HTML print-preview file and open it through the system browser, leaving room for a native print dialog later.
 - Verified `dotnet build Vex.slnx`.

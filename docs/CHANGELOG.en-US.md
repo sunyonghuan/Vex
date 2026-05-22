@@ -23,6 +23,7 @@
 - Added clear formatting support for common Markdown markers in the current selection or line.
 - Added a floating word-count panel with word, character, line, encoding, and saved-state details.
 - Added an about panel with Vex, its Chinese name, author, CodeWF, and official website details.
+- Added print preview by generating temporary HTML and opening it with the system browser.
 
 ### Changed
 
@@ -47,3 +48,4 @@
 - Built `Vex.slnx` to verify the view-mode toggle behavior.
 - Built `Vex.slnx` to verify the word-count panel.
 - Built `Vex.slnx` to verify the about panel.
+- Built `Vex.slnx` to verify the print-preview path.

@@ -647,9 +647,10 @@ public sealed class MainWindowViewModel : ReactiveObject
         SetStatus($"Export {format ?? "document"} is queued for implementation.");
     }
 
-    public void Print()
+    public async Task Print()
     {
-        SetStatus("Print is queued for implementation.");
+        var path = await _exportService.OpenHtmlPrintPreviewAsync(_document with { Markdown = Markdown });
+        SetStatus(path is null ? "Print preview canceled." : "Opened HTML print preview.");
     }
 
     public void ToggleSidebar()
