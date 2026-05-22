@@ -604,6 +604,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         var extension = Path.GetExtension(path);
         return extension.Equals(".md", StringComparison.OrdinalIgnoreCase)
                || extension.Equals(".markdown", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".mdown", StringComparison.OrdinalIgnoreCase)
                || extension.Equals(".txt", StringComparison.OrdinalIgnoreCase);
     }
 

@@ -78,9 +78,8 @@ public sealed class DocumentService : IDocumentService
         }
 
         IReadOnlyList<DocumentFile> files = Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories)
-            .Where(path => path.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
-                           || path.EndsWith(".markdown", StringComparison.OrdinalIgnoreCase)
-                           || path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            // 与文件选择器保持一致，文件夹扫描也识别常见 Markdown 扩展名。
+            .Where(IsSupportedDocumentFile)
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
             .Take(300)
             .Select(path => new DocumentFile(path, folder))
@@ -182,6 +181,15 @@ public sealed class DocumentService : IDocumentService
         }
 
         return Encoding.GetEncoding(encodingName);
+    }
+
+    private static bool IsSupportedDocumentFile(string path)
+    {
+        var extension = Path.GetExtension(path);
+        return extension.Equals(".md", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".markdown", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".mdown", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".txt", StringComparison.OrdinalIgnoreCase);
     }
 
     private static IReadOnlyList<FilePickerFileType> MarkdownFileTypes { get; } =

@@ -125,6 +125,10 @@
 - 在 `SaveAllAsync` 中补充中文维护注释，说明当前阶段“保存全部”只保存当前文档的产品边界。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并通过临时 Markdown 文件截图确认状态栏提示为 `Saved current document. Multi-document save is not available yet.`。截图路径：`%TEMP%\VexScreenshots\save-all-current-document.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 补齐 `.mdown` 文档扩展支持：文件夹扫描和拖放/路径打开校验现在与文件选择器一致，均识别 `.md`、`.markdown`、`.mdown` 和 `.txt`。
+- `DocumentService` 中抽出扩展名判断方法，并补充中文注释说明文件夹扫描需与文件选择器保持一致。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并用启动参数打开临时 `.mdown` 文件截图确认标题、编辑器、预览和状态栏正常更新。截图路径：`%TEMP%\VexScreenshots\mdown-open-support.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -275,4 +279,8 @@
 - Changed Save All to a dedicated `SaveAllAsync` path that saves the current document in this single-document stage and clearly reports that multi-document save is not available yet.
 - Updated unsupported export feedback for PDF/PNG-style formats to say the export is not implemented yet.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the Save All status message is explicit. Screenshot path: `%TEMP%\VexScreenshots\save-all-current-document.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Added consistent `.mdown` support for folder scanning and dropped/startup path validation, matching the existing file picker extension list.
+- Extracted document-extension checks inside `DocumentService` and documented why folder scanning should stay aligned with picker support.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot opening a temporary `.mdown` file through startup arguments. Screenshot path: `%TEMP%\VexScreenshots\mdown-open-support.png`.
 - Added no new third-party dependency, so no additional license review was required.
