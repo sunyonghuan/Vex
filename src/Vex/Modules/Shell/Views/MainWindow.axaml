@@ -237,12 +237,13 @@
             BorderThickness="0 0 0 1"
             IsVisible="{Binding IsFindPanelVisible}"
             Padding="10 8">
-            <Grid ColumnDefinitions="Auto,220,Auto,220,Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
+            <Grid ColumnDefinitions="Auto,220,Auto,220,Auto,Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
                 <TextBlock
                     Classes="muted"
                     Text="Find"
                     VerticalAlignment="Center" />
                 <TextBox
+                    x:Name="FindTextBox"
                     Grid.Column="1"
                     MinHeight="30"
                     Text="{Binding SearchText, Mode=TwoWay}"
@@ -281,6 +282,13 @@
                     Command="{Binding CloseFindPanel}"
                     Content="X"
                     MinWidth="42" />
+                <TextBlock
+                    Grid.Column="8"
+                    Classes="muted"
+                    MinWidth="48"
+                    Text="{Binding SearchResultText}"
+                    TextAlignment="Right"
+                    VerticalAlignment="Center" />
             </Grid>
         </Border>
 

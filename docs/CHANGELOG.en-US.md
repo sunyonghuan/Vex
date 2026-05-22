@@ -32,6 +32,8 @@
 - Improved overlays so `Esc` closes properties, statistics, and about panels, and cancels delete confirmation.
 - Added save confirmation before creating, opening, switching files, reopening with another encoding, deleting, or exiting when the current document has unsaved changes.
 - Improved the save-confirmation overlay with Save, Don't Save, and Cancel paths so risky actions no longer discard edits immediately.
+- Added current/total match counts to the find bar, such as `1/12`.
+- Improved find and replace opening so the search input is focused and selected automatically.
 
 ### Changed
 
@@ -64,3 +66,4 @@
 - Built `Vex.slnx` to verify the properties panel and shortcut binding.
 - Built `Vex.slnx` to verify the overlay `Esc` close handling.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the save-confirmation overlay placement and button fit.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified find-bar focus, match counts, and status-bar match feedback.

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Vex.Modules.Shell.ViewModels;
 
 namespace Vex.Modules.Shell.Views;
@@ -163,6 +164,16 @@ public partial class MainWindow : Window
             && e.PropertyName is nameof(MainWindowViewModel.IsAlwaysOnTop) or nameof(MainWindowViewModel.IsFullScreen))
         {
             ApplyWindowState(viewModel);
+        }
+
+        if (sender is MainWindowViewModel { IsFindPanelVisible: true }
+            && e.PropertyName is nameof(MainWindowViewModel.IsFindPanelVisible))
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                FindTextBox.Focus();
+                FindTextBox.SelectAll();
+            });
         }
     }
 

@@ -187,6 +187,9 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
 
         switch (command.Action)
         {
+            case EditorSearchAction.Count:
+                CountMatches(command.SearchText);
+                break;
             case EditorSearchAction.FindNext:
                 FindNext(command.SearchText, _editor.CaretOffset + Math.Max(0, _editor.SelectionLength));
                 break;
@@ -320,7 +323,9 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         }
 
         var text = _editor.Text ?? string.Empty;
-        var index = IndexOfWrapped(text, searchText, startOffset);
+        var matches = FindMatches(text, searchText);
+        var matchIndex = GetNextMatchIndex(matches, startOffset);
+        var index = matchIndex >= 0 ? matches[matchIndex] : -1;
         if (index < 0)
         {
             _eventBus.Publish(new EditorSearchResultCommand($"No match for \"{searchText}\"."));
@@ -332,7 +337,10 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         _editor.TextArea.Caret.BringCaretToView();
         _editor.Focus();
         var line = _editor.Document.GetLineByOffset(index).LineNumber;
-        _eventBus.Publish(new EditorSearchResultCommand($"Found \"{searchText}\" on line {line}."));
+        _eventBus.Publish(new EditorSearchResultCommand(
+            $"Found \"{searchText}\" on line {line} ({matchIndex + 1}/{matches.Count}).",
+            matchIndex + 1,
+            matches.Count));
         PublishTextChanged();
     }
 
@@ -407,17 +415,69 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         _eventBus.Publish(new EditorSearchResultCommand($"Replaced {count} occurrence(s)."));
     }
 
-    private static int IndexOfWrapped(string text, string searchText, int startOffset)
+    private void CountMatches(string searchText)
     {
-        if (text.Length == 0)
+        if (_editor is null)
+        {
+            return;
+        }
+
+        var matches = FindMatches(_editor.Text ?? string.Empty, searchText);
+        if (matches.Count == 0)
+        {
+            _eventBus.Publish(new EditorSearchResultCommand($"No match for \"{searchText}\"."));
+            return;
+        }
+
+        var matchIndex = GetNextMatchIndex(matches, _editor.CaretOffset);
+        _eventBus.Publish(new EditorSearchResultCommand(
+            $"{matches.Count} match(es) for \"{searchText}\".",
+            matchIndex >= 0 ? matchIndex + 1 : 1,
+            matches.Count));
+    }
+
+    private static List<int> FindMatches(string text, string searchText)
+    {
+        if (text.Length == 0 || searchText.Length == 0)
+        {
+            return [];
+        }
+
+        List<int> matches = [];
+        var comparison = StringComparison.CurrentCultureIgnoreCase;
+        var offset = 0;
+        while (offset <= text.Length - searchText.Length)
+        {
+            var index = text.IndexOf(searchText, offset, comparison);
+            if (index < 0)
+            {
+                break;
+            }
+
+            matches.Add(index);
+            offset = index + Math.Max(1, searchText.Length);
+        }
+
+        return matches;
+    }
+
+    private static int GetNextMatchIndex(IReadOnlyList<int> matches, int startOffset)
+    {
+        if (matches.Count == 0)
         {
             return -1;
         }
 
-        var start = Math.Clamp(startOffset, 0, text.Length);
-        var comparison = StringComparison.CurrentCultureIgnoreCase;
-        var index = text.IndexOf(searchText, start, comparison);
-        return index >= 0 ? index : text.IndexOf(searchText, 0, comparison);
+        var start = Math.Max(0, startOffset);
+        for (var i = 0; i < matches.Count; i++)
+        {
+            if (matches[i] >= start)
+            {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     private void PrefixCurrentLine(string prefix)

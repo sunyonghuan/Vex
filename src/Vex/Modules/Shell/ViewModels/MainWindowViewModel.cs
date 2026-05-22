@@ -52,6 +52,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private Action? _pendingUnsavedCancellation;
     private string _searchText = string.Empty;
     private string _replacementText = string.Empty;
+    private string _searchResultText = "0/0";
     private string _unsavedConfirmTitle = "Save changes?";
     private string _unsavedConfirmMessage = "Save changes before continuing?";
     private string _unsavedConfirmPath = "Unsaved document";
@@ -305,13 +306,25 @@ public sealed class MainWindowViewModel : ReactiveObject
     public string SearchText
     {
         get => _searchText;
-        set => SetProperty(ref _searchText, value ?? string.Empty);
+        set
+        {
+            if (SetProperty(ref _searchText, value ?? string.Empty))
+            {
+                RefreshSearchResultCount();
+            }
+        }
     }
 
     public string ReplacementText
     {
         get => _replacementText;
         set => SetProperty(ref _replacementText, value ?? string.Empty);
+    }
+
+    public string SearchResultText
+    {
+        get => _searchResultText;
+        set => SetProperty(ref _searchResultText, value);
     }
 
     public bool IsStatisticsPanelVisible
@@ -790,6 +803,9 @@ public sealed class MainWindowViewModel : ReactiveObject
     [EventHandler]
     public void ApplyEditorSearchResult(EditorSearchResultCommand command)
     {
+        SearchResultText = command.TotalCount > 0
+            ? $"{Math.Max(1, command.CurrentIndex)}/{command.TotalCount}"
+            : "0/0";
         SetStatus(command.Message);
     }
 
@@ -970,6 +986,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         IsFindPanelVisible = true;
         IsReplaceVisible = false;
+        RefreshSearchResultCount();
         SetStatus("Find is ready.");
     }
 
@@ -977,6 +994,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         IsFindPanelVisible = true;
         IsReplaceVisible = true;
+        RefreshSearchResultCount();
         SetStatus("Replace is ready.");
     }
 
@@ -1018,6 +1036,22 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.ReplaceAll, SearchText, ReplacementText));
+    }
+
+    private void RefreshSearchResultCount()
+    {
+        if (!IsFindPanelVisible)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            SearchResultText = "0/0";
+            return;
+        }
+
+        _eventBus.Publish(new EditorSearchCommand(EditorSearchAction.Count, SearchText));
     }
 
     public void Undo()

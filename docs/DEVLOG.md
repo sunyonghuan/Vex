@@ -62,6 +62,10 @@
 - 保存确认浮层支持保存后继续、不保存继续和取消操作；`Esc` 会取消当前风险操作并保留未保存内容。
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图检查保存确认浮层居中显示、按钮不溢出、状态栏仍可读。截图路径：`%TEMP%\VexScreenshots\unsaved-confirm-final.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 完善查找栏体验：打开查找或替换时自动聚焦搜索输入框并选中文本，搜索结果区域显示当前匹配序号和总匹配数。
+- 编辑器搜索结果消息增加当前序号和总数，查找、搜索文本变化和替换后的下一次查找都会同步更新 `1/12` 形式的计数。
+- 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图检查查找栏输入框聚焦、计数显示和状态栏匹配提示。截图路径：`%TEMP%\VexScreenshots\find-panel-count.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -122,4 +126,8 @@
 - Added unsaved-change protection before creating a new document, closing the current document, opening files or folders, opening recent files, switching sidebar files, reopening with another encoding, deleting the current file, and closing the application window.
 - Added a shared save-confirmation overlay with Save, Don't Save, and Cancel paths; `Esc` cancels the pending risky action and keeps the unsaved content.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot to check the save-confirmation overlay placement, button fit, and readable status bar. Screenshot path: `%TEMP%\VexScreenshots\unsaved-confirm-final.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Improved the find bar so opening find or replace automatically focuses and selects the search input, and the bar now shows the current match index and total match count.
+- Extended editor search result messages with current index and total count, keeping `1/12` style counts in sync after find, search-text changes, and replace-next follow-up searches.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot to check find-input focus, count display, and status-bar match feedback. Screenshot path: `%TEMP%\VexScreenshots\find-panel-count.png`.
 - Added no new third-party dependency, so no additional license review was required.
