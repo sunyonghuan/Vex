@@ -40,6 +40,8 @@
 - 验证 `dotnet build Vex.slnx`。
 - 优化视图菜单行为：显示文件/大纲会展开侧边栏，源代码模式会保存原布局状态、隐藏侧栏与预览，并在退出时恢复。
 - 验证 `dotnet build Vex.slnx`。
+- 增加字数统计浮动面板，复用当前统计模型展示词数、字符数、行数、编码和保存状态。
+- 验证 `dotnet build Vex.slnx`。
 
 ### en-US
 
@@ -78,4 +80,6 @@
 - Implemented the clear-formatting menu action through CodeWF.EventBus so the AvaloniaEdit controller can clean common Markdown markers from the selection or current line.
 - Verified `dotnet build Vex.slnx`.
 - Improved view menu behavior: files/outline reveal the sidebar, and source mode saves the previous layout, hides sidebar/preview, and restores them when disabled.
+- Verified `dotnet build Vex.slnx`.
+- Added a floating word-count panel that reuses the current statistics model for words, characters, lines, encoding, and saved state.
 - Verified `dotnet build Vex.slnx`.

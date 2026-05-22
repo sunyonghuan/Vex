@@ -42,6 +42,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private bool _previewBeforeSourceMode = true;
     private bool _isFindPanelVisible;
     private bool _isReplaceVisible;
+    private bool _isStatisticsPanelVisible;
     private string _searchText = string.Empty;
     private string _replacementText = string.Empty;
     private double _editorZoom = 1.0;
@@ -282,6 +283,12 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         get => _replacementText;
         set => SetProperty(ref _replacementText, value ?? string.Empty);
+    }
+
+    public bool IsStatisticsPanelVisible
+    {
+        get => _isStatisticsPanelVisible;
+        set => SetProperty(ref _isStatisticsPanelVisible, value);
     }
 
     public double EditorZoom
@@ -713,7 +720,13 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     public void WordCount()
     {
+        IsStatisticsPanelVisible = true;
         SetStatus($"Words {Statistics.Words}, Characters {Statistics.Characters}, Lines {Statistics.Lines}.");
+    }
+
+    public void CloseStatisticsPanel()
+    {
+        IsStatisticsPanelVisible = false;
     }
 
     public void ShowFindPanel()

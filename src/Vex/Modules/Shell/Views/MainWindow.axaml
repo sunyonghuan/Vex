@@ -360,6 +360,50 @@
                         TypographyTheme="{Binding CurrentTypographyTheme}" />
                 </ScrollViewer>
             </Border>
+
+            <Border
+                Grid.ColumnSpan="5"
+                Width="270"
+                Margin="0 14 18 0"
+                Padding="16"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Background="#FFFFFFFF"
+                BorderBrush="#D0D5DD"
+                BorderThickness="1"
+                CornerRadius="8"
+                IsVisible="{Binding IsStatisticsPanelVisible}">
+                <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Text="Statistics" />
+                        <Button
+                            Grid.Column="1"
+                            Command="{Binding CloseStatisticsPanel}"
+                            Content="X"
+                            MinWidth="34"
+                            Padding="0" />
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        ColumnDefinitions="*,Auto"
+                        RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                        RowSpacing="8">
+                        <TextBlock Classes="muted" Text="Words" />
+                        <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Words}" />
+                        <TextBlock Grid.Row="1" Classes="muted" Text="Characters" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Characters}" />
+                        <TextBlock Grid.Row="2" Classes="muted" Text="Lines" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Lines}" />
+                        <TextBlock Grid.Row="3" Classes="muted" Text="Encoding" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding CurrentEncodingText}" />
+                        <TextBlock Grid.Row="4" Classes="muted" Text="State" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentStateText}" />
+                    </Grid>
+                </Grid>
+            </Border>
         </Grid>
 
         <Border

@@ -21,6 +21,7 @@
 - Added a find/replace bar with find next, replace next, replace all, and `Ctrl+F`, `Ctrl+H`, `F3`, and `Esc` shortcuts.
 - Added HTML export for the current Markdown document.
 - Added clear formatting support for common Markdown markers in the current selection or line.
+- Added a floating word-count panel with word, character, line, encoding, and saved-state details.
 
 ### Changed
 
@@ -43,3 +44,4 @@
 - Checked Markdig's BSD-2-Clause license, built `Vex.slnx`, and ran NuGet vulnerability scanning.
 - Built `Vex.slnx` to verify the clear-formatting editor action.
 - Built `Vex.slnx` to verify the view-mode toggle behavior.
+- Built `Vex.slnx` to verify the word-count panel.
