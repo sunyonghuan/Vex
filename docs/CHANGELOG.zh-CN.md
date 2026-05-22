@@ -36,6 +36,7 @@
 - [优化] `MainWindowViewModel` 精简到约 480 行，新窗口启动迁移到 Shell action 协调器，文档扩展名校验统一下沉到 `IDocumentService`。
 - [优化] 关于浮层的产品标语、作者、品牌和说明迁移到 `Vex.VexL` 本地化资源，View 中不再硬编码这些中文/英文文案。
 - [优化] 统计、属性、删除确认和未保存确认浮层标签继续迁移到 `Vex.VexL`，阅读时间文本改由 `ShellDocumentInfoViewModel` 生成本地化格式。
+- [优化] `ShellOverlaysView` 拆分为统计、关于、属性、删除确认和未保存确认 5 个独立 UserControl，宿主 View 只保留组合职责。
 
 - 创建 Vex（维刻）Markdown 编辑器基础版本。
 - 完善作者、码坊 CodeWF 与官方网站信息。

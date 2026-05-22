@@ -365,3 +365,8 @@
 - Verified all Vex JSON localization resources with `ConvertFrom-Json`, built `Vex.slnx`, and captured a desktop startup smoke screenshot after the overlay label binding changes. Screenshot path: `%TEMP%\VexScreenshots\overlay-labels-i18n-statistics.png`.
 - Popup-menu automation could not reliably open the statistics panel in this desktop session; the XAML and resource bindings are still covered by the successful Avalonia build.
 - Added no new third-party dependency.
+- Split `ShellOverlaysView.axaml` into focused overlay controls: `ShellStatisticsOverlayView`, `ShellAboutOverlayView`, `ShellPropertiesOverlayView`, `ShellDeleteConfirmationOverlayView`, and `ShellUnsavedConfirmationOverlayView`.
+- The host `ShellOverlaysView.axaml` now only composes those controls and dropped from about 260 lines to about 13 lines; each extracted overlay XAML stays around 55-65 lines and continues to inherit the shell DataContext.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a desktop startup smoke screenshot after the overlay view split. Screenshot path: `%TEMP%\VexScreenshots\overlays-view-split-startup.png`.
+- Popup-menu automation remained unreliable for opening an overlay in this desktop session; the extracted controls are still covered by Avalonia XAML compilation and the startup smoke run.
+- Added no new third-party dependency.
