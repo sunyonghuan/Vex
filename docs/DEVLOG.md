@@ -153,6 +153,11 @@
 - `MainWindow.axaml` 降至约 100 行，文件、大纲、状态栏 View 均保持独立文件，便于后续按模块维护。
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并用临时 Markdown 文件夹截图确认 Prism Region 文件页签、文件列表、状态栏和大纲页签均可正常渲染。截图路径：`%TEMP%\VexScreenshots\sidebar-region-tabs.png`、`%TEMP%\VexScreenshots\sidebar-region-outline-uia.png`。
 - 本轮未新增第三方依赖，复用现有 Prism.Avalonia、CodeWF.EventBus 和 Lang.Avalonia 依赖。
+- 新增 `ShellKeyboardShortcutViewModel` 承接窗口级快捷键路由，`MainWindow.axaml.cs` 只负责转交 `KeyEventArgs`，文件类动作继续通过 `ShellActionCommand` 进入 EventBus 协调层。
+- 移除主窗口 XAML 上的直接 `KeyDown` 事件声明，仅保留构造函数中注册的隧道路由，避免同一个快捷键在冒泡与隧道阶段重复触发。
+- `MainWindow.axaml.cs` 从约 160 行降至约 125 行，快捷键判断、缩放、查找、全屏和 Esc 关闭浮层逻辑迁移到独立 ViewModel。
+- 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并启动桌面程序发送 `Ctrl+F` 截图确认查找栏仍能通过快捷键打开并聚焦。截图路径：`%TEMP%\VexScreenshots\keyboard-shortcuts-findbar.png`。
+- 本轮未新增第三方依赖，继续复用 Prism IoC 与 CodeWF.EventBus。
 
 ### en-US
 
@@ -330,3 +335,8 @@
 - Reduced `MainWindow.axaml` to about 100 lines, leaving files, outline, and status bar views as independent module files.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured screenshots with a temporary Markdown folder confirming the Prism Region files tab, file list, status bar, and outline tab render correctly. Screenshot paths: `%TEMP%\VexScreenshots\sidebar-region-tabs.png`, `%TEMP%\VexScreenshots\sidebar-region-outline-uia.png`.
 - Added no new third-party dependency, reusing the existing Prism.Avalonia, CodeWF.EventBus, and Lang.Avalonia dependencies.
+- Added `ShellKeyboardShortcutViewModel` to own window-level shortcut routing, leaving `MainWindow.axaml.cs` to forward `KeyEventArgs` while file actions still enter the EventBus coordinator through `ShellActionCommand`.
+- Removed the direct `KeyDown` declaration from main-window XAML and kept the constructor's tunnel handler registration, avoiding duplicate shortcut handling across routing stages.
+- Reduced `MainWindow.axaml.cs` from about 160 lines to about 125 lines by moving shortcut decisions, zoom, find, full-screen, and Esc overlay handling into a dedicated ViewModel.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, launched the desktop app, sent `Ctrl+F`, and captured a screenshot confirming the find bar still opens and focuses from the shortcut. Screenshot path: `%TEMP%\VexScreenshots\keyboard-shortcuts-findbar.png`.
+- Added no new third-party dependency, reusing Prism IoC and CodeWF.EventBus.

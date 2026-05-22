@@ -18,7 +18,6 @@
     Icon="/Assets/logo.ico"
     ExtendClientAreaToDecorationsHint="True"
     IsManagedResizerVisible="{OnPlatform {x:False}, Linux={x:True}}"
-    KeyDown="WindowKeyDown"
     WindowStartupLocation="CenterScreen">
 
     <u:UrsaWindow.LeftContent>

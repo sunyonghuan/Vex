@@ -62,6 +62,7 @@
 - Split the status bar into `ShellStatusBarView` and `ShellStatusBarViewModel`.
 - Split the files and outline sidebar tabs into `ShellFilesView`, `ShellOutlineView`, and their ViewModels, registered through a Prism sidebar region.
 - Added a Vex `TabControlRegionAdapter` and localized region tab header support for the sidebar.
+- Split window-level shortcut routing into `ShellKeyboardShortcutViewModel`, leaving the main-window code-behind to forward key events.
 
 ### Changed
 
@@ -119,3 +120,4 @@
 - Built `Vex.slnx` and screenshot-verified the localized title menu, sidebar, and status bar in default Chinese and `en-US`.
 - Built `Vex.slnx` and screenshot-verified the Ursa title bar, built-in caption buttons, title menu, document title, and three-pane layout.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the Prism Region files tab, file list, status bar, and outline tab.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified that `Ctrl+F` still opens and focuses the find bar.

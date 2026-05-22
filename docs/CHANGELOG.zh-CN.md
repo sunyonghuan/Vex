@@ -28,6 +28,7 @@
 - [优化] 状态栏拆分为独立 `ShellStatusBarView` 与 `ShellStatusBarViewModel`，主窗口不再直接承载状态栏布局。
 - [优化] 文件和大纲侧栏拆分为独立 `ShellFilesView`、`ShellOutlineView` 及对应 ViewModel，并通过 Prism Region 注入到侧栏 `TabControl`。
 - [优化] 文件列表、大纲列表、文件选择恢复和侧栏页签切换改为 CodeWF.EventBus 消息通信，减少 ViewModel 之间的直接引用。
+- [优化] 窗口级快捷键路由迁移到独立 `ShellKeyboardShortcutViewModel`，主窗口 code-behind 只负责转交键盘事件。
 
 - 创建 Vex（维刻）Markdown 编辑器基础版本。
 - 完善作者、码坊 CodeWF 与官方网站信息。
@@ -127,3 +128,4 @@
 - 🧪[测试]-构建 `Vex.slnx`，并分别截图验证默认中文与 `en-US` 下标题栏菜单、侧栏和状态栏本地化显示正常。
 - 🧪[测试]-构建 `Vex.slnx`，并截图验证 Ursa 标题栏内置控制按钮、菜单、文档标题和三栏内容布局显示正常。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证 Prism Region 文件页签、文件列表、状态栏和大纲页签显示正常。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并截图验证 `Ctrl+F` 仍可打开并聚焦查找栏。

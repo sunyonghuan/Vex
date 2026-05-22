@@ -11,6 +11,7 @@ namespace Vex.Modules.Shell.Views;
 
 public partial class MainWindow : UrsaWindow
 {
+    private ShellKeyboardShortcutViewModel? _keyboardShortcuts;
     private bool _isCloseConfirmed;
 
     public MainWindow()
@@ -22,11 +23,15 @@ public partial class MainWindow : UrsaWindow
         AddHandler(DragDrop.DropEvent, WindowDrop);
     }
 
-    public MainWindow(MainWindowViewModel viewModel, ShellActionCoordinator actionCoordinator)
+    public MainWindow(
+        MainWindowViewModel viewModel,
+        ShellActionCoordinator actionCoordinator,
+        ShellKeyboardShortcutViewModel keyboardShortcuts)
         : this()
     {
-        // 强制解析 ShellActionCoordinator，使标题栏菜单的 EventBus 动作路由在窗口创建时完成订阅。
+        // 强制解析 ShellActionCoordinator，让标题栏菜单的 EventBus 动作路由在窗口创建时完成订阅。
         _ = actionCoordinator;
+        _keyboardShortcuts = keyboardShortcuts;
         DataContext = viewModel;
         viewModel.Layout.PropertyChanged += OnLayoutPropertyChanged;
         viewModel.CloseWindowRequested += OnCloseWindowRequested;
@@ -34,111 +39,9 @@ public partial class MainWindow : UrsaWindow
         Opened += async (_, _) => await viewModel.OpenStartupDocumentAsync(Environment.GetCommandLineArgs().Skip(1));
     }
 
-    private async void WindowKeyDown(object? sender, KeyEventArgs e)
+    private void WindowKeyDown(object? sender, KeyEventArgs e)
     {
-        if (DataContext is not MainWindowViewModel viewModel)
-        {
-            return;
-        }
-
-        var hasControl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
-        var hasShift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-        var hasAlt = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
-
-        if (hasControl && !hasShift && e.Key == Key.N)
-        {
-            e.Handled = true;
-            await viewModel.NewDocument();
-        }
-        else if (hasControl && !hasShift && e.Key == Key.O)
-        {
-            e.Handled = true;
-            await viewModel.OpenAsync();
-        }
-        else if (hasControl && !hasShift && e.Key == Key.S)
-        {
-            e.Handled = true;
-            await viewModel.SaveAsync();
-        }
-        else if (hasControl && hasShift && e.Key == Key.S)
-        {
-            e.Handled = true;
-            await viewModel.SaveAsAsync();
-        }
-        else if (hasControl && !hasShift && e.Key == Key.P)
-        {
-            e.Handled = true;
-            await viewModel.Print();
-        }
-        else if (hasControl && !hasShift && e.Key == Key.W)
-        {
-            e.Handled = true;
-            await viewModel.CloseDocument();
-        }
-        else if (hasControl && !hasShift && IsZoomInKey(e.Key))
-        {
-            viewModel.EditorDisplay.ZoomIn();
-            e.Handled = true;
-        }
-        else if (hasControl && !hasShift && IsZoomOutKey(e.Key))
-        {
-            viewModel.EditorDisplay.ZoomOut();
-            e.Handled = true;
-        }
-        else if (hasControl && !hasShift && IsActualSizeKey(e.Key))
-        {
-            viewModel.EditorDisplay.ActualSize();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.F11)
-        {
-            viewModel.Layout.ToggleFullScreen();
-            e.Handled = true;
-        }
-        else if (hasAlt && e.Key == Key.Enter)
-        {
-            viewModel.ShowProperties();
-            e.Handled = true;
-        }
-        else if (hasControl && e.Key == Key.F)
-        {
-            viewModel.ShowFindPanel();
-            e.Handled = true;
-        }
-        else if (hasControl && e.Key == Key.H)
-        {
-            viewModel.ShowReplacePanel();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.F3)
-        {
-            viewModel.FindNext();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Escape && viewModel.CloseFloatingPanel())
-        {
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Escape && viewModel.FindBar.IsVisible)
-        {
-            viewModel.CloseFindPanel();
-            e.Handled = true;
-        }
-    }
-
-    private static bool IsZoomInKey(Key key)
-    {
-        return key is Key.OemPlus or Key.Add;
-    }
-
-    private static bool IsZoomOutKey(Key key)
-    {
-        return key is Key.OemMinus or Key.Subtract;
-    }
-
-    private static bool IsActualSizeKey(Key key)
-    {
-        return key is Key.D0 or Key.NumPad0;
+        e.Handled = _keyboardShortcuts?.HandleKeyDown(e.Key, e.KeyModifiers) == true;
     }
 
     private void OnLayoutPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -148,7 +51,6 @@ public partial class MainWindow : UrsaWindow
         {
             ApplyWindowState(layout);
         }
-
     }
 
     private void ApplyWindowState(ShellWindowLayoutViewModel layout)
