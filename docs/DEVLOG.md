@@ -77,6 +77,9 @@
 - `MainWindow.axaml` 从约 659 行降至约 405 行，`ShellOverlaysView.axaml` 约 256 行，避免继续在单个主窗口 XAML 堆叠浮层实现。
 - 验证 `dotnet build Vex.slnx` 与 `git diff --check`，并截图确认抽出的关于浮层可正常继承 DataContext、显示内容和状态栏反馈。截图路径：`%TEMP%\VexScreenshots\overlay-refactor-about.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 增加编辑器到预览的滚动同步：光标行变化时，预览区按文档位置比例滚动，便于长文档双栏定位。
+- 验证 `dotnet build Vex.slnx`，并截图确认长文档跳转到末尾后预览同步滚动。截图路径：`%TEMP%\VexScreenshots\scroll-sync-after-end-fixed.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 - 拆分查找/替换功能模块：新增 `ShellFindBarView` 与 `ShellFindBarViewModel`，主窗口仅负责组合，菜单和快捷键继续转发到独立模块。
 - 查找模块通过 Prism IoC 注入，并使用 CodeWF.EventBus 发布 `EditorSearchCommand`、订阅 `EditorSearchResultCommand`，同时通过 `WorkspaceStatusChangedCommand` 回写状态栏，降低 Shell 主 ViewModel 与编辑器控制器的耦合。

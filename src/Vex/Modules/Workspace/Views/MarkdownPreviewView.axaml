@@ -11,7 +11,10 @@
     <Border
         Background="{DynamicResource VexPreviewBackgroundBrush}"
         Padding="34 28 34 0">
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer
+            x:Name="PreviewScrollViewer"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollBarVisibility="Auto">
             <md:MarkdownViewer
                 Markdown="{Binding Markdown}"
                 TypographySize="{Binding TypographySize}"

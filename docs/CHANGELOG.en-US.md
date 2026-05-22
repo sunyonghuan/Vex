@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added editor-to-preview scroll synchronization so the preview follows the current editor position.
+- Built `Vex.slnx` and screenshot-verified that the preview follows a long document after jumping to the end.
 - Added App.config-backed user settings persistence for theme, typography, compact layout, language, window size, sidebar/preview/status-bar layout, editor zoom, and line-number display.
 - Improved dark mode so the main window background, sidebar, editor, preview area, status bar, status badges, and editor current-line highlight follow theme resources.
 - Improved first-run language selection so Vex chooses Simplified Chinese, Traditional Chinese, Japanese, or English from the OS culture when no saved language exists.

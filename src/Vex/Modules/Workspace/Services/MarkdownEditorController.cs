@@ -62,11 +62,14 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         try
         {
             _editor.Text = normalized;
+            _editor.CaretOffset = 0;
         }
         finally
         {
             _suppressTextChanged = false;
         }
+
+        PublishTextChanged();
     }
 
     public void PublishTextChanged()

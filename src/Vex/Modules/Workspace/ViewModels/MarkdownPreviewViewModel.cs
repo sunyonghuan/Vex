@@ -9,6 +9,7 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
 {
     private readonly IEditorAppearanceState _appearanceState;
     private string _markdown;
+    private double _previewScrollRatio;
     private string _typographySize;
     private string? _typographyTheme;
 
@@ -31,6 +32,12 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
         private set => this.RaiseAndSetIfChanged(ref _markdown, value);
     }
 
+    public double PreviewScrollRatio
+    {
+        get => _previewScrollRatio;
+        private set => this.RaiseAndSetIfChanged(ref _previewScrollRatio, value);
+    }
+
     public string TypographySize
     {
         get => _typographySize;
@@ -49,9 +56,46 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
         Markdown = command.Markdown;
     }
 
+    [EventHandler]
+    public void ApplyMarkdownTextChanged(MarkdownTextChangedCommand command)
+    {
+        PreviewScrollRatio = CalculatePreviewScrollRatio(command.Markdown, command.CaretLine);
+    }
+
     private void OnAppearanceChanged(object? sender, EventArgs e)
     {
         TypographySize = _appearanceState.TypographySize;
         TypographyTheme = _appearanceState.TypographyTheme;
+    }
+
+    private static double CalculatePreviewScrollRatio(string markdown, int caretLine)
+    {
+        var lineCount = CountLines(markdown);
+        if (lineCount <= 1)
+        {
+            return 0d;
+        }
+
+        var lineIndex = Math.Clamp(caretLine, 1, lineCount) - 1;
+        return lineIndex / (double)(lineCount - 1);
+    }
+
+    private static int CountLines(string markdown)
+    {
+        if (string.IsNullOrEmpty(markdown))
+        {
+            return 1;
+        }
+
+        var count = 1;
+        foreach (var character in markdown)
+        {
+            if (character == '\n')
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 }
