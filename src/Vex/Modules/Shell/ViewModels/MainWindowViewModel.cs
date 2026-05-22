@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using CodeWF.EventBus;
@@ -23,6 +24,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private readonly IHelpService _helpService;
     private readonly IEventBus _eventBus;
     private DocumentSnapshot _document;
+    private string _lastSavedMarkdown = string.Empty;
     private string _markdown = string.Empty;
     private string _statusText = "Ready";
     private int _caretLine = 1;
@@ -74,6 +76,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         SelectedLanguage = LanguageOptions.FirstOrDefault(item => item.CultureName == "zh-CN");
 
         _document = _documentService.CreateNew();
+        _lastSavedMarkdown = _document.Markdown;
         Markdown = _document.Markdown;
     }
 
@@ -96,17 +99,24 @@ public sealed class MainWindowViewModel : ReactiveObject
             {
                 _document = _document with { Markdown = _markdown };
                 RefreshMarkdownDerivedState();
+                NotifyDocumentStateChanged();
             }
         }
     }
 
-    public string WindowTitle => $"{(_document.IsNew ? string.Empty : string.Empty)}{_document.FileName} - Vex";
+    public string WindowTitle => $"{(IsModified ? "*" : string.Empty)}{_document.FileName} - Vex";
 
-    public string CurrentDocumentTitle => _document.FileName;
+    public string CurrentDocumentTitle => $"{(IsModified ? "*" : string.Empty)}{_document.FileName}";
 
     public string? CurrentFilePath => _document.FilePath;
 
     public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath);
+
+    public bool IsModified => !string.Equals(Markdown, _lastSavedMarkdown, StringComparison.Ordinal);
+
+    public string DocumentStateText => IsModified ? "Modified" : "Saved";
+
+    public string CurrentEncodingText => GetEncodingDisplayName(_document.Encoding);
 
     public string StatusText
     {
@@ -305,6 +315,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     public void NewDocument()
     {
         _document = _documentService.CreateNew();
+        _lastSavedMarkdown = _document.Markdown;
         Markdown = _document.Markdown;
         SetStatus("New document created.");
         NotifyDocumentChanged();
@@ -405,9 +416,14 @@ public sealed class MainWindowViewModel : ReactiveObject
     private void ApplyDocument(DocumentSnapshot snapshot, bool updateMarkdown = true)
     {
         _document = snapshot;
+        _lastSavedMarkdown = snapshot.Markdown;
         if (updateMarkdown)
         {
             Markdown = snapshot.Markdown;
+        }
+        else
+        {
+            NotifyDocumentStateChanged();
         }
 
         NotifyDocumentChanged();
@@ -421,6 +437,16 @@ public sealed class MainWindowViewModel : ReactiveObject
         OnPropertyChanged(nameof(CurrentDocumentTitle));
         OnPropertyChanged(nameof(CurrentFilePath));
         OnPropertyChanged(nameof(HasCurrentFile));
+        OnPropertyChanged(nameof(CurrentEncodingText));
+        NotifyDocumentStateChanged();
+    }
+
+    private void NotifyDocumentStateChanged()
+    {
+        OnPropertyChanged(nameof(IsModified));
+        OnPropertyChanged(nameof(DocumentStateText));
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(CurrentDocumentTitle));
     }
 
     [EventHandler]
@@ -646,6 +672,21 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         StatusText = message;
         _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
+    }
+
+    private static string GetEncodingDisplayName(Encoding encoding)
+    {
+        if (encoding is UTF8Encoding { Preamble.Length: > 0 })
+        {
+            return "UTF-8 BOM";
+        }
+
+        if (encoding.CodePage == Encoding.UTF8.CodePage)
+        {
+            return "UTF-8";
+        }
+
+        return encoding.WebName.ToUpperInvariant();
     }
 
     private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)

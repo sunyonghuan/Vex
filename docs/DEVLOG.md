@@ -27,6 +27,7 @@
 - 验证 `publish_vex_all.bat` 可成功调用全部五个发布 Profile。
 - 增加 `Properties\Trimming\TrimmerRoots.xml`，为裁剪发布保留 Vex、Avalonia、Prism、ReactiveUI、CodeWF.EventBus、CodeWF.Markdown、Semi/Ursa 与 SVG 渲染相关程序集。
 - 将 Prism 8.x 带入的 `Avalonia.Markup.Xaml.Loader` 传递版本钉到 Avalonia 12.0.3，避免发布时混入 Avalonia 11 运行时加载器。
+- 增加文档修改状态跟踪，标题栏用 `*` 标记未保存内容，状态栏显示 Saved/Modified 与当前编码。
 
 ### en-US
 
@@ -53,3 +54,4 @@
 - Verified `publish_vex_all.bat` can successfully run all five publish profiles.
 - Added `Properties\Trimming\TrimmerRoots.xml` to preserve Vex, Avalonia, Prism, ReactiveUI, CodeWF.EventBus, CodeWF.Markdown, Semi/Ursa, and SVG rendering assemblies during trimmed publishes.
 - Pinned the Prism 8.x transitive `Avalonia.Markup.Xaml.Loader` version to Avalonia 12.0.3 to avoid publishing the Avalonia 11 runtime loader.
+- Added document dirty-state tracking, with `*` in the window title for unsaved edits and Saved/Modified plus encoding badges in the status bar.

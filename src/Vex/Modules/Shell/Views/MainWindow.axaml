@@ -293,6 +293,8 @@
                     Orientation="Horizontal"
                     Spacing="8"
                     VerticalAlignment="Center">
+                    <md:VexStatusBadge Label="State" Value="{Binding DocumentStateText}" />
+                    <md:VexStatusBadge Label="Encoding" Value="{Binding CurrentEncodingText}" />
                     <TextBlock Classes="muted" Text="{Binding ZoomText}" VerticalAlignment="Center" />
                     <md:VexStatusBadge Label="Line" Value="{Binding CaretLine}" />
                     <md:VexStatusBadge Label="Col" Value="{Binding CaretColumn}" />

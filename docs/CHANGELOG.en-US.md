@@ -16,6 +16,7 @@
 - Added Vex folder publish profiles for `win-x64`, `linux-x64`, `linux-arm64`, `osx-x64`, and `osx-arm64`.
 - Added the root `publish_vex_all.bat` script to run all Vex publish profiles.
 - Added trimming roots to preserve Vex, Avalonia, Prism, ReactiveUI, CodeWF, and SVG rendering assemblies for trimmed publishes.
+- Added unsaved document indicators in the window title and status bar, with the current file encoding shown in the status bar.
 
 ### Changed
 

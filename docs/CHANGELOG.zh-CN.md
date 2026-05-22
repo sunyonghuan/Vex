@@ -16,6 +16,7 @@
 - ✨[新增]-为 Vex 主工程新增 `win-x64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64` 文件夹发布 Profile。
 - ✨[新增]-新增根目录 `publish_vex_all.bat`，可一键依次执行所有 Vex 发布 Profile。
 - ✨[新增]-新增裁剪发布免裁配置，保留 Vex、Avalonia、Prism、ReactiveUI、CodeWF 与 SVG 渲染相关程序集。
+- ✨[新增]-标题栏与状态栏展示文档未保存状态，状态栏同步显示当前文件编码。
 
 ### 优化
 
