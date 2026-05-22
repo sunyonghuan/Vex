@@ -51,6 +51,7 @@
 - Split help menu actions into a dedicated `ShellHelpViewModel` that reuses the dialogs module for the about overlay and publishes status feedback through CodeWF.EventBus.
 - Added paragraph count, heading count, and estimated reading time to Markdown statistics and the statistics overlay.
 - Added a Markdown editor context menu for clipboard, formatting, heading, quote, list, and clear-formatting actions.
+- Improved status-bar caret tracking so editor caret movement updates line and column badges through CodeWF.EventBus.
 
 ### Changed
 
@@ -100,3 +101,4 @@
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the help module opening the about overlay and updating the status bar.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the expanded statistics overlay fields and layout.
 - Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the editor context-menu popup.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the status bar after moving the caret to the document end.

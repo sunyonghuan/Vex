@@ -112,6 +112,10 @@
 - 右键菜单复用现有 `EditorActions.*` 绑定，实际文本修改仍由 Workspace 编辑器控制器通过 CodeWF.EventBus 执行；XAML 中补充中文注释说明该边界。
 - 验证 `dotnet build Vex.slnx`、`git diff --check`，并截图确认编辑器 ContextMenu 弹出层菜单项、分隔线和中文文本显示正常。截图路径：`%TEMP%\VexScreenshots\editor-context-menu-popup.png`。
 - 本轮未新增第三方依赖，无需额外许可证核查。
+- 修复状态栏光标位置刷新：编辑器控制器订阅 AvaloniaEdit Caret `PositionChanged`，单纯移动光标时也通过 `MarkdownTextChangedCommand` 更新状态栏行列号。
+- 保持既有 CodeWF.EventBus 通信通道不变，并在控制器中补充中文注释说明光标移动与文本变化共用状态更新消息的原因。
+- 验证 `dotnet build Vex.slnx`、`git diff --check`，并截图确认启动后将光标移动到文末时状态栏更新为 Line 3 / Col 11。截图路径：`%TEMP%\VexScreenshots\caret-status-update.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 
 ### en-US
 
@@ -251,4 +255,7 @@
 - Added a Markdown editor context menu for undo/redo, clipboard actions, select all, common inline formatting, heading/quote/list insertion, and clear formatting.
 - Reused the existing `EditorActions.*` bindings so context-menu commands still flow to the Workspace editor controller through CodeWF.EventBus.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the editor context-menu popup renders correctly. Screenshot path: `%TEMP%\VexScreenshots\editor-context-menu-popup.png`.
+- Added no new third-party dependency, so no additional license review was required.
+- Updated the editor controller so AvaloniaEdit caret movement also publishes `MarkdownTextChangedCommand`, keeping status-bar line and column badges current even when text does not change.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a screenshot confirming the status bar updates to Line 3 / Col 11 after moving the caret to the document end. Screenshot path: `%TEMP%\VexScreenshots\caret-status-update.png`.
 - Added no new third-party dependency, so no additional license review was required.

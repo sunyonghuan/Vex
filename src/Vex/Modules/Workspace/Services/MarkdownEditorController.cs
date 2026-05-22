@@ -26,6 +26,7 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         DetachCurrentEditor();
         _editor = editor;
         _editor.TextChanged += OnEditorTextChanged;
+        _editor.TextArea.Caret.PositionChanged += OnCaretPositionChanged;
     }
 
     public void Detach(TextEditor editor)
@@ -222,6 +223,15 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
     {
         if (!_suppressTextChanged)
         {
+            PublishTextChanged();
+        }
+    }
+
+    private void OnCaretPositionChanged(object? sender, EventArgs e)
+    {
+        if (!_suppressTextChanged)
+        {
+            // 光标移动也走同一条消息通道，确保状态栏行列号不依赖文本变化才刷新。
             PublishTextChanged();
         }
     }
@@ -512,6 +522,7 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         if (_editor is not null)
         {
             _editor.TextChanged -= OnEditorTextChanged;
+            _editor.TextArea.Caret.PositionChanged -= OnCaretPositionChanged;
             _editor = null;
         }
     }
