@@ -71,6 +71,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IMarkdownStatisticsService, MarkdownStatisticsService>();
         containerRegistry.RegisterSingleton<IThemeService, ThemeService>();
         containerRegistry.RegisterSingleton<IHelpService, HelpService>();
+        containerRegistry.RegisterSingleton<IShellStatusPublisher, ShellStatusPublisher>();
         containerRegistry.RegisterSingleton<ShellAppearanceViewModel>();
         containerRegistry.RegisterSingleton<ShellDocumentInfoViewModel>();
         containerRegistry.RegisterSingleton<ShellDialogsViewModel>();

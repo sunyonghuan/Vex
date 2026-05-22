@@ -1,20 +1,19 @@
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
-using CodeWF.EventBus;
 using ReactiveUI;
-using Vex.Core.Messaging;
 using Vex.Core.Models;
+using Vex.Modules.Shell.Services;
 
 namespace Vex.Modules.Shell.ViewModels;
 
 public sealed class ShellRecentDocumentsViewModel : ReactiveObject
 {
     private const int MaxRecentDocuments = 5;
-    private readonly IEventBus _eventBus;
+    private readonly IShellStatusPublisher _statusPublisher;
 
-    public ShellRecentDocumentsViewModel(IEventBus eventBus)
+    public ShellRecentDocumentsViewModel(IShellStatusPublisher statusPublisher)
     {
-        _eventBus = eventBus;
+        _statusPublisher = statusPublisher;
         LoadRecentDocuments();
     }
 
@@ -59,7 +58,7 @@ public sealed class ShellRecentDocumentsViewModel : ReactiveObject
         RecentDocuments.Clear();
         SaveRecentDocuments();
         NotifyRecentDocumentsChanged();
-        SetStatus("Recent files cleared.");
+        _statusPublisher.Publish("Recent files cleared.");
     }
 
     public void AddRecentDocument(string path)
@@ -138,11 +137,6 @@ public sealed class ShellRecentDocumentsViewModel : ReactiveObject
         return index >= 0 && index < RecentDocuments.Count
             ? RecentDocuments[index].DisplayText
             : "No recent files";
-    }
-
-    private void SetStatus(string message)
-    {
-        _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
     }
 
     private static string RecentDocumentsPath =>

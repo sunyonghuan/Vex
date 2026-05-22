@@ -1,20 +1,19 @@
 using System.Runtime.CompilerServices;
-using CodeWF.EventBus;
 using ReactiveUI;
-using Vex.Core.Messaging;
+using Vex.Modules.Shell.Services;
 
 namespace Vex.Modules.Shell.ViewModels;
 
 // 管理编辑器显示偏好，Workspace 视图只绑定这些状态，不直接保存用户显示选择。
 public sealed class ShellEditorDisplayViewModel : ReactiveObject
 {
-    private readonly IEventBus _eventBus;
+    private readonly IShellStatusPublisher _statusPublisher;
     private double _editorZoom = 1.0;
     private bool _showLineNumbers;
 
-    public ShellEditorDisplayViewModel(IEventBus eventBus)
+    public ShellEditorDisplayViewModel(IShellStatusPublisher statusPublisher)
     {
-        _eventBus = eventBus;
+        _statusPublisher = statusPublisher;
     }
 
     public double EditorZoom
@@ -58,12 +57,7 @@ public sealed class ShellEditorDisplayViewModel : ReactiveObject
     public void ToggleLineNumbers()
     {
         ShowLineNumbers = !ShowLineNumbers;
-        SetStatus(ShowLineNumbers ? "Line numbers shown." : "Line numbers hidden.");
-    }
-
-    private void SetStatus(string message)
-    {
-        _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
+        _statusPublisher.Publish(ShowLineNumbers ? "Line numbers shown." : "Line numbers hidden.");
     }
 
     private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)

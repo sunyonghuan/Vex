@@ -1,14 +1,13 @@
 using System.Runtime.CompilerServices;
-using CodeWF.EventBus;
 using ReactiveUI;
-using Vex.Core.Messaging;
+using Vex.Modules.Shell.Services;
 
 namespace Vex.Modules.Shell.ViewModels;
 
 // 集中管理 Shell 浮层和确认框状态，避免 MainWindowViewModel 持续堆叠纯 UI 状态。
 public sealed class ShellDialogsViewModel : ReactiveObject
 {
-    private readonly IEventBus _eventBus;
+    private readonly IShellStatusPublisher _statusPublisher;
     private bool _isStatisticsPanelVisible;
     private bool _isAboutPanelVisible;
     private bool _isPropertiesPanelVisible;
@@ -22,9 +21,9 @@ public sealed class ShellDialogsViewModel : ReactiveObject
     private string _unsavedConfirmMessage = "Save changes before continuing?";
     private string _unsavedConfirmPath = "Unsaved document";
 
-    public ShellDialogsViewModel(IEventBus eventBus)
+    public ShellDialogsViewModel(IShellStatusPublisher statusPublisher)
     {
-        _eventBus = eventBus;
+        _statusPublisher = statusPublisher;
     }
 
     public bool IsStatisticsPanelVisible
@@ -124,7 +123,7 @@ public sealed class ShellDialogsViewModel : ReactiveObject
     public void CancelDelete()
     {
         ClearDeleteConfirmation();
-        SetStatus("Delete canceled.");
+        _statusPublisher.Publish("Delete canceled.");
     }
 
     public void ShowUnsavedConfirmation(
@@ -145,7 +144,7 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         OnPropertyChanged(nameof(UnsavedConfirmPath));
         OnPropertyChanged(nameof(HasPendingUnsavedAction));
         IsUnsavedConfirmVisible = true;
-        SetStatus("Unsaved changes need a decision.");
+        _statusPublisher.Publish("Unsaved changes need a decision.");
     }
 
     public Func<Task>? TakePendingUnsavedContinuation()
@@ -160,7 +159,7 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         var cancellation = _pendingUnsavedCancellation;
         ClearUnsavedConfirmation();
         cancellation?.Invoke();
-        SetStatus("Action canceled. Unsaved changes kept.");
+        _statusPublisher.Publish("Action canceled. Unsaved changes kept.");
     }
 
     public bool CloseFloatingPanel()
@@ -180,21 +179,21 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         if (IsPropertiesPanelVisible)
         {
             IsPropertiesPanelVisible = false;
-            SetStatus("Properties closed.");
+            _statusPublisher.Publish("Properties closed.");
             return true;
         }
 
         if (IsStatisticsPanelVisible)
         {
             IsStatisticsPanelVisible = false;
-            SetStatus("Statistics closed.");
+            _statusPublisher.Publish("Statistics closed.");
             return true;
         }
 
         if (IsAboutPanelVisible)
         {
             IsAboutPanelVisible = false;
-            SetStatus("About closed.");
+            _statusPublisher.Publish("About closed.");
             return true;
         }
 
@@ -207,11 +206,6 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         _pendingUnsavedCancellation = null;
         OnPropertyChanged(nameof(HasPendingUnsavedAction));
         IsUnsavedConfirmVisible = false;
-    }
-
-    private void SetStatus(string message)
-    {
-        _eventBus.Publish(new WorkspaceStatusChangedCommand(message));
     }
 
     private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)

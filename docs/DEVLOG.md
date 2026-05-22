@@ -370,3 +370,8 @@
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a desktop startup smoke screenshot after the overlay view split. Screenshot path: `%TEMP%\VexScreenshots\overlays-view-split-startup.png`.
 - Popup-menu automation remained unreliable for opening an overlay in this desktop session; the extracted controls are still covered by Avalonia XAML compilation and the startup smoke run.
 - Added no new third-party dependency.
+- Added `IShellStatusPublisher` and `ShellStatusPublisher` to centralize status-bar message publication through CodeWF.EventBus instead of repeating `WorkspaceStatusChangedCommand` publishing in small ViewModels.
+- Migrated `ShellEditorDisplayViewModel`, `ShellRecentDocumentsViewModel`, `ShellHelpViewModel`, and `ShellDialogsViewModel` to the shared status publisher and removed their duplicate `SetStatus` wrappers.
+- Registered the status publisher through Prism IoC before shell ViewModels so later status localization, logging, or throttling can be handled in one place.
+- Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a startup screenshot confirming the shell still opens with the new IoC service. Screenshot path: `%TEMP%\VexScreenshots\shell-status-publisher-startup.png`.
+- Added no new third-party dependency.
