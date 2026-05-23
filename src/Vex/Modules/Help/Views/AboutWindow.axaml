@@ -51,7 +51,7 @@
                     Grid.Row="4"
                     Grid.Column="1"
                     Cursor="Hand"
-                    Foreground="#1677FF"
+                    Foreground="{DynamicResource VexLinkBrush}"
                     PointerPressed="WebsiteLink_OnPointerPressed"
                     Text="https://codewf.com"
                     TextDecorations="Underline" />

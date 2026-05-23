@@ -6,7 +6,7 @@
     xmlns:l="clr-namespace:Vex"
     xmlns:vm="using:Vex.Modules.Shell.ViewModels"
     x:DataType="vm:MainWindowViewModel">
-    <Border Background="#66000000" IsVisible="{Binding Dialogs.IsErrorPanelVisible}">
+    <Border Background="{DynamicResource VexOverlayScrimBrush}" IsVisible="{Binding Dialogs.IsErrorPanelVisible}">
         <Border
             Width="460"
             Padding="22"

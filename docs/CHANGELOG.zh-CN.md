@@ -4,6 +4,8 @@
 
 ### 修复
 
+- 🔧[优化]-关于窗口链接和 Shell 浮层遮罩改用主题资源，暗色主题下链接更清晰、遮罩更稳定。
+- 🧪[测试]-构建 `Vex.slnx` 并扫描 AXAML 固定色值，确认控件级硬编码颜色已收敛到主题资源。
 - 🐛[修复]-PDF/PNG 导出渲染失败详情继续迁移到 i18n，PDF 创建、位图解码和 SVG 栅格化失败不再固定显示英文内部异常。
 - 🧪[测试]-解析四套 i18n JSON，并构建 `Vex.slnx` 验证导出渲染器本地化改动。
 - ✨[新增]-新增 `scripts/package_vex_artifacts.ps1`，可把 `publish/<RID>/` 打包为 `artifacts/release/` 下的 zip、SHA256 和发布 manifest。

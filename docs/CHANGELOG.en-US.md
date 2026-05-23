@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- The About link and Shell overlay scrims now use theme resources, improving link contrast and overlay stability in dark mode.
+- Built `Vex.slnx` and scanned AXAML fixed colors to confirm control-level hard-coded colors were reduced to theme resources.
 - PDF/PNG export-renderer failure details now use i18n resources, so PDF creation, bitmap decode, and SVG rasterization failures no longer show fixed English internal exceptions.
 - Parsed all four i18n JSON files and built `Vex.slnx` to verify the export-renderer localization changes.
 - Added `scripts/package_vex_artifacts.ps1` to package `publish/<RID>/` outputs into release zip archives, SHA256 files, and a release manifest under `artifacts/release/`.

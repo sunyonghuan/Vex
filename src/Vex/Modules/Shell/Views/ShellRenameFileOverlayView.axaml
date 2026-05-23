@@ -8,7 +8,7 @@
     xmlns:vm="using:Vex.Modules.Shell.ViewModels"
     x:DataType="vm:MainWindowViewModel">
     <Border
-        Background="#66000000"
+        Background="{DynamicResource VexOverlayScrimBrush}"
         IsVisible="{Binding Dialogs.IsRenameFilePanelVisible}"
         behaviors:FocusOnVisible.TargetName="RenameFileNameTextBox"
         behaviors:FocusOnVisible.SelectAll="True">

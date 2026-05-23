@@ -29,6 +29,8 @@
                     <SolidColorBrush x:Key="VexStatusBadgeBorderBrush" Color="#D8DEE8" />
                     <SolidColorBrush x:Key="VexStatusBadgeLabelBrush" Color="#667085" />
                     <SolidColorBrush x:Key="VexStatusBadgeValueBrush" Color="#1D2939" />
+                    <SolidColorBrush x:Key="VexLinkBrush" Color="#1677FF" />
+                    <SolidColorBrush x:Key="VexOverlayScrimBrush" Color="#66000000" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="VexShellBackgroundBrush" Color="#111827" />
@@ -48,6 +50,8 @@
                     <SolidColorBrush x:Key="VexStatusBadgeBorderBrush" Color="#334155" />
                     <SolidColorBrush x:Key="VexStatusBadgeLabelBrush" Color="#AAB4C3" />
                     <SolidColorBrush x:Key="VexStatusBadgeValueBrush" Color="#F3F4F6" />
+                    <SolidColorBrush x:Key="VexLinkBrush" Color="#60A5FA" />
+                    <SolidColorBrush x:Key="VexOverlayScrimBrush" Color="#99000000" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 

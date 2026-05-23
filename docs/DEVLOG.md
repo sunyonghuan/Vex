@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 暗色模式细节调整：关于窗口链接颜色改用 `VexLinkBrush` 主题资源，暗色主题使用更高亮度蓝色；错误、删除、重命名和未保存确认遮罩改用 `VexOverlayScrimBrush`，暗色主题遮罩更稳定。
+- 清理控件级硬编码颜色，除主题资源定义外，帮助窗口链接和 Shell 浮层不再直接写固定色值。
 - 导出渲染失败详情继续迁移到 i18n：PDF 文档创建失败、渲染位图解码失败，以及本地 SVG 栅格化加载/画布/编码失败改用四套本地化文案。
 - `MarkdownExportService` 将本地化服务传入 PNG/PDF 渲染器，避免导出错误浮层继续显示固定英文内部异常。
 - 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 通过。
@@ -84,6 +86,8 @@
 
 ### en-US
 
+- Refined dark-mode details: the About window link now uses the themed `VexLinkBrush` with a brighter dark-theme blue, and error/delete/rename/unsaved overlays use `VexOverlayScrimBrush` with a stronger dark-theme scrim.
+- Removed control-level hard-coded colors from the Help link and Shell overlays; fixed color values now live in theme resources.
 - Continued moving export-renderer failure details into i18n: PDF creation failures, rendered bitmap decode failures, and local SVG rasterization load/surface/encode failures now use the four localized resource sets.
 - `MarkdownExportService` now passes the app localizer into the PNG/PDF renderers, so export error overlays no longer show those fixed English internal exceptions.
 - Verified all four i18n JSON files and `dotnet build Vex.slnx -v:minimal`.
