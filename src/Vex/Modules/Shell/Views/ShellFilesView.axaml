@@ -44,7 +44,17 @@
             Classes="side-list"
             IsVisible="{Binding HasDocumentFiles}"
             ItemsSource="{Binding DocumentFiles}"
-            SelectedItem="{Binding SelectedDocumentFile, Mode=TwoWay}" />
+            PointerPressed="SelectItemOnPointerPressed"
+            SelectedItem="{Binding SelectedDocumentFile, Mode=TwoWay}">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem
+                        Header="{i18n:I18n {x:Static l:VexL.Rename}}"
+                        Command="{Binding RenameSelectedFile}"
+                        IsEnabled="{Binding HasSelectedDocumentFile}" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
         <Border
             IsVisible="{Binding IsDocumentFilesEmpty}"
             Padding="18"

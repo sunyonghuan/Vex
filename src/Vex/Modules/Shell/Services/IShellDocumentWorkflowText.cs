@@ -64,11 +64,15 @@ public interface IShellDocumentWorkflowText
 
     void PublishFileDeleted();
 
+    void PublishRenamedFile(string fileName);
+
     void PublishOpenFileBeforeEncoding();
 
     void PublishReopenedWithEncoding(string encodingName);
 
     void PublishOpened(string fileName);
+
+    void PublishExternalFileReloaded(string fileName);
 
     void PublishPropertiesSummary(
         string title,

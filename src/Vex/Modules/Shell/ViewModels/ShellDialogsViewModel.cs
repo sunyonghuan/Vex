@@ -16,7 +16,9 @@ public sealed class ShellDialogsViewModel : ReactiveObject
     private bool _isDeleteConfirmVisible;
     private bool _isUnsavedConfirmVisible;
     private bool _isErrorPanelVisible;
+    private bool _isRenameFilePanelVisible;
     private string? _pendingDeletePath;
+    private string? _pendingRenamePath;
     // 未保存确认框需要暂存用户选择后的后续动作，保存/不保存/取消会从这里恢复流程。
     private Func<Task>? _pendingUnsavedContinuation;
     private Action? _pendingUnsavedCancellation;
@@ -26,6 +28,7 @@ public sealed class ShellDialogsViewModel : ReactiveObject
     private string _errorTitle;
     private string _errorMessage;
     private string _errorDetail;
+    private string _renameFileName;
 
     public ShellDialogsViewModel(IShellStatusPublisher statusPublisher, IAppLocalizer localizer)
     {
@@ -37,6 +40,7 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         _errorTitle = _localizer.Get(VexL.ErrorTitle);
         _errorMessage = string.Empty;
         _errorDetail = string.Empty;
+        _renameFileName = string.Empty;
     }
 
     public bool IsStatisticsPanelVisible
@@ -75,6 +79,12 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         set => SetProperty(ref _isErrorPanelVisible, value);
     }
 
+    public bool IsRenameFilePanelVisible
+    {
+        get => _isRenameFilePanelVisible;
+        set => SetProperty(ref _isRenameFilePanelVisible, value);
+    }
+
     public string DeleteConfirmText => _pendingDeletePath is { Length: > 0 }
         ? _localizer.Format(VexL.DeleteConfirmFileFormat, Path.GetFileName(_pendingDeletePath))
         : _localizer.Get(VexL.DeleteConfirmCurrentFile);
@@ -94,6 +104,16 @@ public sealed class ShellDialogsViewModel : ReactiveObject
     public string ErrorMessage => _errorMessage;
 
     public string ErrorDetail => _errorDetail;
+
+    public string RenameFileName
+    {
+        get => _renameFileName;
+        set => SetProperty(ref _renameFileName, value);
+    }
+
+    public string RenameFilePath => _pendingRenamePath ?? string.Empty;
+
+    public string? PendingRenamePath => _pendingRenamePath;
 
     public bool HasPendingUnsavedAction => _pendingUnsavedContinuation is not null;
 
@@ -149,6 +169,30 @@ public sealed class ShellDialogsViewModel : ReactiveObject
     {
         ClearDeleteConfirmation();
         _statusPublisher.PublishResource(VexL.StatusDeleteCanceled);
+    }
+
+    public void ShowRenameFilePanel(string path)
+    {
+        _pendingRenamePath = path;
+        RenameFileName = Path.GetFileName(path);
+        OnPropertyChanged(nameof(RenameFilePath));
+        OnPropertyChanged(nameof(PendingRenamePath));
+        IsRenameFilePanelVisible = true;
+    }
+
+    public void ClearRenameFilePanel()
+    {
+        _pendingRenamePath = null;
+        RenameFileName = string.Empty;
+        OnPropertyChanged(nameof(RenameFilePath));
+        OnPropertyChanged(nameof(PendingRenamePath));
+        IsRenameFilePanelVisible = false;
+    }
+
+    public void CancelRenameFile()
+    {
+        ClearRenameFilePanel();
+        _statusPublisher.PublishResource(VexL.StatusRenameCanceled);
     }
 
     public void ShowUnsavedConfirmation(
@@ -231,6 +275,12 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         if (IsErrorPanelVisible)
         {
             CloseErrorPanel();
+            return true;
+        }
+
+        if (IsRenameFilePanelVisible)
+        {
+            CancelRenameFile();
             return true;
         }
 

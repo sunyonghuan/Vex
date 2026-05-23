@@ -10,6 +10,8 @@ public interface IDocumentService
 
     Task<DocumentSnapshot> OpenPathAsync(string path, string? encodingName = null);
 
+    Task<DocumentSnapshot> ReloadAsync(DocumentSnapshot document);
+
     Task<IReadOnlyList<DocumentFile>> OpenFolderAsync();
 
     Task<IReadOnlyList<DocumentFile>> OpenFolderPathAsync(string folder);
@@ -21,6 +23,8 @@ public interface IDocumentService
     Task<DocumentSnapshot?> SaveAsAsync(DocumentSnapshot document);
 
     Task DeleteAsync(string path);
+
+    Task<string> RenameAsync(string path, string newName);
 
     Task OpenFileLocationAsync(string path);
 }

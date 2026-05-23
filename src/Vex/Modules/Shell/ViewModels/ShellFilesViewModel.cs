@@ -12,6 +12,7 @@ public sealed class ShellFilesViewModel : ReactiveObject, IRegionTabItem
 {
     private readonly IEventBus _eventBus;
     private DocumentFile? _selectedDocumentFile;
+    private bool _suppressSelectedFileOpen;
 
     public ShellFilesViewModel(IEventBus eventBus)
     {
@@ -33,10 +34,39 @@ public sealed class ShellFilesViewModel : ReactiveObject, IRegionTabItem
         set
         {
             var previousSelection = _selectedDocumentFile;
-            if (SetProperty(ref _selectedDocumentFile, value) && value is not null)
+            if (SetProperty(ref _selectedDocumentFile, value))
             {
-                _eventBus.Publish(new DocumentFileOpenRequestedCommand(value, previousSelection));
+                OnPropertyChanged(nameof(HasSelectedDocumentFile));
+                if (value is not null && !_suppressSelectedFileOpen)
+                {
+                    _eventBus.Publish(new DocumentFileOpenRequestedCommand(value, previousSelection));
+                }
             }
+        }
+    }
+
+    public bool HasSelectedDocumentFile => SelectedDocumentFile is not null;
+
+    public void RenameSelectedFile()
+    {
+        if (SelectedDocumentFile is not { } file)
+        {
+            return;
+        }
+
+        _eventBus.Publish(new DocumentFileRenameRequestedCommand(file));
+    }
+
+    public void SelectDocumentFileForContextMenu(DocumentFile documentFile)
+    {
+        _suppressSelectedFileOpen = true;
+        try
+        {
+            SelectedDocumentFile = documentFile;
+        }
+        finally
+        {
+            _suppressSelectedFileOpen = false;
         }
     }
 
@@ -63,7 +93,10 @@ public sealed class ShellFilesViewModel : ReactiveObject, IRegionTabItem
 
     private void SelectDocumentFileSilently(DocumentFile? documentFile)
     {
-        SetProperty(ref _selectedDocumentFile, documentFile, nameof(SelectedDocumentFile));
+        if (SetProperty(ref _selectedDocumentFile, documentFile, nameof(SelectedDocumentFile)))
+        {
+            OnPropertyChanged(nameof(HasSelectedDocumentFile));
+        }
     }
 
     private void NotifyDocumentFilesChanged()

@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CodeWF.EventBus;
 using ReactiveUI;
 using Vex.Core.Messaging;
@@ -21,10 +22,15 @@ public sealed class MainWindowViewModel : ReactiveObject
     private readonly IShellExternalPathResolver _externalPaths;
     private readonly IAutoSaveDraftService _drafts;
     private readonly IShellStatusPublisher _statusPublisher;
+    private FileSystemWatcher? _currentFileWatcher;
+    private Timer? _currentFileChangeTimer;
     private DocumentSnapshot _document;
     private IReadOnlyList<DocumentFile> _documentFiles = [];
     private string _lastSavedMarkdown = string.Empty;
     private string _markdown = string.Empty;
+    private string? _watchedFilePath;
+    private DateTimeOffset? _watchedFileLastWriteTimeUtc;
+    private DateTimeOffset? _lastSkippedExternalWriteTimeUtc;
 
     public MainWindowViewModel(
         IDocumentService documentService,
@@ -200,6 +206,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void NewDocumentCore()
     {
+        StopCurrentFileWatcher();
         _drafts.Clear(_document);
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
@@ -223,6 +230,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void CloseDocumentCore()
     {
+        StopCurrentFileWatcher();
         _drafts.Clear(_document);
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
@@ -397,6 +405,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             VexL.ErrorMessageCannotDeleteFormat,
             async () =>
             {
+                StopCurrentFileWatcher();
                 await _documentService.DeleteAsync(path);
                 _drafts.Clear(_document);
                 Recent.RemoveRecentDocument(path);
@@ -463,6 +472,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         RefreshDocumentInfo();
+        StartCurrentFileWatcher();
         _text.PublishOpened(snapshot.FileName);
         if (restoredDraft)
         {
@@ -485,6 +495,9 @@ public sealed class MainWindowViewModel : ReactiveObject
     public void ApplyDocumentFileOpenRequested(DocumentFileOpenRequestedCommand command) => _ = OpenDocumentFileAsync(command.File, command.PreviousSelection);
 
     [EventHandler]
+    public void ApplyDocumentFileRenameRequested(DocumentFileRenameRequestedCommand command) => Dialogs.ShowRenameFilePanel(command.File.Path);
+
+    [EventHandler]
     public void ApplyShellDroppedPath(ShellDroppedPathCommand command) => _ = OpenDroppedPathAsync(command.Path);
 
     [EventHandler]
@@ -505,7 +518,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void SyncDocumentFileList(string path)
     {
-        var selected = _documentFiles.FirstOrDefault(file => file.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+        var selected = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path));
         if (selected is null)
         {
             selected = _documentFileFactory.Create(path);
@@ -526,6 +539,20 @@ public sealed class MainWindowViewModel : ReactiveObject
     public Task Print() => RunWithErrorOverlayAsync(
         VexL.ErrorMessageCannotPrintFormat,
         () => _documentUtilities.PrintAsync(_document, Markdown));
+    public async Task ConfirmRenameFileAsync()
+    {
+        if (Dialogs.PendingRenamePath is not { Length: > 0 } path)
+        {
+            Dialogs.ClearRenameFilePanel();
+            return;
+        }
+
+        await RunWithErrorOverlayAsync(
+            VexL.ErrorMessageCannotRenameFormat,
+            () => RenameFileCoreAsync(path, Dialogs.RenameFileName),
+            path);
+    }
+
     public void WordCount() => _documentUtilities.WordCount(Dialogs, DocumentInfo.Statistics);
     public bool CloseFloatingPanel() => Dialogs.CloseFloatingPanel();
     public void ShowFindPanel() => FindBar.ShowFindPanel();
@@ -568,6 +595,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             _text.BeforeClosingVex(_document.FileName),
             () =>
             {
+                StopCurrentFileWatcher();
                 _drafts.Clear(_document);
                 CloseWindowRequested?.Invoke(this, EventArgs.Empty);
                 return Task.CompletedTask;
@@ -614,6 +642,207 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
+    private async Task RenameFileCoreAsync(string path, string newName)
+    {
+        var wasCurrentDocument = IsCurrentDocumentPath(path);
+        if (wasCurrentDocument)
+        {
+            StopCurrentFileWatcher();
+        }
+
+        var renamedPath = await _documentService.RenameAsync(path, newName);
+        var renamedFile = ReplaceRenamedDocumentFile(path, renamedPath);
+        Recent.RemoveRecentDocument(path);
+        if (wasCurrentDocument)
+        {
+            _drafts.Clear(_document);
+            _document = _document with
+            {
+                FilePath = renamedPath,
+                FileName = Path.GetFileName(renamedPath)
+            };
+            Recent.AddRecentDocument(renamedPath);
+            RefreshDocumentInfo();
+            StartCurrentFileWatcher();
+        }
+
+        Dialogs.ClearRenameFilePanel();
+        _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles, renamedFile));
+        _text.PublishRenamedFile(Path.GetFileName(renamedPath));
+    }
+
+    private DocumentFile ReplaceRenamedDocumentFile(string oldPath, string newPath)
+    {
+        var existing = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, oldPath));
+        var renamed = existing is null
+            ? _documentFileFactory.Create(newPath)
+            : new DocumentFile(
+                newPath,
+                Path.GetFileName(newPath),
+                existing.FolderName,
+                existing.ModifiedText,
+                existing.Preview);
+
+        _documentFiles = _documentFiles.Count == 0
+            ? [renamed]
+            : _documentFiles
+                .Select(file => PathsEqual(file.Path, oldPath) ? renamed : file)
+                .ToArray();
+
+        if (!_documentFiles.Any(file => PathsEqual(file.Path, newPath)))
+        {
+            _documentFiles = [.. _documentFiles, renamed];
+        }
+
+        return renamed;
+    }
+
+    private void StartCurrentFileWatcher()
+    {
+        StopCurrentFileWatcher();
+        if (_document.FilePath is not { Length: > 0 } path || !File.Exists(path))
+        {
+            return;
+        }
+
+        var fullPath = Path.GetFullPath(path);
+        var directory = Path.GetDirectoryName(fullPath);
+        var fileName = Path.GetFileName(fullPath);
+        if (string.IsNullOrWhiteSpace(directory) || string.IsNullOrWhiteSpace(fileName))
+        {
+            return;
+        }
+
+        _watchedFilePath = fullPath;
+        _watchedFileLastWriteTimeUtc = TryGetLastWriteTimeUtc(fullPath);
+        _lastSkippedExternalWriteTimeUtc = null;
+        _currentFileWatcher = new FileSystemWatcher(directory, fileName)
+        {
+            NotifyFilter = NotifyFilters.FileName
+                           | NotifyFilters.LastWrite
+                           | NotifyFilters.Size
+                           | NotifyFilters.CreationTime
+        };
+        _currentFileWatcher.Changed += HandleWatchedFileChanged;
+        _currentFileWatcher.Created += HandleWatchedFileChanged;
+        _currentFileWatcher.Deleted += HandleWatchedFileChanged;
+        _currentFileWatcher.Renamed += HandleWatchedFileChanged;
+        _currentFileWatcher.EnableRaisingEvents = true;
+    }
+
+    private void StopCurrentFileWatcher()
+    {
+        if (_currentFileWatcher is not null)
+        {
+            _currentFileWatcher.EnableRaisingEvents = false;
+            _currentFileWatcher.Changed -= HandleWatchedFileChanged;
+            _currentFileWatcher.Created -= HandleWatchedFileChanged;
+            _currentFileWatcher.Deleted -= HandleWatchedFileChanged;
+            _currentFileWatcher.Renamed -= HandleWatchedFileChanged;
+            _currentFileWatcher.Dispose();
+            _currentFileWatcher = null;
+        }
+
+        _currentFileChangeTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _watchedFilePath = null;
+        _watchedFileLastWriteTimeUtc = null;
+        _lastSkippedExternalWriteTimeUtc = null;
+    }
+
+    private void HandleWatchedFileChanged(object sender, FileSystemEventArgs e)
+    {
+        if (_watchedFilePath is null)
+        {
+            return;
+        }
+
+        _currentFileChangeTimer ??= new Timer(
+            _ => Dispatcher.UIThread.Post(() => _ = ReloadWatchedFileAsync()),
+            null,
+            Timeout.InfiniteTimeSpan,
+            Timeout.InfiniteTimeSpan);
+        _currentFileChangeTimer.Change(TimeSpan.FromMilliseconds(500), Timeout.InfiniteTimeSpan);
+    }
+
+    private async Task ReloadWatchedFileAsync()
+    {
+        if (_watchedFilePath is not { Length: > 0 } watchedPath || !IsCurrentDocumentPath(watchedPath))
+        {
+            return;
+        }
+
+        if (!File.Exists(watchedPath))
+        {
+            _statusPublisher.PublishResource(VexL.StatusCurrentFileUnavailable);
+            return;
+        }
+
+        var writeTime = TryGetLastWriteTimeUtc(watchedPath);
+        if (writeTime is not null
+            && _watchedFileLastWriteTimeUtc is not null
+            && writeTime.Value <= _watchedFileLastWriteTimeUtc.Value)
+        {
+            return;
+        }
+
+        if (DocumentInfo.IsModified)
+        {
+            if (writeTime is null || _lastSkippedExternalWriteTimeUtc != writeTime)
+            {
+                _lastSkippedExternalWriteTimeUtc = writeTime;
+                _statusPublisher.PublishResource(VexL.StatusExternalFileChangedWithUnsavedEdits);
+            }
+
+            return;
+        }
+
+        await RunWithErrorOverlayAsync(
+            VexL.ErrorMessageCannotOpenFileFormat,
+            async () =>
+            {
+                var reloaded = await _documentService.ReloadAsync(_document);
+                _document = reloaded;
+                _lastSavedMarkdown = reloaded.Markdown;
+                if (!MarkdownEquals(Markdown, reloaded.Markdown))
+                {
+                    Markdown = reloaded.Markdown;
+                }
+                else
+                {
+                    RefreshDocumentInfo();
+                }
+
+                _watchedFileLastWriteTimeUtc = TryGetLastWriteTimeUtc(watchedPath);
+                RefreshDocumentFileInList(watchedPath);
+                _text.PublishExternalFileReloaded(reloaded.FileName);
+            },
+            watchedPath);
+    }
+
+    private void RefreshDocumentFileInList(string path)
+    {
+        var existing = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path));
+        if (existing is null)
+        {
+            var selected = _documentFileFactory.Create(path);
+            _documentFiles = [selected];
+            _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles, selected));
+            return;
+        }
+
+        var refreshed = _documentFileFactory.Create(path);
+        var file = new DocumentFile(
+            refreshed.Path,
+            refreshed.Name,
+            existing.FolderName,
+            refreshed.ModifiedText,
+            refreshed.Preview);
+        _documentFiles = _documentFiles
+            .Select(item => PathsEqual(item.Path, path) ? file : item)
+            .ToArray();
+        _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles, file));
+    }
+
     private DocumentSnapshot RestoreDraftIfAvailable(DocumentSnapshot document, out bool restoredDraft)
     {
         var restored = _drafts.TryRestore(document);
@@ -631,9 +860,44 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         if (left.FilePath is { Length: > 0 } leftPath && right.FilePath is { Length: > 0 } rightPath)
         {
-            return leftPath.Equals(rightPath, StringComparison.OrdinalIgnoreCase);
+            return PathsEqual(leftPath, rightPath);
         }
 
         return string.IsNullOrWhiteSpace(left.FilePath) && string.IsNullOrWhiteSpace(right.FilePath);
+    }
+
+    private bool IsCurrentDocumentPath(string path)
+    {
+        return _document.FilePath is { Length: > 0 } currentPath
+               && PathsEqual(currentPath, path);
+    }
+
+    private static bool MarkdownEquals(string left, string right)
+    {
+        return string.Equals(left.ReplaceLineEndings("\n"), right.ReplaceLineEndings("\n"), StringComparison.Ordinal);
+    }
+
+    private static DateTimeOffset? TryGetLastWriteTimeUtc(string path)
+    {
+        try
+        {
+            return new DateTimeOffset(File.GetLastWriteTimeUtc(path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        try
+        {
+            return Path.GetFullPath(left).Equals(Path.GetFullPath(right), StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return left.Equals(right, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

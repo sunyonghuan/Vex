@@ -98,12 +98,16 @@ public sealed class ShellDocumentWorkflowText : IShellDocumentWorkflowText
 
     public void PublishFileDeleted() => Publish(VexL.StatusFileDeleted);
 
+    public void PublishRenamedFile(string fileName) => PublishFormat(VexL.StatusRenamedFileFormat, fileName);
+
     public void PublishOpenFileBeforeEncoding() => Publish(VexL.StatusOpenFileBeforeEncoding);
 
     public void PublishReopenedWithEncoding(string encodingName) =>
         PublishFormat(VexL.StatusReopenedWithEncodingFormat, encodingName);
 
     public void PublishOpened(string fileName) => PublishFormat(VexL.StatusOpenedFileFormat, fileName);
+
+    public void PublishExternalFileReloaded(string fileName) => PublishFormat(VexL.StatusExternalFileReloadedFormat, fileName);
 
     public void PublishPropertiesSummary(
         string title,

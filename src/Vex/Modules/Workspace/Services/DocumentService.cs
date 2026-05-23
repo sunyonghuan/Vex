@@ -54,6 +54,23 @@ public sealed class DocumentService : IDocumentService
         return new DocumentSnapshot(path, Path.GetFileName(path), markdown, encoding, false);
     }
 
+    public async Task<DocumentSnapshot> ReloadAsync(DocumentSnapshot document)
+    {
+        if (document.FilePath is not { Length: > 0 } path)
+        {
+            throw new InvalidOperationException("The current document does not have a file path.");
+        }
+
+        var markdown = await File.ReadAllTextAsync(path, document.Encoding);
+        return document with
+        {
+            FilePath = path,
+            FileName = Path.GetFileName(path),
+            Markdown = markdown,
+            IsNew = false
+        };
+    }
+
     public async Task<IReadOnlyList<DocumentFile>> OpenFolderAsync()
     {
         var owner = GetMainWindow();
@@ -161,6 +178,35 @@ public sealed class DocumentService : IDocumentService
         return Task.CompletedTask;
     }
 
+    public Task<string> RenameAsync(string path, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        {
+            throw new FileNotFoundException("The file to rename was not found.", path);
+        }
+
+        var directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrWhiteSpace(directory))
+        {
+            throw new InvalidOperationException("The file directory could not be resolved.");
+        }
+
+        var targetName = NormalizeRenameTargetName(path, newName);
+        var targetPath = Path.Combine(directory, targetName);
+        if (path.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult(path);
+        }
+
+        if (File.Exists(targetPath))
+        {
+            throw new IOException($"A file named '{targetName}' already exists.");
+        }
+
+        File.Move(path, targetPath);
+        return Task.FromResult(targetPath);
+    }
+
     public Task OpenFileLocationAsync(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -203,6 +249,40 @@ public sealed class DocumentService : IDocumentService
         }
 
         return Encoding.GetEncoding(encodingName);
+    }
+
+    private static string NormalizeRenameTargetName(string path, string newName)
+    {
+        var trimmed = newName.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            throw new ArgumentException("The file name cannot be empty.", nameof(newName));
+        }
+
+        if (trimmed.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new ArgumentException("The file name contains invalid characters.", nameof(newName));
+        }
+
+        if (string.IsNullOrWhiteSpace(Path.GetExtension(trimmed)))
+        {
+            trimmed += Path.GetExtension(path);
+        }
+
+        if (!IsSupportedExtension(Path.GetExtension(trimmed)))
+        {
+            throw new ArgumentException("The renamed file must keep a supported Markdown or text extension.", nameof(newName));
+        }
+
+        return trimmed;
+    }
+
+    private static bool IsSupportedExtension(string extension)
+    {
+        return extension.Equals(".md", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".markdown", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".mdown", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".txt", StringComparison.OrdinalIgnoreCase);
     }
 
     private IReadOnlyList<FilePickerFileType> CreateMarkdownFileTypes()

@@ -41,6 +41,7 @@ public static class VexL
     public static readonly string Properties = "Vex.VexL.Properties";
     public static readonly string OpenFileLocation = "Vex.VexL.OpenFileLocation";
     public static readonly string Delete = "Vex.VexL.Delete";
+    public static readonly string Rename = "Vex.VexL.Rename";
     public static readonly string Export = "Vex.VexL.Export";
     public static readonly string Print = "Vex.VexL.Print";
     public static readonly string Close = "Vex.VexL.Close";
@@ -179,6 +180,7 @@ public static class VexL
     public static readonly string ErrorMessageCannotOpenFolder = "Vex.VexL.ErrorMessageCannotOpenFolder";
     public static readonly string ErrorMessageCannotOpenFolderFormat = "Vex.VexL.ErrorMessageCannotOpenFolderFormat";
     public static readonly string ErrorMessageCannotSaveFormat = "Vex.VexL.ErrorMessageCannotSaveFormat";
+    public static readonly string ErrorMessageCannotRenameFormat = "Vex.VexL.ErrorMessageCannotRenameFormat";
     public static readonly string ErrorMessageCannotDeleteFormat = "Vex.VexL.ErrorMessageCannotDeleteFormat";
     public static readonly string ErrorMessageCannotExportFormat = "Vex.VexL.ErrorMessageCannotExportFormat";
     public static readonly string ErrorMessageCannotPrintFormat = "Vex.VexL.ErrorMessageCannotPrintFormat";
@@ -187,6 +189,9 @@ public static class VexL
     public static readonly string ErrorMessageCannotStartNewWindow = "Vex.VexL.ErrorMessageCannotStartNewWindow";
     public static readonly string ErrorMessageActionFailed = "Vex.VexL.ErrorMessageActionFailed";
     public static readonly string ErrorDetailFallback = "Vex.VexL.ErrorDetailFallback";
+    public static readonly string RenameFileTitle = "Vex.VexL.RenameFileTitle";
+    public static readonly string RenameFileNameLabel = "Vex.VexL.RenameFileNameLabel";
+    public static readonly string RenameFilePathLabel = "Vex.VexL.RenameFilePathLabel";
     public static readonly string StatusReady = "Vex.VexL.StatusReady";
     public static readonly string StatusLanguageSwitched = "Vex.VexL.StatusLanguageSwitched";
     public static readonly string StatusLineNumbersShown = "Vex.VexL.StatusLineNumbersShown";
@@ -211,6 +216,11 @@ public static class VexL
     public static readonly string StatusSaveAllCanceledModified = "Vex.VexL.StatusSaveAllCanceledModified";
     public static readonly string StatusSavedCurrentDocumentNoMultiSave = "Vex.VexL.StatusSavedCurrentDocumentNoMultiSave";
     public static readonly string StatusFileDeleted = "Vex.VexL.StatusFileDeleted";
+    public static readonly string StatusRenamedFileFormat = "Vex.VexL.StatusRenamedFileFormat";
+    public static readonly string StatusRenameCanceled = "Vex.VexL.StatusRenameCanceled";
+    public static readonly string StatusExternalFileReloadedFormat = "Vex.VexL.StatusExternalFileReloadedFormat";
+    public static readonly string StatusExternalFileChangedWithUnsavedEdits = "Vex.VexL.StatusExternalFileChangedWithUnsavedEdits";
+    public static readonly string StatusCurrentFileUnavailable = "Vex.VexL.StatusCurrentFileUnavailable";
     public static readonly string StatusOpenFileBeforeEncoding = "Vex.VexL.StatusOpenFileBeforeEncoding";
     public static readonly string StatusReopenedWithEncodingFormat = "Vex.VexL.StatusReopenedWithEncodingFormat";
     public static readonly string StatusOpenedFileFormat = "Vex.VexL.StatusOpenedFileFormat";
