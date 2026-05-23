@@ -32,6 +32,8 @@
 - 验证 `dotnet build Vex.slnx -v:minimal` 和 `git diff --check`，并检索确认帮助菜单不再硬编码 `CHANGELOG.zh-CN.md` 等固定文件名。
 - 补齐英文快速开始和英文鸣谢内置文档，并纳入 Vex 主工程输出与解决方案项；英文环境下帮助菜单不再只能回退中文快速开始/鸣谢。
 - 验证 `dotnet build Vex.slnx -v:minimal`、`git diff --check`，并确认 Debug 输出目录包含 `QuickStart.en-US.md` 和 `ACKNOWLEDGEMENTS.en-US.md`。
+- 同步更新 `docs/Vex需求文档.md` 的当前能力快照与未完成重点清单，避免后续继续把已完成的 PDF/PNG、查找增强和深色浮层适配当作未完成项。
+- 验证 `git diff --check`。
 
 ### en-US
 
@@ -63,6 +65,8 @@
 - Verified `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and searched to confirm the help menu no longer hard-codes fixed `CHANGELOG.zh-CN.md` document names.
 - Added bundled English Quick Start and Acknowledgements documents, and included them in the Vex project output plus solution items; English environments no longer need to fall back to Chinese for those help topics.
 - Verified `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and confirmed the Debug output contains `QuickStart.en-US.md` and `ACKNOWLEDGEMENTS.en-US.md`.
+- Updated `docs/Vex需求文档.md` current-capability and unfinished-priority sections so future iterations do not keep treating completed PDF/PNG export, find enhancements, and dark overlay adaptation as missing.
+- Verified `git diff --check`.
 
 ## 0.1.0 - 2026-05-22
 

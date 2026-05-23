@@ -28,6 +28,8 @@
 - Built `Vex.slnx`, ran `git diff --check`, and searched to confirm help entries no longer hard-code Chinese document filenames.
 - Added bundled English Quick Start and Acknowledgements documents so English Help menu entries can open English content directly.
 - Built `Vex.slnx`, ran `git diff --check`, and confirmed the English help documents are copied to the output folder.
+- Updated the requirements document capability snapshot and unfinished-priority list so future iterations can follow the current project state.
+- Ran `git diff --check`.
 - Added File menu actions to copy the current Markdown as HTML rich text for WeChat Official Account, Zhihu, and Juejin.
 - Validated all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the new copy entries in the File menu.
 - Added PNG export from the File > Export menu, rendering the current Markdown document as a long image.
