@@ -12,6 +12,8 @@
 - Restored from nuget.org, built `Vex.slnx`, ran `git diff --check`, completed NuGet vulnerability scanning, and screenshot-verified the guide start step, expanded File-menu step, Outline step, and English guide start step.
 - Improved print preview by generating dedicated print-mode HTML with print media styles, page-break protection, and automatic browser print invocation after load.
 - Built `Vex.slnx`, ran `git diff --check`, and checked that print HTML generation contains `@media print` and `window.print()`.
+- Improved the large-document edit path by reducing temporary full-document splits during outline and statistics scans.
+- Built `Vex.slnx`, ran `git diff --check`, and smoke-tested repeated statistics and outline scans over 100k+ characters with a temporary Release micro-benchmark.
 - Added File menu actions to copy the current Markdown as HTML rich text for WeChat Official Account, Zhihu, and Juejin.
 - Validated all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the new copy entries in the File menu.
 - Added PNG export from the File > Export menu, rendering the current Markdown document as a long image.

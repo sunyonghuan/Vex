@@ -15,11 +15,12 @@ public sealed partial class MarkdownOutlineService : IMarkdownOutlineService
 
         var result = new List<OutlineItem>();
         var inFence = false;
-        var lines = markdown.ReplaceLineEndings("\n").Split('\n');
+        using var reader = new StringReader(markdown);
 
-        for (var i = 0; i < lines.Length; i++)
+        var lineNumber = 0;
+        while (reader.ReadLine() is { } line)
         {
-            var line = lines[i];
+            lineNumber++;
             if (line.TrimStart().StartsWith("```", StringComparison.Ordinal))
             {
                 inFence = !inFence;
@@ -41,7 +42,7 @@ public sealed partial class MarkdownOutlineService : IMarkdownOutlineService
             var title = match.Groups["title"].Value.Trim();
             if (!string.IsNullOrWhiteSpace(title))
             {
-                result.Add(new OutlineItem(level, title, i + 1));
+                result.Add(new OutlineItem(level, title, lineNumber));
             }
         }
 

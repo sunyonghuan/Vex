@@ -12,6 +12,8 @@
 - 🧪[测试]-使用 NuGet 平台源还原，构建 `Vex.slnx`、执行 `git diff --check` 和 NuGet 漏洞扫描，并截图验证引导首屏、文件菜单展开、大纲步骤和英文引导首屏。
 - 🔧[优化]-打印预览生成独立打印模式 HTML，加入打印媒体样式、断页保护，并在浏览器加载后自动打开打印入口。
 - 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并检查打印 HTML 生成逻辑包含 `@media print` 与 `window.print()`。
+- 🔧[优化]-优化大文档编辑路径，大纲生成和统计扫描减少整篇文本拆分造成的临时分配。
+- 🧪[测试]-构建 `Vex.slnx`、执行 `git diff --check`，并用临时 Release micro-benchmark 烟测 100k+ 字符 Markdown 的统计和大纲扫描。
 - ✨[新增]-文件菜单新增复制到公众号、知乎和稀土掘金，可将当前 Markdown 转为 HTML 富文本并写入剪贴板。
 - 🧪[测试]-校验四套 i18n JSON，构建 `Vex.slnx`，执行 `git diff --check`，并截图验证文件菜单新增复制入口。
 - ✨[新增]-导出菜单新增 PNG 导出，可将当前 Markdown 文档渲染为长图。
