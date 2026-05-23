@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Added Traditional Chinese and Japanese changelog summary documents, so Help > Changelog no longer falls back to Simplified Chinese in zh-Hant/ja-JP environments.
+- Built `Vex.slnx` and confirmed the new changelog documents are copied to the output directory.
 - The reload failure detail for documents without a file path now uses i18n instead of fixed English.
 - Parsed all four i18n JSON files, built `Vex.slnx`, and scanned for common fixed-English `throw new` details.
 - Preview scroll-ratio updates now use the editor-maintained line count, avoiding full Markdown scans on caret-only movement in large files.

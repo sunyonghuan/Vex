@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 帮助文档继续本地化：新增 `CHANGELOG.zh-Hant.md` 与 `CHANGELOG.ja-JP.md` 摘要文件，繁体中文和日文环境打开更新日志时不再回退到简体中文文档。
+- 发布内容配置同步复制新增的繁体中文、日文更新日志文件。
 - 当前文档无文件路径的重载失败详情迁移到 i18n，异常详情不再固定为英文。
 - 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 通过，并确认常见 `throw new ...("...")` 英文详情扫描无剩余结果。
 - 大文件性能优化：`MarkdownTextChangedCommand` 增加编辑器维护的 `LineCount`，预览滚动比例直接使用该值，避免仅移动光标时反复扫描整篇 Markdown 统计行数。
@@ -90,6 +92,8 @@
 
 ### en-US
 
+- Continued help-document localization: added `CHANGELOG.zh-Hant.md` and `CHANGELOG.ja-JP.md` summary files so Traditional Chinese and Japanese changelog help no longer falls back to Simplified Chinese.
+- Updated publish content configuration to copy the new Traditional Chinese and Japanese changelog files.
 - Moved the reload failure detail for documents without a file path into i18n, so the exception detail is no longer fixed English.
 - Verified all four i18n JSON files, `dotnet build Vex.slnx -v:minimal`, and a fixed-string scan for common `throw new ...("...")` English details.
 - Optimized large-file preview updates: `MarkdownTextChangedCommand` now carries the editor-maintained `LineCount`, so preview scroll-ratio updates no longer rescan the full Markdown text when only the caret moves.
