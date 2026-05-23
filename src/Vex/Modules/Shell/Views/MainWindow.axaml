@@ -3,6 +3,8 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:codewf="https://codewf.com"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
     xmlns:regions="using:Vex.Core.Regions"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:shell="using:Vex.Modules.Shell.Views"
@@ -101,104 +103,100 @@
         <codewf:Guide
             x:Name="OnboardingGuide"
             Grid.RowSpan="3"
-            CloseText="关闭"
+            CloseText="{i18n:I18n {x:Static l:VexL.GuideActionClose}}"
             Completed="OnboardingGuide_OnCompleted"
             Closed="OnboardingGuide_OnClosed"
-            FinishText="完成"
-            NextText="下一步"
+            FinishText="{i18n:I18n {x:Static l:VexL.GuideActionFinish}}"
+            NextText="{i18n:I18n {x:Static l:VexL.GuideActionNext}}"
             Placement="Bottom"
             PopupOffset="14"
-            PreviousText="上一步"
+            PreviousText="{i18n:I18n {x:Static l:VexL.GuideActionPrevious}}"
             StepOpening="OnboardingGuide_OnStepOpening"
             StyleType="Primary"
             TargetResolveDelay="00:00:00.240">
-            <codewf:Guide.CustomActions>
-                <Button Click="SkipOnboardingGuide_OnClick" Content="跳过" />
-            </codewf:Guide.CustomActions>
-
             <codewf:GuideStep
                 x:Name="GuideIntroStep"
-                Description="这组引导会快速走过标题栏菜单、文档列表、编辑区、预览区和状态栏。菜单类步骤会自动展开对应菜单，方便看清入口位置。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideIntroDescription}}"
                 IsArrowVisible="False"
                 Placement="Center"
-                Title="欢迎使用 Vex" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideIntroTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideFileMenuStep"
-                Description="文件菜单集中处理新建、打开、保存、导出、打印和关闭文档，是日常写作最常用的入口。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideFileMenuDescription}}"
                 Placement="RightTop"
-                Title="文件菜单" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideFileMenuTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideFileOpenStep"
-                Description="打开文件和打开文件夹用于载入单篇 Markdown 或一组文档；快速打开会优先回到已加载文件列表。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideFileOpenDescription}}"
                 Placement="RightTop"
-                Title="打开文档" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideFileOpenTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideFileExportStep"
-                Description="保存当前文档后，可以从导出菜单生成 HTML、PNG，PDF 与 Word 会在后续能力成熟后补齐。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideFileExportDescription}}"
                 Placement="RightTop"
-                Title="保存与导出" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideFileExportTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideParagraphMenuStep"
-                Description="段落菜单用于插入标题、表格、代码块、引用、列表和分割线，适合结构化整理文档。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideParagraphMenuDescription}}"
                 Placement="RightTop"
-                Title="段落结构" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideParagraphMenuTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideFormatMenuStep"
-                Description="格式菜单用于加粗、斜体、行内代码、链接、图片和清除 Markdown 格式。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideFormatMenuDescription}}"
                 Placement="RightTop"
-                Title="文本格式" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideFormatMenuTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideViewMenuStep"
-                Description="视图菜单可以切换侧边栏、大纲、文档列表、源码模式、行号、状态栏和缩放。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideViewMenuDescription}}"
                 Placement="RightTop"
-                Title="视图布局" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideViewMenuTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideViewOutlineMenuStep"
-                Description="点击大纲会展开左侧边栏并切换到大纲页签；下一步会展示切换后的大纲导航区域。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideViewOutlineMenuDescription}}"
                 Placement="RightTop"
-                Title="大纲入口" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideViewOutlineMenuTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideThemeMenuStep"
-                Description="主题菜单包含界面主题、Markdown 排版主题和紧凑布局，长时间写作时可以按环境调整。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideThemeMenuDescription}}"
                 Placement="RightTop"
-                Title="主题与排版" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideThemeMenuTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideSidebarFilesStep"
-                Description="左侧文档列表会显示当前文件或已打开文件夹内的 Markdown/txt 文档，适合在一组文档间快速切换。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideSidebarFilesDescription}}"
                 Placement="Right"
                 Target="{Binding ElementName=SidebarGuideTarget}"
-                Title="文档列表" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideSidebarFilesTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideSidebarOutlineStep"
-                Description="大纲页签会根据 Markdown 标题生成导航项，点击标题即可跳转到对应位置；没有标题时会显示空状态。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideSidebarOutlineDescription}}"
                 Placement="Right"
                 Target="{Binding ElementName=SidebarGuideTarget}"
-                Title="大纲导航" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideSidebarOutlineTitle}}" />
             <codewf:GuideStep
-                Description="中间是 Markdown 源码编辑区，支持常见快捷键、右键菜单、查找替换、语法高亮和行号显示。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideEditorDescription}}"
                 Placement="Right"
                 Target="{Binding ElementName=EditorGuideTarget}"
-                Title="编辑区" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideEditorTitle}}" />
             <codewf:GuideStep
-                Description="右侧预览区会跟随编辑内容实时刷新，并使用当前选择的 Markdown 排版主题渲染。"
+                Description="{i18n:I18n {x:Static l:VexL.GuidePreviewDescription}}"
                 Placement="Left"
                 Target="{Binding ElementName=PreviewGuideTarget}"
-                Title="实时预览" />
+                Title="{i18n:I18n {x:Static l:VexL.GuidePreviewTitle}}" />
             <codewf:GuideStep
-                Description="底部状态栏显示保存状态、编码、缩放、光标位置、词数和字符数，轻量反馈会优先显示在左侧。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideStatusBarDescription}}"
                 Placement="Top"
                 Target="{Binding ElementName=StatusBarGuideTarget}"
-                Title="状态栏" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideStatusBarTitle}}" />
             <codewf:GuideStep
                 x:Name="GuideHelpMenuStep"
-                Description="以后可以从帮助菜单再次打开新手引导，也可以查看快速开始、更新日志、鸣谢和关于面板。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideHelpMenuDescription}}"
                 Placement="LeftTop"
-                Title="再次打开引导" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideHelpMenuTitle}}" />
             <codewf:GuideStep
-                Description="引导结束后即可直接在编辑区写作；常用入口都在标题栏菜单内，文件和大纲位于左侧。"
+                Description="{i18n:I18n {x:Static l:VexL.GuideFinishDescription}}"
                 IsArrowVisible="False"
                 Placement="Center"
-                Title="开始写作" />
+                Title="{i18n:I18n {x:Static l:VexL.GuideFinishTitle}}" />
         </codewf:Guide>
     </Grid>
 </u:UrsaWindow>

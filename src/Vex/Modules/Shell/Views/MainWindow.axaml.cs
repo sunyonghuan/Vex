@@ -99,11 +99,6 @@ public partial class MainWindow : UrsaWindow
         OnboardingGuide.Show();
     }
 
-    private void SkipOnboardingGuide_OnClick(object? sender, RoutedEventArgs e)
-    {
-        OnboardingGuide.Close();
-    }
-
     private void OnboardingGuide_OnStepOpening(object? sender, GuideStepEventArgs e)
     {
         PrepareOnboardingGuideStep(e.Step);
