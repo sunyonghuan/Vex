@@ -9,6 +9,9 @@ internal sealed class MarkdownPdfRenderer
     private const float PageWidth = 595;
     private const float PageHeight = 842;
     private const float PageMargin = 36;
+    private const float HeaderGap = 14;
+    private const float HeaderHeight = 26;
+    private const float HeaderFontSize = 10;
     private const float FooterGap = 14;
     private const float FooterHeight = 28;
     private const float FooterFontSize = 9;
@@ -17,8 +20,8 @@ internal sealed class MarkdownPdfRenderer
     private const int BoundarySearchWindow = 120;
     private const byte WhiteThreshold = 245;
     private const double WhiteRowRatio = 0.985;
-    private static readonly SKColor FooterTextColor = new(107, 114, 128);
-    private static readonly SKColor FooterLineColor = new(229, 231, 235);
+    private static readonly SKColor MetadataTextColor = new(107, 114, 128);
+    private static readonly SKColor MetadataLineColor = new(229, 231, 235);
 
     private readonly MarkdownPngRenderer _pngRenderer = new();
 
@@ -36,7 +39,9 @@ internal sealed class MarkdownPdfRenderer
         }
 
         var contentWidth = PageWidth - (PageMargin * 2);
-        var contentHeight = PageHeight - (PageMargin * 2) - FooterGap - FooterHeight;
+        var contentTop = PageMargin + HeaderHeight + HeaderGap;
+        var contentBottom = PageHeight - PageMargin - FooterGap - FooterHeight;
+        var contentHeight = contentBottom - contentTop;
         var scale = contentWidth / bitmap.Width;
         var sourceSliceHeight = Math.Max(MinimumSourceSliceHeight, (int)Math.Floor(contentHeight / scale));
         var slices = CreateSlices(bitmap, sourceSliceHeight).ToList();
@@ -49,12 +54,13 @@ internal sealed class MarkdownPdfRenderer
             var destinationHeight = source.Height * scale;
             var destination = new SKRect(
                 PageMargin,
-                PageMargin,
+                contentTop,
                 PageMargin + contentWidth,
-                PageMargin + destinationHeight);
+                contentTop + destinationHeight);
 
             var canvas = pdf.BeginPage(PageWidth, PageHeight);
             canvas.Clear(SKColors.White);
+            DrawHeader(canvas, document);
             canvas.DrawBitmap(bitmap, source, destination);
             DrawFooter(canvas, document, pageIndex + 1, pageCount);
             pdf.EndPage();
@@ -123,23 +129,28 @@ internal sealed class MarkdownPdfRenderer
         return samples > 0 && (double)whiteSamples / samples >= WhiteRowRatio;
     }
 
+    private static void DrawHeader(SKCanvas canvas, DocumentSnapshot document)
+    {
+        var headerBottom = PageMargin + HeaderHeight;
+        using var linePaint = CreateLinePaint();
+        canvas.DrawLine(PageMargin, headerBottom, PageWidth - PageMargin, headerBottom, linePaint);
+
+        using var textPaint = CreateTextPaint();
+        using var font = CreateMetadataFont(HeaderFontSize);
+
+        var titleMaxWidth = PageWidth - (PageMargin * 2);
+        var title = TrimToWidth(ResolveHeaderTitle(document), font, textPaint, titleMaxWidth);
+        canvas.DrawText(title, PageMargin, PageMargin + 17, font, textPaint);
+    }
+
     private static void DrawFooter(SKCanvas canvas, DocumentSnapshot document, int pageNumber, int pageCount)
     {
         var footerTop = PageHeight - PageMargin - FooterHeight;
-        using var linePaint = new SKPaint
-        {
-            Color = FooterLineColor,
-            IsAntialias = true,
-            StrokeWidth = 1
-        };
+        using var linePaint = CreateLinePaint();
         canvas.DrawLine(PageMargin, footerTop, PageWidth - PageMargin, footerTop, linePaint);
 
-        using var textPaint = new SKPaint
-        {
-            Color = FooterTextColor,
-            IsAntialias = true
-        };
-        using var font = new SKFont(SKTypeface.Default, FooterFontSize);
+        using var textPaint = CreateTextPaint();
+        using var font = CreateMetadataFont(FooterFontSize);
 
         var baseline = footerTop + 18;
         var pageText = $"{pageNumber} / {pageCount}";
@@ -150,6 +161,74 @@ internal sealed class MarkdownPdfRenderer
 
         canvas.DrawText(title, PageMargin, baseline, font, textPaint);
         canvas.DrawText(pageText, pageTextX, baseline, font, textPaint);
+    }
+
+    private static SKPaint CreateLinePaint()
+    {
+        return new SKPaint
+        {
+            Color = MetadataLineColor,
+            IsAntialias = true,
+            StrokeWidth = 1
+        };
+    }
+
+    private static SKPaint CreateTextPaint()
+    {
+        return new SKPaint
+        {
+            Color = MetadataTextColor,
+            IsAntialias = true
+        };
+    }
+
+    private static SKFont CreateMetadataFont(float size)
+    {
+        return new SKFont(SKTypeface.Default, size);
+    }
+
+    private static string ResolveHeaderTitle(DocumentSnapshot document)
+    {
+        return FindFirstMarkdownHeading(document.Markdown)
+               ?? Path.GetFileNameWithoutExtension(ResolveFooterTitle(document));
+    }
+
+    private static string? FindFirstMarkdownHeading(string? markdown)
+    {
+        if (string.IsNullOrWhiteSpace(markdown))
+        {
+            return null;
+        }
+
+        using var reader = new StringReader(markdown);
+        while (reader.ReadLine() is { } line)
+        {
+            var trimmed = line.TrimStart();
+            var markerCount = CountHeadingMarkers(trimmed);
+            if (markerCount == 0 || markerCount >= trimmed.Length || !char.IsWhiteSpace(trimmed[markerCount]))
+            {
+                continue;
+            }
+
+            var title = trimmed[markerCount..].Trim().TrimEnd('#').Trim();
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                return title;
+            }
+        }
+
+        return null;
+    }
+
+    private static int CountHeadingMarkers(string line)
+    {
+        var count = 0;
+        while (count < line.Length && count < 6 && line[count] == '#')
+        {
+            count++;
+        }
+
+        return count;
     }
 
     private static string ResolveFooterTitle(DocumentSnapshot document)

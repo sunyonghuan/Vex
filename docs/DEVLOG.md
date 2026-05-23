@@ -4,8 +4,8 @@
 
 ### zh-CN
 
-- PDF 导出页脚成熟化：图像型分页 PDF 现在会预留页脚区域，页脚左侧显示当前文件名，右侧显示 `当前页 / 总页数`，正文切片高度同步扣除页脚空间，避免内容与页脚重叠。
-- 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 Avalonia smoke 程序生成带页脚的 PDF。输出路径：`%TEMP%\VexScreenshots\pdf-footer-smoke.pdf`。
+- PDF 导出页眉页脚成熟化：图像型分页 PDF 现在会预留页眉和页脚区域，页眉显示 Markdown 首个标题或文件名，页脚左侧显示当前文件名，右侧显示 `当前页 / 总页数`，正文切片高度同步扣除元数据区域，避免内容重叠。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 Avalonia smoke 程序生成带页眉页脚的 PDF；元数据字体保持 Skia 默认字体，避免 PDF 因嵌入大字体膨胀。输出路径：`%TEMP%\VexScreenshots\pdf-header-footer-smoke.pdf`。
 - 帮助菜单的“鸣谢”入口改为按当前语言加载 `ACKNOWLEDGEMENTS.[culture].md`，不再固定打开单一 `Thanks.md`；补齐繁体中文和日文快速开始、鸣谢文档，并纳入应用输出。
 - 修复当前仓库的 NuGet 还原基线：`CodeWF.Markdown` 和 `CodeWF.Markdown.Themes` 改回 nuget.org 当前可用的 12.0.3.6，避免 12.0.3.7 尚不可还原时阻塞 `dotnet build Vex.slnx -v:minimal`；本轮未新增第三方依赖。
 - 关于窗口新增版本号和编译时间展示；版本号从 Vex 程序集元数据读取，编译时间通过 `CodeWF.Tools.Core` NuGet 包中的 `AssemblyExtensions.CompileTime()` 获取，并补齐四套本地化标签。
@@ -68,8 +68,8 @@
 
 ### en-US
 
-- Matured PDF export footers: image-based paged PDFs now reserve footer space, showing the current file name on the left and `current page / total pages` on the right, with body slice height reduced so content does not overlap the footer.
-- Verified `dotnet build Vex.slnx -v:minimal` and generated a PDF with a temporary Avalonia smoke program. Output path: `%TEMP%\VexScreenshots\pdf-footer-smoke.pdf`.
+- Matured PDF export headers and footers: image-based paged PDFs now reserve header and footer space. The header shows the first Markdown heading or file name, while the footer shows the current file name and `current page / total pages`; body slice height is reduced so content does not overlap metadata.
+- Verified `dotnet build Vex.slnx -v:minimal` and generated a PDF with a temporary Avalonia smoke program. Metadata uses the Skia default font to avoid large embedded-font PDF output. Output path: `%TEMP%\VexScreenshots\pdf-header-footer-smoke.pdf`.
 - The Help menu Acknowledgements entry now loads `ACKNOWLEDGEMENTS.[culture].md` for the current language instead of a fixed `Thanks.md`; Traditional Chinese and Japanese Quick Start and Acknowledgements documents are now bundled with the app output.
 - Fixed the repository NuGet restore baseline by pinning `CodeWF.Markdown` and `CodeWF.Markdown.Themes` back to the currently available nuget.org 12.0.3.6 packages, so unavailable 12.0.3.7 packages no longer block `dotnet build Vex.slnx -v:minimal`; this pass adds no third-party dependency.
 - Added version and build time to the About window. The version comes from the Vex assembly metadata, and build time is read through `AssemblyExtensions.CompileTime()` from the `CodeWF.Tools.Core` NuGet package, with labels localized in all four languages.
