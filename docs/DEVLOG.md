@@ -30,6 +30,8 @@
 - 新增 PDF 导出对话框、文件类型、状态反馈和引导文案的四套 i18n 文案；本轮未新增 NuGet 包，SkiaSharp 已由 Avalonia 渲染链路传递引入。验证四套 JSON、`dotnet build Vex.slnx -v:minimal`、`git diff --check`，并通过临时 smoke 程序生成 PDF。输出路径：`%TEMP%\VexScreenshots\pdf-export-smoke.pdf`。
 - 优化帮助文档本地化：更新日志、快速开始和鸣谢入口会优先打开当前语言对应的内置 Markdown 文件，缺失时回退到 `zh-CN` 文件，避免英文环境仍固定打开中文更新日志。
 - 验证 `dotnet build Vex.slnx -v:minimal` 和 `git diff --check`，并检索确认帮助菜单不再硬编码 `CHANGELOG.zh-CN.md` 等固定文件名。
+- 补齐英文快速开始和英文鸣谢内置文档，并纳入 Vex 主工程输出与解决方案项；英文环境下帮助菜单不再只能回退中文快速开始/鸣谢。
+- 验证 `dotnet build Vex.slnx -v:minimal`、`git diff --check`，并确认 Debug 输出目录包含 `QuickStart.en-US.md` 和 `ACKNOWLEDGEMENTS.en-US.md`。
 
 ### en-US
 
@@ -59,6 +61,8 @@
 - Added localized PDF export dialog, file type, status feedback, and guide text for all four cultures. This pass adds no NuGet package; SkiaSharp is already pulled in by the Avalonia rendering chain. Verified JSON resources, `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and generated a PDF with a temporary smoke program. Output path: `%TEMP%\VexScreenshots\pdf-export-smoke.pdf`.
 - Improved help-document localization: Changelog, Quick Start, and Acknowledgements now prefer the current culture's bundled Markdown file and fall back to `zh-CN` when a localized file is not present, so English environments can open the English changelog.
 - Verified `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and searched to confirm the help menu no longer hard-codes fixed `CHANGELOG.zh-CN.md` document names.
+- Added bundled English Quick Start and Acknowledgements documents, and included them in the Vex project output plus solution items; English environments no longer need to fall back to Chinese for those help topics.
+- Verified `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and confirmed the Debug output contains `QuickStart.en-US.md` and `ACKNOWLEDGEMENTS.en-US.md`.
 
 ## 0.1.0 - 2026-05-22
 
