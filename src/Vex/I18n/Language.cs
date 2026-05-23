@@ -244,6 +244,12 @@ public static class VexL
     public static readonly string ErrorMessageCannotStartNewWindow = "Vex.VexL.ErrorMessageCannotStartNewWindow";
     public static readonly string ErrorMessageActionFailed = "Vex.VexL.ErrorMessageActionFailed";
     public static readonly string ErrorDetailFallback = "Vex.VexL.ErrorDetailFallback";
+    public static readonly string RenameDetailFileNotFound = "Vex.VexL.RenameDetailFileNotFound";
+    public static readonly string RenameDetailDirectoryUnavailable = "Vex.VexL.RenameDetailDirectoryUnavailable";
+    public static readonly string RenameDetailDuplicateFileFormat = "Vex.VexL.RenameDetailDuplicateFileFormat";
+    public static readonly string RenameDetailEmptyFileName = "Vex.VexL.RenameDetailEmptyFileName";
+    public static readonly string RenameDetailInvalidFileName = "Vex.VexL.RenameDetailInvalidFileName";
+    public static readonly string RenameDetailUnsupportedExtension = "Vex.VexL.RenameDetailUnsupportedExtension";
     public static readonly string RenameFileTitle = "Vex.VexL.RenameFileTitle";
     public static readonly string RenameFileNameLabel = "Vex.VexL.RenameFileNameLabel";
     public static readonly string RenameFilePathLabel = "Vex.VexL.RenameFilePathLabel";

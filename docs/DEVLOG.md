@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 文件重命名失败详情迁移到 i18n：原文件不存在、目录无法解析、同名文件、空文件名、非法字符和扩展名不支持等异常详情改为四套本地化文案，避免错误浮层继续暴露英文内部消息。
+- 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 通过，并用临时 smoke 覆盖空文件名、重名和不支持扩展名三类重命名边界错误。
 - 打印预览流程增强：打印模式 HTML 增加屏幕工具条，提供“打印”和“关闭”按钮；工具条在 `@media print` 中隐藏，自动打印被浏览器拦截时用户仍可手动重试。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时反射 smoke 调用 HTML 生成逻辑，确认工具条按钮、隐藏打印样式和自动打印脚本同时存在。输出路径：`%TEMP%\VexScreenshots\print-preview-toolbar-smoke.html`。
 - PDF 分页断点进一步优化：分页切片现在优先寻找 10px 连续空白带作为断点，找不到时再回退到单行空白，减少切到段落行距、表格或代码块边缘的概率。
@@ -72,6 +74,8 @@
 
 ### en-US
 
+- Moved file-rename failure details into i18n: missing source file, unresolved directory, duplicate name, empty file name, invalid characters, and unsupported extension details now use the four localized resource sets instead of exposing English internal exception text.
+- Verified all four i18n JSON files, built `Vex.slnx -v:minimal`, and used a temporary smoke to cover empty-name, duplicate-name, and unsupported-extension rename errors.
 - Improved the print-preview flow: print-mode HTML now includes a screen-only toolbar with Print and Close buttons. The toolbar is hidden by `@media print`, giving users a manual retry path when the browser blocks automatic printing.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary reflection smoke to call the HTML generator, confirming the toolbar buttons, print-hidden style, and auto-print script are present. Output path: `%TEMP%\VexScreenshots\print-preview-toolbar-smoke.html`.
 - Further improved PDF page breaks: page slicing now prefers a 10px continuous blank band before falling back to a single blank row, reducing cuts through paragraph leading, table edges, or code-block edges.

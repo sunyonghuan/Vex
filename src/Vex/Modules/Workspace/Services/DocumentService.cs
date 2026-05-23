@@ -182,13 +182,13 @@ public sealed class DocumentService : IDocumentService
     {
         if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
         {
-            throw new FileNotFoundException("The file to rename was not found.", path);
+            throw new FileNotFoundException(_localizer.Get(VexL.RenameDetailFileNotFound), path);
         }
 
         var directory = Path.GetDirectoryName(path);
         if (string.IsNullOrWhiteSpace(directory))
         {
-            throw new InvalidOperationException("The file directory could not be resolved.");
+            throw new InvalidOperationException(_localizer.Get(VexL.RenameDetailDirectoryUnavailable));
         }
 
         var targetName = NormalizeRenameTargetName(path, newName);
@@ -200,7 +200,7 @@ public sealed class DocumentService : IDocumentService
 
         if (File.Exists(targetPath))
         {
-            throw new IOException($"A file named '{targetName}' already exists.");
+            throw new IOException(_localizer.Format(VexL.RenameDetailDuplicateFileFormat, targetName));
         }
 
         File.Move(path, targetPath);
@@ -251,17 +251,17 @@ public sealed class DocumentService : IDocumentService
         return Encoding.GetEncoding(encodingName);
     }
 
-    private static string NormalizeRenameTargetName(string path, string newName)
+    private string NormalizeRenameTargetName(string path, string newName)
     {
         var trimmed = newName.Trim();
         if (string.IsNullOrWhiteSpace(trimmed))
         {
-            throw new ArgumentException("The file name cannot be empty.", nameof(newName));
+            throw new ArgumentException(_localizer.Get(VexL.RenameDetailEmptyFileName), nameof(newName));
         }
 
         if (trimmed.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
         {
-            throw new ArgumentException("The file name contains invalid characters.", nameof(newName));
+            throw new ArgumentException(_localizer.Get(VexL.RenameDetailInvalidFileName), nameof(newName));
         }
 
         if (string.IsNullOrWhiteSpace(Path.GetExtension(trimmed)))
@@ -271,7 +271,7 @@ public sealed class DocumentService : IDocumentService
 
         if (!IsSupportedExtension(Path.GetExtension(trimmed)))
         {
-            throw new ArgumentException("The renamed file must keep a supported Markdown or text extension.", nameof(newName));
+            throw new ArgumentException(_localizer.Get(VexL.RenameDetailUnsupportedExtension), nameof(newName));
         }
 
         return trimmed;
