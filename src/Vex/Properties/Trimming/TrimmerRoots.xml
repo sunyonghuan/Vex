@@ -9,6 +9,8 @@
   <assembly fullname="CodeWF.AvaloniaControls.Themes" preserve="all" />
   <assembly fullname="CodeWF.Markdown" preserve="all" />
   <assembly fullname="CodeWF.Markdown.Themes" preserve="all" />
+  <assembly fullname="AnimatedImage" preserve="all" />
+  <assembly fullname="AnimatedImage.Avalonia" preserve="all" />
 
   <assembly fullname="Prism" preserve="all" />
   <assembly fullname="Prism.Avalonia" preserve="all" />

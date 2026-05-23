@@ -213,6 +213,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         Markdown = _document.Markdown;
         _text.PublishNewDocumentCreated();
         RefreshDocumentInfo();
+        PublishWorkspaceDocumentState();
         EditorActions.FocusEditor();
     }
 
@@ -239,6 +240,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _eventBus.Publish(new DocumentFilesChangedCommand(_documentFiles));
         _text.PublishDocumentClosed();
         RefreshDocumentInfo();
+        PublishWorkspaceDocumentState();
         EditorActions.FocusEditor();
     }
 
@@ -507,6 +509,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
 
         RefreshDocumentInfo();
+        PublishWorkspaceDocumentState();
         StartCurrentFileWatcher();
         _text.PublishOpened(snapshot.FileName);
         if (restoredDraft)
@@ -546,9 +549,14 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void RefreshMarkdownDerivedState()
     {
-        _workspaceDocumentState.UpdateMarkdown(Markdown);
+        PublishWorkspaceDocumentState();
         RefreshDocumentInfo();
         _eventBus.Publish(new OutlineItemsChangedCommand(_outlineService.BuildOutline(Markdown)));
+    }
+
+    private void PublishWorkspaceDocumentState()
+    {
+        _workspaceDocumentState.UpdateDocument(Markdown, _document.FilePath);
     }
 
     private void RefreshDocumentInfo()
@@ -723,6 +731,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             };
             Recent.AddRecentDocument(renamedPath);
             RefreshDocumentInfo();
+            PublishWorkspaceDocumentState();
             StartCurrentFileWatcher();
         }
 

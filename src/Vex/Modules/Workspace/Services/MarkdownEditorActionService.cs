@@ -117,6 +117,9 @@ public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
             case EditorActionKind.HorizontalRule:
                 InsertText(editor, "\n---\n", runTextMutation);
                 break;
+            case EditorActionKind.SmartNewLine:
+                MutateEditor(editor, _textMutationService.InsertSmartNewLine, runTextMutation);
+                break;
             case EditorActionKind.Indent:
                 MutateEditor(editor, _textMutationService.IndentSelection, runTextMutation);
                 break;

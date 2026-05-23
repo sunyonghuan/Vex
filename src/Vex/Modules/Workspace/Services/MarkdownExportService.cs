@@ -8,6 +8,8 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Markdig;
+using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 using Vex.Core.Models;
 using Vex.Core.Services;
 
@@ -141,7 +143,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
         bool includeFragmentMarkers = false)
     {
         var title = WebUtility.HtmlEncode(Path.GetFileNameWithoutExtension(document.FileName));
-        var body = Markdig.Markdown.ToHtml(document.Markdown ?? string.Empty, Pipeline);
+        var body = RenderMarkdownHtml(document);
         var language = WebUtility.HtmlEncode(_localizer.Culture.Name);
         var layout = ResolveSocialLayout(target);
         var targetName = WebUtility.HtmlEncode(layout.TargetName);
@@ -207,6 +209,117 @@ public sealed class MarkdownExportService : IMarkdownExportService
                 window.addEventListener("load", () => window.setTimeout(() => window.print(), 250));
               </script>
     """;
+
+    private static string RenderMarkdownHtml(DocumentSnapshot document)
+    {
+        var parsed = Markdig.Markdown.Parse(document.Markdown ?? string.Empty, Pipeline);
+        EmbedLocalImages(parsed, document.FilePath);
+        return Markdig.Markdown.ToHtml(parsed, Pipeline);
+    }
+
+    private static void EmbedLocalImages(ContainerBlock container, string? documentPath)
+    {
+        foreach (var block in container)
+        {
+            if (block is LeafBlock { Inline: { } inline })
+            {
+                EmbedLocalImages(inline, documentPath);
+            }
+
+            if (block is ContainerBlock childContainer)
+            {
+                EmbedLocalImages(childContainer, documentPath);
+            }
+        }
+    }
+
+    private static void EmbedLocalImages(ContainerInline container, string? documentPath)
+    {
+        foreach (var inline in container)
+        {
+            if (inline is LinkInline { IsImage: true } image
+                && TryCreateImageDataUri(image.Url, documentPath, out var dataUri))
+            {
+                image.Url = dataUri;
+            }
+
+            if (inline is ContainerInline childContainer)
+            {
+                EmbedLocalImages(childContainer, documentPath);
+            }
+        }
+    }
+
+    private static bool TryCreateImageDataUri(string? url, string? documentPath, out string dataUri)
+    {
+        dataUri = string.Empty;
+        if (!TryResolveLocalImagePath(url, documentPath, out var path))
+        {
+            return false;
+        }
+
+        try
+        {
+            var bytes = File.ReadAllBytes(path);
+            dataUri = $"data:{ResolveImageMediaType(path)};base64,{Convert.ToBase64String(bytes)}";
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryResolveLocalImagePath(string? url, string? documentPath, out string path)
+    {
+        path = string.Empty;
+        if (string.IsNullOrWhiteSpace(url)
+            || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
+            if (!uri.IsFile)
+            {
+                return false;
+            }
+
+            path = uri.LocalPath;
+            return File.Exists(path);
+        }
+
+        if (Path.IsPathRooted(url))
+        {
+            path = url;
+            return File.Exists(path);
+        }
+
+        var baseDirectory = string.IsNullOrWhiteSpace(documentPath) ? null : Path.GetDirectoryName(documentPath);
+        if (string.IsNullOrWhiteSpace(baseDirectory))
+        {
+            return false;
+        }
+
+        path = Path.GetFullPath(Path.Combine(baseDirectory, url.Replace('/', Path.DirectorySeparatorChar)));
+        return File.Exists(path);
+    }
+
+    private static string ResolveImageMediaType(string path)
+    {
+        return Path.GetExtension(path).ToLowerInvariant() switch
+        {
+            ".svg" => "image/svg+xml",
+            ".gif" => "image/gif",
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".webp" => "image/webp",
+            ".bmp" => "image/bmp",
+            ".avif" => "image/avif",
+            _ => "application/octet-stream"
+        };
+    }
 
     private static DataTransfer CreateHtmlClipboardData(string text, string html)
     {

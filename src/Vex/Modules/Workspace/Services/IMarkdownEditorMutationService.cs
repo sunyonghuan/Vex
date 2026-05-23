@@ -14,6 +14,8 @@ public interface IMarkdownEditorMutationService
 
     void InsertTable(TextEditor editor, string fallbackInsertion);
 
+    void InsertSmartNewLine(TextEditor editor);
+
     void IndentSelection(TextEditor editor);
 
     void OutdentSelection(TextEditor editor);

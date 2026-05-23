@@ -96,6 +96,15 @@ public sealed class MarkdownEditorMutationService : IMarkdownEditorMutationServi
         InsertText(editor, fallbackInsertion);
     }
 
+    public void InsertSmartNewLine(TextEditor editor)
+    {
+        var change = MarkdownSmartNewLine.CreateChange(
+            editor.Text ?? string.Empty,
+            editor.SelectionStart,
+            editor.SelectionLength);
+        ReplaceSelection(editor, change.Start, change.Length, change.Text, change.Start + change.Text.Length, 0);
+    }
+
     public void IndentSelection(TextEditor editor)
     {
         if (editor.SelectionLength == 0)

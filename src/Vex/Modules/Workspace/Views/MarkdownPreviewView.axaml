@@ -17,6 +17,7 @@
             VerticalScrollBarVisibility="Auto">
             <md:MarkdownViewer
                 x:Name="PreviewMarkdownViewer"
+                ImageBasePath="{Binding ImageBasePath}"
                 Markdown="{Binding Markdown}"
                 TypographySize="{Binding TypographySize}"
                 TypographyTheme="{Binding TypographyTheme}" />

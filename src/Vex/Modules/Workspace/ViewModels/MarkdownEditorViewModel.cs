@@ -73,6 +73,12 @@ public sealed class MarkdownEditorViewModel : ReactiveObject
 
     public bool HandleEditorKeyDown(Key key, KeyModifiers modifiers)
     {
+        if (key == Key.Enter && modifiers == KeyModifiers.None)
+        {
+            PublishEditorAction(EditorActionKind.SmartNewLine);
+            return true;
+        }
+
         if (key != Key.Tab)
         {
             return false;

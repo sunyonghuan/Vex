@@ -31,6 +31,12 @@ public partial class MarkdownEditorView : UserControl
 
     private void OnEditorKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Enter && e.KeyModifiers == KeyModifiers.None)
+        {
+            e.Handled = ViewModel?.HandleEditorKeyDown(e.Key, e.KeyModifiers) == true;
+            return;
+        }
+
         if (e.Key != Key.Tab)
         {
             return;

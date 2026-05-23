@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -8,6 +10,8 @@ using Markdig;
 using Markdig.Extensions.Tables;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using SkiaSharp;
+using Svg.Skia;
 using Vex.Core.Models;
 using MarkdigInline = Markdig.Syntax.Inlines.Inline;
 
@@ -21,6 +25,7 @@ internal sealed class MarkdownPngRenderer
     private const double PagePaddingTop = 44;
     private const double PagePaddingBottom = 56;
     private const double MinPageHeight = 320;
+    private const int MaxSvgRasterDimension = 4096;
 
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
@@ -425,7 +430,7 @@ internal sealed class MarkdownPngRenderer
 
         try
         {
-            var bitmap = new Bitmap(path);
+            var bitmap = LoadLocalBitmap(path);
             imageControl = new Image
             {
                 Source = bitmap,
@@ -468,6 +473,77 @@ internal sealed class MarkdownPngRenderer
 
         var relativePath = Path.GetFullPath(Path.Combine(baseDirectory, url));
         return File.Exists(relativePath) ? relativePath : null;
+    }
+
+    private static Bitmap LoadLocalBitmap(string path)
+    {
+        var bytes = File.ReadAllBytes(path);
+        if (IsSvgPath(path) || IsSvgBytes(bytes))
+        {
+            using var svgPng = new MemoryStream(RenderSvgToPngBytes(bytes));
+            return new Bitmap(svgPng);
+        }
+
+        using var stream = new MemoryStream(bytes);
+        return new Bitmap(stream);
+    }
+
+    private static bool IsSvgPath(string path)
+    {
+        return string.Equals(Path.GetExtension(path), ".svg", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSvgBytes(byte[] bytes)
+    {
+        var length = Math.Min(bytes.Length, 512);
+        if (length == 0)
+        {
+            return false;
+        }
+
+        var prefix = Encoding.UTF8.GetString(bytes, 0, length).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+        return prefix.StartsWith("<svg", StringComparison.OrdinalIgnoreCase)
+               || prefix.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase)
+               && prefix.Contains("<svg", StringComparison.OrdinalIgnoreCase);
+    }
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Markdown export renders user-provided SVG files at runtime, so build-time SVG generation is not applicable.")]
+    private static byte[] RenderSvgToPngBytes(byte[] svgBytes)
+    {
+        using var svg = new SKSvg();
+        using var svgStream = new MemoryStream(svgBytes);
+        var picture = svg.Load(svgStream) ?? svg.Picture;
+        if (picture is null)
+        {
+            throw new InvalidDataException("SVG picture could not be loaded.");
+        }
+
+        var bounds = picture.CullRect;
+        var width = Math.Max(1, (int)Math.Ceiling(bounds.Width));
+        var height = Math.Max(1, (int)Math.Ceiling(bounds.Height));
+        var scale = Math.Min(1d, MaxSvgRasterDimension / (double)Math.Max(width, height));
+        var scaledWidth = Math.Max(1, (int)Math.Ceiling(width * scale));
+        var scaledHeight = Math.Max(1, (int)Math.Ceiling(height * scale));
+
+        using var surface = SKSurface.Create(new SKImageInfo(scaledWidth, scaledHeight, SKColorType.Rgba8888, SKAlphaType.Premul));
+        if (surface is null)
+        {
+            throw new InvalidDataException("SVG rendering surface could not be created.");
+        }
+
+        var canvas = surface.Canvas;
+        canvas.Clear(SKColors.Transparent);
+        canvas.Scale((float)scale);
+        canvas.Translate(-bounds.Left, -bounds.Top);
+        canvas.DrawPicture(picture);
+        canvas.Flush();
+
+        using var image = surface.Snapshot();
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        return data?.ToArray() ?? throw new InvalidDataException("SVG picture could not be encoded.");
     }
 
     private static string GetTableCellText(TableCell cell)

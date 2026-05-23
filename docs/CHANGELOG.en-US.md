@@ -4,6 +4,12 @@
 
 ### Added
 
+- Fixed Markdown preview media loading by moving to local `CodeWF.Markdown.Themes` 12.0.3.6: relative images resolve from the current document path, SVG renders, and GIF files animate.
+- HTML export, print preview, and social-copy HTML now inline local images as data URIs, so relative images survive temp-file previews and cross-folder exports.
+- Added local SVG rasterization to the PNG/PDF export renderer so exported documents do not lose SVG images.
+- Fixed edge-aligned Guide placement through local `CodeWF.AvaloniaControls` 12.0.3.6, so File-menu-style guide steps no longer leave the visible window.
+- Added smart Enter handling in the editor: indentation, block quotes, unordered lists, ordered lists, and task lists continue automatically, while empty list items end the list.
+- Built both CodeWF dependencies, copied the packages into `.local-nuget`, built `Vex.slnx`, completed NuGet vulnerability scanning, and screenshot-verified SVG/GIF preview plus the File-menu guide placement.
 - Added a new-user guide that appears on first launch and can be reopened from the Help menu.
 - The guide covers key File, Paragraph, Format, View, Theme, and Help menus, opening each menu before highlighting the guided item.
 - Added dedicated Outline entry and Outline navigation guide steps: the guide points to View > Outline, then switches the sidebar to the Outline tab before explaining it.

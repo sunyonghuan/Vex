@@ -8,6 +8,7 @@ namespace Vex.Modules.Workspace.ViewModels;
 public sealed class MarkdownPreviewViewModel : ReactiveObject
 {
     private readonly IEditorAppearanceState _appearanceState;
+    private string? _imageBasePath;
     private string _markdown;
     private int _previewSourceLine = 1;
     private double _previewScrollRatio;
@@ -20,6 +21,7 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
         IEditorAppearanceState appearanceState)
     {
         _appearanceState = appearanceState;
+        _imageBasePath = documentState.FilePath;
         _markdown = documentState.Markdown;
         _typographySize = appearanceState.TypographySize;
         _typographyTheme = appearanceState.TypographyTheme;
@@ -31,6 +33,12 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
     {
         get => _markdown;
         private set => this.RaiseAndSetIfChanged(ref _markdown, value);
+    }
+
+    public string? ImageBasePath
+    {
+        get => _imageBasePath;
+        private set => this.RaiseAndSetIfChanged(ref _imageBasePath, value);
     }
 
     public double PreviewScrollRatio
@@ -61,6 +69,7 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
     public void ApplyMarkdownDocumentChanged(MarkdownDocumentChangedCommand command)
     {
         Markdown = command.Markdown;
+        ImageBasePath = command.FilePath;
     }
 
     [EventHandler]

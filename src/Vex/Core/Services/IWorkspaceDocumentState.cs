@@ -4,5 +4,7 @@ public interface IWorkspaceDocumentState
 {
     string Markdown { get; }
 
-    void UpdateMarkdown(string markdown);
+    string? FilePath { get; }
+
+    void UpdateDocument(string markdown, string? filePath);
 }
