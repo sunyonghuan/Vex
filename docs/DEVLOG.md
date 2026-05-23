@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- PDF 分页断点进一步优化：分页切片现在优先寻找 10px 连续空白带作为断点，找不到时再回退到单行空白，减少切到段落行距、表格或代码块边缘的概率。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并复用临时 Avalonia smoke 程序生成 PDF，确认连续空白带分页与页眉页脚可以共同工作。输出路径：`%TEMP%\VexScreenshots\pdf-header-footer-smoke.pdf`。
 - PDF 导出页眉页脚成熟化：图像型分页 PDF 现在会预留页眉和页脚区域，页眉显示 Markdown 首个标题或文件名，页脚左侧显示当前文件名，右侧显示 `当前页 / 总页数`，正文切片高度同步扣除元数据区域，避免内容重叠。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 Avalonia smoke 程序生成带页眉页脚的 PDF；元数据字体保持 Skia 默认字体，避免 PDF 因嵌入大字体膨胀。输出路径：`%TEMP%\VexScreenshots\pdf-header-footer-smoke.pdf`。
 - 帮助菜单的“鸣谢”入口改为按当前语言加载 `ACKNOWLEDGEMENTS.[culture].md`，不再固定打开单一 `Thanks.md`；补齐繁体中文和日文快速开始、鸣谢文档，并纳入应用输出。
@@ -68,6 +70,8 @@
 
 ### en-US
 
+- Further improved PDF page breaks: page slicing now prefers a 10px continuous blank band before falling back to a single blank row, reducing cuts through paragraph leading, table edges, or code-block edges.
+- Verified `dotnet build Vex.slnx -v:minimal` and reused the temporary Avalonia smoke program to generate a PDF, confirming blank-band page breaks work with headers and footers. Output path: `%TEMP%\VexScreenshots\pdf-header-footer-smoke.pdf`.
 - Matured PDF export headers and footers: image-based paged PDFs now reserve header and footer space. The header shows the first Markdown heading or file name, while the footer shows the current file name and `current page / total pages`; body slice height is reduced so content does not overlap metadata.
 - Verified `dotnet build Vex.slnx -v:minimal` and generated a PDF with a temporary Avalonia smoke program. Metadata uses the Skia default font to avoid large embedded-font PDF output. Output path: `%TEMP%\VexScreenshots\pdf-header-footer-smoke.pdf`.
 - The Help menu Acknowledgements entry now loads `ACKNOWLEDGEMENTS.[culture].md` for the current language instead of a fixed `Thanks.md`; Traditional Chinese and Japanese Quick Start and Acknowledgements documents are now bundled with the app output.

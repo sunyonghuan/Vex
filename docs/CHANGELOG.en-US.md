@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- PDF pagination now prefers continuous blank bands as page-break points, reducing cuts through paragraphs, tables, or code-block edges.
+- Built `Vex.slnx` and generated a PDF with a temporary smoke program to verify blank-band pagination.
 - PDF export now adds headers and footers: the header shows the document title, and the footer shows the file name plus `current page / total pages`, reserving metadata space so content does not overlap it.
 - Built `Vex.slnx` and generated a header/footer-enabled PDF with a temporary smoke program.
 - Acknowledgements in the Help menu now opens the localized document for the current language, with Traditional Chinese and Japanese Quick Start and Acknowledgements documents bundled.
