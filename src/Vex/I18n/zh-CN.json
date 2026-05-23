@@ -240,6 +240,7 @@
       "ErrorMessageActionFailed": "当前操作未能完成。",
       "ErrorDetailFallback": "没有更多错误详情。",
       "DocumentDetailFilePathMissing": "当前文档没有文件路径。",
+      "PrintDetailPreviewOpenFailed": "系统未能启动打印预览浏览器。",
       "RenameDetailFileNotFound": "找不到要重命名的原文件。",
       "RenameDetailDirectoryUnavailable": "无法解析原文件所在文件夹。",
       "RenameDetailDuplicateFileFormat": "已存在名为“{0}”的文件。",

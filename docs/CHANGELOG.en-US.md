@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- If the system shell fails to start the print-preview browser, Vex now reports a localized error detail instead of treating the preview as opened.
+- Parsed all four i18n JSON files, built `Vex.slnx`, and ran `git diff --check`.
 - Documented build, one-command publish, and release package commands in README.
 - Markdown word/character statistics now use a single character scan, reducing temporary strings and regex match allocations for large files.
 - Built `Vex.slnx` and used a temporary console smoke covering English, CJK, headings, paragraphs, line count, and reading-time statistics.

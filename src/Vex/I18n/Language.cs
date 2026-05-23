@@ -245,6 +245,7 @@ public static class VexL
     public static readonly string ErrorMessageActionFailed = "Vex.VexL.ErrorMessageActionFailed";
     public static readonly string ErrorDetailFallback = "Vex.VexL.ErrorDetailFallback";
     public static readonly string DocumentDetailFilePathMissing = "Vex.VexL.DocumentDetailFilePathMissing";
+    public static readonly string PrintDetailPreviewOpenFailed = "Vex.VexL.PrintDetailPreviewOpenFailed";
     public static readonly string RenameDetailFileNotFound = "Vex.VexL.RenameDetailFileNotFound";
     public static readonly string RenameDetailDirectoryUnavailable = "Vex.VexL.RenameDetailDirectoryUnavailable";
     public static readonly string RenameDetailDuplicateFileFormat = "Vex.VexL.RenameDetailDuplicateFileFormat";

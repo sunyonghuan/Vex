@@ -135,7 +135,12 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var fileName = CreatePrintPreviewFileName(document.FileName);
         var path = Path.Combine(folder, $"{fileName}-{Guid.NewGuid():N}.html");
         await File.WriteAllTextAsync(path, BuildHtml(document, HtmlDocumentMode.PrintPreview), Utf8NoBom);
-        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        var process = Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        if (process is null)
+        {
+            throw new InvalidOperationException(_localizer.Get(VexL.PrintDetailPreviewOpenFailed));
+        }
+
         return path;
     }
 

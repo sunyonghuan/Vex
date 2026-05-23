@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 打印预览打开失败详情迁移到 i18n：当系统 Shell 没有启动预览浏览器时，导出服务会抛出本地化错误详情，而不是继续返回成功路径。
+- 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 与 `git diff --check` 通过。
 - README 补充 Build and Release 段落，记录 `dotnet build`、`publish_vex_all.bat` 与 `publish_vex_all.bat --package` 的基本用法，以及压缩包产物输出到 `artifacts/release/`。
 - 大文件统计路径继续优化：`MarkdownStatisticsService` 的正文词数/字符数统计改为单次字符扫描，移除 Markdown 标记替换和多次正则匹配带来的临时字符串与匹配集合分配。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖英文、CJK、标题、段落、行数和阅读时间统计。
@@ -98,6 +100,8 @@
 
 ### en-US
 
+- Moved print-preview open failure details into i18n: if the system shell does not start a preview browser, the export service now throws a localized detail instead of returning a successful path.
+- Verified all four i18n JSON files, `dotnet build Vex.slnx -v:minimal`, and `git diff --check`.
 - Added a Build and Release section to README documenting `dotnet build`, `publish_vex_all.bat`, `publish_vex_all.bat --package`, and `artifacts/release/` package outputs.
 - Further optimized the large-file statistics path: `MarkdownStatisticsService` now counts text words/characters with a single character scan, removing the temporary Markdown-syntax replacement string and repeated regex match collections.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering English, CJK, headings, paragraphs, line count, and reading-time statistics.

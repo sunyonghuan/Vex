@@ -240,6 +240,7 @@
       "ErrorMessageActionFailed": "現在の操作を完了できませんでした。",
       "ErrorDetailFallback": "追加のエラー詳細はありません。",
       "DocumentDetailFilePathMissing": "現在のドキュメントにファイル パスがありません。",
+      "PrintDetailPreviewOpenFailed": "システムが印刷プレビュー用ブラウザーを起動できませんでした。",
       "RenameDetailFileNotFound": "名前を変更する元のファイルが見つかりません。",
       "RenameDetailDirectoryUnavailable": "元ファイルのフォルダーを解決できません。",
       "RenameDetailDuplicateFileFormat": "\"{0}\" という名前のファイルは既に存在します。",
