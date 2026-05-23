@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Markdown line, paragraph, heading, and horizontal-rule statistics now use one character scan, reducing per-line regex overhead in large documents.
+- Built `Vex.slnx` and used a temporary console smoke covering CRLF/LF line counts, paragraphs, headings, and horizontal rules.
 - Help documents now fall back to English before Simplified Chinese for unknown non-Chinese cultures.
 - Markdown outline scans now use a hand-written ATX heading parser, reducing per-line regex overhead in long documents.
 - Built `Vex.slnx` and used a temporary console smoke covering fenced heading skips, level-3 headings, and level-6 headings.

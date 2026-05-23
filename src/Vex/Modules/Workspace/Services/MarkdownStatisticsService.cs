@@ -1,10 +1,9 @@
-using System.Text.RegularExpressions;
 using Vex.Core.Models;
 using Vex.Core.Services;
 
 namespace Vex.Modules.Workspace.Services;
 
-public sealed partial class MarkdownStatisticsService : IMarkdownStatisticsService
+public sealed class MarkdownStatisticsService : IMarkdownStatisticsService
 {
     public MarkdownStatistics Count(string markdown)
     {
@@ -70,35 +69,47 @@ public sealed partial class MarkdownStatisticsService : IMarkdownStatisticsServi
 
     private static LineMetrics CountLineMetrics(string markdown)
     {
-        var lines = CountLines(markdown);
+        var lines = 1;
         var paragraphs = 0;
         var headings = 0;
         var inParagraph = false;
-        using var reader = new StringReader(markdown);
+        var lineStart = 0;
 
-        while (reader.ReadLine() is { } rawLine)
+        for (var index = 0; index <= markdown.Length; index++)
         {
-            var line = rawLine.Trim();
-            if (string.IsNullOrEmpty(line))
+            var isEnd = index == markdown.Length;
+            if (!isEnd && markdown[index] != '\r' && markdown[index] != '\n')
+            {
+                continue;
+            }
+
+            var line = markdown.AsSpan(lineStart, index - lineStart).Trim();
+            if (line.IsEmpty)
             {
                 if (inParagraph)
                 {
                     paragraphs++;
                     inParagraph = false;
                 }
-
-                continue;
             }
-
-            if (HeadingRegex().IsMatch(line))
+            else if (IsHeading(line))
             {
                 headings++;
-                continue;
             }
-
-            if (!HorizontalRuleRegex().IsMatch(line))
+            else if (!IsHorizontalRule(line))
             {
                 inParagraph = true;
+            }
+
+            if (!isEnd)
+            {
+                lines++;
+                if (markdown[index] == '\r' && index + 1 < markdown.Length && markdown[index + 1] == '\n')
+                {
+                    index++;
+                }
+
+                lineStart = index + 1;
             }
         }
 
@@ -110,22 +121,46 @@ public sealed partial class MarkdownStatisticsService : IMarkdownStatisticsServi
         return new LineMetrics(lines, paragraphs, headings);
     }
 
-    private static int CountLines(string markdown)
+    private static bool IsHeading(ReadOnlySpan<char> line)
     {
-        var lines = 1;
-        for (var i = 0; i < markdown.Length; i++)
+        var level = 0;
+        while (level < line.Length && level < 6 && line[level] == '#')
         {
-            if (markdown[i] == '\n')
+            level++;
+        }
+
+        if (level == 0 || level >= line.Length || !char.IsWhiteSpace(line[level]))
+        {
+            return false;
+        }
+
+        for (var index = level + 1; index < line.Length; index++)
+        {
+            if (!char.IsWhiteSpace(line[index]))
             {
-                lines++;
-            }
-            else if (markdown[i] == '\r' && (i + 1 >= markdown.Length || markdown[i + 1] != '\n'))
-            {
-                lines++;
+                return true;
             }
         }
 
-        return lines;
+        return false;
+    }
+
+    private static bool IsHorizontalRule(ReadOnlySpan<char> line)
+    {
+        if (line.Length < 3 || line[0] is not ('-' or '*' or '_'))
+        {
+            return false;
+        }
+
+        for (var index = 1; index < line.Length; index++)
+        {
+            if (line[index] != line[0])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool IsMarkdownSyntaxCharacter(char character)
@@ -141,10 +176,4 @@ public sealed partial class MarkdownStatisticsService : IMarkdownStatisticsServi
     private readonly record struct TextMetrics(int Words, int Characters);
 
     private readonly record struct LineMetrics(int Lines, int Paragraphs, int Headings);
-
-    [GeneratedRegex(@"^#{1,6}\s+\S+", RegexOptions.Multiline)]
-    private static partial Regex HeadingRegex();
-
-    [GeneratedRegex(@"^(-{3,}|\*{3,}|_{3,})$")]
-    private static partial Regex HorizontalRuleRegex();
 }
