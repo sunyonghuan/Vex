@@ -4,6 +4,7 @@
 
 ### zh-CN
 
+- README 补充 Build and Release 段落，记录 `dotnet build`、`publish_vex_all.bat` 与 `publish_vex_all.bat --package` 的基本用法，以及压缩包产物输出到 `artifacts/release/`。
 - 大文件统计路径继续优化：`MarkdownStatisticsService` 的正文词数/字符数统计改为单次字符扫描，移除 Markdown 标记替换和多次正则匹配带来的临时字符串与匹配集合分配。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖英文、CJK、标题、段落、行数和阅读时间统计。
 - 发布打包脚本可靠性增强：`package_vex_artifacts.ps1` 先完整预检 manifest、所有 RID 发布目录和目标 zip/SHA256 是否冲突，确认无误后才开始压缩，避免失败时留下部分产物。
@@ -97,6 +98,7 @@
 
 ### en-US
 
+- Added a Build and Release section to README documenting `dotnet build`, `publish_vex_all.bat`, `publish_vex_all.bat --package`, and `artifacts/release/` package outputs.
 - Further optimized the large-file statistics path: `MarkdownStatisticsService` now counts text words/characters with a single character scan, removing the temporary Markdown-syntax replacement string and repeated regex match collections.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering English, CJK, headings, paragraphs, line count, and reading-time statistics.
 - Improved packaging-script reliability: `package_vex_artifacts.ps1` now preflights the manifest, all RID publish directories, and target zip/SHA256 conflicts before compressing, avoiding partial artifacts on failure.
