@@ -4,6 +4,11 @@
 
 ### Added
 
+- Added a new-user guide that appears on first launch and can be reopened from the Help menu.
+- The guide covers key File, Paragraph, Format, View, Theme, and Help menus, opening each menu before highlighting the guided item.
+- Added dedicated Outline entry and Outline navigation guide steps: the guide points to View > Outline, then switches the sidebar to the Outline tab before explaining it.
+- Restored `CodeWF.AvaloniaControls` 12.0.3.4 from nuget.org and removed the temporary local package source and local packing script.
+- Restored from nuget.org, built `Vex.slnx`, ran `git diff --check`, completed NuGet vulnerability scanning, and screenshot-verified the guide start step, expanded File-menu step, and Outline step.
 - Added File menu actions to copy the current Markdown as HTML rich text for WeChat Official Account, Zhihu, and Juejin.
 - Validated all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the new copy entries in the File menu.
 - Added PNG export from the File > Export menu, rendering the current Markdown document as a long image.

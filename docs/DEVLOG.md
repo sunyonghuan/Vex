@@ -1,5 +1,29 @@
 # Vex Development Log
 
+## 0.1.0 - 2026-05-23
+
+### zh-CN
+
+- `CodeWF.AvaloniaControls`/`CodeWF.AvaloniaControls.Themes` 已切换为 NuGet 官方源最新 12.0.3.4，还原不再依赖仓库级 `.local-nuget` 源。
+- 移除临时 `NuGet.Config` 本地包源和 `pack_codewf_controls_local.bat`，避免继续使用本地打包兜底。
+- 新增基于 `CodeWF.AvaloniaControls` Guide 的新手引导：首次启动自动展示一次，帮助菜单可再次打开。
+- 引导覆盖标题栏关键菜单、文档列表、大纲、编辑区、预览区和状态栏；文件、段落、格式、视图、主题、帮助等菜单步骤会自动展开对应菜单后再高亮目标项。
+- 新增“大纲入口”和“大纲导航”引导步骤：先高亮视图菜单里的“大纲”，随后自动切换左侧侧栏到大纲页签再展示说明。
+- 新增 `HasSeenOnboardingGuide` 设置项，避免首次引导重复打扰用户。
+- 验证四套 i18n JSON 可解析，使用 NuGet 官方源执行还原，`dotnet build Vex.slnx -v:minimal` 和 `git diff --check` 通过，完成 NuGet 漏洞扫描，并截图确认引导首屏、文件菜单展开和大纲步骤不溢出。截图路径：`%TEMP%\VexScreenshots\onboarding-guide-start-fixed.png`、`%TEMP%\VexScreenshots\onboarding-guide-file-menu-final.png`、`%TEMP%\VexScreenshots\onboarding-guide-outline-step.png`。
+- 新增 CodeWF 自研控件包依赖；NuGet 包元数据声明 MIT 许可证，源码仓库可追溯。
+
+### en-US
+
+- Switched `CodeWF.AvaloniaControls` and `CodeWF.AvaloniaControls.Themes` to the latest nuget.org 12.0.3.4 packages, so restore no longer depends on the repository `.local-nuget` source.
+- Removed the temporary local-source `NuGet.Config` and `pack_codewf_controls_local.bat` to avoid relying on locally packed fallback packages.
+- Added a new-user Guide powered by `CodeWF.AvaloniaControls`: it appears once on first launch and can be reopened from the Help menu.
+- The guide covers the title-bar menu, document list, outline, editor, preview, and status bar; File, Paragraph, Format, View, Theme, and Help menu steps open their target menus before highlighting items.
+- Added dedicated outline guide steps: the guide highlights View > Outline, then switches the sidebar to the Outline tab before explaining outline navigation.
+- Added `HasSeenOnboardingGuide` to user settings so the first-run guide is not repeated.
+- Verified all four i18n JSON files, restored from nuget.org, built `Vex.slnx -v:minimal`, ran `git diff --check`, completed NuGet vulnerability scanning, and screenshot-verified the guide start step, expanded File-menu step, and Outline step. Screenshot paths: `%TEMP%\VexScreenshots\onboarding-guide-start-fixed.png`, `%TEMP%\VexScreenshots\onboarding-guide-file-menu-final.png`, `%TEMP%\VexScreenshots\onboarding-guide-outline-step.png`.
+- Added CodeWF first-party control package dependencies; NuGet package metadata declares MIT licensing and the source repository is traceable.
+
 ## 0.1.0 - 2026-05-22
 
 ### zh-CN

@@ -11,12 +11,12 @@
     prism:ViewModelLocator.AutoWireViewModel="True">
 
     <Menu Classes="title-menu" VerticalAlignment="Center">
-        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuFile}}">
+        <MenuItem x:Name="FileMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuFile}}">
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.NewDocument}}" Command="{Binding NewDocument}" InputGesture="Ctrl+N" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.NewWindow}}" Command="{Binding NewWindow}" />
             <Separator />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenFile}}" Command="{Binding OpenAsync}" InputGesture="Ctrl+O" />
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenFolder}}" Command="{Binding OpenFolderAsync}" />
+            <MenuItem x:Name="OpenFolderMenuItem" Header="{i18n:I18n {x:Static l:VexL.OpenFolder}}" Command="{Binding OpenFolderAsync}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.QuickOpen}}" Command="{Binding QuickOpenAsync}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenRecent}}" IsEnabled="{Binding Recent.HasRecentDocuments}">
                 <MenuItem Header="{Binding Recent.RecentDocument1Text}" Command="{Binding OpenRecentDocument1Async}" IsVisible="{Binding Recent.HasRecentDocument1}" />
@@ -46,10 +46,11 @@
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.OpenFileLocation}}" Command="{Binding OpenFileLocationAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Delete}}" Command="{Binding DeleteAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
             <Separator />
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Export}}">
+            <MenuItem x:Name="ExportMenuItem" Header="{i18n:I18n {x:Static l:VexL.Export}}">
                 <MenuItem Header="HTML" Command="{Binding Export}" CommandParameter="HTML" />
                 <MenuItem Header="PDF" Command="{Binding Export}" CommandParameter="PDF" />
                 <MenuItem Header="PNG" Command="{Binding Export}" CommandParameter="PNG" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.ExportWord}}" Command="{Binding Export}" CommandParameter="Word" />
             </MenuItem>
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Print}}" Command="{Binding Print}" InputGesture="Ctrl+P" />
             <Separator />
@@ -69,7 +70,7 @@
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Replace}}" Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
         </MenuItem>
 
-        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuParagraph}}">
+        <MenuItem x:Name="ParagraphMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuParagraph}}">
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Paragraph}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Paragraph}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading1}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading2}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading2}" />
@@ -78,7 +79,7 @@
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading5}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading5}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Heading6}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading6}" />
             <Separator />
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Table}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
+            <MenuItem x:Name="TableMenuItem" Header="{i18n:I18n {x:Static l:VexL.Table}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.CodeBlock}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.CodeFence}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.MathBlock}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.MathBlock}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Quote}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
@@ -88,23 +89,23 @@
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.HorizontalRule}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.HorizontalRule}" />
         </MenuItem>
 
-        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuFormat}}">
+        <MenuItem x:Name="FormatMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuFormat}}">
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Bold}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Italic}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.InlineCode}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
             <Separator />
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Link}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
+            <MenuItem x:Name="LinkMenuItem" Header="{i18n:I18n {x:Static l:VexL.Link}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Image}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Image}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.ClearFormatting}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
         </MenuItem>
 
-        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuView}}">
+        <MenuItem x:Name="ViewMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuView}}">
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.ToggleSidebar}}" Command="{Binding Layout.ToggleSidebar}" />
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.Outline}}" Command="{Binding Layout.ShowOutline}" />
+            <MenuItem x:Name="OutlineMenuItem" Header="{i18n:I18n {x:Static l:VexL.Outline}}" Command="{Binding Layout.ShowOutline}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.DocumentList}}" Command="{Binding Layout.ShowFiles}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Search}}" Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
             <Separator />
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.SourceMode}}" Command="{Binding Layout.ToggleSourceMode}" />
+            <MenuItem x:Name="SourceModeMenuItem" Header="{i18n:I18n {x:Static l:VexL.SourceMode}}" Command="{Binding Layout.ToggleSourceMode}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.ShowLineNumbers}}" Command="{Binding EditorDisplay.ToggleLineNumbers}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.ShowStatusBar}}" Command="{Binding Layout.ToggleStatusBar}" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.WordCount}}" Command="{Binding WordCount}" />
@@ -117,11 +118,11 @@
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.ZoomOut}}" Command="{Binding EditorDisplay.ZoomOut}" />
         </MenuItem>
 
-        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuTheme}}">
-            <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeColor}}">
+        <MenuItem x:Name="ThemeMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuTheme}}">
+            <MenuItem x:Name="ThemeColorMenuItem" Header="{i18n:I18n {x:Static l:VexL.ThemeColor}}">
                 <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeSystem}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="system" />
                 <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeLight}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="light" />
-                <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDark}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dark" />
+                <MenuItem x:Name="ThemeDarkMenuItem" Header="{i18n:I18n {x:Static l:VexL.ThemeDark}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dark" />
                 <Separator />
                 <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeAquatic}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="aquatic" />
                 <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDesert}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="desert" />
@@ -158,9 +159,10 @@
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageJaJp}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="ja-JP" />
         </MenuItem>
 
-        <MenuItem Header="{i18n:I18n {x:Static l:VexL.MenuHelp}}">
+        <MenuItem x:Name="HelpMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuHelp}}">
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Changelog}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="changelog" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.QuickStart}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="quick-start" />
+            <MenuItem x:Name="BeginGuideMenuItem" Header="{i18n:I18n {x:Static l:VexL.OnboardingGuide}}" Click="BeginGuideMenuItem_OnClick" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Thanks}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="thanks" />
             <Separator />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Website}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="website" />

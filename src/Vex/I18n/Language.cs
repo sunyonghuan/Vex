@@ -46,6 +46,7 @@ public static class VexL
     public static readonly string Delete = "Vex.VexL.Delete";
     public static readonly string Rename = "Vex.VexL.Rename";
     public static readonly string Export = "Vex.VexL.Export";
+    public static readonly string ExportWord = "Vex.VexL.ExportWord";
     public static readonly string Print = "Vex.VexL.Print";
     public static readonly string Close = "Vex.VexL.Close";
     public static readonly string Undo = "Vex.VexL.Undo";
@@ -123,6 +124,7 @@ public static class VexL
     public static readonly string LanguageJaJp = "Vex.VexL.LanguageJaJp";
     public static readonly string Changelog = "Vex.VexL.Changelog";
     public static readonly string QuickStart = "Vex.VexL.QuickStart";
+    public static readonly string OnboardingGuide = "Vex.VexL.OnboardingGuide";
     public static readonly string Thanks = "Vex.VexL.Thanks";
     public static readonly string Website = "Vex.VexL.Website";
     public static readonly string Feedback = "Vex.VexL.Feedback";

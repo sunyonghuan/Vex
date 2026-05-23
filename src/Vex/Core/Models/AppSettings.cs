@@ -24,6 +24,8 @@ public sealed record AppSettings
 
     public bool? ShowLineNumbers { get; init; }
 
+    public bool? HasSeenOnboardingGuide { get; init; }
+
     public double? WindowWidth { get; init; }
 
     public double? WindowHeight { get; init; }

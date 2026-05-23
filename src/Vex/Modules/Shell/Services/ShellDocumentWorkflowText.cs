@@ -129,9 +129,7 @@ public sealed class ShellDocumentWorkflowText : IShellDocumentWorkflowText
 
     public void PublishExportNotImplemented(string? format)
     {
-        var displayFormat = string.IsNullOrWhiteSpace(format)
-            ? Text(VexL.ExportFormatDocument)
-            : format.ToUpperInvariant();
+        var displayFormat = ExportFormatName(format);
         PublishFormat(VexL.StatusExportNotImplementedFormat, displayFormat);
     }
 
@@ -170,6 +168,20 @@ public sealed class ShellDocumentWorkflowText : IShellDocumentWorkflowText
     private void Publish(string key) => _statusPublisher.PublishResource(key);
 
     private void PublishFormat(string key, params object?[] args) => _statusPublisher.PublishResourceFormat(key, args);
+
+    private string ExportFormatName(string? format)
+    {
+        if (string.IsNullOrWhiteSpace(format))
+        {
+            return Text(VexL.ExportFormatDocument);
+        }
+
+        return format.Trim().ToLowerInvariant() switch
+        {
+            "word" or "doc" or "docx" => Text(VexL.ExportWord),
+            _ => format.ToUpperInvariant()
+        };
+    }
 
     private static string CopyTargetKey(string? target)
     {
