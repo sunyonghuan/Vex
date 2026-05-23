@@ -12,8 +12,8 @@
             Padding="22"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Background="#FFFFFFFF"
-            BorderBrush="#D0D5DD"
+            Background="{DynamicResource VexPanelBackgroundBrush}"
+            BorderBrush="{DynamicResource VexPanelBorderBrush}"
             BorderThickness="1"
             CornerRadius="8">
             <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="14">
@@ -30,8 +30,8 @@
                 <Border
                     Grid.Row="2"
                     Padding="10 8"
-                    Background="#FFF8FAFC"
-                    BorderBrush="#E4E7EC"
+                    Background="{DynamicResource VexStatusBadgeBackgroundBrush}"
+                    BorderBrush="{DynamicResource VexStatusBadgeBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6">
                     <TextBlock

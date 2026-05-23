@@ -11,8 +11,8 @@
         Padding="20"
         HorizontalAlignment="Center"
         VerticalAlignment="Center"
-        Background="#FFFFFFFF"
-        BorderBrush="#D0D5DD"
+        Background="{DynamicResource VexPanelBackgroundBrush}"
+        BorderBrush="{DynamicResource VexPanelBorderBrush}"
         BorderThickness="1"
         CornerRadius="8"
         IsVisible="{Binding Dialogs.IsPropertiesPanelVisible}">

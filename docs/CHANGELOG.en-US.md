@@ -20,6 +20,8 @@
 - Parsed all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the regex option in the find bar.
 - Improved Find Next feedback so the status bar explicitly reports when search wraps from the end back to the beginning.
 - Parsed all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the repeated Find Next wrap feedback.
+- Improved dark mode by moving the find bar and several overlays onto theme resources instead of fixed white panel colors.
+- Built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the dark find bar and about overlay.
 - Added File menu actions to copy the current Markdown as HTML rich text for WeChat Official Account, Zhihu, and Juejin.
 - Validated all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the new copy entries in the File menu.
 - Added PNG export from the File > Export menu, rendering the current Markdown document as a long image.

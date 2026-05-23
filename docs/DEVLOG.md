@@ -23,6 +23,8 @@
 - 新增正则查找提示和错误反馈的四套 i18n 文案；验证四套 JSON、`dotnet build Vex.slnx -v:minimal`、`git diff --check`，并截图检查查找栏正则选项显示正常。截图路径：`%TEMP%\VexScreenshots\find-bar-regex-option.png`。
 - 补齐查找循环提示：查找下一个从文末回到文首时，状态栏会明确提示已循环到开头，并继续显示行号和当前/总匹配序号。
 - 新增循环查找提示的四套 i18n 文案；验证四套 JSON、`dotnet build Vex.slnx -v:minimal` 和 `git diff --check`，并截图检查连续查找后的循环提示。截图路径：`%TEMP%\VexScreenshots\find-wrap-feedback.png`。
+- 完善深色模式细节：查找栏、统计/关于/属性浮层、删除确认和未保存确认浮层不再写死白色背景，改用现有主题动态资源。
+- 本轮深色细节未新增第三方依赖；验证 `dotnet build Vex.slnx -v:minimal`、`git diff --check`，并截图检查深色模式下查找栏和关于浮层。截图路径：`%TEMP%\VexScreenshots\dark-findbar-themed.png`、`%TEMP%\VexScreenshots\dark-about-overlay-themed.png`。
 
 ### en-US
 
@@ -45,6 +47,8 @@
 - Added localized regex-search tooltip and invalid-regex feedback for all four cultures; verified JSON resources, `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and screenshot-checked the regex option in the find bar. Screenshot path: `%TEMP%\VexScreenshots\find-bar-regex-option.png`.
 - Added wrap-around search feedback: when Find Next reaches the end and continues from the beginning, the status bar now says it wrapped while still showing line number and current/total match index.
 - Added localized wrap-around search feedback for all four cultures; verified JSON resources, `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and screenshot-checked the feedback after repeated Find Next. Screenshot path: `%TEMP%\VexScreenshots\find-wrap-feedback.png`.
+- Improved dark-mode details: the find bar, statistics/about/properties overlays, delete confirmation, and unsaved confirmation now use existing dynamic theme resources instead of fixed white panel colors.
+- This dark-mode pass adds no third-party dependency; verified `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and screenshot-checked the dark find bar plus about overlay. Screenshot paths: `%TEMP%\VexScreenshots\dark-findbar-themed.png`, `%TEMP%\VexScreenshots\dark-about-overlay-themed.png`.
 
 ## 0.1.0 - 2026-05-22
 

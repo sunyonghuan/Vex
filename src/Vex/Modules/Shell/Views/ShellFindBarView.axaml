@@ -12,8 +12,8 @@
     IsVisible="{Binding IsVisible}">
 
     <Border
-        Background="#FFFFFFFF"
-        BorderBrush="#E4E7EC"
+        Background="{DynamicResource VexPanelBackgroundBrush}"
+        BorderBrush="{DynamicResource VexPanelBorderBrush}"
         BorderThickness="0 0 0 1"
         Padding="10 8">
         <Grid ColumnDefinitions="Auto,220,Auto,220,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
