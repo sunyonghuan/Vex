@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Added `scripts/package_vex_msix.ps1` to prepare a full-trust MSIX layout from Windows publish outputs and, when the Windows SDK is available, package and optionally sign an MSIX.
+- Parsed the MSIX script, built `Vex.slnx`, and ran a temporary `publish/win-x64` `-PrepareOnly` smoke verifying the manifest, full-trust entry point, `runFullTrust`, copied files, and logo asset.
 - Help documents now prefer Traditional Chinese files for `zh-TW`, `zh-HK`, `zh-MO`, and related regions before falling back to Simplified Chinese.
 - Built `Vex.slnx` and used a temporary console smoke covering `zh-TW`, `zh-HK`, `zh-SG`, and `fr-FR` help-document resolution.
 - Print preview now supports paper, margin, and header/footer controls, with fixed document-title headers and file footers available during printing.

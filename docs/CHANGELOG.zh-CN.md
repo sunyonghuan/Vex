@@ -4,6 +4,8 @@
 
 ### 修复
 
+- ✨[新增]-新增 `scripts/package_vex_msix.ps1`，可从 Windows 发布输出准备 full-trust MSIX 布局，并在 Windows SDK 可用时生成 MSIX、可选签名。
+- 🧪[测试]-解析 MSIX 脚本语法，构建 `Vex.slnx`，并用临时 `publish/win-x64` 执行 `-PrepareOnly` smoke，验证 manifest、full-trust 入口、`runFullTrust` 能力、复制文件和 logo 资产。
 - 🔧[优化]-帮助文档在 `zh-TW`、`zh-HK`、`zh-MO` 等传统中文区域优先回退繁体中文文档，再回退简体中文。
 - 🧪[测试]-构建 `Vex.slnx`，并用临时 console smoke 覆盖 `zh-TW`、`zh-HK`、`zh-SG` 与 `fr-FR` 的帮助文档解析结果。
 - ✨[新增]-打印预览工具条支持纸张、边距和页眉页脚开关，正式打印时可显示固定文档标题页眉和文件页脚。

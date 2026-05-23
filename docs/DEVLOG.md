@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 新增 Windows MSIX 打包脚本 `scripts/package_vex_msix.ps1`：可从 `publish/<RID>/` 准备 full-trust MSIX 布局，生成 `AppxManifest.xml`，补齐 `Assets\logo.png`，并在 Windows SDK 可用时调用 `makeappx.exe` 打包、可选调用 `signtool.exe` 签名。
+- 验证脚本语法解析、`dotnet build Vex.slnx -v:minimal`，并使用临时 `publish/win-x64` 目录执行 `-PrepareOnly -Force` smoke，解析生成的 `AppxManifest.xml` 确认包身份、`0.1.0.0` 版本、`x64` 架构、`Vex.exe` full-trust 入口、`runFullTrust` 能力、复制的发布文件和 MSIX logo 资产。
 - 帮助文档本地化回退继续细化：`zh-TW`、`zh-HK`、`zh-MO` 等传统中文区域会优先回退 `zh-Hant` 文档，再回退简体中文；简体中文区域仍回退 `zh-CN`。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖 `zh-TW`、`zh-HK`、`zh-SG` 与 `fr-FR` 的帮助文档解析结果。
 - 打印预览继续成熟化：HTML 预览工具条新增纸张、边距和页眉页脚开关，打印 CSS 动态写入 `@page`，正式打印时可固定显示文档标题页眉和文件页脚。
@@ -113,6 +115,8 @@
 
 ### en-US
 
+- Added the Windows MSIX packaging script `scripts/package_vex_msix.ps1`: it prepares a full-trust MSIX layout from `publish/<RID>/`, writes `AppxManifest.xml`, ensures `Assets\logo.png` exists, and can call Windows SDK `makeappx.exe` plus optional `signtool.exe` signing.
+- Verified script parsing, `dotnet build Vex.slnx -v:minimal`, and a temporary `publish/win-x64` `-PrepareOnly -Force` smoke; parsed the generated `AppxManifest.xml` to confirm package identity, version `0.1.0.0`, `x64` architecture, the `Vex.exe` full-trust entry point, `runFullTrust`, copied publish files, and the MSIX logo asset.
 - Refined localized help fallback: Traditional Chinese regions such as `zh-TW`, `zh-HK`, and `zh-MO` now prefer `zh-Hant` documents before Simplified Chinese, while Simplified Chinese regions still fall back to `zh-CN`.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering `zh-TW`, `zh-HK`, `zh-SG`, and `fr-FR` help-document resolution.
 - Further matured print preview: the HTML preview toolbar now includes paper, margin, and header/footer controls; print CSS writes a dynamic `@page`, and printed pages can show a fixed document-title header and file footer.
