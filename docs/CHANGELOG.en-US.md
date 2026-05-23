@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Print-preview temporary HTML file names now sanitize invalid file-name characters and cap length, avoiding preview creation failures for unusual document names.
 - Added Traditional Chinese and Japanese changelog summary documents, so Help > Changelog no longer falls back to Simplified Chinese in zh-Hant/ja-JP environments.
 - Built `Vex.slnx` and confirmed the new changelog documents are copied to the output directory.
 - The reload failure detail for documents without a file path now uses i18n instead of fixed English.

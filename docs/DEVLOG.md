@@ -4,6 +4,7 @@
 
 ### zh-CN
 
+- 打印预览流程加固：临时 HTML 文件名会清理文档名中的非法文件名字符并限制长度，避免特殊标题导致打印预览文件创建失败。
 - 帮助文档继续本地化：新增 `CHANGELOG.zh-Hant.md` 与 `CHANGELOG.ja-JP.md` 摘要文件，繁体中文和日文环境打开更新日志时不再回退到简体中文文档。
 - 发布内容配置同步复制新增的繁体中文、日文更新日志文件。
 - 当前文档无文件路径的重载失败详情迁移到 i18n，异常详情不再固定为英文。
@@ -92,6 +93,7 @@
 
 ### en-US
 
+- Hardened the print-preview flow: temporary HTML file names now sanitize invalid file-name characters and cap length, avoiding preview creation failures for unusual document titles.
 - Continued help-document localization: added `CHANGELOG.zh-Hant.md` and `CHANGELOG.ja-JP.md` summary files so Traditional Chinese and Japanese changelog help no longer falls back to Simplified Chinese.
 - Updated publish content configuration to copy the new Traditional Chinese and Japanese changelog files.
 - Moved the reload failure detail for documents without a file path into i18n, so the exception detail is no longer fixed English.

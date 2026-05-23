@@ -132,10 +132,43 @@ public sealed class MarkdownExportService : IMarkdownExportService
     {
         var folder = Path.Combine(Path.GetTempPath(), "Vex", "PrintPreview");
         Directory.CreateDirectory(folder);
-        var path = Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(document.FileName)}-{Guid.NewGuid():N}.html");
+        var fileName = CreatePrintPreviewFileName(document.FileName);
+        var path = Path.Combine(folder, $"{fileName}-{Guid.NewGuid():N}.html");
         await File.WriteAllTextAsync(path, BuildHtml(document, HtmlDocumentMode.PrintPreview), Utf8NoBom);
         Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
         return path;
+    }
+
+    private static string CreatePrintPreviewFileName(string? fileName)
+    {
+        const string FallbackName = "VexPrintPreview";
+        const int MaxNameLength = 80;
+
+        var stem = string.IsNullOrWhiteSpace(fileName)
+            ? FallbackName
+            : Path.GetFileNameWithoutExtension(fileName);
+
+        if (string.IsNullOrWhiteSpace(stem))
+        {
+            return FallbackName;
+        }
+
+        var invalidChars = Path.GetInvalidFileNameChars();
+        var builder = new StringBuilder(stem.Length);
+        foreach (var character in stem.Trim())
+        {
+            builder.Append(Array.IndexOf(invalidChars, character) >= 0 ? '_' : character);
+        }
+
+        var sanitized = builder.ToString().Trim(' ', '.');
+        if (string.IsNullOrWhiteSpace(sanitized))
+        {
+            return FallbackName;
+        }
+
+        return sanitized.Length <= MaxNameLength
+            ? sanitized
+            : sanitized[..MaxNameLength].TrimEnd(' ', '.');
     }
 
     private string BuildHtml(
