@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 查找计数路径继续减分配：`EditorSearchAction.Count` 不再为全部命中构建 `SearchMatch` 列表，而是在一次扫描中统计总数和当前命中索引；正则计数也只枚举匹配并计数。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 Count 路径调用新的计数扫描，保留 Find/Replace 路径的完整命中列表。
 - 大文件查找路径优化：查找栏搜索文本、大小写、整词和正则开关变化时，全文匹配计数改为 180ms 防抖发布；打开查找/替换面板仍立即计数，关闭面板会取消挂起计数。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认查找计数防抖、面板打开立即计数和关闭取消挂起计数路径存在。
 - 大文件编辑路径继续优化：真实文本变更时会立即刷新未保存状态并排队草稿保存，但预览文档状态、统计和大纲构建合并到 220ms 防抖刷新，避免连续输入时每个字符都同步触发全量 Markdown 派生扫描。
@@ -121,6 +123,8 @@
 
 ### en-US
 
+- Further reduced find-count allocations: `EditorSearchAction.Count` no longer builds a `SearchMatch` list for every hit, and instead computes total count plus current match index in one scan; regex count also enumerates matches only for counting.
+- Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming Count uses the new counting scan while Find/Replace still keep full match lists.
 - Optimized the large-file find path: changes to search text, match case, whole word, and regex now publish full-document match counts through a 180ms debounce; opening find/replace still counts immediately, and closing the panel cancels pending counts.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming debounced find counts, immediate count on panel open, and pending-count cancellation on close.
 - Further optimized the large-file edit path: real text changes now update unsaved state and queue draft saving immediately, while preview document state, statistics, and outline building are coalesced behind a 220ms debounce to avoid full Markdown-derived scans for every typed character.

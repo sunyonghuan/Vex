@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Changed the find Count path to compute total matches and current index in one scan instead of allocating a `SearchMatch` list for every hit.
+- Built `Vex.slnx` and used a source-structure smoke to verify Count uses the new counting scan while Find/Replace still keep full match lists.
 - Debounced full-document find match counting by 180ms, reducing repeated scans while typing search text or toggling match options in long documents.
 - Built `Vex.slnx` and used a source-structure smoke to verify debounced find counts, immediate count on panel open, and pending-count cancellation on close.
 - Coalesced preview, statistics, and outline refreshes behind a 220ms debounce during continuous large-file typing, while keeping unsaved state and draft-save queuing immediate.

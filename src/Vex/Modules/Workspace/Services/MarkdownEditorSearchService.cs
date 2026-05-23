@@ -159,23 +159,22 @@ public sealed class MarkdownEditorSearchService : IMarkdownEditorSearchService
 
     private void CountMatches(TextEditor editor, EditorSearchCommand command)
     {
-        var matches = FindMatches(editor.Text ?? string.Empty, command);
-        if (matches is null)
+        var matchCount = CountMatches(editor.Text ?? string.Empty, command, editor.CaretOffset, out var matchIndex);
+        if (matchCount is null)
         {
             return;
         }
 
-        if (matches.Count == 0)
+        if (matchCount == 0)
         {
             PublishSearchResultFormat(VexL.EditorSearchNoMatchFormat, command.SearchText);
             return;
         }
 
-        var matchIndex = GetNextMatchIndex(matches, editor.CaretOffset);
         _eventBus.Publish(new EditorSearchResultCommand(
-            _localizer.Format(VexL.EditorSearchMatchCountFormat, matches.Count, command.SearchText),
-            matchIndex >= 0 ? matchIndex + 1 : 1,
-            matches.Count));
+            _localizer.Format(VexL.EditorSearchMatchCountFormat, matchCount, command.SearchText),
+            matchIndex + 1,
+            matchCount.Value));
     }
 
     private void PublishSearchResult(string key)
@@ -249,6 +248,92 @@ public sealed class MarkdownEditorSearchService : IMarkdownEditorSearchService
         }
 
         return matches;
+    }
+
+    private int? CountMatches(string text, EditorSearchCommand command, int startOffset, out int matchIndex)
+    {
+        matchIndex = -1;
+        var searchText = command.SearchText;
+        if (text.Length == 0 || searchText.Length == 0)
+        {
+            return 0;
+        }
+
+        var count = command.IsRegex
+            ? CountRegexMatches(text, command, startOffset, out matchIndex)
+            : CountLiteralMatches(text, command, startOffset, out matchIndex);
+        if (count is > 0 && matchIndex < 0)
+        {
+            matchIndex = 0;
+        }
+
+        return count;
+    }
+
+    private int? CountRegexMatches(string text, EditorSearchCommand command, int startOffset, out int matchIndex)
+    {
+        matchIndex = -1;
+        var regex = TryCreateRegex(command);
+        if (regex is null)
+        {
+            return null;
+        }
+
+        var count = 0;
+        try
+        {
+            foreach (Match match in regex.Matches(text))
+            {
+                if (!match.Success || match.Length == 0)
+                {
+                    continue;
+                }
+
+                if (command.IsWholeWord && !IsWholeWordMatch(text, match.Index, match.Length))
+                {
+                    continue;
+                }
+
+                if (matchIndex < 0 && match.Index >= startOffset)
+                {
+                    matchIndex = count;
+                }
+
+                count++;
+            }
+        }
+        catch (RegexMatchTimeoutException exception)
+        {
+            PublishSearchResultFormat(VexL.EditorSearchInvalidRegexFormat, exception.Message);
+            return null;
+        }
+
+        return count;
+    }
+
+    private static int CountLiteralMatches(string text, EditorSearchCommand command, int startOffset, out int matchIndex)
+    {
+        matchIndex = -1;
+        var count = 0;
+        var offset = 0;
+        while (offset <= text.Length - command.SearchText.Length)
+        {
+            var index = FindNextIndex(text, command.SearchText, offset, command);
+            if (index < 0)
+            {
+                break;
+            }
+
+            if (matchIndex < 0 && index >= startOffset)
+            {
+                matchIndex = count;
+            }
+
+            count++;
+            offset = index + command.SearchText.Length;
+        }
+
+        return count;
     }
 
     private static int FindNextIndex(string text, string searchText, int offset, EditorSearchCommand command)
