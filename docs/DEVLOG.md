@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 大文件大纲扫描继续优化：`MarkdownOutlineService` 用手写 ATX 标题解析替代逐行标题正则匹配，保留代码围栏跳过逻辑，减少长文档生成大纲时的正则开销。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖普通标题、代码围栏内标题跳过、三级标题和六级标题。
 - 发布打包脚本兼容逗号分隔 RID 参数，`-RuntimeIdentifier win-x64,linux-x64` 与 PowerShell 数组传参都会被规范化为多个 RID。
 - 使用外层 `powershell -File` 传入 `-RuntimeIdentifier rid-a,rid-b` 的临时 smoke 验证逗号分隔参数会生成两个 RID 的 zip、SHA256 和 manifest。
 - 打印预览打开失败详情迁移到 i18n：当系统 Shell 没有启动预览浏览器时，导出服务会抛出本地化错误详情，而不是继续返回成功路径。
@@ -102,6 +104,8 @@
 
 ### en-US
 
+- Further optimized large-file outline scans: `MarkdownOutlineService` now uses a hand-written ATX heading parser instead of a heading regex on every line, while preserving fenced-code skipping.
+- Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering normal headings, fenced heading skips, level-3 headings, and level-6 headings.
 - The release packaging script now accepts comma-separated RID arguments, so `-RuntimeIdentifier win-x64,linux-x64` and PowerShell array input both normalize to multiple RIDs.
 - Verified comma-separated arguments with an outer `powershell -File` smoke using `-RuntimeIdentifier rid-a,rid-b`, producing two RID zip/SHA256 outputs plus the manifest.
 - Moved print-preview open failure details into i18n: if the system shell does not start a preview browser, the export service now throws a localized detail instead of returning a successful path.

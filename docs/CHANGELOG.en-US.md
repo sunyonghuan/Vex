@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Markdown outline scans now use a hand-written ATX heading parser, reducing per-line regex overhead in long documents.
+- Built `Vex.slnx` and used a temporary console smoke covering fenced heading skips, level-3 headings, and level-6 headings.
 - The release packaging script now supports comma-separated RID arguments instead of treating them as one directory name.
 - Verified comma-separated RIDs through an outer `powershell -File` smoke that generated two RID zip/SHA256 outputs and the manifest.
 - If the system shell fails to start the print-preview browser, Vex now reports a localized error detail instead of treating the preview as opened.

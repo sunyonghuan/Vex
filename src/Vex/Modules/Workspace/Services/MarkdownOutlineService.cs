@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Vex.Core.Models;
 using Vex.Core.Services;
 
@@ -32,23 +31,33 @@ public sealed partial class MarkdownOutlineService : IMarkdownOutlineService
                 continue;
             }
 
-            var match = HeadingRegex().Match(line);
-            if (!match.Success)
+            if (!TryParseHeading(line, out var level, out var title))
             {
                 continue;
             }
 
-            var level = match.Groups["level"].Value.Length;
-            var title = match.Groups["title"].Value.Trim();
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                result.Add(new OutlineItem(level, title, lineNumber));
-            }
+            result.Add(new OutlineItem(level, title, lineNumber));
         }
 
         return result;
     }
 
-    [GeneratedRegex("^(?<level>#{1,6})\\s+(?<title>.+?)\\s*$")]
-    private static partial Regex HeadingRegex();
+    private static bool TryParseHeading(string line, out int level, out string title)
+    {
+        level = 0;
+        title = string.Empty;
+
+        while (level < line.Length && level < 6 && line[level] == '#')
+        {
+            level++;
+        }
+
+        if (level == 0 || level >= line.Length || !char.IsWhiteSpace(line[level]))
+        {
+            return false;
+        }
+
+        title = line[(level + 1)..].Trim();
+        return title.Length > 0;
+    }
 }
