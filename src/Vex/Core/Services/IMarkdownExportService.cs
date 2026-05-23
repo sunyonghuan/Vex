@@ -8,5 +8,7 @@ public interface IMarkdownExportService
 
     Task<string?> ExportPngAsync(DocumentSnapshot document);
 
+    Task<bool> CopyHtmlAsync(DocumentSnapshot document, string? target);
+
     Task<string?> OpenHtmlPrintPreviewAsync(DocumentSnapshot document);
 }

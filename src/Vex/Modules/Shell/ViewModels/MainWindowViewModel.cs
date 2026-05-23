@@ -591,6 +591,11 @@ public sealed class MainWindowViewModel : ReactiveObject
         () => _documentUtilities.ExportAsync(_document, Markdown, format),
         string.IsNullOrWhiteSpace(format) ? _document.FileName : format);
 
+    public Task CopyHtml(string? target) => RunWithErrorOverlayAsync(
+        VexL.ErrorMessageCannotCopyHtmlFormat,
+        () => _documentUtilities.CopyHtmlAsync(_document, Markdown, target),
+        _text.CopyTargetName(target));
+
     public Task Print() => RunWithErrorOverlayAsync(
         VexL.ErrorMessageCannotPrintFormat,
         () => _documentUtilities.PrintAsync(_document, Markdown));

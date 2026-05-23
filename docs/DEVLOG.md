@@ -4,6 +4,11 @@
 
 ### zh-CN
 
+- 增加文件菜单“复制到公众号 / 知乎 / 稀土掘金”，当前 Markdown 会转换为带标题、编码声明和基础 CSS 的 HTML 后写入剪贴板。
+- 剪贴板同时写入纯文本、通用 `text/html`、macOS `public.html` 和 Windows `HTML Format`，Windows HTML 使用标准片段偏移头，便于网页编辑器读取富文本内容。
+- 新增复制自媒体菜单、平台名称、错误提示和状态栏反馈的简体中文、繁体中文、英文、日文本地化资源。
+- 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 和 `git diff --check` 通过；启动 Debug 桌面程序并截图确认文件菜单新增复制入口且布局正常。截图路径：`%TEMP%\VexScreenshots\social-copy-file-menu.png`。
+- 本轮未新增第三方依赖，无需额外许可证核查。
 - 增加 PNG 导出：文件菜单导出 PNG 会通过 Avalonia 离屏渲染当前 Markdown，生成包含标题、段落、引用、列表、表格、代码块和本地块级图片的长图。
 - PNG 导出复用现有 Markdig 与 Avalonia 依赖，不新增第三方组件；新增 PNG 文件选择器标题、文件类型和导出状态的简体中文、繁体中文、英文、日文本地化资源。
 - 兼容当前 NuGet 版 CodeWF.Markdown.Themes：预览区源码行精确滚动 API 不存在时自动回退到比例滚动，避免构建失败并保留基础同步体验。
@@ -277,6 +282,11 @@
 
 ### en-US
 
+- Added File menu actions for copying to WeChat Official Account, Zhihu, and Juejin; the current Markdown is converted to HTML with a title, charset metadata, and baseline CSS before being placed on the clipboard.
+- The clipboard payload now includes plain text, generic `text/html`, macOS `public.html`, and Windows `HTML Format`; the Windows HTML format includes standard fragment offsets for rich-text paste targets.
+- Localized the social-copy menu entries, platform names, error message, and status feedback for zh-CN, zh-Hant, en-US, and ja-JP.
+- Verified all four i18n JSON files, built `Vex.slnx -v:minimal`, ran `git diff --check`, and launched the Debug desktop app to screenshot the File menu with the new copy entries. Screenshot path: `%TEMP%\VexScreenshots\social-copy-file-menu.png`.
+- Added no new third-party dependency.
 - Added PNG export: the File > Export > PNG action now renders the current Markdown document off-screen through Avalonia, producing a long PNG with headings, paragraphs, quotes, lists, tables, code blocks, and local block images.
 - PNG export reuses the existing Markdig and Avalonia dependencies, adds no new third-party component, and includes localized PNG picker/status resources for zh-CN, zh-Hant, en-US, and ja-JP.
 - Kept compatibility with the current NuGet CodeWF.Markdown.Themes package by probing the optional source-line scroll API at runtime and falling back to ratio scrolling when it is unavailable.

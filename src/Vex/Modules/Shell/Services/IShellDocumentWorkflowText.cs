@@ -91,6 +91,12 @@ public interface IShellDocumentWorkflowText
 
     void PublishExportNotImplemented(string? format);
 
+    string CopyTargetName(string? target);
+
+    void PublishCopiedHtmlToPlatform(string? target);
+
+    void PublishCopyHtmlUnavailable();
+
     void PublishPrintPreviewResult(bool isCanceled);
 
     void PublishStatisticsSummary(MarkdownStatistics statistics);

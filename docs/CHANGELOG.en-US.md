@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added File menu actions to copy the current Markdown as HTML rich text for WeChat Official Account, Zhihu, and Juejin.
+- Validated all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and screenshot-verified the new copy entries in the File menu.
 - Added PNG export from the File > Export menu, rendering the current Markdown document as a long image.
 - Improved preview synchronization compatibility by falling back to ratio scrolling when the current MarkdownViewer package does not expose source-line bounds.
 - Validated all four i18n JSON files, built `Vex.slnx`, ran `git diff --check`, and generated a PNG with a temporary Avalonia smoke program.

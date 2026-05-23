@@ -70,6 +70,9 @@ public sealed class ShellActionCoordinator
                 case ShellActionKind.Export:
                     await _shell.Export(command.Parameter);
                     break;
+                case ShellActionKind.CopyHtml:
+                    await _shell.CopyHtml(command.Parameter);
+                    break;
                 case ShellActionKind.Print:
                     await _shell.Print();
                     break;

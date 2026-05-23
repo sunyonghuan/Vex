@@ -78,6 +78,8 @@ public sealed class ShellTitleMenuViewModel : ReactiveObject
 
     public void Export(string? format) => Publish(ShellActionKind.Export, format);
 
+    public void CopyHtml(string? target) => Publish(ShellActionKind.CopyHtml, target);
+
     public void Print() => Publish(ShellActionKind.Print);
 
     public void CloseDocument() => Publish(ShellActionKind.CloseDocument);

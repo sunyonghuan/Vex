@@ -135,6 +135,13 @@ public sealed class ShellDocumentWorkflowText : IShellDocumentWorkflowText
         PublishFormat(VexL.StatusExportNotImplementedFormat, displayFormat);
     }
 
+    public string CopyTargetName(string? target) => Text(CopyTargetKey(target));
+
+    public void PublishCopiedHtmlToPlatform(string? target) =>
+        PublishFormat(VexL.StatusCopiedHtmlToPlatformFormat, CopyTargetName(target));
+
+    public void PublishCopyHtmlUnavailable() => Publish(VexL.StatusCopyHtmlUnavailable);
+
     public void PublishPrintPreviewResult(bool isCanceled)
     {
         Publish(isCanceled ? VexL.StatusPrintPreviewCanceled : VexL.StatusOpenedHtmlPrintPreview);
@@ -163,4 +170,15 @@ public sealed class ShellDocumentWorkflowText : IShellDocumentWorkflowText
     private void Publish(string key) => _statusPublisher.PublishResource(key);
 
     private void PublishFormat(string key, params object?[] args) => _statusPublisher.PublishResourceFormat(key, args);
+
+    private static string CopyTargetKey(string? target)
+    {
+        return target?.Trim().ToLowerInvariant() switch
+        {
+            "wechat" or "weixin" => VexL.CopyPlatformWechat,
+            "zhihu" => VexL.CopyPlatformZhihu,
+            "juejin" => VexL.CopyPlatformJuejin,
+            _ => VexL.ExportFormatDocument
+        };
+    }
 }

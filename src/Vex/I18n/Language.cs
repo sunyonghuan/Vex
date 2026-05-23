@@ -35,6 +35,9 @@ public static class VexL
     public static readonly string OpenRecent = "Vex.VexL.OpenRecent";
     public static readonly string ClearRecent = "Vex.VexL.ClearRecent";
     public static readonly string ReopenWithEncoding = "Vex.VexL.ReopenWithEncoding";
+    public static readonly string CopyToWechat = "Vex.VexL.CopyToWechat";
+    public static readonly string CopyToZhihu = "Vex.VexL.CopyToZhihu";
+    public static readonly string CopyToJuejin = "Vex.VexL.CopyToJuejin";
     public static readonly string Save = "Vex.VexL.Save";
     public static readonly string SaveAs = "Vex.VexL.SaveAs";
     public static readonly string SaveAll = "Vex.VexL.SaveAll";
@@ -174,6 +177,9 @@ public static class VexL
     public static readonly string FileTypeHtml = "Vex.VexL.FileTypeHtml";
     public static readonly string FileTypePng = "Vex.VexL.FileTypePng";
     public static readonly string ExportFormatDocument = "Vex.VexL.ExportFormatDocument";
+    public static readonly string CopyPlatformWechat = "Vex.VexL.CopyPlatformWechat";
+    public static readonly string CopyPlatformZhihu = "Vex.VexL.CopyPlatformZhihu";
+    public static readonly string CopyPlatformJuejin = "Vex.VexL.CopyPlatformJuejin";
     public static readonly string ErrorTitle = "Vex.VexL.ErrorTitle";
     public static readonly string ErrorDetailLabel = "Vex.VexL.ErrorDetailLabel";
     public static readonly string ErrorMessageFileUnavailable = "Vex.VexL.ErrorMessageFileUnavailable";
@@ -185,6 +191,7 @@ public static class VexL
     public static readonly string ErrorMessageCannotRenameFormat = "Vex.VexL.ErrorMessageCannotRenameFormat";
     public static readonly string ErrorMessageCannotDeleteFormat = "Vex.VexL.ErrorMessageCannotDeleteFormat";
     public static readonly string ErrorMessageCannotExportFormat = "Vex.VexL.ErrorMessageCannotExportFormat";
+    public static readonly string ErrorMessageCannotCopyHtmlFormat = "Vex.VexL.ErrorMessageCannotCopyHtmlFormat";
     public static readonly string ErrorMessageCannotPrintFormat = "Vex.VexL.ErrorMessageCannotPrintFormat";
     public static readonly string ErrorMessageCannotOpenLocationFormat = "Vex.VexL.ErrorMessageCannotOpenLocationFormat";
     public static readonly string ErrorMessageCannotOpenHelpFormat = "Vex.VexL.ErrorMessageCannotOpenHelpFormat";
@@ -231,6 +238,8 @@ public static class VexL
     public static readonly string StatusExportedHtmlToFormat = "Vex.VexL.StatusExportedHtmlToFormat";
     public static readonly string StatusPngExportCanceled = "Vex.VexL.StatusPngExportCanceled";
     public static readonly string StatusExportedPngToFormat = "Vex.VexL.StatusExportedPngToFormat";
+    public static readonly string StatusCopiedHtmlToPlatformFormat = "Vex.VexL.StatusCopiedHtmlToPlatformFormat";
+    public static readonly string StatusCopyHtmlUnavailable = "Vex.VexL.StatusCopyHtmlUnavailable";
     public static readonly string StatusExportNotImplementedFormat = "Vex.VexL.StatusExportNotImplementedFormat";
     public static readonly string StatusPrintPreviewCanceled = "Vex.VexL.StatusPrintPreviewCanceled";
     public static readonly string StatusOpenedHtmlPrintPreview = "Vex.VexL.StatusOpenedHtmlPrintPreview";

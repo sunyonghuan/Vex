@@ -34,6 +34,10 @@
                 <MenuItem Header="Big5" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="Big5" />
             </MenuItem>
             <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.CopyToWechat}}" Command="{Binding CopyHtml}" CommandParameter="wechat" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.CopyToZhihu}}" Command="{Binding CopyHtml}" CommandParameter="zhihu" />
+            <MenuItem Header="{i18n:I18n {x:Static l:VexL.CopyToJuejin}}" Command="{Binding CopyHtml}" CommandParameter="juejin" />
+            <Separator />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Save}}" Command="{Binding SaveAsync}" InputGesture="Ctrl+S" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.SaveAs}}" Command="{Binding SaveAsAsync}" InputGesture="Ctrl+Shift+S" />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.SaveAll}}" Command="{Binding SaveAllAsync}" />

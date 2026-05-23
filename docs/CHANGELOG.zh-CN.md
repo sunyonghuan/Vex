@@ -4,6 +4,8 @@
 
 ### 新增
 
+- ✨[新增]-文件菜单新增复制到公众号、知乎和稀土掘金，可将当前 Markdown 转为 HTML 富文本并写入剪贴板。
+- 🧪[测试]-校验四套 i18n JSON，构建 `Vex.slnx`，执行 `git diff --check`，并截图验证文件菜单新增复制入口。
 - ✨[新增]-导出菜单新增 PNG 导出，可将当前 Markdown 文档渲染为长图。
 - 🔧[优化]-预览同步在当前 MarkdownViewer 包缺少源码行定位 API 时会自动回退到比例滚动。
 - 🧪[测试]-校验四套 i18n JSON，构建 `Vex.slnx`，执行 `git diff --check`，并用临时 Avalonia smoke 程序生成 PNG 验证。

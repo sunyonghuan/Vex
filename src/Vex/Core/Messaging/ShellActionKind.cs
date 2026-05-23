@@ -16,6 +16,7 @@ public enum ShellActionKind
     OpenFileLocation,
     Delete,
     Export,
+    CopyHtml,
     Print,
     CloseDocument,
     ShowFindPanel,

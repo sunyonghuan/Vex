@@ -61,6 +61,19 @@ public sealed class ShellDocumentUtilityActions : IShellDocumentUtilityActions
         _text.PublishExportNotImplemented(format);
     }
 
+    public async Task CopyHtmlAsync(DocumentSnapshot document, string markdown, string? target)
+    {
+        var copied = await _exportService.CopyHtmlAsync(document with { Markdown = markdown }, target);
+        if (copied)
+        {
+            _text.PublishCopiedHtmlToPlatform(target);
+        }
+        else
+        {
+            _text.PublishCopyHtmlUnavailable();
+        }
+    }
+
     public async Task PrintAsync(DocumentSnapshot document, string markdown)
     {
         var path = await _exportService.OpenHtmlPrintPreviewAsync(document with { Markdown = markdown });
