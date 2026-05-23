@@ -31,6 +31,10 @@
                     <SolidColorBrush x:Key="VexStatusBadgeValueBrush" Color="#1D2939" />
                     <SolidColorBrush x:Key="VexLinkBrush" Color="#1677FF" />
                     <SolidColorBrush x:Key="VexOverlayScrimBrush" Color="#66000000" />
+                    <SolidColorBrush x:Key="VexMenuForegroundBrush" Color="#101828" />
+                    <SolidColorBrush x:Key="VexMenuHoverBackgroundBrush" Color="#F2F4F7" />
+                    <SolidColorBrush x:Key="VexMenuCheckedBackgroundBrush" Color="#E8F1FF" />
+                    <SolidColorBrush x:Key="VexMenuCheckedForegroundBrush" Color="#175CD3" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="VexShellBackgroundBrush" Color="#111827" />
@@ -52,6 +56,10 @@
                     <SolidColorBrush x:Key="VexStatusBadgeValueBrush" Color="#F3F4F6" />
                     <SolidColorBrush x:Key="VexLinkBrush" Color="#60A5FA" />
                     <SolidColorBrush x:Key="VexOverlayScrimBrush" Color="#99000000" />
+                    <SolidColorBrush x:Key="VexMenuForegroundBrush" Color="#E5E7EB" />
+                    <SolidColorBrush x:Key="VexMenuHoverBackgroundBrush" Color="#263244" />
+                    <SolidColorBrush x:Key="VexMenuCheckedBackgroundBrush" Color="#1D3A5F" />
+                    <SolidColorBrush x:Key="VexMenuCheckedForegroundBrush" Color="#BFDBFE" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 

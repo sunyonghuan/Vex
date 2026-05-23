@@ -2,6 +2,7 @@
     x:Class="Vex.Modules.Shell.Views.ShellTitleMenuView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Vex.Core.Converters"
     xmlns:core="using:Vex.Core.Messaging"
     xmlns:i18n="https://codewf.com"
     xmlns:l="clr-namespace:Vex"
@@ -9,6 +10,10 @@
     xmlns:vm="using:Vex.Modules.Shell.ViewModels"
     x:DataType="vm:ShellTitleMenuViewModel"
     prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <UserControl.Resources>
+        <converters:StringEqualsConverter x:Key="StringEqualsConverter" />
+    </UserControl.Resources>
 
     <Menu Classes="title-menu" VerticalAlignment="Center">
         <MenuItem x:Name="FileMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuFile}}">
@@ -121,42 +126,42 @@
         <MenuItem x:Name="HelpMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuHelp}}">
             <MenuItem x:Name="ThemeMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuTheme}}">
                 <MenuItem x:Name="ThemeColorMenuItem" Header="{i18n:I18n {x:Static l:VexL.ThemeColor}}">
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeSystem}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="system" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeLight}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="light" />
-                    <MenuItem x:Name="ThemeDarkMenuItem" Header="{i18n:I18n {x:Static l:VexL.ThemeDark}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dark" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeSystem}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="system" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=system}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeLight}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="light" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=light}" ToggleType="Radio" />
+                    <MenuItem x:Name="ThemeDarkMenuItem" Header="{i18n:I18n {x:Static l:VexL.ThemeDark}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dark" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=dark}" ToggleType="Radio" />
                     <Separator />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeAquatic}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="aquatic" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDesert}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="desert" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDusk}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dusk" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeNightSky}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="night-sky" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeAquatic}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="aquatic" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=aquatic}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDesert}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="desert" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=desert}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeDusk}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="dusk" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=dusk}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.ThemeNightSky}}" Command="{Binding Appearance.SelectThemeByKey}" CommandParameter="night-sky" GroupName="ThemeColor" IsChecked="{Binding Appearance.SelectedTheme.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=night-sky}" ToggleType="Radio" />
                 </MenuItem>
                 <MenuItem Header="{i18n:I18n {x:Static l:VexL.Typography}}">
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographySimple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Simple" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyBasic}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Basic" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyOrangeHeart}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="OrangeHeart" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyInkBlack}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="InkBlack" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyColorfulPurple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="ColorfulPurple" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyTenderGreen}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="TenderGreen" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyVerdant}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Verdant" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyRedScarlet}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="RedScarlet" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyBlueGlow}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="BlueGlow" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyTechnologyBlue}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="TechnologyBlue" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyLanQing}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="LanQing" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyYamabuki}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Yamabuki" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyFrontendPeak}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="FrontendPeak" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyGeekBlack}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="GeekBlack" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyRosePurple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="RosePurple" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyCuteGreen}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="CuteGreen" />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyFullStackBlue}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="FullStackBlue" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographySimple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Simple" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Simple}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyBasic}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Basic" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Basic}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyOrangeHeart}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="OrangeHeart" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=OrangeHeart}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyInkBlack}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="InkBlack" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=InkBlack}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyColorfulPurple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="ColorfulPurple" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=ColorfulPurple}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyTenderGreen}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="TenderGreen" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=TenderGreen}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyVerdant}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Verdant" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Verdant}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyRedScarlet}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="RedScarlet" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=RedScarlet}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyBlueGlow}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="BlueGlow" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=BlueGlow}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyTechnologyBlue}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="TechnologyBlue" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=TechnologyBlue}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyLanQing}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="LanQing" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=LanQing}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyYamabuki}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="Yamabuki" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Yamabuki}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyFrontendPeak}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="FrontendPeak" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=FrontendPeak}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyGeekBlack}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="GeekBlack" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=GeekBlack}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyRosePurple}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="RosePurple" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=RosePurple}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyCuteGreen}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="CuteGreen" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=CuteGreen}" ToggleType="Radio" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.TypographyFullStackBlue}}" Command="{Binding Appearance.SelectTypographyByKey}" CommandParameter="FullStackBlue" GroupName="Typography" IsChecked="{Binding Appearance.SelectedTypography.Key, Converter={StaticResource StringEqualsConverter}, ConverterParameter=FullStackBlue}" ToggleType="Radio" />
                     <Separator />
-                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.CompactLayout}}" Command="{Binding Appearance.ToggleCompactLayout}" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:VexL.CompactLayout}}" IsChecked="{Binding Appearance.IsCompactLayout, Mode=TwoWay}" ToggleType="CheckBox" />
                 </MenuItem>
             </MenuItem>
             <MenuItem x:Name="LanguageMenuItem" Header="{i18n:I18n {x:Static l:VexL.MenuLanguage}}">
-                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageZhCn}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-CN" />
-                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageZhHant}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-Hant" />
-                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageEnUs}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="en-US" />
-                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageJaJp}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="ja-JP" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageZhCn}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-CN" GroupName="Language" IsChecked="{Binding Appearance.SelectedLanguage.CultureName, Converter={StaticResource StringEqualsConverter}, ConverterParameter=zh-CN}" ToggleType="Radio" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageZhHant}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="zh-Hant" GroupName="Language" IsChecked="{Binding Appearance.SelectedLanguage.CultureName, Converter={StaticResource StringEqualsConverter}, ConverterParameter=zh-Hant}" ToggleType="Radio" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageEnUs}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="en-US" GroupName="Language" IsChecked="{Binding Appearance.SelectedLanguage.CultureName, Converter={StaticResource StringEqualsConverter}, ConverterParameter=en-US}" ToggleType="Radio" />
+                <MenuItem Header="{i18n:I18n {x:Static l:VexL.LanguageJaJp}}" Command="{Binding Appearance.SelectLanguageByCulture}" CommandParameter="ja-JP" GroupName="Language" IsChecked="{Binding Appearance.SelectedLanguage.CultureName, Converter={StaticResource StringEqualsConverter}, ConverterParameter=ja-JP}" ToggleType="Radio" />
             </MenuItem>
             <Separator />
             <MenuItem Header="{i18n:I18n {x:Static l:VexL.Changelog}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="changelog" />

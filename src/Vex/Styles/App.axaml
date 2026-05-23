@@ -9,10 +9,21 @@
     <Style Selector="Menu.title-menu">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource VexMenuForegroundBrush}" />
+    </Style>
+    <Style Selector="Menu.title-menu MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource VexMenuForegroundBrush}" />
     </Style>
     <Style Selector="Menu.title-menu MenuItem:toplevel">
         <Setter Property="MinHeight" Value="28" />
         <Setter Property="Padding" Value="2 0" />
+    </Style>
+    <Style Selector="Menu.title-menu MenuItem:pointerover">
+        <Setter Property="Background" Value="{DynamicResource VexMenuHoverBackgroundBrush}" />
+    </Style>
+    <Style Selector="Menu.title-menu MenuItem:checked">
+        <Setter Property="Background" Value="{DynamicResource VexMenuCheckedBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource VexMenuCheckedForegroundBrush}" />
     </Style>
     <Style Selector="Border.panel">
         <Setter Property="Background" Value="{DynamicResource VexPanelBackgroundBrush}" />

@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 深色模式菜单细节继续完善：标题菜单新增动态前景、悬停和选中态资源，暗色主题下菜单文本、悬停背景和选中勾选色单独配置；主题色、排版主题和语言菜单改为 Radio 勾选，紧凑布局改为 CheckBox 勾选。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用 XAML 结构 smoke 确认 7 个主题色项、17 个排版主题项、4 个语言项都有 Radio 状态，紧凑布局具备双向绑定的 CheckBox 状态。
 - 新增 Windows MSIX 打包脚本 `scripts/package_vex_msix.ps1`：可从 `publish/<RID>/` 准备 full-trust MSIX 布局，生成 `AppxManifest.xml`，补齐 `Assets\logo.png`，并在 Windows SDK 可用时调用 `makeappx.exe` 打包、可选调用 `signtool.exe` 签名。
 - 验证脚本语法解析、`dotnet build Vex.slnx -v:minimal`，并使用临时 `publish/win-x64` 目录执行 `-PrepareOnly -Force` smoke，解析生成的 `AppxManifest.xml` 确认包身份、`0.1.0.0` 版本、`x64` 架构、`Vex.exe` full-trust 入口、`runFullTrust` 能力、复制的发布文件和 MSIX logo 资产。
 - 帮助文档本地化回退继续细化：`zh-TW`、`zh-HK`、`zh-MO` 等传统中文区域会优先回退 `zh-Hant` 文档，再回退简体中文；简体中文区域仍回退 `zh-CN`。
@@ -115,6 +117,8 @@
 
 ### en-US
 
+- Further refined dark-mode menu details: the title menu now has dynamic foreground, hover, and checked-state resources with separate dark-theme colors; theme, typography, and language menus now show Radio checks, and compact layout shows a CheckBox state.
+- Verified `dotnet build Vex.slnx -v:minimal` and used a XAML structure smoke to confirm 7 theme items, 17 typography items, and 4 language items expose Radio state, while compact layout has a two-way CheckBox state.
 - Added the Windows MSIX packaging script `scripts/package_vex_msix.ps1`: it prepares a full-trust MSIX layout from `publish/<RID>/`, writes `AppxManifest.xml`, ensures `Assets\logo.png` exists, and can call Windows SDK `makeappx.exe` plus optional `signtool.exe` signing.
 - Verified script parsing, `dotnet build Vex.slnx -v:minimal`, and a temporary `publish/win-x64` `-PrepareOnly -Force` smoke; parsed the generated `AppxManifest.xml` to confirm package identity, version `0.1.0.0`, `x64` architecture, the `Vex.exe` full-trust entry point, `runFullTrust`, copied publish files, and the MSIX logo asset.
 - Refined localized help fallback: Traditional Chinese regions such as `zh-TW`, `zh-HK`, and `zh-MO` now prefer `zh-Hant` documents before Simplified Chinese, while Simplified Chinese regions still fall back to `zh-CN`.

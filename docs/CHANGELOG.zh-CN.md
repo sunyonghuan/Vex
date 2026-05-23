@@ -4,6 +4,8 @@
 
 ### 修复
 
+- 🔧[优化]-标题菜单新增暗色主题下的动态前景、悬停和选中态颜色，主题、排版、语言和紧凑布局菜单会显示当前选中状态。
+- 🧪[测试]-构建 `Vex.slnx`，并用 XAML 结构 smoke 验证主题、排版、语言和紧凑布局菜单的勾选状态配置。
 - ✨[新增]-新增 `scripts/package_vex_msix.ps1`，可从 Windows 发布输出准备 full-trust MSIX 布局，并在 Windows SDK 可用时生成 MSIX、可选签名。
 - 🧪[测试]-解析 MSIX 脚本语法，构建 `Vex.slnx`，并用临时 `publish/win-x64` 执行 `-PrepareOnly` smoke，验证 manifest、full-trust 入口、`runFullTrust` 能力、复制文件和 logo 资产。
 - 🔧[优化]-帮助文档在 `zh-TW`、`zh-HK`、`zh-MO` 等传统中文区域优先回退繁体中文文档，再回退简体中文。

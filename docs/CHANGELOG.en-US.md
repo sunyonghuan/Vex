@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Refined title-menu colors for dark mode with dynamic foreground, hover, and checked-state brushes; theme, typography, language, and compact-layout menus now show the current selection.
+- Built `Vex.slnx` and used a XAML structure smoke to verify checked-state configuration for theme, typography, language, and compact-layout menu items.
 - Added `scripts/package_vex_msix.ps1` to prepare a full-trust MSIX layout from Windows publish outputs and, when the Windows SDK is available, package and optionally sign an MSIX.
 - Parsed the MSIX script, built `Vex.slnx`, and ran a temporary `publish/win-x64` `-PrepareOnly` smoke verifying the manifest, full-trust entry point, `runFullTrust`, copied files, and logo asset.
 - Help documents now prefer Traditional Chinese files for `zh-TW`, `zh-HK`, `zh-MO`, and related regions before falling back to Simplified Chinese.
