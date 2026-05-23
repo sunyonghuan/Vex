@@ -4,6 +4,9 @@
 
 ### Fixed
 
+- Added `scripts/package_vex_artifacts.ps1` to package `publish/<RID>/` outputs into release zip archives, SHA256 files, and a release manifest under `artifacts/release/`.
+- Added `publish_vex_all.bat --package` so successful all-RID publishing can generate compressed release artifacts without overwriting existing outputs by default.
+- Built `Vex.slnx`, ran a package smoke against a temporary publish directory, and verified unknown one-command publish arguments print usage and stop.
 - Publish profiles no longer automatically delete existing files under `publish/<RID>/`, avoiding cleanup of unconfirmed publish artifacts.
 - Built `Vex.slnx` and used MSBuild property evaluation to verify win-x64 and linux-x64 publish profile output directories and delete behavior.
 - Missing-help-document error details are now localized instead of showing fixed English internal text.

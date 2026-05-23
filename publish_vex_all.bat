@@ -3,6 +3,16 @@ setlocal
 
 set "ROOT=%~dp0"
 set "PROJECT=%ROOT%src\Vex\Vex.csproj"
+set "PACKAGE_AFTER=false"
+
+if not "%~1"=="" (
+    if /I "%~1"=="--package" (
+        set "PACKAGE_AFTER=true"
+    ) else (
+        echo Usage: publish_vex_all.bat [--package]
+        exit /b 2
+    )
+)
 
 echo Publishing Vex profiles...
 
@@ -13,6 +23,13 @@ call :publish FolderProfile__osx-x64 net10.0 osx-x64 || exit /b 1
 call :publish FolderProfile__osx-arm64 net10.0 osx-arm64 || exit /b 1
 
 echo All Vex publish profiles completed.
+
+if /I "%PACKAGE_AFTER%"=="true" (
+    echo.
+    echo Packaging Vex release artifacts...
+    powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%ROOT%scripts\package_vex_artifacts.ps1" || exit /b 1
+)
+
 exit /b 0
 
 :publish

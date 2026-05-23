@@ -4,6 +4,9 @@
 
 ### zh-CN
 
+- 正式发布产物整理：新增 `scripts/package_vex_artifacts.ps1`，可从 `publish/<RID>/` 生成 `artifacts/release/` 下的 zip、SHA256 和发布 manifest；默认不覆盖已有产物，需显式 `-Force`。
+- 一键发布脚本支持 `publish_vex_all.bat --package`，在五个 RID 发布成功后自动生成压缩包发布产物。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并使用临时 `publish/smoke-rid` 目录执行打包 smoke，确认可生成 zip、SHA256 与 release manifest；批处理未知参数会输出用法并停止。
 - 发布 Profile 安全性调整：公共 Folder Profile 将 `DeleteExistingFiles` 改为 `false`，避免发布流程自动清理用户未确认的 `publish/<RID>/` 目录内容。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并通过 `dotnet msbuild -getProperty` 检查 `FolderProfile__linux-x64` 与 `FolderProfile__win-x64` 的 `DeleteExistingFiles=false` 和 `PublishDir=publish/<RID>/`。
 - 帮助文档缺失详情迁移到 i18n：`OpenDocumentAsync` 与窗口内 Markdown 文档读取失败时使用 `HelpDetailDocumentNotFound`，错误浮层不再显示固定英文详情。
@@ -78,6 +81,9 @@
 
 ### en-US
 
+- Organized formal release artifacts: added `scripts/package_vex_artifacts.ps1` to create zip archives, SHA256 files, and a release manifest under `artifacts/release/` from `publish/<RID>/`; existing outputs are not overwritten unless `-Force` is explicit.
+- Added `publish_vex_all.bat --package` so the one-command publish flow can generate compressed release artifacts after all five RIDs publish successfully.
+- Verified `dotnet build Vex.slnx -v:minimal`, ran a packaging smoke against a temporary `publish/smoke-rid` folder, and confirmed unknown batch arguments print usage and stop.
 - Adjusted publish profile safety: the shared Folder Profile now sets `DeleteExistingFiles` to `false`, so publishing does not automatically clear unconfirmed files under `publish/<RID>/`.
 - Verified `dotnet build Vex.slnx -v:minimal` and used `dotnet msbuild -getProperty` to check `FolderProfile__linux-x64` and `FolderProfile__win-x64` report `DeleteExistingFiles=false` with `PublishDir=publish/<RID>/`.
 - Moved missing-help-document details into i18n: `OpenDocumentAsync` and in-window Markdown document reads now use `HelpDetailDocumentNotFound`, so the error overlay no longer shows fixed English detail text.

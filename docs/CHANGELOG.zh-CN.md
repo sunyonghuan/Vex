@@ -4,6 +4,9 @@
 
 ### 修复
 
+- ✨[新增]-新增 `scripts/package_vex_artifacts.ps1`，可把 `publish/<RID>/` 打包为 `artifacts/release/` 下的 zip、SHA256 和发布 manifest。
+- 🔧[优化]-`publish_vex_all.bat --package` 支持在全部 RID 发布成功后生成压缩包发布产物，且默认不覆盖已有产物。
+- 🧪[测试]-构建 `Vex.slnx`，使用临时发布目录执行打包 smoke，并验证一键发布脚本未知参数会输出用法后停止。
 - 🔧[优化]-发布 Profile 不再自动删除 `publish/<RID>/` 目录中的已有文件，避免清理用户未确认的发布产物。
 - 🧪[测试]-构建 `Vex.slnx`，并用 MSBuild 属性评估验证 win-x64 与 linux-x64 发布 Profile 的输出目录和删除策略。
 - 🐛[修复]-帮助文档缺失时的错误详情改为本地化文案，不再固定显示英文内部消息。
