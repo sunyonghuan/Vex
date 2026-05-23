@@ -52,6 +52,12 @@ public static class VexL
     public static readonly string ExportWord = "Vex.VexL.ExportWord";
     public static readonly string Print = "Vex.VexL.Print";
     public static readonly string Close = "Vex.VexL.Close";
+    public static readonly string PrintPaper = "Vex.VexL.PrintPaper";
+    public static readonly string PrintMargin = "Vex.VexL.PrintMargin";
+    public static readonly string PrintHeaderFooter = "Vex.VexL.PrintHeaderFooter";
+    public static readonly string PrintMarginNormal = "Vex.VexL.PrintMarginNormal";
+    public static readonly string PrintMarginNarrow = "Vex.VexL.PrintMarginNarrow";
+    public static readonly string PrintMarginWide = "Vex.VexL.PrintMarginWide";
     public static readonly string Undo = "Vex.VexL.Undo";
     public static readonly string Redo = "Vex.VexL.Redo";
     public static readonly string Cut = "Vex.VexL.Cut";

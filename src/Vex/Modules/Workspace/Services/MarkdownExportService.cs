@@ -195,6 +195,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var layout = ResolveSocialLayout(target);
         var targetName = WebUtility.HtmlEncode(layout.TargetName);
         var printToolbar = mode == HtmlDocumentMode.PrintPreview ? BuildPrintPreviewToolbar() : string.Empty;
+        var printMetadata = mode == HtmlDocumentMode.PrintPreview ? BuildPrintPreviewMetadata(document) : string.Empty;
         var printStyles = mode == HtmlDocumentMode.PrintPreview ? PrintPreviewStyles : string.Empty;
         var printScript = mode == HtmlDocumentMode.PrintPreview ? PrintPreviewScript : string.Empty;
         var startFragment = includeFragmentMarkers ? "              <!--StartFragment-->" : string.Empty;
@@ -233,6 +234,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             </head>
             <body>
             {{printToolbar}}
+            {{printMetadata}}
             {{startFragment}}
               <article data-vex-copy-target="{{targetName}}" style="max-width: {{layout.MaxWidth}}px; margin: 0 auto; padding: {{layout.PaddingTop}}px {{layout.PaddingX}}px {{layout.PaddingBottom}}px; color: {{style.BodyColor}}; background: {{style.PageBackgroundColor}}; font-family: {{cssBodyFont}}; font-size: {{bodyFontSize}}px; line-height: {{lineHeight}};">
             {{body}}
@@ -274,14 +276,104 @@ public sealed class MarkdownExportService : IMarkdownExportService
 
     private string BuildPrintPreviewToolbar()
     {
+        var paperLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.PrintPaper));
+        var marginLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.PrintMargin));
+        var headerFooterLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.PrintHeaderFooter));
+        var normalMarginLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.PrintMarginNormal));
+        var narrowMarginLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.PrintMarginNarrow));
+        var wideMarginLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.PrintMarginWide));
         var printLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.Print));
         var closeLabel = WebUtility.HtmlEncode(_localizer.Get(VexL.Close));
         return $$"""
               <div class="vex-print-toolbar">
+                <label>
+                  <span>{{paperLabel}}</span>
+                  <select id="vexPrintPaper" onchange="vexApplyPrintSettings()">
+                    <option value="a4" selected>A4</option>
+                    <option value="letter">Letter</option>
+                  </select>
+                </label>
+                <label>
+                  <span>{{marginLabel}}</span>
+                  <select id="vexPrintMargin" onchange="vexApplyPrintSettings()">
+                    <option value="normal" selected>{{normalMarginLabel}}</option>
+                    <option value="narrow">{{narrowMarginLabel}}</option>
+                    <option value="wide">{{wideMarginLabel}}</option>
+                  </select>
+                </label>
+                <label class="vex-print-checkbox">
+                  <input id="vexPrintMetadata" type="checkbox" checked onchange="vexApplyPrintSettings()">
+                  <span>{{headerFooterLabel}}</span>
+                </label>
                 <button type="button" onclick="vexPrint()">{{printLabel}}</button>
                 <button type="button" onclick="vexClose()">{{closeLabel}}</button>
               </div>
             """;
+    }
+
+    private static string BuildPrintPreviewMetadata(DocumentSnapshot document)
+    {
+        var title = WebUtility.HtmlEncode(ResolvePrintTitle(document));
+        var footer = WebUtility.HtmlEncode(ResolvePrintFooter(document));
+        return $$"""
+              <div class="vex-print-page-header">{{title}}</div>
+              <div class="vex-print-page-footer">{{footer}}</div>
+            """;
+    }
+
+    private static string ResolvePrintTitle(DocumentSnapshot document)
+    {
+        return FindFirstMarkdownHeading(document.Markdown)
+               ?? Path.GetFileNameWithoutExtension(document.FileName)
+               ?? document.FileName;
+    }
+
+    private static string ResolvePrintFooter(DocumentSnapshot document)
+    {
+        if (!string.IsNullOrWhiteSpace(document.FilePath))
+        {
+            return document.FilePath;
+        }
+
+        return string.IsNullOrWhiteSpace(document.FileName) ? "Untitled.md" : document.FileName;
+    }
+
+    private static string? FindFirstMarkdownHeading(string? markdown)
+    {
+        if (string.IsNullOrWhiteSpace(markdown))
+        {
+            return null;
+        }
+
+        using var reader = new StringReader(markdown);
+        while (reader.ReadLine() is { } line)
+        {
+            var trimmed = line.TrimStart();
+            var markerCount = CountHeadingMarkers(trimmed);
+            if (markerCount == 0 || markerCount >= trimmed.Length || !char.IsWhiteSpace(trimmed[markerCount]))
+            {
+                continue;
+            }
+
+            var title = trimmed[markerCount..].Trim().TrimEnd('#').Trim();
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                return title;
+            }
+        }
+
+        return null;
+    }
+
+    private static int CountHeadingMarkers(string line)
+    {
+        var count = 0;
+        while (count < line.Length && count < 6 && line[count] == '#')
+        {
+            count++;
+        }
+
+        return count;
     }
 
     private const string PrintPreviewStyles = """
@@ -298,6 +390,26 @@ public sealed class MarkdownExportService : IMarkdownExportService
                   background: rgba(255, 255, 255, .96);
                   backdrop-filter: blur(8px);
                 }
+                .vex-print-toolbar label {
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  color: #374151;
+                  font: 13px/1.2 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                }
+                .vex-print-toolbar select {
+                  min-height: 32px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 6px;
+                  color: #111827;
+                  background: #ffffff;
+                  font: 13px/1.2 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                }
+                .vex-print-checkbox input {
+                  width: 16px;
+                  height: 16px;
+                  margin: 0;
+                }
                 .vex-print-toolbar button {
                   min-width: 88px;
                   min-height: 32px;
@@ -309,12 +421,43 @@ public sealed class MarkdownExportService : IMarkdownExportService
                   cursor: pointer;
                 }
                 .vex-print-toolbar button:hover { background: #f9fafb; }
-                @page { margin: 16mm 18mm; }
+                .vex-print-page-header,
+                .vex-print-page-footer {
+                  display: none;
+                }
+                @page { size: A4 portrait; margin: 16mm 18mm; }
                 @media print {
                   .vex-print-toolbar { display: none !important; }
+                  .vex-print-page-header,
+                  .vex-print-page-footer {
+                    display: block;
+                    position: fixed;
+                    left: 0;
+                    right: 0;
+                    z-index: 10;
+                    color: #6b7280;
+                    background: #ffffff;
+                    font: 9pt/1.3 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                  }
+                  .vex-print-page-header {
+                    top: 0;
+                    padding-bottom: 4mm;
+                    border-bottom: 1px solid #e5e7eb;
+                  }
+                  .vex-print-page-footer {
+                    bottom: 0;
+                    padding-top: 4mm;
+                    border-top: 1px solid #e5e7eb;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                  body.vex-print-metadata-off .vex-print-page-header,
+                  body.vex-print-metadata-off .vex-print-page-footer { display: none !important; }
                   html, body { background: #ffffff; }
                   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                  article { max-width: none !important; padding: 0 !important; }
+                  article { max-width: none !important; padding: 14mm 0 12mm !important; }
+                  body.vex-print-metadata-off article { padding: 0 !important; }
                   h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; }
                   pre, blockquote, table, img { break-inside: avoid; page-break-inside: avoid; }
                   table { page-break-inside: auto; }
@@ -326,9 +469,35 @@ public sealed class MarkdownExportService : IMarkdownExportService
 
     private const string PrintPreviewScript = """
               <script>
+                const vexPrintPapers = {
+                  a4: "A4 portrait",
+                  letter: "Letter portrait"
+                };
+                const vexPrintMargins = {
+                  normal: "16mm 18mm",
+                  narrow: "10mm 12mm",
+                  wide: "24mm 26mm"
+                };
+                function vexApplyPrintSettings() {
+                  const paper = document.getElementById("vexPrintPaper")?.value ?? "a4";
+                  const margin = document.getElementById("vexPrintMargin")?.value ?? "normal";
+                  const metadata = document.getElementById("vexPrintMetadata")?.checked ?? true;
+                  let style = document.getElementById("vex-print-page-style");
+                  if (!style) {
+                    style = document.createElement("style");
+                    style.id = "vex-print-page-style";
+                    document.head.appendChild(style);
+                  }
+
+                  style.textContent = `@page { size: ${vexPrintPapers[paper] ?? vexPrintPapers.a4}; margin: ${vexPrintMargins[margin] ?? vexPrintMargins.normal}; }`;
+                  document.body.classList.toggle("vex-print-metadata-off", !metadata);
+                }
                 function vexPrint() { window.print(); }
                 function vexClose() { window.close(); }
-                window.addEventListener("load", () => window.setTimeout(vexPrint, 250));
+                window.addEventListener("load", () => {
+                  vexApplyPrintSettings();
+                  window.setTimeout(vexPrint, 250);
+                });
               </script>
     """;
 

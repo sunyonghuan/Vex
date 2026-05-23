@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Print preview now supports paper, margin, and header/footer controls, with fixed document-title headers and file footers available during printing.
+- Parsed all four i18n JSON files, built `Vex.slnx`, and used a temporary console smoke covering print-preview HTML paper/margin controls, header/footer nodes, and the dynamic `@page` script.
 - HTML/print, PNG, and image-based PDF exports now read the current Markdown typography theme and compact layout through a shared export style map instead of always using one light style.
 - Built `Vex.slnx` and used a temporary console smoke covering `InkBlack + Small` export HTML background, body color, compact font size, and link color.
 - Markdown line, paragraph, heading, and horizontal-rule statistics now use one character scan, reducing per-line regex overhead in large documents.

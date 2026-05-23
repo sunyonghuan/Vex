@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 打印预览继续成熟化：HTML 预览工具条新增纸张、边距和页眉页脚开关，打印 CSS 动态写入 `@page`，正式打印时可固定显示文档标题页眉和文件页脚。
+- 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 通过，并用临时 console smoke 覆盖打印预览 HTML 的纸张/边距控件、页眉页脚节点和动态 `@page` 脚本。
 - 导出排版主题映射增强：HTML/打印、PNG 与图像型 PDF 共用 `MarkdownExportStyle`，导出时读取当前 Markdown 排版主题和紧凑布局，不再固定使用单一浅色样式。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 反射覆盖 `InkBlack + Small` 导出 HTML 的暗色背景、正文颜色、紧凑字号和链接色。
 - 大文件统计路径继续优化：`MarkdownStatisticsService` 的行数、段落、标题和横线统计合并为单次字符扫描，移除逐行 `StringReader` 与正则匹配。
@@ -109,6 +111,8 @@
 
 ### en-US
 
+- Further matured print preview: the HTML preview toolbar now includes paper, margin, and header/footer controls; print CSS writes a dynamic `@page`, and printed pages can show a fixed document-title header and file footer.
+- Verified all four i18n JSON files, `dotnet build Vex.slnx -v:minimal`, and a temporary console smoke covering print-preview HTML paper/margin controls, header/footer nodes, and the dynamic `@page` script.
 - Improved export typography-theme mapping: HTML/print, PNG, and image-based PDF now share `MarkdownExportStyle`, reading the current Markdown typography theme and compact layout instead of always using one light style.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke to cover `InkBlack + Small` export HTML background, body color, compact font size, and link color.
 - Further optimized large-file statistics: `MarkdownStatisticsService` now counts lines, paragraphs, headings, and horizontal rules in one character scan, removing per-line `StringReader` and regex work.
