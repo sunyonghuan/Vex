@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- HTML/print, PNG, and image-based PDF exports now read the current Markdown typography theme and compact layout through a shared export style map instead of always using one light style.
+- Built `Vex.slnx` and used a temporary console smoke covering `InkBlack + Small` export HTML background, body color, compact font size, and link color.
 - Markdown line, paragraph, heading, and horizontal-rule statistics now use one character scan, reducing per-line regex overhead in large documents.
 - Built `Vex.slnx` and used a temporary console smoke covering CRLF/LF line counts, paragraphs, headings, and horizontal rules.
 - Help documents now fall back to English before Simplified Chinese for unknown non-Chinese cultures.

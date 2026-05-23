@@ -32,19 +32,6 @@ internal sealed class MarkdownPngRenderer
         .UseAdvancedExtensions()
         .Build();
 
-    private static readonly FontFamily BodyFont = new("Inter, Microsoft YaHei UI, Segoe UI");
-    private static readonly FontFamily MonoFont = new("Cascadia Mono, Consolas");
-    private static readonly IBrush PageBrush = Brush("#ffffff");
-    private static readonly IBrush BodyBrush = Brush("#1f2937");
-    private static readonly IBrush HeadingBrush = Brush("#111827");
-    private static readonly IBrush MutedBrush = Brush("#4b5563");
-    private static readonly IBrush BorderBrush = Brush("#e5e7eb");
-    private static readonly IBrush CodeBackgroundBrush = Brush("#111827");
-    private static readonly IBrush CodeForegroundBrush = Brush("#f9fafb");
-    private static readonly IBrush InlineCodeBackgroundBrush = Brush("#f3f4f6");
-    private static readonly IBrush LinkBrush = Brush("#2563eb");
-    private static readonly IBrush TableHeaderBrush = Brush("#f9fafb");
-    private static readonly IBrush QuoteBorderBrush = Brush("#d1d5db");
     private readonly IAppLocalizer _localizer;
 
     public MarkdownPngRenderer(IAppLocalizer localizer)
@@ -52,9 +39,10 @@ internal sealed class MarkdownPngRenderer
         _localizer = localizer;
     }
 
-    public RenderTargetBitmap Render(DocumentSnapshot document)
+    public RenderTargetBitmap Render(DocumentSnapshot document, MarkdownExportStyle? exportStyle = null)
     {
-        var visual = BuildVisual(document, _localizer);
+        var style = exportStyle ?? MarkdownExportStyle.Resolve(null, null);
+        var visual = BuildVisual(document, _localizer, style);
         visual.Measure(new Size(PageWidth, double.PositiveInfinity));
 
         var width = (int)Math.Ceiling(PageWidth);
@@ -66,7 +54,7 @@ internal sealed class MarkdownPngRenderer
         return bitmap;
     }
 
-    private static Border BuildVisual(DocumentSnapshot document, IAppLocalizer localizer)
+    private static Border BuildVisual(DocumentSnapshot document, IAppLocalizer localizer, MarkdownExportStyle style)
     {
         var stack = new StackPanel
         {
@@ -77,117 +65,117 @@ internal sealed class MarkdownPngRenderer
         var parsed = Markdown.Parse(document.Markdown ?? string.Empty, Pipeline);
         foreach (var block in parsed)
         {
-            AddBlock(stack, block, document.FilePath, localizer, 0);
+            AddBlock(stack, block, document.FilePath, localizer, 0, style);
         }
 
         if (stack.Children.Count == 0)
         {
-            stack.Children.Add(CreateParagraphTextBlock(string.Empty));
+            stack.Children.Add(CreateParagraphTextBlock(string.Empty, style));
         }
 
         return new Border
         {
             Width = PageWidth,
-            Background = PageBrush,
+            Background = Brush(style.PageBackgroundColor),
             Padding = new Thickness(PagePaddingX, PagePaddingTop, PagePaddingX, PagePaddingBottom),
             Child = stack
         };
     }
 
-    private static void AddBlock(Panel parent, Block block, string? documentPath, IAppLocalizer localizer, int depth)
+    private static void AddBlock(Panel parent, Block block, string? documentPath, IAppLocalizer localizer, int depth, MarkdownExportStyle style)
     {
         switch (block)
         {
             case HeadingBlock heading:
-                parent.Children.Add(CreateHeading(heading));
+                parent.Children.Add(CreateHeading(heading, style));
                 break;
             case ParagraphBlock paragraph when TryCreateImage(paragraph, documentPath, localizer, out var image):
                 parent.Children.Add(image);
                 break;
             case ParagraphBlock paragraph:
-                parent.Children.Add(CreateParagraph(paragraph, depth));
+                parent.Children.Add(CreateParagraph(paragraph, depth, style));
                 break;
             case CodeBlock codeBlock:
-                parent.Children.Add(CreateCodeBlock(codeBlock));
+                parent.Children.Add(CreateCodeBlock(codeBlock, style));
                 break;
             case QuoteBlock quote:
-                parent.Children.Add(CreateQuoteBlock(quote, documentPath, localizer, depth));
+                parent.Children.Add(CreateQuoteBlock(quote, documentPath, localizer, depth, style));
                 break;
             case ListBlock list:
-                parent.Children.Add(CreateListBlock(list, documentPath, localizer, depth));
+                parent.Children.Add(CreateListBlock(list, documentPath, localizer, depth, style));
                 break;
             case ThematicBreakBlock:
-                parent.Children.Add(CreateThematicBreak());
+                parent.Children.Add(CreateThematicBreak(style));
                 break;
             case Table table:
-                parent.Children.Add(CreateTable(table));
+                parent.Children.Add(CreateTable(table, style));
                 break;
             case HtmlBlock html:
-                parent.Children.Add(CreateCodeBlock(html));
+                parent.Children.Add(CreateCodeBlock(html, style));
                 break;
             case ContainerBlock container:
                 foreach (var child in container)
                 {
-                    AddBlock(parent, child, documentPath, localizer, depth);
+                    AddBlock(parent, child, documentPath, localizer, depth, style);
                 }
 
                 break;
         }
     }
 
-    private static TextBlock CreateHeading(HeadingBlock heading)
+    private static TextBlock CreateHeading(HeadingBlock heading, MarkdownExportStyle style)
     {
         var fontSize = heading.Level switch
         {
-            1 => 32,
-            2 => 26,
-            3 => 22,
-            4 => 19,
-            5 => 17,
-            _ => 16
+            1 => style.Heading1FontSize,
+            2 => style.Heading2FontSize,
+            3 => style.Heading3FontSize,
+            4 => style.Heading4FontSize,
+            5 => style.Heading5FontSize,
+            _ => style.Heading6FontSize
         };
 
-        var textBlock = CreateTextBlock(fontSize, HeadingBrush, FontWeight.SemiBold, new Thickness(0, heading.Level == 1 ? 0 : 18, 0, 10));
-        AppendInlines(textBlock.Inlines!, heading.Inline);
+        var textBlock = CreateTextBlock(fontSize, Brush(style.HeadingColor), FontWeight.SemiBold, new Thickness(0, heading.Level == 1 ? 0 : 18, 0, 10), style);
+        AppendInlines(textBlock.Inlines!, heading.Inline, style);
         return textBlock;
     }
 
-    private static TextBlock CreateParagraph(ParagraphBlock paragraph, int depth)
+    private static TextBlock CreateParagraph(ParagraphBlock paragraph, int depth, MarkdownExportStyle style)
     {
         var margin = new Thickness(0, 0, 0, depth == 0 ? 14 : 8);
-        var textBlock = CreateTextBlock(15, depth == 0 ? BodyBrush : MutedBrush, FontWeight.Normal, margin);
-        AppendInlines(textBlock.Inlines!, paragraph.Inline);
+        var textBlock = CreateTextBlock(style.BodyFontSize, depth == 0 ? Brush(style.BodyColor) : Brush(style.MutedColor), FontWeight.Normal, margin, style);
+        AppendInlines(textBlock.Inlines!, paragraph.Inline, style);
         return textBlock;
     }
 
-    private static TextBlock CreateParagraphTextBlock(string text)
+    private static TextBlock CreateParagraphTextBlock(string text, MarkdownExportStyle style)
     {
-        var textBlock = CreateTextBlock(15, BodyBrush, FontWeight.Normal, new Thickness(0, 0, 0, 14));
+        var textBlock = CreateTextBlock(style.BodyFontSize, Brush(style.BodyColor), FontWeight.Normal, new Thickness(0, 0, 0, 14), style);
         textBlock.Text = text;
         return textBlock;
     }
 
-    private static Border CreateCodeBlock(LeafBlock codeBlock)
+    private static Border CreateCodeBlock(LeafBlock codeBlock, MarkdownExportStyle style)
     {
         return new Border
         {
-            Background = CodeBackgroundBrush,
+            Background = Brush(style.CodeBackgroundColor),
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(16),
             Margin = new Thickness(0, 4, 0, 18),
             Child = new TextBlock
             {
                 Text = codeBlock.Lines.ToString(),
-                FontFamily = MonoFont,
-                FontSize = 13,
-                Foreground = CodeForegroundBrush,
+                FontFamily = new FontFamily(style.MonoFontFamily),
+                FontSize = style.CodeFontSize,
+                Foreground = Brush(style.CodeForegroundColor),
                 TextWrapping = TextWrapping.Wrap,
-                LineHeight = 21
+                LineHeight = style.CodeFontSize * 1.62
             }
         };
     }
 
-    private static Border CreateQuoteBlock(QuoteBlock quote, string? documentPath, IAppLocalizer localizer, int depth)
+    private static Border CreateQuoteBlock(QuoteBlock quote, string? documentPath, IAppLocalizer localizer, int depth, MarkdownExportStyle style)
     {
         var stack = new StackPanel
         {
@@ -196,12 +184,12 @@ internal sealed class MarkdownPngRenderer
 
         foreach (var child in quote)
         {
-            AddBlock(stack, child, documentPath, localizer, depth + 1);
+            AddBlock(stack, child, documentPath, localizer, depth + 1, style);
         }
 
         return new Border
         {
-            BorderBrush = QuoteBorderBrush,
+            BorderBrush = Brush(style.QuoteBorderColor),
             BorderThickness = new Thickness(4, 0, 0, 0),
             Padding = new Thickness(14, 0, 0, 0),
             Margin = new Thickness(0, 4, 0, 18),
@@ -209,7 +197,7 @@ internal sealed class MarkdownPngRenderer
         };
     }
 
-    private static StackPanel CreateListBlock(ListBlock list, string? documentPath, IAppLocalizer localizer, int depth)
+    private static StackPanel CreateListBlock(ListBlock list, string? documentPath, IAppLocalizer localizer, int depth, MarkdownExportStyle style)
     {
         var stack = new StackPanel
         {
@@ -221,13 +209,13 @@ internal sealed class MarkdownPngRenderer
         foreach (var child in list.OfType<ListItemBlock>())
         {
             var marker = list.IsOrdered ? $"{index++}." : "-";
-            stack.Children.Add(CreateListItem(marker, child, documentPath, localizer, depth));
+            stack.Children.Add(CreateListItem(marker, child, documentPath, localizer, depth, style));
         }
 
         return stack;
     }
 
-    private static Grid CreateListItem(string marker, ListItemBlock item, string? documentPath, IAppLocalizer localizer, int depth)
+    private static Grid CreateListItem(string marker, ListItemBlock item, string? documentPath, IAppLocalizer localizer, int depth, MarkdownExportStyle style)
     {
         var grid = new Grid
         {
@@ -238,7 +226,7 @@ internal sealed class MarkdownPngRenderer
             }
         };
 
-        var markerBlock = CreateTextBlock(15, MutedBrush, FontWeight.Normal, new Thickness(0, 0, 10, 0));
+        var markerBlock = CreateTextBlock(style.BodyFontSize, Brush(style.MutedColor), FontWeight.Normal, new Thickness(0, 0, 10, 0), style);
         markerBlock.Text = marker;
         Grid.SetColumn(markerBlock, 0);
         grid.Children.Add(markerBlock);
@@ -246,7 +234,7 @@ internal sealed class MarkdownPngRenderer
         var content = new StackPanel { Spacing = 0 };
         foreach (var child in item)
         {
-            AddBlock(content, child, documentPath, localizer, depth + 1);
+            AddBlock(content, child, documentPath, localizer, depth + 1, style);
         }
 
         Grid.SetColumn(content, 1);
@@ -254,17 +242,17 @@ internal sealed class MarkdownPngRenderer
         return grid;
     }
 
-    private static Border CreateThematicBreak()
+    private static Border CreateThematicBreak(MarkdownExportStyle style)
     {
         return new Border
         {
             Height = 1,
-            Background = BorderBrush,
+            Background = Brush(style.BorderColor),
             Margin = new Thickness(0, 10, 0, 24)
         };
     }
 
-    private static Grid CreateTable(Table table)
+    private static Grid CreateTable(Table table, MarkdownExportStyle style)
     {
         var rows = table.OfType<TableRow>().ToList();
         var columnCount = Math.Max(1, rows.Select(row => row.OfType<TableCell>().Count()).DefaultIfEmpty(1).Max());
@@ -286,7 +274,7 @@ internal sealed class MarkdownPngRenderer
             for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
             {
                 var cell = columnIndex < cells.Count ? cells[columnIndex] : null;
-                var border = CreateTableCell(cell, rows[rowIndex].IsHeader);
+                var border = CreateTableCell(cell, rows[rowIndex].IsHeader, style);
                 Grid.SetRow(border, rowIndex);
                 Grid.SetColumn(border, columnIndex);
                 grid.Children.Add(border);
@@ -296,37 +284,37 @@ internal sealed class MarkdownPngRenderer
         return grid;
     }
 
-    private static Border CreateTableCell(TableCell? cell, bool isHeader)
+    private static Border CreateTableCell(TableCell? cell, bool isHeader, MarkdownExportStyle style)
     {
-        var textBlock = CreateTextBlock(14, BodyBrush, isHeader ? FontWeight.SemiBold : FontWeight.Normal, new Thickness());
+        var textBlock = CreateTextBlock(style.TableFontSize, Brush(style.BodyColor), isHeader ? FontWeight.SemiBold : FontWeight.Normal, new Thickness(), style);
         textBlock.Text = cell is null ? string.Empty : GetTableCellText(cell);
 
         return new Border
         {
-            Background = isHeader ? TableHeaderBrush : PageBrush,
-            BorderBrush = BorderBrush,
+            Background = isHeader ? Brush(style.TableHeaderBackgroundColor) : Brush(style.PageBackgroundColor),
+            BorderBrush = Brush(style.BorderColor),
             BorderThickness = new Thickness(1, 1, 0, 0),
             Padding = new Thickness(8, 7),
             Child = textBlock
         };
     }
 
-    private static TextBlock CreateTextBlock(double fontSize, IBrush foreground, FontWeight fontWeight, Thickness margin)
+    private static TextBlock CreateTextBlock(double fontSize, IBrush foreground, FontWeight fontWeight, Thickness margin, MarkdownExportStyle style)
     {
         return new TextBlock
         {
-            FontFamily = BodyFont,
+            FontFamily = new FontFamily(style.BodyFontFamily),
             FontSize = fontSize,
             FontWeight = fontWeight,
             Foreground = foreground,
             TextWrapping = TextWrapping.Wrap,
-            LineHeight = fontSize * 1.55,
+            LineHeight = fontSize * style.LineHeightRatio,
             Margin = margin,
             Inlines = new InlineCollection()
         };
     }
 
-    private static void AppendInlines(InlineCollection collection, ContainerInline? container)
+    private static void AppendInlines(InlineCollection collection, ContainerInline? container, MarkdownExportStyle style)
     {
         if (container is null)
         {
@@ -335,11 +323,11 @@ internal sealed class MarkdownPngRenderer
 
         foreach (var inline in container)
         {
-            AppendInline(collection, inline);
+            AppendInline(collection, inline, style);
         }
     }
 
-    private static void AppendInline(InlineCollection collection, MarkdigInline inline)
+    private static void AppendInline(InlineCollection collection, MarkdigInline inline, MarkdownExportStyle style)
     {
         switch (inline)
         {
@@ -349,26 +337,27 @@ internal sealed class MarkdownPngRenderer
             case CodeInline code:
                 collection.Add(new Run(code.Content)
                 {
-                    FontFamily = MonoFont,
-                    Background = InlineCodeBackgroundBrush
+                    FontFamily = new FontFamily(style.MonoFontFamily),
+                    Background = Brush(style.InlineCodeBackgroundColor),
+                    Foreground = Brush(style.InlineCodeForegroundColor)
                 });
                 break;
             case LineBreakInline:
                 collection.Add(new LineBreak());
                 break;
             case EmphasisInline emphasis:
-                collection.Add(CreateEmphasisSpan(emphasis));
+                collection.Add(CreateEmphasisSpan(emphasis, style));
                 break;
             case LinkInline link:
-                collection.Add(CreateLinkSpan(link));
+                collection.Add(CreateLinkSpan(link, style));
                 break;
             case ContainerInline container:
-                AppendInlines(collection, container);
+                AppendInlines(collection, container, style);
                 break;
         }
     }
 
-    private static Span CreateEmphasisSpan(EmphasisInline emphasis)
+    private static Span CreateEmphasisSpan(EmphasisInline emphasis, MarkdownExportStyle style)
     {
         var span = new Span();
         if (emphasis.DelimiterChar == '~')
@@ -386,17 +375,17 @@ internal sealed class MarkdownPngRenderer
 
         foreach (var child in emphasis)
         {
-            AppendInline(span.Inlines, child);
+            AppendInline(span.Inlines, child, style);
         }
 
         return span;
     }
 
-    private static Span CreateLinkSpan(LinkInline link)
+    private static Span CreateLinkSpan(LinkInline link, MarkdownExportStyle style)
     {
         var span = new Span
         {
-            Foreground = LinkBrush,
+            Foreground = Brush(style.LinkColor),
             TextDecorations = TextDecorations.Underline
         };
 
@@ -408,7 +397,7 @@ internal sealed class MarkdownPngRenderer
 
         foreach (var child in link)
         {
-            AppendInline(span.Inlines, child);
+            AppendInline(span.Inlines, child, style);
         }
 
         if (span.Inlines.Count == 0 && !string.IsNullOrWhiteSpace(link.Url))

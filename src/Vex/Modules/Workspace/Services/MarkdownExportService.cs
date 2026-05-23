@@ -24,13 +24,15 @@ public sealed class MarkdownExportService : IMarkdownExportService
     private static readonly DataFormat<string> HtmlMimeFormat = DataFormat.CreateStringPlatformFormat("text/html");
     private static readonly DataFormat<string> MacHtmlFormat = DataFormat.CreateStringPlatformFormat("public.html");
     private static readonly DataFormat<string> WindowsHtmlFormat = DataFormat.CreateStringPlatformFormat("HTML Format");
+    private readonly IEditorAppearanceState _appearanceState;
     private readonly IAppLocalizer _localizer;
     private readonly MarkdownPdfRenderer _pdfRenderer;
     private readonly MarkdownPngRenderer _pngRenderer;
 
-    public MarkdownExportService(IAppLocalizer localizer)
+    public MarkdownExportService(IAppLocalizer localizer, IEditorAppearanceState appearanceState)
     {
         _localizer = localizer;
+        _appearanceState = appearanceState;
         _pdfRenderer = new MarkdownPdfRenderer(localizer);
         _pngRenderer = new MarkdownPngRenderer(localizer);
     }
@@ -83,7 +85,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return null;
         }
 
-        _pdfRenderer.Render(document, path);
+        _pdfRenderer.Render(document, path, ResolveExportStyle());
         return path;
     }
 
@@ -109,7 +111,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return null;
         }
 
-        using var bitmap = _pngRenderer.Render(document);
+        using var bitmap = _pngRenderer.Render(document, ResolveExportStyle());
         bitmap.Save(path);
         return path;
     }
@@ -185,6 +187,11 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var title = WebUtility.HtmlEncode(Path.GetFileNameWithoutExtension(document.FileName));
         var body = RenderMarkdownHtml(document);
         var language = WebUtility.HtmlEncode(_localizer.Culture.Name);
+        var style = ResolveExportStyle();
+        var cssBodyFont = FormatCssFontFamily(style.BodyFontFamily);
+        var cssMonoFont = FormatCssFontFamily(style.MonoFontFamily);
+        var bodyFontSize = FormatCssNumber(style.BodyFontSize);
+        var lineHeight = FormatCssNumber(style.LineHeightRatio + 0.17d);
         var layout = ResolveSocialLayout(target);
         var targetName = WebUtility.HtmlEncode(layout.TargetName);
         var printToolbar = mode == HtmlDocumentMode.PrintPreview ? BuildPrintPreviewToolbar() : string.Empty;
@@ -201,19 +208,24 @@ public sealed class MarkdownExportService : IMarkdownExportService
               <meta name="vex-copy-target" content="{{targetName}}">
               <title>{{title}}</title>
               <style>
-                body { margin: 0; color: #1f2937; background: #ffffff; font-family: "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif; line-height: 1.72; }
+                body { margin: 0; color: {{style.BodyColor}}; background: {{style.PageBackgroundColor}}; font-family: {{cssBodyFont}}; font-size: {{bodyFontSize}}px; line-height: {{lineHeight}}; }
                 article { max-width: {{layout.MaxWidth}}px; margin: 0 auto; padding: {{layout.PaddingTop}}px {{layout.PaddingX}}px {{layout.PaddingBottom}}px; }
-                h1, h2, h3, h4, h5, h6 { color: #111827; line-height: 1.28; margin: 1.35em 0 .55em; }
-                h1 { font-size: 2.1rem; }
-                h2 { font-size: 1.65rem; border-bottom: 1px solid #e5e7eb; padding-bottom: .25em; }
+                h1, h2, h3, h4, h5, h6 { color: {{style.HeadingColor}}; line-height: 1.28; margin: 1.35em 0 .55em; }
+                h1 { font-size: {{FormatCssNumber(style.Heading1FontSize)}}px; }
+                h2 { font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; border-bottom: 1px solid {{style.BorderColor}}; padding-bottom: .25em; }
+                h3 { font-size: {{FormatCssNumber(style.Heading3FontSize)}}px; }
+                h4 { font-size: {{FormatCssNumber(style.Heading4FontSize)}}px; }
+                h5 { font-size: {{FormatCssNumber(style.Heading5FontSize)}}px; }
+                h6 { font-size: {{FormatCssNumber(style.Heading6FontSize)}}px; }
                 p, ul, ol, blockquote, pre, table { margin: 0 0 1em; }
-                code { background: #f3f4f6; border-radius: 4px; padding: .12em .32em; font-family: "Cascadia Mono", Consolas, monospace; }
-                pre { overflow: auto; background: #111827; color: #f9fafb; border-radius: 8px; padding: 16px; }
+                code { background: {{style.InlineCodeBackgroundColor}}; color: {{style.InlineCodeForegroundColor}}; border-radius: 4px; padding: .12em .32em; font-family: {{cssMonoFont}}; font-size: {{FormatCssNumber(style.CodeFontSize)}}px; }
+                pre { overflow: auto; background: {{style.CodeBackgroundColor}}; color: {{style.CodeForegroundColor}}; border-radius: 8px; padding: 16px; }
                 pre code { background: transparent; color: inherit; padding: 0; }
-                blockquote { border-left: 4px solid #d1d5db; color: #4b5563; padding-left: 16px; }
+                blockquote { border-left: 4px solid {{style.QuoteBorderColor}}; color: {{style.MutedColor}}; padding-left: 16px; }
                 table { border-collapse: collapse; width: 100%; }
-                th, td { border: 1px solid #e5e7eb; padding: 8px 10px; }
-                th { background: #f9fafb; }
+                th, td { border: 1px solid {{style.BorderColor}}; padding: 8px 10px; }
+                th { background: {{style.TableHeaderBackgroundColor}}; }
+                a { color: {{style.LinkColor}}; }
                 img { max-width: 100%; }
                 {{printStyles}}
               </style>
@@ -222,13 +234,42 @@ public sealed class MarkdownExportService : IMarkdownExportService
             <body>
             {{printToolbar}}
             {{startFragment}}
-              <article data-vex-copy-target="{{targetName}}" style="max-width: {{layout.MaxWidth}}px; margin: 0 auto; padding: {{layout.PaddingTop}}px {{layout.PaddingX}}px {{layout.PaddingBottom}}px; color: #1f2937; background: #ffffff; font-family: Inter, 'Microsoft YaHei UI', 'Segoe UI', sans-serif; line-height: 1.72;">
+              <article data-vex-copy-target="{{targetName}}" style="max-width: {{layout.MaxWidth}}px; margin: 0 auto; padding: {{layout.PaddingTop}}px {{layout.PaddingX}}px {{layout.PaddingBottom}}px; color: {{style.BodyColor}}; background: {{style.PageBackgroundColor}}; font-family: {{cssBodyFont}}; font-size: {{bodyFontSize}}px; line-height: {{lineHeight}};">
             {{body}}
               </article>
             {{endFragment}}
             </body>
             </html>
             """;
+    }
+
+    private MarkdownExportStyle ResolveExportStyle()
+    {
+        return MarkdownExportStyle.Resolve(_appearanceState.TypographyTheme, _appearanceState.TypographySize);
+    }
+
+    private static string FormatCssNumber(double value)
+    {
+        return value.ToString("0.##", CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatCssFontFamily(string fontFamily)
+    {
+        var families = fontFamily.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(FormatCssFontName);
+        return string.Join(", ", families);
+    }
+
+    private static string FormatCssFontName(string fontName)
+    {
+        if (fontName.Contains('\'') || fontName.Contains('"'))
+        {
+            return fontName;
+        }
+
+        return fontName.Any(char.IsWhiteSpace)
+            ? $"\"{fontName}\""
+            : fontName;
     }
 
     private string BuildPrintPreviewToolbar()

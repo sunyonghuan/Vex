@@ -34,9 +34,9 @@ internal sealed class MarkdownPdfRenderer
         _pngRenderer = new MarkdownPngRenderer(localizer);
     }
 
-    public void Render(DocumentSnapshot document, string path)
+    public void Render(DocumentSnapshot document, string path, MarkdownExportStyle? exportStyle = null)
     {
-        using var rendered = _pngRenderer.Render(document);
+        using var rendered = _pngRenderer.Render(document, exportStyle);
         using var bitmap = DecodeRenderedBitmap(rendered);
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)) ?? ".");
 

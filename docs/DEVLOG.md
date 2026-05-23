@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 导出排版主题映射增强：HTML/打印、PNG 与图像型 PDF 共用 `MarkdownExportStyle`，导出时读取当前 Markdown 排版主题和紧凑布局，不再固定使用单一浅色样式。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 反射覆盖 `InkBlack + Small` 导出 HTML 的暗色背景、正文颜色、紧凑字号和链接色。
 - 大文件统计路径继续优化：`MarkdownStatisticsService` 的行数、段落、标题和横线统计合并为单次字符扫描，移除逐行 `StringReader` 与正则匹配。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖 CRLF/LF 行数、段落、标题和横线统计。
 - 帮助文档本地化回退优化：未知或暂未提供文档的非中文语言会优先回退 `en-US` 文档，再回退 `zh-CN`；中文语言仍优先回退简体中文。
@@ -107,6 +109,8 @@
 
 ### en-US
 
+- Improved export typography-theme mapping: HTML/print, PNG, and image-based PDF now share `MarkdownExportStyle`, reading the current Markdown typography theme and compact layout instead of always using one light style.
+- Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke to cover `InkBlack + Small` export HTML background, body color, compact font size, and link color.
 - Further optimized large-file statistics: `MarkdownStatisticsService` now counts lines, paragraphs, headings, and horizontal rules in one character scan, removing per-line `StringReader` and regex work.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering CRLF/LF line counts, paragraphs, headings, and horizontal rules.
 - Improved localized help fallback: unknown or not-yet-bundled non-Chinese cultures now fall back to `en-US` documents before `zh-CN`, while Chinese cultures still fall back to Simplified Chinese first.
