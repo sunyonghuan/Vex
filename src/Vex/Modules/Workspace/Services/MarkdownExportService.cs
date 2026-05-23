@@ -91,7 +91,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return false;
         }
 
-        var html = BuildHtml(document, target, includeFragmentMarkers: true);
+        var html = BuildHtml(document, HtmlDocumentMode.Export, target, includeFragmentMarkers: true);
         var transfer = CreateHtmlClipboardData(document.Markdown ?? string.Empty, html);
         await clipboard.SetDataAsync(transfer);
         return true;
@@ -102,18 +102,24 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var folder = Path.Combine(Path.GetTempPath(), "Vex", "PrintPreview");
         Directory.CreateDirectory(folder);
         var path = Path.Combine(folder, $"{Path.GetFileNameWithoutExtension(document.FileName)}-{Guid.NewGuid():N}.html");
-        await File.WriteAllTextAsync(path, BuildHtml(document), Utf8NoBom);
+        await File.WriteAllTextAsync(path, BuildHtml(document, HtmlDocumentMode.PrintPreview), Utf8NoBom);
         Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
         return path;
     }
 
-    private string BuildHtml(DocumentSnapshot document, string? target = null, bool includeFragmentMarkers = false)
+    private string BuildHtml(
+        DocumentSnapshot document,
+        HtmlDocumentMode mode = HtmlDocumentMode.Export,
+        string? target = null,
+        bool includeFragmentMarkers = false)
     {
         var title = WebUtility.HtmlEncode(Path.GetFileNameWithoutExtension(document.FileName));
         var body = Markdig.Markdown.ToHtml(document.Markdown ?? string.Empty, Pipeline);
         var language = WebUtility.HtmlEncode(_localizer.Culture.Name);
         var layout = ResolveSocialLayout(target);
         var targetName = WebUtility.HtmlEncode(layout.TargetName);
+        var printStyles = mode == HtmlDocumentMode.PrintPreview ? PrintPreviewStyles : string.Empty;
+        var printScript = mode == HtmlDocumentMode.PrintPreview ? PrintPreviewScript : string.Empty;
         var startFragment = includeFragmentMarkers ? "              <!--StartFragment-->" : string.Empty;
         var endFragment = includeFragmentMarkers ? "              <!--EndFragment-->" : string.Empty;
         return $$"""
@@ -139,7 +145,9 @@ public sealed class MarkdownExportService : IMarkdownExportService
                 th, td { border: 1px solid #e5e7eb; padding: 8px 10px; }
                 th { background: #f9fafb; }
                 img { max-width: 100%; }
+                {{printStyles}}
               </style>
+              {{printScript}}
             </head>
             <body>
             {{startFragment}}
@@ -151,6 +159,27 @@ public sealed class MarkdownExportService : IMarkdownExportService
             </html>
             """;
     }
+
+    private const string PrintPreviewStyles = """
+                @page { margin: 16mm 18mm; }
+                @media print {
+                  html, body { background: #ffffff; }
+                  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                  article { max-width: none !important; padding: 0 !important; }
+                  h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; }
+                  pre, blockquote, table, img { break-inside: avoid; page-break-inside: avoid; }
+                  table { page-break-inside: auto; }
+                  thead { display: table-header-group; }
+                  tr { break-inside: avoid; page-break-inside: avoid; }
+                  a { color: #111827; text-decoration: underline; }
+                }
+    """;
+
+    private const string PrintPreviewScript = """
+              <script>
+                window.addEventListener("load", () => window.setTimeout(() => window.print(), 250));
+              </script>
+    """;
 
     private static DataTransfer CreateHtmlClipboardData(string text, string html)
     {
@@ -199,6 +228,12 @@ public sealed class MarkdownExportService : IMarkdownExportService
     }
 
     private sealed record SocialCopyLayout(string TargetName, int MaxWidth, int PaddingTop, int PaddingX, int PaddingBottom);
+
+    private enum HtmlDocumentMode
+    {
+        Export,
+        PrintPreview
+    }
 
     private IReadOnlyList<FilePickerFileType> CreateHtmlFileTypes()
     {

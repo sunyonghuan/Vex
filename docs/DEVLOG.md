@@ -13,6 +13,8 @@
 - 新增 `HasSeenOnboardingGuide` 设置项，避免首次引导重复打扰用户。
 - 验证四套 i18n JSON 可解析，使用 NuGet 官方源执行还原，`dotnet build Vex.slnx -v:minimal` 和 `git diff --check` 通过，完成 NuGet 漏洞扫描，并截图确认引导首屏、文件菜单展开、大纲步骤和英文引导首屏不溢出。截图路径：`%TEMP%\VexScreenshots\onboarding-guide-start-fixed.png`、`%TEMP%\VexScreenshots\onboarding-guide-file-menu-final.png`、`%TEMP%\VexScreenshots\onboarding-guide-outline-step.png`、`%TEMP%\VexScreenshots\onboarding-guide-start-en-us.png`。
 - 新增 CodeWF 自研控件包依赖；NuGet 包元数据声明 MIT 许可证，源码仓库可追溯。
+- 优化 HTML 打印预览：打印入口生成独立打印模式 HTML，加入 `@page`、`@media print`、断页保护和页面加载后的 `window.print()` 调用；普通 HTML 导出与自媒体复制仍使用原有文档模式。
+- 本轮打印优化未新增第三方依赖；验证 `dotnet build Vex.slnx -v:minimal`、`git diff --check`，并检查生成逻辑包含打印样式与自动打印脚本。
 
 ### en-US
 
@@ -25,6 +27,8 @@
 - Added `HasSeenOnboardingGuide` to user settings so the first-run guide is not repeated.
 - Verified all four i18n JSON files, restored from nuget.org, built `Vex.slnx -v:minimal`, ran `git diff --check`, completed NuGet vulnerability scanning, and screenshot-verified the guide start step, expanded File-menu step, Outline step, and English guide start step. Screenshot paths: `%TEMP%\VexScreenshots\onboarding-guide-start-fixed.png`, `%TEMP%\VexScreenshots\onboarding-guide-file-menu-final.png`, `%TEMP%\VexScreenshots\onboarding-guide-outline-step.png`, `%TEMP%\VexScreenshots\onboarding-guide-start-en-us.png`.
 - Added CodeWF first-party control package dependencies; NuGet package metadata declares MIT licensing and the source repository is traceable.
+- Improved HTML print preview: the print action now writes dedicated print-mode HTML with `@page`, `@media print`, page-break protection, and a load-time `window.print()` call; normal HTML export and social-copy HTML keep the existing document mode.
+- This print improvement adds no third-party dependency; verified `dotnet build Vex.slnx -v:minimal`, `git diff --check`, and checked the generated path logic for print styles plus the auto-print script.
 
 ## 0.1.0 - 2026-05-22
 
