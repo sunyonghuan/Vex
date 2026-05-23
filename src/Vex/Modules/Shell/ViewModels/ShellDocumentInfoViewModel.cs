@@ -75,11 +75,24 @@ public sealed class ShellDocumentInfoViewModel : ReactiveObject
         string lastSavedMarkdown,
         MarkdownStatistics statistics)
     {
-        // 刷新时一次性广播所有派生属性，避免调用方遗漏标题、属性面板或状态栏字段。
+        RefreshState(document, markdown, lastSavedMarkdown);
+        Statistics = statistics;
+    }
+
+    public void RefreshState(
+        DocumentSnapshot document,
+        string markdown,
+        string lastSavedMarkdown)
+    {
         _document = document;
         _markdown = markdown;
         _lastSavedMarkdown = lastSavedMarkdown;
-        Statistics = statistics;
+        RaiseDocumentStateChanged();
+    }
+
+    private void RaiseDocumentStateChanged()
+    {
+        // 刷新时一次性广播所有派生属性，避免调用方遗漏标题、属性面板或状态栏字段。
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(CurrentDocumentTitle));
         OnPropertyChanged(nameof(CurrentFilePath));

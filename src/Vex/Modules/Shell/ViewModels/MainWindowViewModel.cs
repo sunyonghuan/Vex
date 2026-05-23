@@ -10,6 +10,7 @@ namespace Vex.Modules.Shell.ViewModels;
 
 public sealed class MainWindowViewModel : ReactiveObject
 {
+    private static readonly TimeSpan MarkdownDerivedStateDebounce = TimeSpan.FromMilliseconds(220);
     private readonly IDocumentService _documentService;
     private readonly IWorkspaceDocumentState _workspaceDocumentState;
     private readonly IMarkdownOutlineService _outlineService;
@@ -24,6 +25,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private readonly IShellStatusPublisher _statusPublisher;
     private FileSystemWatcher? _currentFileWatcher;
     private Timer? _currentFileChangeTimer;
+    private Timer? _markdownDerivedStateTimer;
     private DocumentSnapshot _document;
     private IReadOnlyList<DocumentFile> _documentFiles = [];
     private string _lastSavedMarkdown = string.Empty;
@@ -180,16 +182,30 @@ public sealed class MainWindowViewModel : ReactiveObject
     public string Markdown
     {
         get => _markdown;
-        set
+        set => SetMarkdown(value, refreshImmediately: true);
+    }
+
+    private void SetMarkdown(string? value, bool refreshImmediately)
+    {
+        var normalized = value ?? string.Empty;
+        if (_markdown == normalized)
         {
-            var normalized = value ?? string.Empty;
-            if (_markdown != normalized)
-            {
-                this.RaiseAndSetIfChanged(ref _markdown, normalized);
-                _document = _document with { Markdown = _markdown };
-                RefreshMarkdownDerivedState();
-            }
+            return;
         }
+
+        this.RaiseAndSetIfChanged(ref _markdown, normalized);
+        _document = _document with { Markdown = _markdown };
+
+        if (refreshImmediately)
+        {
+            CancelScheduledMarkdownDerivedStateRefresh();
+            RefreshMarkdownDerivedState();
+            return;
+        }
+
+        RefreshDocumentState();
+        _drafts.QueueSave(_document, Markdown, _lastSavedMarkdown);
+        ScheduleMarkdownDerivedStateRefresh();
     }
 
     public Task NewDocument()
@@ -525,7 +541,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         if (Markdown != command.Markdown)
         {
-            Markdown = command.Markdown;
+            SetMarkdown(command.Markdown, refreshImmediately: false);
         }
     }
 
@@ -552,6 +568,26 @@ public sealed class MainWindowViewModel : ReactiveObject
         PublishWorkspaceDocumentState();
         RefreshDocumentInfo();
         _eventBus.Publish(new OutlineItemsChangedCommand(_outlineService.BuildOutline(Markdown)));
+    }
+
+    private void RefreshDocumentState()
+    {
+        DocumentInfo.RefreshState(_document, Markdown, _lastSavedMarkdown);
+    }
+
+    private void ScheduleMarkdownDerivedStateRefresh()
+    {
+        _markdownDerivedStateTimer ??= new Timer(
+            _ => Dispatcher.UIThread.Post(RefreshMarkdownDerivedState),
+            null,
+            Timeout.InfiniteTimeSpan,
+            Timeout.InfiniteTimeSpan);
+        _markdownDerivedStateTimer.Change(MarkdownDerivedStateDebounce, Timeout.InfiniteTimeSpan);
+    }
+
+    private void CancelScheduledMarkdownDerivedStateRefresh()
+    {
+        _markdownDerivedStateTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
     }
 
     private void PublishWorkspaceDocumentState()

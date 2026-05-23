@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Coalesced preview, statistics, and outline refreshes behind a 220ms debounce during continuous large-file typing, while keeping unsaved state and draft-save queuing immediate.
+- Built `Vex.slnx` and used a source-structure smoke to verify the debounced text-change path and lightweight document-state refresh entry point.
 - Refined title-menu colors for dark mode with dynamic foreground, hover, and checked-state brushes; theme, typography, language, and compact-layout menus now show the current selection.
 - Built `Vex.slnx` and used a XAML structure smoke to verify checked-state configuration for theme, typography, language, and compact-layout menu items.
 - Added `scripts/package_vex_msix.ps1` to prepare a full-trust MSIX layout from Windows publish outputs and, when the Windows SDK is available, package and optionally sign an MSIX.

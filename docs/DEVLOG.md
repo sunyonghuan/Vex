@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 大文件编辑路径继续优化：真实文本变更时会立即刷新未保存状态并排队草稿保存，但预览文档状态、统计和大纲构建合并到 220ms 防抖刷新，避免连续输入时每个字符都同步触发全量 Markdown 派生扫描。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认普通文档设置仍走立即刷新，`MarkdownTextChangedCommand` 路径走防抖刷新，`ShellDocumentInfoViewModel` 具备不重算统计的轻量状态刷新入口。
 - 深色模式菜单细节继续完善：标题菜单新增动态前景、悬停和选中态资源，暗色主题下菜单文本、悬停背景和选中勾选色单独配置；主题色、排版主题和语言菜单改为 Radio 勾选，紧凑布局改为 CheckBox 勾选。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用 XAML 结构 smoke 确认 7 个主题色项、17 个排版主题项、4 个语言项都有 Radio 状态，紧凑布局具备双向绑定的 CheckBox 状态。
 - 新增 Windows MSIX 打包脚本 `scripts/package_vex_msix.ps1`：可从 `publish/<RID>/` 准备 full-trust MSIX 布局，生成 `AppxManifest.xml`，补齐 `Assets\logo.png`，并在 Windows SDK 可用时调用 `makeappx.exe` 打包、可选调用 `signtool.exe` 签名。
@@ -117,6 +119,8 @@
 
 ### en-US
 
+- Further optimized the large-file edit path: real text changes now update unsaved state and queue draft saving immediately, while preview document state, statistics, and outline building are coalesced behind a 220ms debounce to avoid full Markdown-derived scans for every typed character.
+- Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming ordinary document assignment still refreshes immediately, the `MarkdownTextChangedCommand` path uses the debounced refresh, and `ShellDocumentInfoViewModel` has a lightweight state refresh that does not recalculate statistics.
 - Further refined dark-mode menu details: the title menu now has dynamic foreground, hover, and checked-state resources with separate dark-theme colors; theme, typography, and language menus now show Radio checks, and compact layout shows a CheckBox state.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a XAML structure smoke to confirm 7 theme items, 17 typography items, and 4 language items expose Radio state, while compact layout has a two-way CheckBox state.
 - Added the Windows MSIX packaging script `scripts/package_vex_msix.ps1`: it prepares a full-trust MSIX layout from `publish/<RID>/`, writes `AppxManifest.xml`, ensures `Assets\logo.png` exists, and can call Windows SDK `makeappx.exe` plus optional `signtool.exe` signing.
