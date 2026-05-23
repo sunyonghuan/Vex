@@ -102,6 +102,7 @@ public sealed class ShellFindBarViewModel : ReactiveObject
     {
         IsVisible = true;
         IsReplaceVisible = false;
+        SeedSearchTextFromEditorSelection();
         RefreshSearchResultCount();
         SetStatusResource(VexL.StatusFindReady);
     }
@@ -110,6 +111,7 @@ public sealed class ShellFindBarViewModel : ReactiveObject
     {
         IsVisible = true;
         IsReplaceVisible = true;
+        SeedSearchTextFromEditorSelection();
         RefreshSearchResultCount();
         SetStatusResource(VexL.StatusReplaceReady);
     }
@@ -188,6 +190,15 @@ public sealed class ShellFindBarViewModel : ReactiveObject
             IsMatchCase,
             IsWholeWord,
             IsRegex));
+    }
+
+    private void SeedSearchTextFromEditorSelection()
+    {
+        var selectedText = _eventBus.Query(new EditorSelectedTextQuery());
+        if (!string.IsNullOrEmpty(selectedText))
+        {
+            SearchText = selectedText;
+        }
     }
 
     private void PublishEditorAction(EditorActionKind action)

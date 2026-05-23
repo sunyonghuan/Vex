@@ -109,6 +109,12 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
     }
 
     [EventHandler]
+    public void GetSelectedText(EditorSelectedTextQuery query)
+    {
+        query.Result = GetSelectedText();
+    }
+
+    [EventHandler]
     public void NavigateTo(NavigateToLineCommand command)
     {
         if (_editor?.Document is null)
@@ -122,6 +128,21 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
         _editor.TextArea.Caret.BringCaretToView();
         _editor.Focus();
         PublishTextChanged();
+    }
+
+    private string GetSelectedText()
+    {
+        if (_editor is null || _editor.SelectionLength <= 0)
+        {
+            return string.Empty;
+        }
+
+        var text = _editor.Text ?? string.Empty;
+        var start = Math.Clamp(_editor.SelectionStart, 0, text.Length);
+        var length = Math.Clamp(_editor.SelectionLength, 0, text.Length - start);
+        return length > 0
+            ? text.Substring(start, length)
+            : string.Empty;
     }
 
     private void OnEditorTextChanged(object? sender, EventArgs e)
