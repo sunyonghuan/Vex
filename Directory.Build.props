@@ -16,5 +16,13 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <LocalCodeWFMarkdownPackages>$(MSBuildThisFileDirectory)..\CodeWF.Markdown\artifacts\packages</LocalCodeWFMarkdownPackages>
+    <LocalCodeWFAvaloniaControlsPackages>$(MSBuildThisFileDirectory)..\CodeWF.AvaloniaControls\artifacts\packages</LocalCodeWFAvaloniaControlsPackages>
+  </PropertyGroup>
+  <PropertyGroup Condition="Exists('$(LocalCodeWFMarkdownPackages)')">
+    <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(LocalCodeWFMarkdownPackages)</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+  <PropertyGroup Condition="Exists('$(LocalCodeWFAvaloniaControlsPackages)')">
+    <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(LocalCodeWFAvaloniaControlsPackages)</RestoreAdditionalProjectSources>
   </PropertyGroup>
 </Project>

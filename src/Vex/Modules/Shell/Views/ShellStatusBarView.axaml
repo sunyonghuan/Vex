@@ -10,26 +10,45 @@
     x:DataType="vm:ShellStatusBarViewModel"
     IsVisible="{Binding Layout.IsStatusBarVisible}"
     prism:ViewModelLocator.AutoWireViewModel="True">
+    <UserControl.Styles>
+        <Style Selector="Border.statusZoom">
+            <Setter Property="MinHeight" Value="22" />
+            <Setter Property="Padding" Value="8 2" />
+            <Setter Property="Background" Value="{DynamicResource VexStatusBadgeBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource VexStatusBadgeBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource VexStatusBadgeCornerRadius}" />
+        </Style>
+        <Style Selector="Border.statusZoom TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource VexStatusBadgeValueBrush}" />
+        </Style>
+    </UserControl.Styles>
 
     <Border
         Background="{DynamicResource VexStatusBarBackgroundBrush}"
         BorderBrush="{DynamicResource VexStatusBarBorderBrush}"
         BorderThickness="0 1 0 0"
-        Padding="10 4">
-        <Grid ColumnDefinitions="*,Auto" MinHeight="28">
+        Padding="12 4">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" MinHeight="28">
             <TextBlock
                 Classes="muted"
+                FontSize="12"
+                MinWidth="96"
                 Text="{Binding Status.StatusText}"
                 TextTrimming="CharacterEllipsis"
                 VerticalAlignment="Center" />
             <StackPanel
                 Grid.Column="1"
                 Orientation="Horizontal"
-                Spacing="8"
+                Spacing="6"
                 VerticalAlignment="Center">
                 <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusState}}" Value="{Binding DocumentInfo.DocumentStateText}" />
                 <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" Value="{Binding DocumentInfo.CurrentEncodingText}" />
-                <TextBlock Classes="muted" Text="{Binding EditorDisplay.ZoomText}" VerticalAlignment="Center" />
+                <Border Classes="statusZoom">
+                    <TextBlock Text="{Binding EditorDisplay.ZoomText}" VerticalAlignment="Center" />
+                </Border>
                 <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusLine}}" Value="{Binding Status.CaretLine}" />
                 <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusColumn}}" Value="{Binding Status.CaretColumn}" />
                 <md:VexStatusBadge Label="{i18n:I18n {x:Static l:VexL.StatusWords}}" Value="{Binding DocumentInfo.Statistics.Words}" />
