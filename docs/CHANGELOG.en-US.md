@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Large folder scans now take the first 300 supported files before sorting that bounded set for display, avoiding full-directory sorting just to enforce the list limit.
+- Built `Vex.slnx` and used a source-structure smoke to verify folder scans `Take(300)` before sorting.
 - Replace next and replace all now use AvaloniaEdit document-level `Replace`, avoiding full editor-text resets for single replacements.
 - Built `Vex.slnx` and used a source-structure smoke to verify replace paths use `editor.Document.Replace(...)`.
 - Image-based PDF background, header/footer metadata colors, and page-break blank-band detection now use the active export style, so dark typography themes no longer search for white page breaks.

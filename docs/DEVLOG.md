@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 大目录文件夹扫描优化：打开文件夹时先从支持的 Markdown/txt 文件中取前 300 个，再仅对这 300 个文件排序展示，避免为了最终列表上限而先排序整个大目录。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认文件夹扫描顺序为过滤支持文件、`Take(300)`、再排序。
 - 大文件替换路径优化：`ReplaceNext` 不再用整篇字符串拼接后重设编辑器文本，而是直接调用 AvaloniaEdit 文档级 `Replace`；`ReplaceAll` 生成最终文本后也通过文档替换整段内容，减少编辑器文档重建开销。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认替换路径已移除 `editor.Text = ...` 赋值，改用 `editor.Document.Replace(...)`。
 - PDF 排版主题映射继续细化：图像型 PDF 页面背景不再固定白色，而是使用导出样式背景；页眉页脚文字和分割线使用当前样式的弱文本色与边框色；分页空白带检测改为匹配页面背景色，暗色排版主题也能寻找自然断点。
@@ -127,6 +129,8 @@
 
 ### en-US
 
+- Optimized large-folder scans: opening a folder now takes the first 300 supported Markdown/txt files before sorting that bounded set for display, avoiding a full sort of very large directories just to enforce the list limit.
+- Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming folder scans filter supported files, `Take(300)`, then sort.
 - Optimized the large-file replace path: `ReplaceNext` no longer rebuilds the whole editor text with string concatenation, and instead calls AvaloniaEdit document-level `Replace`; `ReplaceAll` also replaces the document content after building the final text, reducing editor-document reset overhead.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming replace paths removed `editor.Text = ...` assignment and now use `editor.Document.Replace(...)`.
 - Further refined PDF typography-theme mapping: image-based PDF pages no longer force a white background; header/footer text and divider lines use the current style muted and border colors; page-break blank-band detection now matches the page background color so dark typography themes can also find natural breaks.
