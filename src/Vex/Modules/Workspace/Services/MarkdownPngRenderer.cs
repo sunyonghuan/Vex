@@ -315,17 +315,71 @@ internal sealed class MarkdownPngRenderer
 
     private static Border CreateTableCell(TableCell? cell, bool isHeader, MarkdownExportStyle style)
     {
-        var textBlock = CreateTextBlock(style.TableFontSize, Brush(style.BodyColor), isHeader ? FontWeight.SemiBold : FontWeight.Normal, new Thickness(), style);
-        textBlock.Text = cell is null ? string.Empty : GetTableCellText(cell);
-
         return new Border
         {
             Background = isHeader ? Brush(style.TableHeaderBackgroundColor) : Brush(style.PageBackgroundColor),
             BorderBrush = Brush(style.BorderColor),
             BorderThickness = new Thickness(1, 1, 0, 0),
             Padding = new Thickness(8, 7),
-            Child = textBlock
+            Child = CreateTableCellContent(cell, isHeader, style)
         };
+    }
+
+    private static Control CreateTableCellContent(TableCell? cell, bool isHeader, MarkdownExportStyle style)
+    {
+        var stack = new StackPanel
+        {
+            Spacing = 4
+        };
+
+        if (cell is not null)
+        {
+            foreach (var child in cell)
+            {
+                AddTableCellBlock(stack, child, isHeader, style);
+            }
+        }
+
+        if (stack.Children.Count == 0)
+        {
+            stack.Children.Add(CreateTableTextBlock(string.Empty, isHeader, style));
+        }
+
+        return stack;
+    }
+
+    private static void AddTableCellBlock(StackPanel stack, Block block, bool isHeader, MarkdownExportStyle style)
+    {
+        switch (block)
+        {
+            case ParagraphBlock paragraph:
+                stack.Children.Add(CreateTableParagraph(paragraph, isHeader, style));
+                break;
+            case LeafBlock leaf:
+                stack.Children.Add(CreateTableTextBlock(leaf.Lines.ToString(), isHeader, style));
+                break;
+            case ContainerBlock container:
+                foreach (var child in container)
+                {
+                    AddTableCellBlock(stack, child, isHeader, style);
+                }
+
+                break;
+        }
+    }
+
+    private static TextBlock CreateTableParagraph(ParagraphBlock paragraph, bool isHeader, MarkdownExportStyle style)
+    {
+        var textBlock = CreateTextBlock(style.TableFontSize, Brush(style.BodyColor), isHeader ? FontWeight.SemiBold : FontWeight.Normal, new Thickness(), style);
+        AppendInlines(textBlock.Inlines!, paragraph.Inline, style);
+        return textBlock;
+    }
+
+    private static TextBlock CreateTableTextBlock(string text, bool isHeader, MarkdownExportStyle style)
+    {
+        var textBlock = CreateTextBlock(style.TableFontSize, Brush(style.BodyColor), isHeader ? FontWeight.SemiBold : FontWeight.Normal, new Thickness(), style);
+        textBlock.Text = text;
+        return textBlock;
     }
 
     private static TextBlock CreateTextBlock(double fontSize, IBrush foreground, FontWeight fontWeight, Thickness margin, MarkdownExportStyle style)
@@ -608,29 +662,6 @@ internal sealed class MarkdownPngRenderer
         using var image = surface.Snapshot();
         using var data = image.Encode(SKEncodedImageFormat.Png, 100);
         return data?.ToArray() ?? throw new InvalidDataException(localizer.Get(VexL.ExportDetailSvgEncodeFailed));
-    }
-
-    private static string GetTableCellText(TableCell cell)
-    {
-        if (cell is ContainerBlock container)
-        {
-            var parts = new List<string>();
-            foreach (var child in container)
-            {
-                parts.Add(child is LeafBlock leaf ? GetBlockText(leaf) : child.ToString() ?? string.Empty);
-            }
-
-            return string.Join(Environment.NewLine, parts);
-        }
-
-        return cell.ToString() ?? string.Empty;
-    }
-
-    private static string GetBlockText(LeafBlock block)
-    {
-        return block.Inline is null
-            ? block.Lines.ToString()
-            : GetInlineText(block.Inline);
     }
 
     private static string GetInlineText(ContainerInline container)

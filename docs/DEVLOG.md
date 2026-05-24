@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- PNG/PDF 表格映射继续补齐：`MarkdownPngRenderer` 的表格单元格不再把内容压平成纯文本，而是以单元格内容栈渲染段落 inline，保留粗体、斜体、删除线、行内代码和链接颜色等样式；图像型 PDF 复用该渲染结果同步受益。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认表格单元格路径使用 `CreateTableCellContent`、`AddTableCellBlock` 与 `CreateTableParagraph`，旧的 `GetTableCellText`/`GetBlockText` 纯文本压平逻辑已移除。
 - Markdown 标题扫描逻辑合并：新增 `MarkdownHeadingScanner`，大纲、PDF 页眉标题和 HTML 打印预览标题共用同一套 `ReadOnlySpan<char>` 行扫描；扫描会跳过反引号/波浪线代码围栏，支持 3 空格以内缩进的 ATX 标题，并避免把围栏内示例标题误当作真实文档标题。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 `MarkdownExportService`、`MarkdownPdfRenderer` 与 `MarkdownOutlineService` 均调用共享扫描器，旧的 `StringReader`/`CountHeadingMarkers` 重复实现已移除。
 - 本地化更新日志摘要刷新：`CHANGELOG.zh-Hant.md` 与 `CHANGELOG.ja-JP.md` 补充最近的本地图片导出 URL 解码、任务列表 PNG/PDF 导出、大文件 span 扫描、暗色右键菜单和 MSIX `PrepareOnly` 边界修复摘要，降低繁体中文/日文帮助菜单打开更新日志时的信息滞后。
@@ -149,6 +151,8 @@
 
 ### en-US
 
+- Further filled PNG/PDF table mapping: `MarkdownPngRenderer` table cells no longer flatten content to plain text; cells render paragraph inlines through a small content stack, preserving bold, italic, strikethrough, inline code, and link color styles. Image-based PDF benefits because it reuses the PNG renderer.
+- Built `Vex.slnx` and used a source-structure smoke to verify the table-cell path uses `CreateTableCellContent`, `AddTableCellBlock`, and `CreateTableParagraph`, with the old `GetTableCellText`/`GetBlockText` flattening path removed.
 - Consolidated Markdown heading scanning: added `MarkdownHeadingScanner` so the outline, PDF header title, and HTML print-preview title share the same `ReadOnlySpan<char>` line scanner; it skips backtick/tilde code fences, supports ATX headings indented by up to three spaces, and avoids treating fenced sample headings as real document titles.
 - Built `Vex.slnx` and used a source-structure smoke to verify `MarkdownExportService`, `MarkdownPdfRenderer`, and `MarkdownOutlineService` all call the shared scanner, with the old duplicated `StringReader`/`CountHeadingMarkers` implementations removed.
 - Refreshed localized changelog summaries: `CHANGELOG.zh-Hant.md` and `CHANGELOG.ja-JP.md` now mention recent local-image URL decoding, PNG/PDF task-list export, large-file span scanning, dark context-menu theming, and the MSIX `PrepareOnly` edge fix so localized Help > Changelog windows are not stale.

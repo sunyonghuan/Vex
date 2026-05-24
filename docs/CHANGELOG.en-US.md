@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- PNG/PDF image-based export table cells now render paragraph inlines, preserving bold, italic, strikethrough, inline code, and link styling instead of flattening everything to plain text.
+- Built `Vex.slnx` and used a source-structure smoke to verify the table-cell path no longer uses the plain-text flattening helpers.
 - Outline, PDF header, and HTML print-preview title extraction now share `MarkdownHeadingScanner`, using a span-based scan that skips fenced sample headings and removes duplicated per-line string scanning.
 - Built `Vex.slnx` and used a source-structure smoke to verify all three heading-scan paths call the shared scanner.
 - Refreshed Traditional Chinese and Japanese changelog summaries with recent export, performance, dark-theme, and MSIX packaging changes.
