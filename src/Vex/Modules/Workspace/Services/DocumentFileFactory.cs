@@ -1,3 +1,4 @@
+using System.Text;
 using Vex.Core.Models;
 using Vex.Core.Services;
 
@@ -5,6 +6,10 @@ namespace Vex.Modules.Workspace.Services;
 
 public sealed class DocumentFileFactory : IDocumentFileFactory
 {
+    private const int PreviewLineLimit = 8;
+    private const int PreviewScanCharacterLimit = 4096;
+    private const int PreviewStoredLineCharacterLimit = 512;
+    private const int PreviewTextLength = 96;
     private readonly IAppLocalizer _localizer;
 
     public DocumentFileFactory(IAppLocalizer localizer)
@@ -79,20 +84,77 @@ public sealed class DocumentFileFactory : IDocumentFileFactory
 
         try
         {
-            foreach (var line in File.ReadLines(path).Take(8))
-            {
-                var trimmed = line.Trim().TrimStart('#', '-', '*', '>', ' ');
-                if (!string.IsNullOrWhiteSpace(trimmed))
-                {
-                    return trimmed.Length > 96 ? $"{trimmed[..96]}..." : trimmed;
-                }
-            }
+            using var reader = new StreamReader(path, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            return ReadPreview(reader);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or DecoderFallbackException)
         {
             return string.Empty;
         }
+    }
+
+    private static string ReadPreview(TextReader reader)
+    {
+        var linesRead = 0;
+        var charactersRead = 0;
+
+        while (linesRead < PreviewLineLimit && charactersRead < PreviewScanCharacterLimit)
+        {
+            var line = ReadBoundedLine(reader, ref charactersRead);
+            if (line is null)
+            {
+                break;
+            }
+
+            linesRead++;
+            var trimmed = line.Trim().TrimStart('#', '-', '*', '>', ' ');
+            if (!string.IsNullOrWhiteSpace(trimmed))
+            {
+                return trimmed.Length > PreviewTextLength ? $"{trimmed[..PreviewTextLength]}..." : trimmed;
+            }
+        }
 
         return string.Empty;
+    }
+
+    private static string? ReadBoundedLine(TextReader reader, ref int charactersRead)
+    {
+        var builder = new StringBuilder(Math.Min(PreviewStoredLineCharacterLimit, PreviewScanCharacterLimit - charactersRead));
+        var sawCharacter = false;
+
+        while (charactersRead < PreviewScanCharacterLimit)
+        {
+            var value = reader.Read();
+            if (value < 0)
+            {
+                break;
+            }
+
+            sawCharacter = true;
+            charactersRead++;
+            var character = (char)value;
+            if (character == '\n')
+            {
+                break;
+            }
+
+            if (character == '\r')
+            {
+                if (charactersRead < PreviewScanCharacterLimit && reader.Peek() == '\n')
+                {
+                    reader.Read();
+                    charactersRead++;
+                }
+
+                break;
+            }
+
+            if (builder.Length < PreviewStoredLineCharacterLimit)
+            {
+                builder.Append(character);
+            }
+        }
+
+        return sawCharacter || builder.Length > 0 ? builder.ToString() : null;
     }
 }

@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- File-list previews now use a bounded streaming scan, reading at most the first 8 lines and 4096 characters so huge single-line Markdown/txt files do not allocate an entire line during folder loading.
+- Built `Vex.slnx` and used a source-structure smoke to verify the preview path uses `StreamReader` and `ReadBoundedLine` with line, character, and preview-length caps.
 - HTML print-preview toolbar, header/footer metadata, print background, and link color now read the current typography export style, avoiding fixed light toolbar and white metadata bands under dark typography themes.
 - Built `Vex.slnx` and used a source-structure smoke to verify print-preview CSS is generated from the active export style with themed background, body color, border color, link color, and page-break protection rules.
 - Large folder scans now take the first 300 supported files before sorting that bounded set for display, avoiding full-directory sorting just to enforce the list limit.
