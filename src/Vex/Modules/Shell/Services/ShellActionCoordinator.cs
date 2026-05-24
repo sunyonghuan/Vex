@@ -79,6 +79,9 @@ public sealed class ShellActionCoordinator
                 case ShellActionKind.CloseDocument:
                     await _shell.CloseDocument();
                     break;
+                case ShellActionKind.RefreshPreview:
+                    _shell.RefreshPreview();
+                    break;
                 case ShellActionKind.ShowFindPanel:
                     _shell.ShowFindPanel();
                     break;

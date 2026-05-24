@@ -87,6 +87,7 @@ public static class VexL
     public static readonly string Link = "Vex.VexL.Link";
     public static readonly string Image = "Vex.VexL.Image";
     public static readonly string ClearFormatting = "Vex.VexL.ClearFormatting";
+    public static readonly string RefreshPreview = "Vex.VexL.RefreshPreview";
     public static readonly string ToggleSidebar = "Vex.VexL.ToggleSidebar";
     public static readonly string Outline = "Vex.VexL.Outline";
     public static readonly string DocumentList = "Vex.VexL.DocumentList";
@@ -311,6 +312,7 @@ public static class VexL
     public static readonly string StatusExportNotImplementedFormat = "Vex.VexL.StatusExportNotImplementedFormat";
     public static readonly string StatusPrintPreviewCanceled = "Vex.VexL.StatusPrintPreviewCanceled";
     public static readonly string StatusOpenedHtmlPrintPreview = "Vex.VexL.StatusOpenedHtmlPrintPreview";
+    public static readonly string StatusPreviewRefreshed = "Vex.VexL.StatusPreviewRefreshed";
     public static readonly string StatusStatisticsSummaryFormat = "Vex.VexL.StatusStatisticsSummaryFormat";
     public static readonly string StatusRecentFileUnavailable = "Vex.VexL.StatusRecentFileUnavailable";
     public static readonly string StatusRecentFileRemovedMissing = "Vex.VexL.StatusRecentFileRemovedMissing";

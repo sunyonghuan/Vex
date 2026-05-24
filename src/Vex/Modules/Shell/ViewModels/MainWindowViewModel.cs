@@ -640,6 +640,17 @@ public sealed class MainWindowViewModel : ReactiveObject
     public Task Print() => RunWithErrorOverlayAsync(
         VexL.ErrorMessageCannotPrintFormat,
         () => _documentUtilities.PrintAsync(_document, Markdown));
+
+    public void RefreshPreview()
+    {
+        CodeWF.EventBus.EventBus.Default.Publish(
+            new MarkdownPreviewRefreshCommand(
+                Markdown,
+                _document.FilePath,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+        _statusPublisher.PublishResource(VexL.StatusPreviewRefreshed);
+    }
+
     public async Task ConfirmRenameFileAsync()
     {
         if (Dialogs.PendingRenamePath is not { Length: > 0 } path)

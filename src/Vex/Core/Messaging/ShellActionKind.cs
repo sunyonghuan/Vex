@@ -19,6 +19,7 @@ public enum ShellActionKind
     CopyHtml,
     Print,
     CloseDocument,
+    RefreshPreview,
     ShowFindPanel,
     ShowReplacePanel,
     WordCount

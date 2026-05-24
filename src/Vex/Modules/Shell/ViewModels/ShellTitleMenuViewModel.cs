@@ -79,6 +79,8 @@ public sealed class ShellTitleMenuViewModel : ReactiveObject
 
     public void CloseDocument() => Publish(ShellActionKind.CloseDocument);
 
+    public void RefreshPreview() => Publish(ShellActionKind.RefreshPreview);
+
     public void ShowFindPanel() => Publish(ShellActionKind.ShowFindPanel);
 
     public void ShowReplacePanel() => Publish(ShellActionKind.ShowReplacePanel);
