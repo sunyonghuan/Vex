@@ -196,7 +196,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var targetName = WebUtility.HtmlEncode(layout.TargetName);
         var printToolbar = mode == HtmlDocumentMode.PrintPreview ? BuildPrintPreviewToolbar() : string.Empty;
         var printMetadata = mode == HtmlDocumentMode.PrintPreview ? BuildPrintPreviewMetadata(document) : string.Empty;
-        var printStyles = mode == HtmlDocumentMode.PrintPreview ? PrintPreviewStyles : string.Empty;
+        var printStyles = mode == HtmlDocumentMode.PrintPreview ? BuildPrintPreviewStyles(style, cssBodyFont) : string.Empty;
         var printScript = mode == HtmlDocumentMode.PrintPreview ? PrintPreviewScript : string.Empty;
         var startFragment = includeFragmentMarkers ? "              <!--StartFragment-->" : string.Empty;
         var endFragment = includeFragmentMarkers ? "              <!--EndFragment-->" : string.Empty;
@@ -376,51 +376,57 @@ public sealed class MarkdownExportService : IMarkdownExportService
         return count;
     }
 
-    private const string PrintPreviewStyles = """
+    private static string BuildPrintPreviewStyles(MarkdownExportStyle style, string cssBodyFont)
+    {
+        return $$"""
                 .vex-print-toolbar {
                   position: sticky;
                   top: 0;
                   z-index: 20;
                   box-sizing: border-box;
                   display: flex;
+                  flex-wrap: wrap;
                   justify-content: center;
+                  align-items: center;
                   gap: 10px;
                   padding: 10px 16px;
-                  border-bottom: 1px solid #e5e7eb;
-                  background: rgba(255, 255, 255, .96);
+                  border-bottom: 1px solid {{style.BorderColor}};
+                  background: {{style.PageBackgroundColor}};
                   backdrop-filter: blur(8px);
                 }
                 .vex-print-toolbar label {
                   display: flex;
                   align-items: center;
                   gap: 6px;
-                  color: #374151;
-                  font: 13px/1.2 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                  min-height: 32px;
+                  color: {{style.BodyColor}};
+                  font: 13px/1.2 {{cssBodyFont}};
                 }
                 .vex-print-toolbar select {
                   min-height: 32px;
-                  border: 1px solid #d1d5db;
+                  border: 1px solid {{style.BorderColor}};
                   border-radius: 6px;
-                  color: #111827;
-                  background: #ffffff;
-                  font: 13px/1.2 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                  color: {{style.BodyColor}};
+                  background: {{style.InlineCodeBackgroundColor}};
+                  font: 13px/1.2 {{cssBodyFont}};
                 }
                 .vex-print-checkbox input {
                   width: 16px;
                   height: 16px;
                   margin: 0;
+                  accent-color: {{style.LinkColor}};
                 }
                 .vex-print-toolbar button {
                   min-width: 88px;
                   min-height: 32px;
-                  border: 1px solid #d1d5db;
+                  border: 1px solid {{style.BorderColor}};
                   border-radius: 6px;
-                  color: #111827;
-                  background: #ffffff;
-                  font: 13px/1.2 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                  color: {{style.BodyColor}};
+                  background: {{style.InlineCodeBackgroundColor}};
+                  font: 13px/1.2 {{cssBodyFont}};
                   cursor: pointer;
                 }
-                .vex-print-toolbar button:hover { background: #f9fafb; }
+                .vex-print-toolbar button:hover { background: {{style.TableHeaderBackgroundColor}}; }
                 .vex-print-page-header,
                 .vex-print-page-footer {
                   display: none;
@@ -435,37 +441,44 @@ public sealed class MarkdownExportService : IMarkdownExportService
                     left: 0;
                     right: 0;
                     z-index: 10;
-                    color: #6b7280;
-                    background: #ffffff;
-                    font: 9pt/1.3 "Inter", "Microsoft YaHei UI", "Segoe UI", sans-serif;
+                    color: {{style.MutedColor}};
+                    background: {{style.PageBackgroundColor}};
+                    font: 9pt/1.3 {{cssBodyFont}};
                   }
                   .vex-print-page-header {
                     top: 0;
                     padding-bottom: 4mm;
-                    border-bottom: 1px solid #e5e7eb;
+                    border-bottom: 1px solid {{style.BorderColor}};
                   }
                   .vex-print-page-footer {
                     bottom: 0;
                     padding-top: 4mm;
-                    border-top: 1px solid #e5e7eb;
+                    border-top: 1px solid {{style.BorderColor}};
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                   }
                   body.vex-print-metadata-off .vex-print-page-header,
                   body.vex-print-metadata-off .vex-print-page-footer { display: none !important; }
-                  html, body { background: #ffffff; }
+                  html, body { background: {{style.PageBackgroundColor}}; }
                   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                  article { max-width: none !important; padding: 14mm 0 12mm !important; }
+                  article {
+                    max-width: none !important;
+                    padding: 14mm 0 12mm !important;
+                    color: {{style.BodyColor}} !important;
+                    background: {{style.PageBackgroundColor}} !important;
+                  }
                   body.vex-print-metadata-off article { padding: 0 !important; }
                   h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; }
-                  pre, blockquote, table, img { break-inside: avoid; page-break-inside: avoid; }
+                  pre, blockquote, figure, img, li { break-inside: avoid; page-break-inside: avoid; }
+                  table, thead, tbody, tr { page-break-inside: avoid; }
                   table { page-break-inside: auto; }
                   thead { display: table-header-group; }
                   tr { break-inside: avoid; page-break-inside: avoid; }
-                  a { color: #111827; text-decoration: underline; }
+                  a { color: {{style.LinkColor}}; text-decoration: underline; }
                 }
-    """;
+            """;
+    }
 
     private const string PrintPreviewScript = """
               <script>

@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- HTML print-preview toolbar, header/footer metadata, print background, and link color now read the current typography export style, avoiding fixed light toolbar and white metadata bands under dark typography themes.
+- Built `Vex.slnx` and used a source-structure smoke to verify print-preview CSS is generated from the active export style with themed background, body color, border color, link color, and page-break protection rules.
 - Large folder scans now take the first 300 supported files before sorting that bounded set for display, avoiding full-directory sorting just to enforce the list limit.
 - Built `Vex.slnx` and used a source-structure smoke to verify folder scans `Take(300)` before sorting.
 - Replace next and replace all now use AvaloniaEdit document-level `Replace`, avoiding full editor-text resets for single replacements.
