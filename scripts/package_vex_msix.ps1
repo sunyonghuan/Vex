@@ -164,7 +164,7 @@ if (-not (Test-Path -LiteralPath $executablePath -PathType Leaf)) {
 
 $layoutRoot = Join-Path $ArtifactsRoot "msix-layout\$RuntimeIdentifier"
 $packagePath = Join-Path $ArtifactsRoot "Vex-$Version-$RuntimeIdentifier.msix"
-if ((Test-Path -LiteralPath $packagePath -PathType Leaf) -and -not $Force) {
+if (-not $PrepareOnly -and (Test-Path -LiteralPath $packagePath -PathType Leaf) -and -not $Force) {
     throw "MSIX output already exists: '$packagePath'. Pass -Force to replace it."
 }
 

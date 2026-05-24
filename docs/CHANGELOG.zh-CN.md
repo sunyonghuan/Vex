@@ -4,6 +4,8 @@
 
 ### 修复
 
+- 🐞[修复]-`package_vex_msix.ps1 -PrepareOnly` 不再因为目标 `.msix` 已存在而失败；包文件冲突只在真实打包时检查。
+- 🧪[测试]-用临时 `publish/win-x64` 和预置 `.msix` 产物做 smoke，验证真实打包拒绝覆盖而 `PrepareOnly` 可生成 MSIX 布局和 manifest。
 - 🔧[优化]-帮助菜单未知或空 topic 的状态栏和错误上下文不再回退固定英文 `Help`，空 topic 会使用当前语言的“帮助”菜单文案。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证 `ShellHelpViewModel` 已移除 `topic ?? "Help"`，四套资源均有对应帮助菜单与排期提示文案。
 - 🔧[优化]-文件列表摘要改为有界流式扫描，最多读取前 8 行和 4096 个字符，避免超长单行 Markdown/txt 文件在文件夹加载时分配整行字符串。

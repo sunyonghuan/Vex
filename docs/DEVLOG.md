@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- MSIX 准备布局流程细节修复：`scripts/package_vex_msix.ps1 -PrepareOnly` 不再因为目标 `.msix` 包文件已存在而提前失败；只有真实执行 `makeappx` 打包时才检查包文件冲突，准备布局和打包覆盖语义更清晰。
+- 验证临时 `publish/win-x64` 与 `artifacts` smoke：预置已存在的 `Vex-0.1.0-win-x64.msix` 时，非 `PrepareOnly` 仍拒绝覆盖；`PrepareOnly` 可生成 `msix-layout/win-x64/AppxManifest.xml`，并确认 `0.1.0.0` 版本和 `x64` 架构。
 - 帮助菜单 i18n 边界继续收口：未知或空帮助 topic 的状态栏排期提示和错误上下文不再使用固定英文 `Help`，改为复用当前语言的 `MenuHelp` 文案；未知非空 topic 仍保留原始 topic 便于定位。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 `ShellHelpViewModel` 已移除 `topic ?? "Help"`，四套 i18n 资源均存在 `MenuHelp` 与 `StatusHelpQueuedFormat`。
 - 文件列表摘要边界优化：左侧文件列表预览不再通过 `File.ReadLines(...).Take(8)` 读取整行，而是最多扫描前 8 行和 4096 个字符，单行最多保留 512 个字符后再生成 96 字符摘要，避免超长单行 Markdown/txt 文件拖慢文件夹加载。
@@ -135,6 +137,8 @@
 
 ### en-US
 
+- Fixed an MSIX layout-preparation edge case: `scripts/package_vex_msix.ps1 -PrepareOnly` no longer fails just because the target `.msix` package already exists; package-output conflicts are checked only when `makeappx` packaging will actually run.
+- Verified with a temporary `publish/win-x64` plus `artifacts` smoke: an existing `Vex-0.1.0-win-x64.msix` still blocks real packaging without `-Force`, while `PrepareOnly` creates `msix-layout/win-x64/AppxManifest.xml` with version `0.1.0.0` and architecture `x64`.
 - Continued closing Help-menu i18n edges: queued-status and error context for unknown or empty help topics no longer fall back to fixed English `Help`; empty topics now reuse the current language's `MenuHelp` text, while unknown non-empty topics stay visible for diagnostics.
 - Built `Vex.slnx` and used a source-structure smoke to verify `ShellHelpViewModel` no longer contains `topic ?? "Help"` and all four i18n resource sets provide `MenuHelp` plus `StatusHelpQueuedFormat`.
 - Optimized file-list preview boundaries: the left file list no longer reads whole lines through `File.ReadLines(...).Take(8)`, and instead scans at most the first 8 lines and 4096 characters, stores at most 512 characters per line, then emits the existing 96-character preview to avoid slow folder loading on huge single-line Markdown/txt files.
