@@ -4,6 +4,8 @@
 
 ### 修复
 
+- 🔧[优化]-Markdown 大纲扫描改为 `ReadOnlySpan<char>` 逐行解析，避免为每一行分配字符串；只在命中标题时创建标题文本，并补充跳过 `~~~` 代码围栏。
+- 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证大纲路径不再使用 `StringReader.ReadLine()`。
 - 🔧[优化]-普通 `TextBlock` 默认前景色和右键 `ContextMenu` 背景、边框、菜单前景、悬停态改用 Vex 动态主题资源，减少暗色主题下文本或弹出菜单掉回浅色默认外观。
 - 🧪[测试]-构建 `Vex.slnx`，并用 XAML 结构 smoke 验证文本与右键菜单样式均读取主题资源。
 - 🐞[修复]-`package_vex_msix.ps1 -PrepareOnly` 不再因为目标 `.msix` 已存在而失败；包文件冲突只在真实打包时检查。

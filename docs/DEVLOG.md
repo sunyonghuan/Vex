@@ -4,6 +4,8 @@
 
 ### zh-CN
 
+- 大文件大纲扫描继续减分配：`MarkdownOutlineService` 不再用 `StringReader.ReadLine()` 为每一行分配字符串，改为基于 `ReadOnlySpan<char>` 扫描行边界、围栏和 ATX 标题；只有真正命中标题时才创建标题字符串，并补充识别 `~~~` 代码围栏。
+- 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认大纲路径使用 `AsSpan`、`FindLineEnd`、`MoveToNextLine` 和 `ReadOnlySpan<char>` 版 `TryParseHeading`，不再存在 `StringReader`/`ReadLine`。
 - 深色模式边界继续细化：应用级样式新增普通 `TextBlock` 默认前景色，绑定到 `VexEditorForegroundBrush`；文件列表等右键 `ContextMenu` 统一接入面板背景、边框、菜单前景和悬停背景资源，减少暗色主题下普通文本或弹出菜单回落到默认浅色外观的风险。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用 XAML 结构 smoke 确认 `TextBlock`、`ContextMenu`、`ContextMenu MenuItem` 与悬停态样式均读取 Vex 动态主题资源。
 - MSIX 准备布局流程细节修复：`scripts/package_vex_msix.ps1 -PrepareOnly` 不再因为目标 `.msix` 包文件已存在而提前失败；只有真实执行 `makeappx` 打包时才检查包文件冲突，准备布局和打包覆盖语义更清晰。
@@ -139,6 +141,8 @@
 
 ### en-US
 
+- Further reduced outline-scan allocations for large files: `MarkdownOutlineService` no longer allocates one string per line through `StringReader.ReadLine()`, and instead scans line boundaries, fences, and ATX headings with `ReadOnlySpan<char>`; it creates a title string only when a heading is found and now recognizes `~~~` fences too.
+- Built `Vex.slnx` and used a source-structure smoke to verify the outline path uses `AsSpan`, `FindLineEnd`, `MoveToNextLine`, and a `ReadOnlySpan<char>` `TryParseHeading`, with no remaining `StringReader`/`ReadLine` path.
 - Further refined dark-mode edges: app-level styles now give plain `TextBlock` controls a default foreground bound to `VexEditorForegroundBrush`; file-list and other right-click `ContextMenu` popups now use the panel background, border, menu foreground, and hover-background resources.
 - Built `Vex.slnx` and used a XAML structure smoke to confirm `TextBlock`, `ContextMenu`, `ContextMenu MenuItem`, and hover-state styles all read Vex dynamic theme resources.
 - Fixed an MSIX layout-preparation edge case: `scripts/package_vex_msix.ps1 -PrepareOnly` no longer fails just because the target `.msix` package already exists; package-output conflicts are checked only when `makeappx` packaging will actually run.

@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- Markdown outline scans now parse lines through `ReadOnlySpan<char>`, avoiding one string allocation per line; title text is allocated only for actual headings, and `~~~` code fences are skipped too.
+- Built `Vex.slnx` and used a source-structure smoke to verify the outline path no longer uses `StringReader.ReadLine()`.
 - Plain `TextBlock` default foreground and right-click `ContextMenu` background, border, menu foreground, and hover state now use Vex dynamic theme resources, reducing light-default fallbacks in dark mode.
 - Built `Vex.slnx` and used a XAML structure smoke to verify text and right-click menu styles read theme resources.
 - `package_vex_msix.ps1 -PrepareOnly` no longer fails just because the target `.msix` already exists; package-output conflicts are checked only during real packaging.
