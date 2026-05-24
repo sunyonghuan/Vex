@@ -34,12 +34,12 @@
                     BorderBrush="{DynamicResource VexStatusBadgeBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6">
-                    <TextBlock
+                    <SelectableTextBlock
                         Classes="muted"
                         FontFamily="Consolas, Cascadia Mono, Microsoft YaHei UI"
                         FontSize="12"
                         Text="{Binding Dialogs.UnsavedConfirmPath}"
-                        TextTrimming="CharacterEllipsis" />
+                        TextWrapping="Wrap" />
                 </Border>
                 <StackPanel
                     Grid.Row="3"

@@ -24,8 +24,11 @@
             <TextBox
                 x:Name="FindTextBox"
                 Grid.Column="1"
+                AcceptsReturn="False"
+                MaxLength="200"
                 MinHeight="30"
                 PlaceholderText="{i18n:I18n {x:Static l:VexL.FindBarText}}"
+                TextWrapping="NoWrap"
                 Text="{Binding SearchText, Mode=TwoWay}" />
             <TextBlock
                 Grid.Column="2"
@@ -35,9 +38,12 @@
                 VerticalAlignment="Center" />
             <TextBox
                 Grid.Column="3"
+                AcceptsReturn="False"
                 IsVisible="{Binding IsReplaceVisible}"
+                MaxLength="200"
                 MinHeight="30"
                 PlaceholderText="{i18n:I18n {x:Static l:VexL.FindBarText}}"
+                TextWrapping="NoWrap"
                 Text="{Binding ReplacementText, Mode=TwoWay}" />
             <Button
                 Grid.Column="4"

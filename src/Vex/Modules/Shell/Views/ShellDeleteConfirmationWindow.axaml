@@ -1,0 +1,67 @@
+<u:UrsaWindow
+    x:Class="Vex.Modules.Shell.Views.ShellDeleteConfirmationWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:u="https://irihi.tech/ursa"
+    xmlns:views="using:Vex.Modules.Shell.Views"
+    x:DataType="views:ShellDeleteConfirmationWindowModel"
+    Title="{i18n:I18n {x:Static l:VexL.Delete}}"
+    Width="480"
+    Height="280"
+    MinWidth="440"
+    MinHeight="260"
+    CanMaximize="False"
+    CanMinimize="False"
+    CanResize="False"
+    Icon="/Assets/logo.ico"
+    IsFullScreenButtonVisible="False"
+    IsMinimizeButtonVisible="False"
+    IsRestoreButtonVisible="False"
+    ShowInTaskbar="False"
+    WindowStartupLocation="CenterOwner">
+    <Border
+        Background="{DynamicResource VexPanelBackgroundBrush}"
+        Padding="24">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="14">
+            <TextBlock
+                FontSize="17"
+                FontWeight="SemiBold"
+                Text="{Binding ConfirmationText}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                Grid.Row="1"
+                Classes="muted"
+                Text="{Binding WarningText}"
+                TextWrapping="Wrap" />
+            <Border
+                Grid.Row="2"
+                Padding="10 8"
+                Background="{DynamicResource VexStatusBadgeBackgroundBrush}"
+                CornerRadius="6">
+                <SelectableTextBlock
+                    Classes="muted"
+                    FontFamily="Consolas, Cascadia Mono, Microsoft YaHei UI"
+                    FontSize="12"
+                    Text="{Binding DeletePath}"
+                    TextWrapping="Wrap" />
+            </Border>
+            <StackPanel
+                Grid.Row="3"
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    Click="Cancel_OnClick"
+                    Content="{i18n:I18n {x:Static l:VexL.Cancel}}"
+                    MinWidth="86" />
+                <Button
+                    Click="Delete_OnClick"
+                    Content="{i18n:I18n {x:Static l:VexL.Delete}}"
+                    Foreground="#DC2626"
+                    MinWidth="86" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</u:UrsaWindow>

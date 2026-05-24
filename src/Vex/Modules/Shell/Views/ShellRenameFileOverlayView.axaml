@@ -49,13 +49,13 @@
                             FontSize="12"
                             FontWeight="SemiBold"
                             Text="{i18n:I18n {x:Static l:VexL.RenameFilePathLabel}}" />
-                        <TextBlock
+                        <SelectableTextBlock
                             Grid.Row="1"
                             Classes="muted"
                             FontFamily="Consolas, Cascadia Mono, Microsoft YaHei UI"
                             FontSize="12"
                             Text="{Binding Dialogs.RenameFilePath}"
-                            TextTrimming="CharacterEllipsis" />
+                            TextWrapping="Wrap" />
                     </Grid>
                 </Border>
                 <StackPanel

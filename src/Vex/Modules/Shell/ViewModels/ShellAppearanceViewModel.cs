@@ -11,6 +11,27 @@ namespace Vex.Modules.Shell.ViewModels;
 
 public sealed class ShellAppearanceViewModel : ReactiveObject
 {
+    private static readonly string[] TypographyKeys =
+    [
+        MarkdownTypographyThemes.Basic,
+        MarkdownTypographyThemes.Simple,
+        MarkdownTypographyThemes.OrangeHeart,
+        MarkdownTypographyThemes.InkBlack,
+        MarkdownTypographyThemes.ColorfulPurple,
+        MarkdownTypographyThemes.TenderGreen,
+        MarkdownTypographyThemes.Verdant,
+        MarkdownTypographyThemes.RedScarlet,
+        MarkdownTypographyThemes.BlueGlow,
+        MarkdownTypographyThemes.TechnologyBlue,
+        MarkdownTypographyThemes.LanQing,
+        MarkdownTypographyThemes.Yamabuki,
+        MarkdownTypographyThemes.FrontendPeak,
+        MarkdownTypographyThemes.GeekBlack,
+        MarkdownTypographyThemes.RosePurple,
+        MarkdownTypographyThemes.CuteGreen,
+        MarkdownTypographyThemes.FullStackBlue
+    ];
+
     private readonly IAppLocalizer _localizer;
     private readonly IEditorAppearanceState _editorAppearanceState;
     private readonly IAppSettingsStore _settingsStore;
@@ -37,7 +58,7 @@ public sealed class ShellAppearanceViewModel : ReactiveObject
 
         ThemeOptions = new ObservableCollection<ThemeOption>(_themeService.GetThemeOptions());
         TypographyOptions = new ObservableCollection<TypographyOption>(
-            MarkdownTypographyThemes.All.Select(theme => new TypographyOption(theme.Name, theme.Key)));
+            TypographyKeys.Select(theme => new TypographyOption(theme, theme)));
         LanguageOptions = new ObservableCollection<LanguageOption>
         {
             new("zh-CN", "简体中文", "中文（简体）"),

@@ -15,9 +15,9 @@
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type vex:VexStatusBadge}">
                 <Border
-                    Background="{DynamicResource VexStatusBadgeBackgroundBrush}"
-                    BorderBrush="{DynamicResource VexStatusBadgeBorderBrush}"
-                    BorderThickness="1"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    BorderThickness="0"
                     CornerRadius="{DynamicResource VexStatusBadgeCornerRadius}"
                     Padding="{TemplateBinding Padding}">
                     <StackPanel Orientation="Horizontal" Spacing="5">

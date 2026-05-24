@@ -1,7 +1,11 @@
 using System.Runtime.CompilerServices;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 using Vex.Core.Services;
 using Vex.Modules.Shell.Services;
+using Vex.Modules.Shell.Views;
 
 namespace Vex.Modules.Shell.ViewModels;
 
@@ -10,13 +14,9 @@ public sealed class ShellDialogsViewModel : ReactiveObject
 {
     private readonly IShellStatusPublisher _statusPublisher;
     private readonly IAppLocalizer _localizer;
-    private bool _isStatisticsPanelVisible;
-    private bool _isPropertiesPanelVisible;
-    private bool _isDeleteConfirmVisible;
     private bool _isUnsavedConfirmVisible;
     private bool _isErrorPanelVisible;
     private bool _isRenameFilePanelVisible;
-    private string? _pendingDeletePath;
     private string? _pendingRenamePath;
     // 未保存确认框需要暂存用户选择后的后续动作，保存/不保存/取消会从这里恢复流程。
     private Func<Task>? _pendingUnsavedContinuation;
@@ -42,24 +42,6 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         _renameFileName = string.Empty;
     }
 
-    public bool IsStatisticsPanelVisible
-    {
-        get => _isStatisticsPanelVisible;
-        set => SetProperty(ref _isStatisticsPanelVisible, value);
-    }
-
-    public bool IsPropertiesPanelVisible
-    {
-        get => _isPropertiesPanelVisible;
-        set => SetProperty(ref _isPropertiesPanelVisible, value);
-    }
-
-    public bool IsDeleteConfirmVisible
-    {
-        get => _isDeleteConfirmVisible;
-        set => SetProperty(ref _isDeleteConfirmVisible, value);
-    }
-
     public bool IsUnsavedConfirmVisible
     {
         get => _isUnsavedConfirmVisible;
@@ -77,14 +59,6 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         get => _isRenameFilePanelVisible;
         set => SetProperty(ref _isRenameFilePanelVisible, value);
     }
-
-    public string DeleteConfirmText => _pendingDeletePath is { Length: > 0 }
-        ? _localizer.Format(VexL.DeleteConfirmFileFormat, Path.GetFileName(_pendingDeletePath))
-        : _localizer.Get(VexL.DeleteConfirmCurrentFile);
-
-    public string DeleteConfirmPath => _pendingDeletePath ?? string.Empty;
-
-    public string? PendingDeletePath => _pendingDeletePath;
 
     public string UnsavedConfirmTitle => _unsavedConfirmTitle;
 
@@ -110,48 +84,30 @@ public sealed class ShellDialogsViewModel : ReactiveObject
 
     public bool HasPendingUnsavedAction => _pendingUnsavedContinuation is not null;
 
-    public void ShowStatisticsPanel()
+    public async Task<bool> ShowDeleteConfirmationAsync(string path)
     {
-        IsStatisticsPanelVisible = true;
-    }
+        var confirmationText = path is { Length: > 0 }
+            ? _localizer.Format(VexL.DeleteConfirmFileFormat, Path.GetFileName(path))
+            : _localizer.Get(VexL.DeleteConfirmCurrentFile);
+        var owner = GetMainWindow();
+        var window = new ShellDeleteConfirmationWindow(
+            confirmationText,
+            _localizer.Get(VexL.DeletePermanentWarning),
+            path);
+        if (owner is null)
+        {
+            window.Show();
+            _statusPublisher.PublishResource(VexL.StatusDeleteCanceled);
+            return false;
+        }
 
-    public void CloseStatisticsPanel()
-    {
-        IsStatisticsPanelVisible = false;
-    }
+        var confirmed = await window.ShowDialog<bool>(owner);
+        if (!confirmed)
+        {
+            _statusPublisher.PublishResource(VexL.StatusDeleteCanceled);
+        }
 
-    public void ShowPropertiesPanel()
-    {
-        IsPropertiesPanelVisible = true;
-    }
-
-    public void ClosePropertiesPanel()
-    {
-        IsPropertiesPanelVisible = false;
-    }
-
-    public void ShowDeleteConfirmation(string path)
-    {
-        _pendingDeletePath = path;
-        OnPropertyChanged(nameof(DeleteConfirmText));
-        OnPropertyChanged(nameof(DeleteConfirmPath));
-        OnPropertyChanged(nameof(PendingDeletePath));
-        IsDeleteConfirmVisible = true;
-    }
-
-    public void ClearDeleteConfirmation()
-    {
-        _pendingDeletePath = null;
-        OnPropertyChanged(nameof(DeleteConfirmText));
-        OnPropertyChanged(nameof(DeleteConfirmPath));
-        OnPropertyChanged(nameof(PendingDeletePath));
-        IsDeleteConfirmVisible = false;
-    }
-
-    public void CancelDelete()
-    {
-        ClearDeleteConfirmation();
-        _statusPublisher.PublishResource(VexL.StatusDeleteCanceled);
+        return confirmed;
     }
 
     public void ShowRenameFilePanel(string path)
@@ -249,12 +205,6 @@ public sealed class ShellDialogsViewModel : ReactiveObject
             return true;
         }
 
-        if (IsDeleteConfirmVisible)
-        {
-            CancelDelete();
-            return true;
-        }
-
         if (IsErrorPanelVisible)
         {
             CloseErrorPanel();
@@ -264,20 +214,6 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         if (IsRenameFilePanelVisible)
         {
             CancelRenameFile();
-            return true;
-        }
-
-        if (IsPropertiesPanelVisible)
-        {
-            IsPropertiesPanelVisible = false;
-            _statusPublisher.PublishResource(VexL.StatusPropertiesClosed);
-            return true;
-        }
-
-        if (IsStatisticsPanelVisible)
-        {
-            IsStatisticsPanelVisible = false;
-            _statusPublisher.PublishResource(VexL.StatusStatisticsClosed);
             return true;
         }
 
@@ -297,6 +233,13 @@ public sealed class ShellDialogsViewModel : ReactiveObject
         return string.IsNullOrWhiteSpace(exception.Message)
             ? _localizer.Get(VexL.ErrorDetailFallback)
             : exception.Message;
+    }
+
+    private static Window? GetMainWindow()
+    {
+        return Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }
+            ? mainWindow
+            : null;
     }
 
     private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)

@@ -24,7 +24,7 @@ public sealed class ShellEditorDisplayViewModel : ReactiveObject
         _statusPublisher = statusPublisher;
         var settings = _settingsStore.Current;
         _editorZoom = Math.Clamp(settings.EditorZoom ?? 1.0, 0.7, 1.8);
-        _showLineNumbers = settings.ShowLineNumbers ?? false;
+        _showLineNumbers = settings.ShowLineNumbers ?? true;
         PublishDisplayState();
     }
 

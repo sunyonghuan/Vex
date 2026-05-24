@@ -23,9 +23,11 @@
 - Use **File > Export > HTML** for a standalone HTML document.
 - Use **File > Export > PNG** for a long image export.
 - Use **File > Export > PDF** for a paged PDF export.
+- Use **File > Export > Word** for a `.docx` document with Markdown structure and embedded local images.
 - Use **File > Print** to open the HTML print preview in the system browser.
+- After a successful export, Vex opens the save location and selects the exported file when the platform supports it.
 
 ## Settings
 
-- Theme, typography, compact layout, language, sidebar, preview, status bar, editor zoom, and line-number settings are saved locally.
+- Theme, typography, compact layout, language, sidebar, preview, status bar, always-on-top, editor zoom, and line-number settings are saved locally.
 - The first-run guide can be opened again from **Help > New User Guide**.

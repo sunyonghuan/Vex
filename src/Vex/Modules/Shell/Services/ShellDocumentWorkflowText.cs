@@ -131,6 +131,8 @@ public sealed class ShellDocumentWorkflowText : IShellDocumentWorkflowText
 
     public void PublishExportedPngTo(string fileName) => PublishFormat(VexL.StatusExportedPngToFormat, fileName);
 
+    public void PublishExportedWordTo(string fileName) => PublishFormat(VexL.StatusExportedWordToFormat, fileName);
+
     public void PublishExportNotImplemented(string? format)
     {
         var displayFormat = ExportFormatName(format);

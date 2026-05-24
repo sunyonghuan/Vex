@@ -1,0 +1,49 @@
+<u:UrsaWindow
+    x:Class="Vex.Modules.Shell.Views.ShellStatisticsWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:u="https://irihi.tech/ursa"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellDocumentInfoViewModel"
+    Title="{i18n:I18n {x:Static l:VexL.StatisticsTitle}}"
+    Width="340"
+    Height="360"
+    MinWidth="320"
+    MinHeight="320"
+    CanMaximize="False"
+    CanMinimize="False"
+    CanResize="False"
+    Icon="/Assets/logo.ico"
+    IsFullScreenButtonVisible="False"
+    IsMinimizeButtonVisible="False"
+    IsRestoreButtonVisible="False"
+    ShowInTaskbar="False"
+    WindowStartupLocation="CenterOwner">
+    <Border
+        Background="{DynamicResource VexPanelBackgroundBrush}"
+        Padding="24">
+        <Grid
+            ColumnDefinitions="*,Auto"
+            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+            RowSpacing="10">
+            <TextBlock Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusWords}}" />
+            <SelectableTextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Words}" />
+            <TextBlock Grid.Row="1" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusCharacters}}" />
+            <SelectableTextBlock Grid.Row="1" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Characters}" />
+            <TextBlock Grid.Row="2" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsLines}}" />
+            <SelectableTextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Lines}" />
+            <TextBlock Grid.Row="3" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsParagraphs}}" />
+            <SelectableTextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Paragraphs}" />
+            <TextBlock Grid.Row="4" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsHeadings}}" />
+            <SelectableTextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Statistics.Headings}" />
+            <TextBlock Grid.Row="5" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatisticsReading}}" />
+            <SelectableTextBlock Grid.Row="5" Grid.Column="1" FontWeight="SemiBold" Text="{Binding ReadingMinutesText}" />
+            <TextBlock Grid.Row="6" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" />
+            <SelectableTextBlock Grid.Row="6" Grid.Column="1" FontWeight="SemiBold" Text="{Binding CurrentEncodingText}" />
+            <TextBlock Grid.Row="7" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusState}}" />
+            <SelectableTextBlock Grid.Row="7" Grid.Column="1" FontWeight="SemiBold" Text="{Binding DocumentStateText}" />
+        </Grid>
+    </Border>
+</u:UrsaWindow>

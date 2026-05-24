@@ -10,7 +10,7 @@ Slogan：极简之力，妙笔成章。
 
 ## Status
 
-当前处于 `0.1.0` 基础开发阶段，已创建 Prism 模块化应用骨架、Typora 风格菜单、左中右三栏工作区、Markdown 编辑/预览链路、Vex 专有控件主题包，以及大纲点击跳转编辑器的基础交互。
+当前处于 `0.1.0` 基础开发阶段，已具备 Prism 模块化应用骨架、Typora 风格菜单、左中右三栏工作区、Markdown 编辑/预览链路、同目录文件列表、大纲跳转、查找替换、主题/排版切换、HTML/PDF/PNG/Word 导出，以及基于 UrsaWindow 的关键对话框。
 
 ## Build and Release
 

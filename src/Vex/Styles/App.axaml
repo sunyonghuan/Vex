@@ -38,6 +38,9 @@
     <Style Selector="ContextMenu MenuItem:pointerover">
         <Setter Property="Background" Value="{DynamicResource VexMenuHoverBackgroundBrush}" />
     </Style>
+    <Style Selector="TabControl.sidebar-tabs TabItem">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
     <Style Selector="Border.panel">
         <Setter Property="Background" Value="{DynamicResource VexPanelBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource VexPanelBorderBrush}" />

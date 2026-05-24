@@ -401,20 +401,6 @@ public sealed class MainWindowViewModel : ReactiveObject
         return RequestDeleteFileAsync(path);
     }
 
-    public async Task ConfirmDeleteAsync()
-    {
-        if (Dialogs.PendingDeletePath is not { Length: > 0 } path)
-        {
-            Dialogs.ClearDeleteConfirmation();
-            return;
-        }
-
-        await RunWithErrorOverlayAsync(
-            VexL.ErrorMessageCannotDeleteFormat,
-            () => DeleteFileCoreAsync(path),
-            path);
-    }
-
     public async Task OpenFileLocationAsync()
     {
         if (DocumentInfo.CurrentFilePath is { Length: > 0 } path)
@@ -423,21 +409,27 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
-    private Task RequestDeleteFileAsync(string path)
+    private async Task RequestDeleteFileAsync(string path)
     {
         if (!IsCurrentDocumentPath(path))
         {
-            Dialogs.ShowDeleteConfirmation(path);
-            return Task.CompletedTask;
+            if (await Dialogs.ShowDeleteConfirmationAsync(path))
+            {
+                await DeleteFileCoreAsync(path);
+            }
+
+            return;
         }
 
-        return RequestUnsavedConfirmationAsync(
+        await RequestUnsavedConfirmationAsync(
             _text.TitleBeforeDeleting,
             _text.BeforeDeleting(_document.FileName),
-            () =>
+            async () =>
             {
-                Dialogs.ShowDeleteConfirmation(path);
-                return Task.CompletedTask;
+                if (await Dialogs.ShowDeleteConfirmationAsync(path))
+                {
+                    await DeleteFileCoreAsync(path);
+                }
             });
     }
 
@@ -453,7 +445,6 @@ public sealed class MainWindowViewModel : ReactiveObject
         await _documentService.DeleteAsync(path);
         Recent.RemoveRecentDocument(path);
         RemoveDocumentFileFromList(path);
-        Dialogs.ClearDeleteConfirmation();
 
         if (wasCurrentDocument)
         {
@@ -601,7 +592,14 @@ public sealed class MainWindowViewModel : ReactiveObject
     private void SyncDocumentFileList(string path)
     {
         var selected = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path));
-        if (selected is null)
+        if (selected is not null)
+        {
+            CodeWF.EventBus.EventBus.Default.Publish(new DocumentFileSelectionChangedCommand(selected));
+            return;
+        }
+
+        var directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
         {
             selected = _documentFileFactory.Create(path);
             _documentFiles = [selected];
@@ -609,7 +607,26 @@ public sealed class MainWindowViewModel : ReactiveObject
             return;
         }
 
-        CodeWF.EventBus.EventBus.Default.Publish(new DocumentFileSelectionChangedCommand(selected));
+        _documentFiles = Directory.EnumerateFiles(directory, "*.*", new EnumerationOptions
+            {
+                RecurseSubdirectories = false,
+                IgnoreInaccessible = true,
+                ReturnSpecialDirectories = false
+            })
+            .Where(_documentService.IsSupportedDocumentPath)
+            .Take(300)
+            .OrderBy(filePath => filePath, StringComparer.OrdinalIgnoreCase)
+            .Select(filePath => _documentFileFactory.Create(filePath, directory))
+            .ToArray();
+
+        selected = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path))
+                   ?? _documentFileFactory.Create(path, directory);
+        if (!_documentFiles.Any(file => PathsEqual(file.Path, selected.Path)))
+        {
+            _documentFiles = [.. _documentFiles, selected];
+        }
+
+        CodeWF.EventBus.EventBus.Default.Publish(new DocumentFilesChangedCommand(_documentFiles, selected));
     }
 
     private DocumentFile? FindCurrentDocumentFile()
@@ -626,7 +643,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             .ToArray();
     }
 
-    public void ShowProperties() => _documentUtilities.ShowProperties(Dialogs, DocumentInfo);
+    public void ShowProperties() => _documentUtilities.ShowProperties(DocumentInfo);
     public Task Export(string? format) => RunWithErrorOverlayAsync(
         VexL.ErrorMessageCannotExportFormat,
         () => _documentUtilities.ExportAsync(_document, Markdown, format),
@@ -665,7 +682,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             path);
     }
 
-    public void WordCount() => _documentUtilities.WordCount(Dialogs, DocumentInfo.Statistics);
+    public void WordCount() => _documentUtilities.WordCount(DocumentInfo);
     public bool CloseFloatingPanel() => Dialogs.CloseFloatingPanel();
     public void ShowFindPanel() => FindBar.ShowFindPanel();
     public void ShowReplacePanel() => FindBar.ShowReplacePanel();

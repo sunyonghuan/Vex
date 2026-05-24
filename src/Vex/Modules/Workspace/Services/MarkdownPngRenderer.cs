@@ -499,14 +499,13 @@ internal sealed class MarkdownPngRenderer
     {
         imageControl = null!;
 
-        if (paragraph.Inline?.FirstChild is not LinkInline { IsImage: true } imageInline)
+        if (!TryGetOnlyImageInline(paragraph.Inline, out var imageInline))
         {
             return false;
         }
 
-        var hasTrailingContent = imageInline.NextSibling is not null;
         var path = ResolveLocalImagePath(imageInline.Url, documentPath);
-        if (hasTrailingContent || path is null)
+        if (path is null)
         {
             return false;
         }
@@ -529,6 +528,43 @@ internal sealed class MarkdownPngRenderer
         {
             return false;
         }
+    }
+
+    private static bool TryGetOnlyImageInline(ContainerInline? inline, [NotNullWhen(true)] out LinkInline? imageInline)
+    {
+        imageInline = null;
+        var child = inline?.FirstChild;
+        while (child is not null)
+        {
+            if (child is LinkInline { IsImage: true } image)
+            {
+                if (imageInline is not null)
+                {
+                    return false;
+                }
+
+                imageInline = image;
+            }
+            else if (!IsWhitespaceInline(child))
+            {
+                return false;
+            }
+
+            child = child.NextSibling;
+        }
+
+        return imageInline is not null;
+    }
+
+    private static bool IsWhitespaceInline(MarkdigInline inline)
+    {
+        return inline switch
+        {
+            LiteralInline literal => string.IsNullOrWhiteSpace(literal.Content.ToString()),
+            LineBreakInline => true,
+            HtmlInline html => string.IsNullOrWhiteSpace(html.Tag),
+            _ => false
+        };
     }
 
     private static string? ResolveLocalImagePath(string? url, string? documentPath)

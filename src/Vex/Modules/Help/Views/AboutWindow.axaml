@@ -5,7 +5,7 @@
     xmlns:i18n="https://codewf.com"
     xmlns:l="clr-namespace:Vex"
     xmlns:u="https://irihi.tech/ursa"
-    Title="{i18n:I18n {x:Static l:VexL.About}}"
+    Title="{i18n:I18n {x:Static l:VexL.AboutVexTitle}}"
     Width="420"
     Height="370"
     MinWidth="380"

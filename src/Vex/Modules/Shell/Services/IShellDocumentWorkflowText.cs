@@ -93,6 +93,8 @@ public interface IShellDocumentWorkflowText
 
     void PublishExportedPngTo(string fileName);
 
+    void PublishExportedWordTo(string fileName);
+
     void PublishExportNotImplemented(string? format);
 
     string CopyTargetName(string? target);

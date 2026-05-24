@@ -4,6 +4,16 @@
 
 ### zh-CN
 
+- 本轮集中处理 `D:\r.md` 中的体验问题：直接打开单个 Markdown/txt 文件后，`MainWindowViewModel.SyncDocumentFileList` 会扫描当前文件所在目录的支持文档，左侧文件列表自动切换到同目录上下文。
+- 对话框体系调整：属性、字数统计和删除确认改为独立 `UrsaWindow`，长名称、长路径、错误详情、重命名路径和未保存路径使用 `SelectableTextBlock` 便于选择复制；删除确认按钮使用警告红色，旧属性/统计/删除覆盖层从 `ShellOverlaysView` 中移除。
+- 导出链路完善：HTML/PDF/PNG/Word 成功后会打开保存目录并定位文件；新增 `MarkdownDocxExporter` 原生生成 `.docx`，写入 Word 样式、基础 Markdown 结构、表格、代码、链接文本和本地图片关系；HTML/打印/社交复制继续内联本地图片。
+- PDF/PNG 导出继续修正：PNG 渲染识别仅包含图片和空白 inline 的段落；PDF 页眉页脚元数据字体优先使用 `Microsoft YaHei UI`、`Microsoft YaHei`、`PingFang SC`、`Noto Sans CJK SC` 等中文可用字体，减少中文乱码。
+- 菜单与设置收口：帮助菜单去掉“主题”中间层，直接展示“主题色”和“排版”；移除重复的“视图 / 搜索”；行号、状态栏、窗口置顶补齐菜单勾选状态并保持 App.config 持久化；行号默认开启；放大、缩小和实际大小菜单补齐快捷键提示。
+- 查找/替换栏限制搜索和替换文本为 200 字符，强制单行显示并在 ViewModel 层标准化换行，避免用户全选或粘贴超长内容导致布局变形。
+- 社交复制重写为目标平台 HTML 片段，公众号、知乎、稀土掘金剪贴板内容使用 `data-tool="markdown编辑器"` 和 `data-website="https://codewf.com"`，掘金追加 `codewf.com` 排版后缀。
+- 主题与依赖更新：为 Semi 的 Aquatic、Desert、Dusk、NightSky 补齐 Vex 动态资源字典；更新 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 到 12.0.3.7，`CodeWF.AvaloniaControls`/`CodeWF.AvaloniaControls.Themes` 到 12.0.3.8，并按新 Markdown 排版主题 Key 补齐 Basic、FrontendPeak 等菜单项。
+- 文档同步：更新 README、快速开始、四套更新日志摘要和需求文档中关于 Word 导出、同目录文件列表、UrsaWindow 对话框、导出后定位文件和当前能力列表的说明。
+- 验证 `dotnet build Vex.slnx -m:1` 通过，`net10.0` 与 `net10.0-windows` 均为 0 警告 0 错误；执行 `git diff --check`，仅保留 Git 的 LF/CRLF 提示。
 - 大文件真实压测补齐：新增 `scripts/stress_vex_markdown_services.ps1`，脚本会在临时目录生成 net10.0 console，引用 Vex 项目并构造含标题、代码围栏、表格、任务列表和中英文段落的大 Markdown 文本，计时 `MarkdownOutlineService` 与 `MarkdownStatisticsService`。
 - 验证默认 120,000 行压测：生成 10,336,464 字符 Markdown，大纲扫描 154ms、约 410,608 bytes 分配，统计扫描 498ms、约 416 bytes 分配，输出 3,000 个大纲标题和 1,802,106 词；脚本结束后自动清理临时工作目录。
 - 打印/PDF 默认文件名 i18n 边界收口：无路径、无文件名的文档导出时，HTML 打印预览页脚与 PDF 页眉/页脚不再硬编码 `Untitled.md`，改用现有 `DocumentDefaultFileName`/`DocumentDefaultHeading` 资源；PDF 渲染循环也只解析一次页眉和页脚标题。
@@ -805,8 +815,8 @@
 - Verified all Vex JSON localization resources with `ConvertFrom-Json`, built `Vex.slnx`, and captured a desktop startup smoke screenshot after the overlay label binding changes. Screenshot path: `%TEMP%\VexScreenshots\overlay-labels-i18n-statistics.png`.
 - Popup-menu automation could not reliably open the statistics panel in this desktop session; the XAML and resource bindings are still covered by the successful Avalonia build.
 - Added no new third-party dependency.
-- Split `ShellOverlaysView.axaml` into focused overlay controls: `ShellStatisticsOverlayView`, `ShellAboutOverlayView`, `ShellPropertiesOverlayView`, `ShellDeleteConfirmationOverlayView`, and `ShellUnsavedConfirmationOverlayView`.
-- The host `ShellOverlaysView.axaml` now only composes those controls and dropped from about 260 lines to about 13 lines; each extracted overlay XAML stays around 55-65 lines and continues to inherit the shell DataContext.
+- Split `ShellOverlaysView.axaml` into focused overlay controls, with modal document utility flows later migrated to dedicated UrsaWindow dialogs.
+- The host `ShellOverlaysView.axaml` now only composes the remaining inline shell overlays, while statistics, properties, and delete confirmation use standalone dialog windows.
 - Verified `dotnet build Vex.slnx` and `git diff --check`, and captured a desktop startup smoke screenshot after the overlay view split. Screenshot path: `%TEMP%\VexScreenshots\overlays-view-split-startup.png`.
 - Popup-menu automation remained unreliable for opening an overlay in this desktop session; the extracted controls are still covered by Avalonia XAML compilation and the startup smoke run.
 - Added no new third-party dependency.

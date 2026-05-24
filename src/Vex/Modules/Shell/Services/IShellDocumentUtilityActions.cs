@@ -5,7 +5,7 @@ namespace Vex.Modules.Shell.Services;
 
 public interface IShellDocumentUtilityActions
 {
-    void ShowProperties(ShellDialogsViewModel dialogs, ShellDocumentInfoViewModel documentInfo);
+    void ShowProperties(ShellDocumentInfoViewModel documentInfo);
 
     Task ExportAsync(DocumentSnapshot document, string markdown, string? format);
 
@@ -13,5 +13,5 @@ public interface IShellDocumentUtilityActions
 
     Task PrintAsync(DocumentSnapshot document, string markdown);
 
-    void WordCount(ShellDialogsViewModel dialogs, MarkdownStatistics statistics);
+    void WordCount(ShellDocumentInfoViewModel documentInfo);
 }

@@ -225,8 +225,29 @@ internal sealed class MarkdownPdfRenderer
 
     private static SKFont CreateMetadataFont(float size)
     {
+        foreach (var family in MetadataFontFamilies)
+        {
+            var typeface = SKTypeface.FromFamilyName(family);
+            if (typeface is not null)
+            {
+                return new SKFont(typeface, size);
+            }
+        }
+
         return new SKFont(SKTypeface.Default, size);
     }
+
+    private static readonly string[] MetadataFontFamilies =
+    [
+        "Microsoft YaHei UI",
+        "Microsoft YaHei",
+        "PingFang SC",
+        "Noto Sans CJK SC",
+        "Noto Sans SC",
+        "Source Han Sans SC",
+        "SimSun",
+        "Arial Unicode MS"
+    ];
 
     private string ResolveHeaderTitle(DocumentSnapshot document)
     {

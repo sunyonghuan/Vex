@@ -9,6 +9,7 @@ namespace Vex.Modules.Shell.ViewModels;
 
 public sealed class ShellFindBarViewModel : ReactiveObject
 {
+    private const int SearchTextLimit = 200;
     private static readonly TimeSpan SearchCountDebounce = TimeSpan.FromMilliseconds(180);
     private readonly IShellStatusPublisher _statusPublisher;
     private Timer? _searchCountTimer;
@@ -80,7 +81,7 @@ public sealed class ShellFindBarViewModel : ReactiveObject
         get => _searchText;
         set
         {
-            if (SetProperty(ref _searchText, value ?? string.Empty))
+            if (SetProperty(ref _searchText, NormalizeSearchInput(value)))
             {
                 RefreshSearchResultCount();
             }
@@ -90,7 +91,7 @@ public sealed class ShellFindBarViewModel : ReactiveObject
     public string ReplacementText
     {
         get => _replacementText;
-        set => SetProperty(ref _replacementText, value ?? string.Empty);
+        set => SetProperty(ref _replacementText, NormalizeSearchInput(value));
     }
 
     public string SearchResultText
@@ -232,6 +233,19 @@ public sealed class ShellFindBarViewModel : ReactiveObject
         {
             SearchText = selectedText;
         }
+    }
+
+    private static string NormalizeSearchInput(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        var normalized = value.ReplaceLineEndings(" ");
+        return normalized.Length <= SearchTextLimit
+            ? normalized
+            : normalized[..SearchTextLimit];
     }
 
     private void PublishEditorAction(EditorActionKind action)

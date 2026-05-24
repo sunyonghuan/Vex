@@ -54,7 +54,6 @@ public partial class ShellTitleMenuView : UserControl
     {
         ExportMenuItem.IsSubMenuOpen = false;
         ThemeColorMenuItem.IsSubMenuOpen = false;
-        ThemeMenuItem.IsSubMenuOpen = false;
         LanguageMenuItem.IsSubMenuOpen = false;
         FileMenuItem.IsSubMenuOpen = false;
         ParagraphMenuItem.IsSubMenuOpen = false;
@@ -81,7 +80,6 @@ public partial class ShellTitleMenuView : UserControl
                 break;
             case ThemeColorGuideMenu:
                 HelpMenuItem.IsSubMenuOpen = true;
-                ThemeMenuItem.IsSubMenuOpen = true;
                 ThemeColorMenuItem.IsSubMenuOpen = true;
                 break;
             case HelpGuideMenu:

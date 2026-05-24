@@ -1,0 +1,53 @@
+<u:UrsaWindow
+    x:Class="Vex.Modules.Shell.Views.ShellPropertiesWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Vex"
+    xmlns:u="https://irihi.tech/ursa"
+    xmlns:vm="using:Vex.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellDocumentInfoViewModel"
+    Title="{i18n:I18n {x:Static l:VexL.Properties}}"
+    Width="520"
+    Height="360"
+    MinWidth="460"
+    MinHeight="320"
+    CanMaximize="False"
+    CanMinimize="False"
+    CanResize="False"
+    Icon="/Assets/logo.ico"
+    IsFullScreenButtonVisible="False"
+    IsMinimizeButtonVisible="False"
+    IsRestoreButtonVisible="False"
+    ShowInTaskbar="False"
+    WindowStartupLocation="CenterOwner">
+    <Border
+        Background="{DynamicResource VexPanelBackgroundBrush}"
+        Padding="24">
+        <Grid
+            ColumnDefinitions="Auto,*"
+            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+            RowSpacing="12"
+            ColumnSpacing="16">
+            <TextBlock Classes="muted" Text="{i18n:I18n {x:Static l:VexL.PropertyNameLabel}}" />
+            <SelectableTextBlock
+                Grid.Column="1"
+                FontWeight="SemiBold"
+                Text="{Binding PropertyNameText}"
+                TextWrapping="Wrap" />
+            <TextBlock Grid.Row="1" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusState}}" />
+            <SelectableTextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DocumentStateText}" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="2" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.StatusEncoding}}" />
+            <SelectableTextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentEncodingText}" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="3" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.PropertySizeLabel}}" />
+            <SelectableTextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PropertySizeText}" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="4" Classes="muted" Text="{i18n:I18n {x:Static l:VexL.PropertyPathLabel}}" />
+            <SelectableTextBlock
+                Grid.Row="4"
+                Grid.Column="1"
+                FontFamily="Consolas, Cascadia Mono, Microsoft YaHei UI"
+                Text="{Binding PropertyLocationText}"
+                TextWrapping="Wrap" />
+        </Grid>
+    </Border>
+</u:UrsaWindow>

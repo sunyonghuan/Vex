@@ -4,6 +4,14 @@
 
 ### 修复
 
+- ✨[新增]-直接打开单个 Markdown/txt 文件后，左侧文件列表会自动加载同目录下支持的 Markdown 文档。
+- 🔧[优化]-属性、字数统计和删除确认改为独立 UrsaWindow 对话框，长名称/路径可选择复制；对应旧浮层实现已移除。
+- ✨[新增]-文件导出新增 Word `.docx` 输出，保留基础 Markdown 结构、Word 样式和本地图片嵌入；HTML、PDF、PNG、Word 导出成功后会打开保存位置并定位文件。
+- 🔧[优化]-HTML、PDF、PNG 和社交复制导出更一致地读取当前排版/导出样式；PDF 页眉页脚元数据字体优先选择中文可用字体，减少中文乱码。
+- 🔧[优化]-帮助菜单将“主题色”和“排版”提升为二级菜单，移除“视图 / 搜索”重复项，并为行号、状态栏、窗口置顶补齐菜单勾选和配置持久化。
+- 🐞[修复]-查找和替换输入框限制 200 字符、强制单行输入，避免粘贴超长内容撑乱界面。
+- 🔧[优化]-复制到公众号、知乎、稀土掘金改为 HTML 剪贴板内容，元数据使用 `markdown编辑器` 和 `https://codewf.com`，并补齐掘金后缀。
+- 🧪[测试]-更新 CodeWF Markdown 与 AvaloniaControls NuGet 包版本，构建 `Vex.slnx -m:1`，并执行 `git diff --check`。
 - 🧪[测试]-新增 `scripts/stress_vex_markdown_services.ps1`，可生成真实大 Markdown 文本并计时大纲与统计服务。
 - 🧪[测试]-默认 120,000 行压测通过：10,336,464 字符，大纲 154ms，统计 498ms，并自动清理临时工作目录。
 - 🐞[修复]-无路径且无文件名的文档导出时，打印预览和 PDF 页眉页脚改用 `DocumentDefaultFileName`/`DocumentDefaultHeading` 资源，不再在导出路径硬编码 `Untitled.md`。

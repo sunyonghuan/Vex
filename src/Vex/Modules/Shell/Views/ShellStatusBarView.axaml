@@ -14,9 +14,9 @@
         <Style Selector="Border.statusZoom">
             <Setter Property="MinHeight" Value="22" />
             <Setter Property="Padding" Value="8 2" />
-            <Setter Property="Background" Value="{DynamicResource VexStatusBadgeBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource VexStatusBadgeBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="{DynamicResource VexStatusBadgeCornerRadius}" />
         </Style>
         <Style Selector="Border.statusZoom TextBlock">

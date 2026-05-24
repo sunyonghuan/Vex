@@ -118,6 +118,32 @@ public sealed class MarkdownExportService : IMarkdownExportService
         return path;
     }
 
+    public async Task<string?> ExportWordAsync(DocumentSnapshot document)
+    {
+        var owner = GetMainWindow();
+        if (owner is null)
+        {
+            return null;
+        }
+
+        var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = _localizer.Get(VexL.ExportWord),
+            SuggestedFileName = Path.ChangeExtension(document.FileName, ".docx"),
+            DefaultExtension = "docx",
+            FileTypeChoices = CreateWordFileTypes()
+        });
+
+        var path = file?.TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return null;
+        }
+
+        MarkdownDocxExporter.Export(document, path, ResolveExportStyle());
+        return path;
+    }
+
     public async Task<bool> CopyHtmlAsync(DocumentSnapshot document, string? target)
     {
         var clipboard = GetMainWindow()?.Clipboard;
@@ -358,10 +384,10 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return profile.Format switch
             {
                 SocialCopyFormat.Mountain => $$"""
-                    <h2 data-tool="markdown.com.cn编辑器" style="font-weight: bold; color: black; font-size: 22px; display: block; text-align: center; background-image: url(https://my-wechat.mdvex.com/mdvex/mountain_2_20191028221337.png); background-position: center center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; margin-bottom: 10px;"><span class="prefix" style="display: none;"></span><span class="content" style="text-align: center; display: inline-block; height: 38px; line-height: 42px; color: rgb(60, 112, 198); background-position: left center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; font-size: 18px; margin-bottom: 10px;">{{content}}</span><span class="suffix"></span></h2>
+                    <h2 data-tool="markdown编辑器" style="font-weight: bold; color: black; font-size: 22px; display: block; text-align: center; background-image: url(https://my-wechat.mdvex.com/mdvex/mountain_2_20191028221337.png); background-position: center center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; margin-bottom: 10px;"><span class="prefix" style="display: none;"></span><span class="content" style="text-align: center; display: inline-block; height: 38px; line-height: 42px; color: rgb(60, 112, 198); background-position: left center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; font-size: 18px; margin-bottom: 10px;">{{content}}</span><span class="suffix"></span></h2>
                     """,
                 _ => $$"""
-                    <h2 data-tool="markdown.com.cn编辑器" style="margin-top: 30px; font-weight: bold; font-size: 22px; border-bottom: 2px solid rgb(89,89,89); margin-bottom: 30px; color: rgb(89,89,89);"><span class="prefix" style="display: none;"></span><span class="content" style="font-size: 22px; display: inline-block; border-bottom: 2px solid rgb(89,89,89);">{{content}}</span><span class="suffix"></span></h2>
+                    <h2 data-tool="markdown编辑器" style="margin-top: 30px; font-weight: bold; font-size: 22px; border-bottom: 2px solid rgb(89,89,89); margin-bottom: 30px; color: rgb(89,89,89);"><span class="prefix" style="display: none;"></span><span class="content" style="font-size: 22px; display: inline-block; border-bottom: 2px solid rgb(89,89,89);">{{content}}</span><span class="suffix"></span></h2>
                     """
             };
         }
@@ -375,7 +401,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             _ => 15
         };
         return $$"""
-            <h{{level}} data-tool="markdown.com.cn编辑器" style="margin-top: 26px; margin-bottom: 16px; font-weight: bold; font-size: {{fontSize}}px; line-height: 1.35; color: {{profile.HeadingColor}};">{{content}}</h{{level}}>
+            <h{{level}} data-tool="markdown编辑器" style="margin-top: 26px; margin-bottom: 16px; font-weight: bold; font-size: {{fontSize}}px; line-height: 1.35; color: {{profile.HeadingColor}};">{{content}}</h{{level}}>
             """;
     }
 
@@ -390,7 +416,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return string.Empty;
         }
 
-        return $"""<p data-tool="markdown.com.cn编辑器" style="{profile.ParagraphStyle}">{content}</p>""";
+        return $"""<p data-tool="markdown编辑器" style="{profile.ParagraphStyle}">{content}</p>""";
     }
 
     private static string RenderSocialList(
@@ -962,7 +988,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
     private const string SocialBodyFontFamily = "Optima-Regular, Optima, PingFangSC-light, PingFangTC-light, 'PingFang SC', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif";
 
     private const string JuejinSuffixHtml = """
-        <p id="vex-suffix-juejin-container" class="vex-suffix-juejin-container" data-tool="markdown.com.cn编辑器" style="font-size: 16px; padding-bottom: 8px; margin: 0; padding-top: 23px; color: rgb(74,74,74); line-height: 1.75em; margin-top: 20px !important;">本文使用 <a href="https://markdown.com.cn" style="word-wrap: break-word; font-weight: bold; color: rgb(60, 112, 198); text-decoration: none; border-bottom: 1px solid rgb(60, 112, 198);">markdown.com.cn</a> 排版</p>
+        <p id="vex-suffix-juejin-container" class="vex-suffix-juejin-container" data-tool="markdown编辑器" style="font-size: 16px; padding-bottom: 8px; margin: 0; padding-top: 23px; color: rgb(74,74,74); line-height: 1.75em; margin-top: 20px !important;">本文使用 <a href="https://codewf.com" style="word-wrap: break-word; font-weight: bold; color: rgb(60, 112, 198); text-decoration: none; border-bottom: 1px solid rgb(60, 112, 198);">codewf.com</a> 排版</p>
         """;
 
     private static readonly SocialCopyProfile WechatCopyProfile = new(
@@ -1062,6 +1088,18 @@ public sealed class MarkdownExportService : IMarkdownExportService
             new(_localizer.Get(VexL.FileTypePng))
             {
                 Patterns = ["*.png"]
+            },
+            FilePickerFileTypes.All
+        ];
+    }
+
+    private IReadOnlyList<FilePickerFileType> CreateWordFileTypes()
+    {
+        return
+        [
+            new(_localizer.Get(VexL.ExportWord))
+            {
+                Patterns = ["*.docx"]
             },
             FilePickerFileTypes.All
         ];

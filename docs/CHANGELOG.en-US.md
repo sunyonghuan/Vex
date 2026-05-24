@@ -4,6 +4,14 @@
 
 ### Fixed
 
+- Opening a single Markdown/txt document now populates the left file list with supported Markdown documents from the same folder.
+- Properties, word count, and delete confirmation now open as UrsaWindow dialogs with selectable long names/paths; obsolete overlay implementations for those dialogs were removed.
+- File export now includes Word `.docx` output with basic Markdown structure, Word styles, and embedded local images. HTML, PDF, PNG, and Word exports open the save location after success.
+- HTML, PDF, PNG, and social-copy export paths now use the active typography/export style more consistently; PDF metadata text prefers CJK-capable fonts to avoid Chinese header/footer garbling.
+- The Help menu now exposes Theme Color and Typography as direct submenus, removes the duplicate View > Search item, and shows persisted check states for line numbers, status bar, and always-on-top.
+- Find and replace fields now cap text at 200 characters, force single-line input, and avoid layout expansion from pasted content.
+- WeChat, Zhihu, and Juejin copy now writes HTML clipboard content with `markdown编辑器` and `https://codewf.com` metadata, including the Juejin suffix.
+- Updated CodeWF Markdown and AvaloniaControls NuGet package versions, built `Vex.slnx -m:1`, and ran `git diff --check`.
 - Added `scripts/stress_vex_markdown_services.ps1` to generate realistic large Markdown input and time outline/statistics services.
 - Verified the default 120,000-line stress run: 10,336,464 characters, 154ms outline scan, 498ms statistics scan, with temporary work cleaned automatically.
 - Print preview and PDF header/footer fallback titles now use `DocumentDefaultFileName`/`DocumentDefaultHeading` resources for documents without a path or file name instead of hardcoded `Untitled.md`.

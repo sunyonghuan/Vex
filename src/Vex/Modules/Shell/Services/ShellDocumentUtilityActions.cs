@@ -1,6 +1,12 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Vex.Core.Models;
 using Vex.Core.Services;
 using Vex.Modules.Shell.ViewModels;
+using Vex.Modules.Shell.Views;
 
 namespace Vex.Modules.Shell.Services;
 
@@ -15,9 +21,9 @@ public sealed class ShellDocumentUtilityActions : IShellDocumentUtilityActions
         _text = text;
     }
 
-    public void ShowProperties(ShellDialogsViewModel dialogs, ShellDocumentInfoViewModel documentInfo)
+    public void ShowProperties(ShellDocumentInfoViewModel documentInfo)
     {
-        dialogs.ShowPropertiesPanel();
+        ShowWindow(new ShellPropertiesWindow(documentInfo));
         _text.PublishPropertiesSummary(
             documentInfo.CurrentDocumentTitle,
             documentInfo.DocumentStateText,
@@ -38,6 +44,7 @@ public sealed class ShellDocumentUtilityActions : IShellDocumentUtilityActions
             else
             {
                 _text.PublishExportedHtmlTo(Path.GetFileName(path));
+                OpenFileLocation(path);
             }
 
             return;
@@ -53,6 +60,7 @@ public sealed class ShellDocumentUtilityActions : IShellDocumentUtilityActions
             else
             {
                 _text.PublishExportedPdfTo(Path.GetFileName(path));
+                OpenFileLocation(path);
             }
 
             return;
@@ -68,6 +76,24 @@ public sealed class ShellDocumentUtilityActions : IShellDocumentUtilityActions
             else
             {
                 _text.PublishExportedPngTo(Path.GetFileName(path));
+                OpenFileLocation(path);
+            }
+
+            return;
+        }
+
+        if (format?.Equals("Word", StringComparison.OrdinalIgnoreCase) == true
+            || format?.Equals("DOCX", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            var path = await _exportService.ExportWordAsync(document with { Markdown = markdown });
+            if (path is null)
+            {
+                _text.PublishExportNotImplemented(format);
+            }
+            else
+            {
+                _text.PublishExportedWordTo(Path.GetFileName(path));
+                OpenFileLocation(path);
             }
 
             return;
@@ -95,9 +121,49 @@ public sealed class ShellDocumentUtilityActions : IShellDocumentUtilityActions
         _text.PublishPrintPreviewResult(path is null);
     }
 
-    public void WordCount(ShellDialogsViewModel dialogs, MarkdownStatistics statistics)
+    public void WordCount(ShellDocumentInfoViewModel documentInfo)
     {
-        dialogs.ShowStatisticsPanel();
-        _text.PublishStatisticsSummary(statistics);
+        ShowWindow(new ShellStatisticsWindow(documentInfo));
+        _text.PublishStatisticsSummary(documentInfo.Statistics);
+    }
+
+    private static void ShowWindow(Window window)
+    {
+        if (GetMainWindow() is { } owner)
+        {
+            window.Show(owner);
+            return;
+        }
+
+        window.Show();
+    }
+
+    private static void OpenFileLocation(string path)
+    {
+        var directory = Path.GetDirectoryName(path);
+        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+        {
+            return;
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            Process.Start("open", $"-R \"{path}\"");
+        }
+        else
+        {
+            Process.Start("xdg-open", $"\"{directory}\"");
+        }
+    }
+
+    private static Window? GetMainWindow()
+    {
+        return Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow }
+            ? mainWindow
+            : null;
     }
 }

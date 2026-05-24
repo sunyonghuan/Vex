@@ -21,6 +21,7 @@ public static class VexL
     public static readonly string AboutBrandLabel = "Vex.VexL.AboutBrandLabel";
     public static readonly string AboutBrandName = "Vex.VexL.AboutBrandName";
     public static readonly string AboutDescription = "Vex.VexL.AboutDescription";
+    public static readonly string AboutVexTitle = "Vex.VexL.AboutVexTitle";
     public static readonly string MenuFile = "Vex.VexL.MenuFile";
     public static readonly string MenuEdit = "Vex.VexL.MenuEdit";
     public static readonly string MenuParagraph = "Vex.VexL.MenuParagraph";
@@ -307,6 +308,7 @@ public static class VexL
     public static readonly string StatusExportedPdfToFormat = "Vex.VexL.StatusExportedPdfToFormat";
     public static readonly string StatusPngExportCanceled = "Vex.VexL.StatusPngExportCanceled";
     public static readonly string StatusExportedPngToFormat = "Vex.VexL.StatusExportedPngToFormat";
+    public static readonly string StatusExportedWordToFormat = "Vex.VexL.StatusExportedWordToFormat";
     public static readonly string StatusCopiedHtmlToPlatformFormat = "Vex.VexL.StatusCopiedHtmlToPlatformFormat";
     public static readonly string StatusCopyHtmlUnavailable = "Vex.VexL.StatusCopyHtmlUnavailable";
     public static readonly string StatusExportNotImplementedFormat = "Vex.VexL.StatusExportNotImplementedFormat";
