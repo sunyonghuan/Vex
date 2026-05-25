@@ -5,6 +5,7 @@
 ### Fixed
 
 - PDF/PNG/Word exports now share the `CodeWF.Markdown` image loader and rasterizer. They support relative local images, `data:image`, HTTP(S) images, SVG rasterization, and GIF/WebP PNG normalization; PDF and Word embed image assets so shared files remain viewable offline.
+- PDF/PNG/Word export implementation now uses `CodeWF.Markdown` 12.0.3.10 `MarkdownDocumentExporter`; Vex only selects the save path and passes the active typography theme instead of maintaining local Word/OpenXML, PDF slicing, and PNG rendering code.
 - Removed the View-menu Actual Size, Zoom In, and Zoom Out entries, plus the related window-level zoom shortcuts and status-bar zoom display.
 - Changelog, Acknowledgements, and About windows now show explicit title-bar text. Acknowledgements now loads `docs/Thanks.md` with Markdown links that can be opened from the dialog.
 - The left Files/Outline tab headers now use equal-width centered layout with a bold selected state to better match the requested reference.

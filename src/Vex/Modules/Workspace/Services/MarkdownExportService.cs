@@ -24,15 +24,11 @@ public sealed class MarkdownExportService : IMarkdownExportService
         .Build();
     private readonly IEditorAppearanceState _appearanceState;
     private readonly IAppLocalizer _localizer;
-    private readonly MarkdownPdfRenderer _pdfRenderer;
-    private readonly MarkdownPngRenderer _pngRenderer;
 
     public MarkdownExportService(IAppLocalizer localizer, IEditorAppearanceState appearanceState)
     {
         _localizer = localizer;
         _appearanceState = appearanceState;
-        _pdfRenderer = new MarkdownPdfRenderer(localizer);
-        _pngRenderer = new MarkdownPngRenderer(localizer);
     }
 
     public async Task<string?> ExportHtmlAsync(DocumentSnapshot document)
@@ -83,7 +79,13 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return null;
         }
 
-        _pdfRenderer.Render(document, path, ResolveExportStyle());
+        MarkdownDocumentExporter.ExportPdf(
+            ToExportDocument(document),
+            path,
+            ResolveExportStyle(),
+            new MarkdownPdfExportOptions(
+                _localizer.Get(VexL.DocumentDefaultHeading),
+                _localizer.Get(VexL.DocumentDefaultFileName)));
         return path;
     }
 
@@ -109,8 +111,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return null;
         }
 
-        using var bitmap = _pngRenderer.Render(document, ResolveExportStyle());
-        bitmap.Save(path);
+        MarkdownDocumentExporter.ExportPng(ToExportDocument(document), path, ResolveExportStyle());
         return path;
     }
 
@@ -136,7 +137,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return null;
         }
 
-        MarkdownDocxExporter.Export(document, path, ResolveExportStyle());
+        MarkdownDocumentExporter.ExportWord(ToExportDocument(document), path, ResolveExportStyle());
         return path;
     }
 
@@ -576,6 +577,11 @@ public sealed class MarkdownExportService : IMarkdownExportService
     private MarkdownExportStyle ResolveExportStyle()
     {
         return MarkdownExportStyle.Resolve(_appearanceState.TypographyTheme, _appearanceState.TypographySize);
+    }
+
+    private static MarkdownExportDocument ToExportDocument(DocumentSnapshot document)
+    {
+        return new MarkdownExportDocument(document.Markdown, document.FilePath, document.FileName);
     }
 
     private static SocialCopyProfile? ResolveSocialCopyProfile(string? target)
