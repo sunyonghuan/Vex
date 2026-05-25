@@ -1,18 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using CodeWF.Markdown;
 using Markdig;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.TaskLists;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using SkiaSharp;
-using Svg.Skia;
 using Vex.Core.Models;
 using Vex.Core.Services;
 using MarkdigInline = Markdig.Syntax.Inlines.Inline;
@@ -27,7 +25,6 @@ internal sealed class MarkdownPngRenderer
     private const double PagePaddingTop = 44;
     private const double PagePaddingBottom = 56;
     private const double MinPageHeight = 320;
-    private const int MaxSvgRasterDimension = 4096;
 
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
@@ -563,19 +560,13 @@ internal sealed class MarkdownPngRenderer
         bitmap = null;
         try
         {
-            if (TryGetDataImageBytes(url, out var dataBytes))
-            {
-                bitmap = LoadBitmap(dataBytes, null, localizer);
-                return true;
-            }
-
-            var path = ResolveLocalImagePath(url, documentPath);
-            if (path is null)
+            if (string.IsNullOrWhiteSpace(url))
             {
                 return false;
             }
 
-            bitmap = LoadBitmap(File.ReadAllBytes(path), path, localizer);
+            var imageSource = MarkdownImageSourceLoader.Load(url, documentPath);
+            bitmap = LoadBitmap(imageSource);
             return true;
         }
         catch
@@ -586,163 +577,13 @@ internal sealed class MarkdownPngRenderer
         }
     }
 
-    private static string? ResolveLocalImagePath(string? url, string? documentPath)
+    private static Bitmap LoadBitmap(MarkdownImageSource imageSource)
     {
-        if (string.IsNullOrWhiteSpace(url))
-        {
-            return null;
-        }
-
-        if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
-        {
-            return uri.IsFile && File.Exists(uri.LocalPath) ? uri.LocalPath : null;
-        }
-
-        foreach (var candidate in EnumerateLocalImagePathCandidates(url))
-        {
-            if (Path.IsPathRooted(candidate) && File.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
-
-        var baseDirectory = string.IsNullOrWhiteSpace(documentPath) ? null : Path.GetDirectoryName(documentPath);
-        if (string.IsNullOrWhiteSpace(baseDirectory))
-        {
-            return null;
-        }
-
-        foreach (var candidate in EnumerateLocalImagePathCandidates(url))
-        {
-            var relativePath = Path.GetFullPath(Path.Combine(baseDirectory, candidate));
-            if (File.Exists(relativePath))
-            {
-                return relativePath;
-            }
-        }
-
-        return null;
-    }
-
-    private static IEnumerable<string> EnumerateLocalImagePathCandidates(string url)
-    {
-        var normalized = url.Replace('/', Path.DirectorySeparatorChar);
-        yield return normalized;
-
-        var decoded = DecodeLocalImageUrl(normalized);
-        if (!string.Equals(decoded, normalized, StringComparison.Ordinal))
-        {
-            yield return decoded;
-        }
-    }
-
-    private static string DecodeLocalImageUrl(string url)
-    {
-        try
-        {
-            return Uri.UnescapeDataString(url);
-        }
-        catch (UriFormatException)
-        {
-            return url;
-        }
-    }
-
-    private static bool TryGetDataImageBytes(string? url, out byte[] bytes)
-    {
-        bytes = [];
-        if (string.IsNullOrWhiteSpace(url)
-            || !url.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var commaIndex = url.IndexOf(',', StringComparison.Ordinal);
-        if (commaIndex < 0 || !url[..commaIndex].Contains(";base64", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        try
-        {
-            bytes = Convert.FromBase64String(url[(commaIndex + 1)..]);
-            return bytes.Length > 0;
-        }
-        catch (FormatException)
-        {
-            bytes = [];
-            return false;
-        }
-    }
-
-    private static Bitmap LoadBitmap(byte[] bytes, string? path, IAppLocalizer localizer)
-    {
-        if ((path is not null && IsSvgPath(path)) || IsSvgBytes(bytes))
-        {
-            using var svgPng = new MemoryStream(RenderSvgToPngBytes(bytes, localizer));
-            return new Bitmap(svgPng);
-        }
-
+        var bytes = imageSource.IsSvg || imageSource.IsGif
+            ? MarkdownImageRasterizer.RenderToPngBytes(imageSource)
+            : imageSource.Bytes;
         using var stream = new MemoryStream(bytes);
         return new Bitmap(stream);
-    }
-
-    private static bool IsSvgPath(string path)
-    {
-        return string.Equals(Path.GetExtension(path), ".svg", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsSvgBytes(byte[] bytes)
-    {
-        var length = Math.Min(bytes.Length, 512);
-        if (length == 0)
-        {
-            return false;
-        }
-
-        var prefix = Encoding.UTF8.GetString(bytes, 0, length).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
-        return prefix.StartsWith("<svg", StringComparison.OrdinalIgnoreCase)
-               || prefix.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase)
-               && prefix.Contains("<svg", StringComparison.OrdinalIgnoreCase);
-    }
-
-    [UnconditionalSuppressMessage(
-        "Trimming",
-        "IL2026",
-        Justification = "Markdown export renders user-provided SVG files at runtime, so build-time SVG generation is not applicable.")]
-    private static byte[] RenderSvgToPngBytes(byte[] svgBytes, IAppLocalizer localizer)
-    {
-        using var svg = new SKSvg();
-        using var svgStream = new MemoryStream(svgBytes);
-        var picture = svg.Load(svgStream) ?? svg.Picture;
-        if (picture is null)
-        {
-            throw new InvalidDataException(localizer.Get(VexL.ExportDetailSvgPictureLoadFailed));
-        }
-
-        var bounds = picture.CullRect;
-        var width = Math.Max(1, (int)Math.Ceiling(bounds.Width));
-        var height = Math.Max(1, (int)Math.Ceiling(bounds.Height));
-        var scale = Math.Min(1d, MaxSvgRasterDimension / (double)Math.Max(width, height));
-        var scaledWidth = Math.Max(1, (int)Math.Ceiling(width * scale));
-        var scaledHeight = Math.Max(1, (int)Math.Ceiling(height * scale));
-
-        using var surface = SKSurface.Create(new SKImageInfo(scaledWidth, scaledHeight, SKColorType.Rgba8888, SKAlphaType.Premul));
-        if (surface is null)
-        {
-            throw new InvalidDataException(localizer.Get(VexL.ExportDetailSvgSurfaceCreateFailed));
-        }
-
-        var canvas = surface.Canvas;
-        canvas.Clear(SKColors.Transparent);
-        canvas.Scale((float)scale);
-        canvas.Translate(-bounds.Left, -bounds.Top);
-        canvas.DrawPicture(picture);
-        canvas.Flush();
-
-        using var image = surface.Snapshot();
-        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-        return data?.ToArray() ?? throw new InvalidDataException(localizer.Get(VexL.ExportDetailSvgEncodeFailed));
     }
 
     private static string GetInlineText(ContainerInline container)
