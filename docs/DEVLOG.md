@@ -4,8 +4,8 @@
 
 ### zh-CN
 
-- PDF/PNG 图像型导出图片加载逻辑下沉到 `CodeWF.Markdown`：Vex 更新到 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.8，`MarkdownPngRenderer` 改为复用公共 `MarkdownImageSourceLoader` 与 `MarkdownImageRasterizer`，统一支持本地相对图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF 首帧静态化，PDF 离线发送后可直接查看嵌入图片。
-- 验证 `dotnet test CodeWF.Markdown.slnx -v:minimal`、轻量图片栅格化 smoke（本地 SVG 与 GIF 首帧转 PNG）和 `dotnet restore Vex.slnx --no-cache` + `dotnet build Vex.slnx --no-restore -v:minimal` 均通过。
+- PDF/PNG/Word 导出图片加载逻辑下沉到 `CodeWF.Markdown`：Vex 更新到 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.8，`MarkdownPngRenderer` 与 `MarkdownDocxExporter` 改为复用公共 `MarkdownImageSourceLoader` 与 `MarkdownImageRasterizer`，统一支持本地相对图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 等格式的 PNG 规范化，导出文件离线发送后可直接查看嵌入图片。
+- 验证 `dotnet test CodeWF.Markdown.slnx -v:minimal`、轻量图片栅格化 smoke（本地 SVG 与 GIF 首帧转 PNG）、临时 Markdown 导出 Word smoke（`.docx` 内含 `word/media/image1.png` 与 `word/media/image2.png` 嵌入图片）和 `dotnet restore Vex.slnx --no-cache` + `dotnet build Vex.slnx --no-restore -v:minimal` 均通过。
 - 本轮继续处理 `D:\r.md` 中除社交复制外的体验问题：PDF/PNG 图像型导出补充 `data:image` 图片识别；Word 导出支持本地图片与 `data:image`，并把 SVG/WebP 转换为 PNG 嵌入 `.docx`，降低导出后缺图概率。
 - 视图菜单收口：移除“实际大小”“放大”“缩小”菜单项、窗口级缩放快捷键和状态栏缩放显示；编辑器字号回到固定默认值，保留行号显示设置。
 - 帮助类窗口标题与链接体验修复：更新日志/鸣谢 Markdown 窗口和关于窗口在 Ursa 标题栏左侧显示明确标题；鸣谢入口改为加载 `docs/Thanks.md`，官网与开源项目链接以 Markdown 链接形式渲染并可由 `MarkdownViewer` 打开。

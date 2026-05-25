@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Xml.Linq;
 using Avalonia.Media.Imaging;
+using CodeWF.Markdown;
 using Markdig;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.TaskLists;
@@ -18,7 +19,6 @@ internal static class MarkdownDocxExporter
     private const string StylesRelationshipId = "rIdStyles";
     private const long EmuPerPixelAt96Dpi = 9525;
     private const long MaxImageWidthEmu = 9026L * 635L;
-    private const int MaxSvgRasterDimension = 4096;
 
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
@@ -723,81 +723,6 @@ internal static class MarkdownDocxExporter
         }
     }
 
-    private static bool TryResolveLocalImagePath(string? url, string? documentPath, out string path)
-    {
-        path = string.Empty;
-        if (string.IsNullOrWhiteSpace(url)
-            || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
-        {
-            if (!uri.IsFile)
-            {
-                return false;
-            }
-
-            path = uri.LocalPath;
-            return File.Exists(path);
-        }
-
-        foreach (var candidate in EnumerateLocalImagePathCandidates(url))
-        {
-            if (Path.IsPathRooted(candidate))
-            {
-                path = candidate;
-                if (File.Exists(path))
-                {
-                    return true;
-                }
-            }
-        }
-
-        var baseDirectory = string.IsNullOrWhiteSpace(documentPath) ? null : Path.GetDirectoryName(documentPath);
-        if (string.IsNullOrWhiteSpace(baseDirectory))
-        {
-            return false;
-        }
-
-        foreach (var candidate in EnumerateLocalImagePathCandidates(url))
-        {
-            path = Path.GetFullPath(Path.Combine(baseDirectory, candidate));
-            if (File.Exists(path))
-            {
-                return true;
-            }
-        }
-
-        path = string.Empty;
-        return false;
-    }
-
-    private static IEnumerable<string> EnumerateLocalImagePathCandidates(string url)
-    {
-        var normalized = url.Replace('/', Path.DirectorySeparatorChar);
-        yield return normalized;
-
-        var decoded = DecodeLocalImageUrl(normalized);
-        if (!string.Equals(decoded, normalized, StringComparison.Ordinal))
-        {
-            yield return decoded;
-        }
-    }
-
-    private static string DecodeLocalImageUrl(string url)
-    {
-        try
-        {
-            return Uri.UnescapeDataString(url);
-        }
-        catch (UriFormatException)
-        {
-            return url;
-        }
-    }
-
     private static bool TryGetWordImageContentType(string path, out string extension, out string contentType)
     {
         extension = Path.GetExtension(path).ToLowerInvariant();
@@ -814,137 +739,23 @@ internal static class MarkdownDocxExporter
         return contentType.Length > 0;
     }
 
-    private static bool TryGetDataImageBytes(string? url, out byte[] bytes, out string extension)
-    {
-        bytes = [];
-        extension = string.Empty;
-        if (string.IsNullOrWhiteSpace(url)
-            || !url.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var commaIndex = url.IndexOf(',', StringComparison.Ordinal);
-        if (commaIndex < 0)
-        {
-            return false;
-        }
-
-        var metadata = url[..commaIndex];
-        if (!metadata.Contains(";base64", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        extension = metadata.ToLowerInvariant() switch
-        {
-            var value when value.Contains("image/png", StringComparison.Ordinal) => ".png",
-            var value when value.Contains("image/jpeg", StringComparison.Ordinal) => ".jpg",
-            var value when value.Contains("image/gif", StringComparison.Ordinal) => ".gif",
-            var value when value.Contains("image/bmp", StringComparison.Ordinal) => ".bmp",
-            var value when value.Contains("image/webp", StringComparison.Ordinal) => ".webp",
-            var value when value.Contains("image/svg+xml", StringComparison.Ordinal) => ".svg",
-            _ => ".png"
-        };
-
-        try
-        {
-            bytes = Convert.FromBase64String(url[(commaIndex + 1)..]);
-            return bytes.Length > 0;
-        }
-        catch (FormatException)
-        {
-            bytes = [];
-            extension = string.Empty;
-            return false;
-        }
-    }
-
-    private static bool IsSvgPath(string path)
-    {
-        return string.Equals(Path.GetExtension(path), ".svg", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsSvgBytes(byte[] bytes)
-    {
-        var length = Math.Min(bytes.Length, 512);
-        if (length == 0)
-        {
-            return false;
-        }
-
-        var prefix = System.Text.Encoding.UTF8.GetString(bytes, 0, length).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
-        return prefix.StartsWith("<svg", StringComparison.OrdinalIgnoreCase)
-               || prefix.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase)
-               && prefix.Contains("<svg", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static byte[] RenderSvgToPngBytes(byte[] svgBytes)
-    {
-        using var svg = new Svg.Skia.SKSvg();
-        using var svgStream = new MemoryStream(svgBytes);
-        var picture = svg.Load(svgStream) ?? svg.Picture;
-        if (picture is null)
-        {
-            throw new InvalidDataException("SVG picture could not be loaded.");
-        }
-
-        var bounds = picture.CullRect;
-        var width = Math.Max(1, (int)Math.Ceiling(bounds.Width));
-        var height = Math.Max(1, (int)Math.Ceiling(bounds.Height));
-        var scale = Math.Min(1d, MaxSvgRasterDimension / (double)Math.Max(width, height));
-        var scaledWidth = Math.Max(1, (int)Math.Ceiling(width * scale));
-        var scaledHeight = Math.Max(1, (int)Math.Ceiling(height * scale));
-
-        using var surface = SkiaSharp.SKSurface.Create(new SkiaSharp.SKImageInfo(
-            scaledWidth,
-            scaledHeight,
-            SkiaSharp.SKColorType.Rgba8888,
-            SkiaSharp.SKAlphaType.Premul));
-        if (surface is null)
-        {
-            throw new InvalidDataException("SVG rendering surface could not be created.");
-        }
-
-        var canvas = surface.Canvas;
-        canvas.Clear(SkiaSharp.SKColors.Transparent);
-        canvas.Scale((float)scale);
-        canvas.Translate(-bounds.Left, -bounds.Top);
-        canvas.DrawPicture(picture);
-        canvas.Flush();
-
-        using var image = surface.Snapshot();
-        using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Png, 100);
-        return data?.ToArray() ?? throw new InvalidDataException("SVG picture could not be encoded.");
-    }
-
     private static bool TryNormalizeImageForWord(
-        byte[] sourceBytes,
-        string sourceExtension,
+        MarkdownImageSource imageSource,
         out byte[] bytes,
         out string extension,
         out int pixelWidth,
         out int pixelHeight)
     {
-        bytes = sourceBytes;
-        extension = sourceExtension.ToLowerInvariant();
+        extension = Path.GetExtension(imageSource.FileName).ToLowerInvariant();
+        bytes = imageSource.Bytes;
         pixelWidth = 0;
         pixelHeight = 0;
 
         try
         {
-            if (extension == ".svg" || IsSvgBytes(sourceBytes))
+            if (!CanUseOriginalWordImage(imageSource, extension))
             {
-                bytes = RenderSvgToPngBytes(sourceBytes);
-                extension = ".png";
-            }
-            else if (extension == ".webp")
-            {
-                using var input = new MemoryStream(sourceBytes);
-                using var bitmap = new Bitmap(input);
-                using var output = new MemoryStream();
-                bitmap.Save(output);
-                bytes = output.ToArray();
+                bytes = MarkdownImageRasterizer.RenderToPngBytes(imageSource);
                 extension = ".png";
             }
 
@@ -966,6 +777,14 @@ internal static class MarkdownDocxExporter
             pixelHeight = 0;
             return false;
         }
+    }
+
+    private static bool CanUseOriginalWordImage(MarkdownImageSource imageSource, string extension)
+    {
+        return !imageSource.IsSvg
+               && !imageSource.IsGif
+               && TryGetWordImageContentType($"image{extension}", out _, out _)
+               && !string.Equals(extension, ".webp", StringComparison.OrdinalIgnoreCase);
     }
 
     private static (long Width, long Height) CalculateImageSizeEmu(int pixelWidth, int pixelHeight)
@@ -1052,35 +871,24 @@ internal static class MarkdownDocxExporter
         public bool TryCreateImageRun(LinkInline image, out XElement run)
         {
             run = null!;
-            byte[] sourceBytes;
-            string sourceExtension;
-            if (TryGetDataImageBytes(image.Url, out var dataBytes, out var dataExtension))
+
+            MarkdownImageSource imageSource;
+            try
             {
-                sourceBytes = dataBytes;
-                sourceExtension = dataExtension;
+                imageSource = MarkdownImageSourceLoader.Load(image.Url, documentPath);
             }
-            else if (TryResolveLocalImagePath(image.Url, documentPath, out var path))
-            {
-                try
-                {
-                    sourceBytes = File.ReadAllBytes(path);
-                    sourceExtension = Path.GetExtension(path);
-                }
-                catch (Exception ex) when (ex is IOException
-                                           or UnauthorizedAccessException
-                                           or ArgumentException
-                                           or NotSupportedException
-                                           or PathTooLongException)
-                {
-                    return false;
-                }
-            }
-            else
+            catch (Exception ex) when (ex is IOException
+                                       or UnauthorizedAccessException
+                                       or ArgumentException
+                                       or NotSupportedException
+                                       or PathTooLongException
+                                       or InvalidDataException
+                                       or HttpRequestException)
             {
                 return false;
             }
 
-            if (!TryNormalizeImageForWord(sourceBytes, sourceExtension, out var bytes, out var extension, out var pixelWidth, out var pixelHeight))
+            if (!TryNormalizeImageForWord(imageSource, out var bytes, out var extension, out var pixelWidth, out var pixelHeight))
             {
                 return false;
             }
