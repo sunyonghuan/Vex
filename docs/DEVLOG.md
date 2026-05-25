@@ -4,16 +4,16 @@
 
 ### zh-CN
 
-- 导出公共能力继续下沉：`CodeWF.Markdown` 新增 `MarkdownDocumentExporter`、`ExportKind`、`MarkdownExportDocument` 和公共 `MarkdownExportStyle`，封装 Markdown 字符串/文件到 PNG、图像型 PDF、Word `.docx` 的一站式导出；Vex 更新到本地 NuGet 包 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.12 后，PDF/PNG/Word 菜单统一调用 `ExportKind` 入口，只负责选文件和传当前主题，不再保留本地 `MarkdownPngRenderer`、`MarkdownPdfRenderer`、`MarkdownDocxExporter`。
+- 导出公共能力继续下沉：`CodeWF.Markdown` 新增 `MarkdownDocumentExporter`、`ExportKind`、`MarkdownExportDocument` 和公共 `MarkdownExportStyle`，封装 Markdown 字符串/文件到 PNG、可选择文本 PDF、Word `.docx` 的一站式导出；Vex 更新到本地 NuGet 包 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.13 后，PDF/PNG/Word 菜单统一调用 `ExportKind` 入口，只负责选文件和传当前主题，不再保留本地 `MarkdownPngRenderer`、`MarkdownPdfRenderer`、`MarkdownDocxExporter`。
 - 自媒体复制公共能力继续下沉：`CodeWF.Markdown` 新增 `CopyKind`、`MarkdownSocialCopyRenderer`、`MarkdownSocialCopyProfiles` 和 `MarkdownHtmlClipboardExtensions`，Vex 复制到公众号/知乎/稀土掘金只调用 `TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，不再维护本地平台 HTML 模板。
 - Word 导出实现从 Vex 移入 `CodeWF.Markdown`，图片嵌入 `word/media`，图片尺寸读取改用 SkiaSharp，避免公共导出 API 在无 Avalonia UI 平台初始化的环境下失败；新增 `.docx` 嵌入 `data:image` 图片测试。
-- 验证 `cmd /c pack.bat` 生成 `CodeWF.Markdown.12.0.3.12.nupkg` 等本地包，`dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -v:minimal` 41 项通过，Vex 使用本地包源构建 `Vex.slnx` 通过。
-- 自媒体复制链路修复：`CodeWF.Markdown` 新增 `MarkdownHtmlClipboard`、`MarkdownHtmlClipboardExtensions` 与自媒体 profile，并本地打包为 12.0.3.12；Vex 通过本地包源引用 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.12，不使用跨仓库项目引用。Windows `HTML Format` 改为 UTF-8 CF_HTML 字节载荷，公众号后台不再把 HTML 片段当普通文本显示。
+- 验证本地打包生成 `CodeWF.Markdown.12.0.3.13.nupkg` 和 `CodeWF.Markdown.Themes.12.0.3.13.nupkg`，`dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -f net8.0` 42 项通过，Vex 使用本地包源构建 `Vex.slnx` 通过。
+- 自媒体复制链路修复：`CodeWF.Markdown` 新增 `MarkdownHtmlClipboard`、`MarkdownHtmlClipboardExtensions` 与自媒体 profile，并本地打包为 12.0.3.13；Vex 通过本地包源引用 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.13，不使用跨仓库项目引用。Windows `HTML Format` 改为 UTF-8 CF_HTML 字节载荷，公众号后台不再把 HTML 片段当普通文本显示。
 - 复制到公众号、知乎、稀土掘金三条路径由 `CodeWF.Markdown` 统一读取当前 `MarkdownExportStyle`：根节点、标题、段落、列表、引用、代码块、表格、链接、分割线和掘金尾注都会内联当前排版主题与紧凑布局的颜色、字号、边框和背景。
-- 验证 `cmd /c pack.bat` 生成 `CodeWF.Markdown.12.0.3.12.nupkg` 等本地包；`dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -v:minimal` 41 项通过，`dotnet build Vex.slnx -v:minimal` 和 `git diff --check` 通过。
+- 验证 `CodeWF.Markdown.12.0.3.13.nupkg` 等本地包；`dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -f net8.0` 42 项通过，`dotnet build src\Vex\Vex.csproj -f net10.0 --no-restore` 和 `git diff --check` 通过。
 - PDF/PNG/Word 导出图片加载逻辑下沉到 `CodeWF.Markdown`：Vex 更新到 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.8，`MarkdownPngRenderer` 与 `MarkdownDocxExporter` 改为复用公共 `MarkdownImageSourceLoader` 与 `MarkdownImageRasterizer`，统一支持本地相对图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 等格式的 PNG 规范化，导出文件离线发送后可直接查看嵌入图片。
 - 验证 `dotnet test CodeWF.Markdown.slnx -v:minimal`、轻量图片栅格化 smoke（本地 SVG 与 GIF 首帧转 PNG）、临时 Markdown 导出 Word smoke（`.docx` 内含 `word/media/image1.png` 与 `word/media/image2.png` 嵌入图片）和 `dotnet restore Vex.slnx --no-cache` + `dotnet build Vex.slnx --no-restore -v:minimal` 均通过。
-- 本轮继续处理 `D:\r.md` 中除社交复制外的体验问题：PDF/PNG 图像型导出补充 `data:image` 图片识别；Word 导出支持本地图片与 `data:image`，并把 SVG/WebP 转换为 PNG 嵌入 `.docx`，降低导出后缺图概率。
+- 本轮继续处理 `D:\r.md` 中除社交复制外的体验问题：PDF/PNG 导出补充 `data:image` 图片识别；Word 导出支持本地图片与 `data:image`，并把 SVG/WebP 转换为 PNG 嵌入 `.docx`，降低导出后缺图概率。
 - 视图菜单收口：移除“实际大小”“放大”“缩小”菜单项、窗口级缩放快捷键和状态栏缩放显示；编辑器字号回到固定默认值，保留行号显示设置。
 - 帮助类窗口标题与链接体验修复：更新日志/鸣谢 Markdown 窗口和关于窗口在 Ursa 标题栏左侧显示明确标题；鸣谢入口改为加载 `docs/Thanks.md`，官网与开源项目链接以 Markdown 链接形式渲染并可由 `MarkdownViewer` 打开。
 - 左侧文件/大纲页签视觉调整：侧栏 `TabControl` header 改为等宽横向分布，页签内容居中，选中项加粗，贴近参考图里的文件/大纲 header 位置。
@@ -32,15 +32,15 @@
 - 验证默认 120,000 行压测：生成 10,336,464 字符 Markdown，大纲扫描 154ms、约 410,608 bytes 分配，统计扫描 498ms、约 416 bytes 分配，输出 3,000 个大纲标题和 1,802,106 词；脚本结束后自动清理临时工作目录。
 - 打印/PDF 默认文件名 i18n 边界收口：无路径、无文件名的文档导出时，HTML 打印预览页脚与 PDF 页眉/页脚不再硬编码 `Untitled.md`，改用现有 `DocumentDefaultFileName`/`DocumentDefaultHeading` 资源；PDF 渲染循环也只解析一次页眉和页脚标题。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 `MarkdownExportService` 与 `MarkdownPdfRenderer` 已引用 `DocumentDefaultFileName`/`DocumentDefaultHeading`，导出路径中不再直接写入 `Untitled.md`。
-- PNG/PDF 表格映射继续补齐：`MarkdownPngRenderer` 的表格单元格不再把内容压平成纯文本，而是以单元格内容栈渲染段落 inline，保留粗体、斜体、删除线、行内代码和链接颜色等样式；图像型 PDF 复用该渲染结果同步受益。
+- PNG/PDF 表格映射继续补齐：`MarkdownPngRenderer` 的表格单元格不再把内容压平成纯文本，而是以单元格内容栈渲染段落 inline，保留粗体、斜体、删除线、行内代码和链接颜色等样式；PDF 导出同步受益。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认表格单元格路径使用 `CreateTableCellContent`、`AddTableCellBlock` 与 `CreateTableParagraph`，旧的 `GetTableCellText`/`GetBlockText` 纯文本压平逻辑已移除。
 - Markdown 标题扫描逻辑合并：新增 `MarkdownHeadingScanner`，大纲、PDF 页眉标题和 HTML 打印预览标题共用同一套 `ReadOnlySpan<char>` 行扫描；扫描会跳过反引号/波浪线代码围栏，支持 3 空格以内缩进的 ATX 标题，并避免把围栏内示例标题误当作真实文档标题。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 `MarkdownExportService`、`MarkdownPdfRenderer` 与 `MarkdownOutlineService` 均调用共享扫描器，旧的 `StringReader`/`CountHeadingMarkers` 重复实现已移除。
 - 本地化更新日志摘要刷新：`CHANGELOG.zh-Hant.md` 与 `CHANGELOG.ja-JP.md` 补充最近的本地图片导出 URL 解码、任务列表 PNG/PDF 导出、大文件 span 扫描、暗色右键菜单和 MSIX `PrepareOnly` 边界修复摘要，降低繁体中文/日文帮助菜单打开更新日志时的信息滞后。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并确认两份本地化摘要文档仍由 `Vex.csproj` 作为内容复制到输出目录。
-- 本地图片导出路径边界修复：HTML/打印/复制与 PNG/PDF 图像型导出解析本地图片时，会先尝试原始相对/绝对路径，再尝试 URL 解码后的路径；相对路径同时统一处理 `/` 分隔符，避免 `my%20image.png` 这类带空格文件名在导出时缺图。
+- 本地图片导出路径边界修复：HTML/打印/复制与 PNG/PDF 导出解析本地图片时，会先尝试原始相对/绝对路径，再尝试 URL 解码后的路径；相对路径同时统一处理 `/` 分隔符，避免 `my%20image.png` 这类带空格文件名在导出时缺图。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 `MarkdownExportService` 与 `MarkdownPngRenderer` 均具备 `EnumerateLocalImagePathCandidates` 和 `Uri.UnescapeDataString` 回退路径。
-- PNG/PDF 块级映射继续补齐：图像型导出渲染列表时会识别 Markdig `TaskList` inline，把任务列表 marker 渲染为 `[ ]` 或 `[x]`，不再把 `- [ ]`/`- [x]` 导出成普通无状态项目符号。
+- PNG/PDF 块级映射继续补齐：PNG/PDF 导出渲染列表时会识别 Markdig `TaskList` inline，把任务列表 marker 渲染为 `[ ]` 或 `[x]`，不再把 `- [ ]`/`- [x]` 导出成普通无状态项目符号。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 `MarkdownPngRenderer` 引入 `Markdig.Extensions.TaskLists`、`ResolveListMarker` 与 `TryGetTaskListState`，任务列表 marker 具备未选中/已选中两种输出。
 - 大文件大纲扫描继续减分配：`MarkdownOutlineService` 不再用 `StringReader.ReadLine()` 为每一行分配字符串，改为基于 `ReadOnlySpan<char>` 扫描行边界、围栏和 ATX 标题；只有真正命中标题时才创建标题字符串，并补充识别 `~~~` 代码围栏。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认大纲路径使用 `AsSpan`、`FindLineEnd`、`MoveToNextLine` 和 `ReadOnlySpan<char>` 版 `TryParseHeading`，不再存在 `StringReader`/`ReadLine`。
@@ -58,7 +58,7 @@
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认文件夹扫描顺序为过滤支持文件、`Take(300)`、再排序。
 - 大文件替换路径优化：`ReplaceNext` 不再用整篇字符串拼接后重设编辑器文本，而是直接调用 AvaloniaEdit 文档级 `Replace`；`ReplaceAll` 生成最终文本后也通过文档替换整段内容，减少编辑器文档重建开销。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认替换路径已移除 `editor.Text = ...` 赋值，改用 `editor.Document.Replace(...)`。
-- PDF 排版主题映射继续细化：图像型 PDF 页面背景不再固定白色，而是使用导出样式背景；页眉页脚文字和分割线使用当前样式的弱文本色与边框色；分页空白带检测改为匹配页面背景色，暗色排版主题也能寻找自然断点。
+- PDF 排版主题映射继续细化：PDF 页面背景不再固定白色，而是使用导出样式背景；页眉页脚文字和分割线使用当前样式的弱文本色与边框色；分页策略会读取当前页面背景和导出样式。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 PDF 背景、页眉页脚元数据颜色和分页空白检测均读取 `MarkdownExportStyle`。
 - 查找计数路径继续减分配：`EditorSearchAction.Count` 不再为全部命中构建 `SearchMatch` 列表，而是在一次扫描中统计总数和当前命中索引；正则计数也只枚举匹配并计数。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用源码结构 smoke 确认 Count 路径调用新的计数扫描，保留 Find/Replace 路径的完整命中列表。
@@ -74,7 +74,7 @@
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖 `zh-TW`、`zh-HK`、`zh-SG` 与 `fr-FR` 的帮助文档解析结果。
 - 打印预览继续成熟化：HTML 预览工具条新增纸张、边距和页眉页脚开关，打印 CSS 动态写入 `@page`，正式打印时可固定显示文档标题页眉和文件页脚。
 - 验证四套 i18n JSON 可解析，`dotnet build Vex.slnx -v:minimal` 通过，并用临时 console smoke 覆盖打印预览 HTML 的纸张/边距控件、页眉页脚节点和动态 `@page` 脚本。
-- 导出排版主题映射增强：HTML/打印、PNG 与图像型 PDF 共用 `MarkdownExportStyle`，导出时读取当前 Markdown 排版主题和紧凑布局，不再固定使用单一浅色样式。
+- 导出排版主题映射增强：HTML/打印、PNG 与 PDF 共用 `MarkdownExportStyle`，导出时读取当前 Markdown 排版主题和紧凑布局，不再固定使用单一浅色样式。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 反射覆盖 `InkBlack + Small` 导出 HTML 的暗色背景、正文颜色、紧凑字号和链接色。
 - 大文件统计路径继续优化：`MarkdownStatisticsService` 的行数、段落、标题和横线统计合并为单次字符扫描，移除逐行 `StringReader` 与正则匹配。
 - 验证 `dotnet build Vex.slnx -v:minimal`，并用临时 console smoke 覆盖 CRLF/LF 行数、段落、标题和横线统计。
@@ -168,7 +168,7 @@
 - 验证 `dotnet build Vex.slnx -v:minimal`、`git diff --check`，并确认 Debug 输出目录包含 `QuickStart.en-US.md` 和 `ACKNOWLEDGEMENTS.en-US.md`。
 - 同步更新 `docs/Vex需求文档.md` 的当前能力快照与未完成重点清单，避免后续继续把已完成的 PDF/PNG、查找增强和深色浮层适配当作未完成项。
 - 验证 `git diff --check`。
-- 优化 PDF 导出分页：分页切片会在目标页尾附近优先寻找空白横行作为断点，减少图像型 PDF 正好切过正文、表格或代码行的概率。
+- 优化 PDF 导出分页：分页策略会在目标页尾附近优先寻找自然断点，减少 PDF 正好切过正文、表格或代码行的概率。
 - 验证 `dotnet build Vex.slnx -v:minimal`、`git diff --check`，并通过临时 smoke 程序重新生成 PDF。输出路径：`%TEMP%\VexScreenshots\pdf-export-smoke.pdf`。
 - 整理标题栏帮助体验：收紧标题栏菜单间距，将当前文件名移到菜单右侧紧邻展示，并从帮助菜单移除重复的“快速开始（引导）”入口。
 - 更新日志和鸣谢改为独立 UrsaWindow 窗口，使用 CodeWF.Markdown `MarkdownViewer` 渲染内置 Markdown；鸣谢入口改为加载随程序输出的 `docs/Thanks.md`。
@@ -179,16 +179,16 @@
 
 ### en-US
 
-- Continued moving export capabilities into `CodeWF.Markdown`: the package now provides `MarkdownDocumentExporter`, `ExportKind`, `MarkdownExportDocument`, and public `MarkdownExportStyle` APIs for Markdown string/file export to PNG, image-based PDF, and Word `.docx`. After updating to local NuGet packages `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.12, Vex export menu actions call the unified `ExportKind` entry point, choose the save path, and pass the active theme; local `MarkdownPngRenderer`, `MarkdownPdfRenderer`, and `MarkdownDocxExporter` were removed from Vex.
+- Continued moving export capabilities into `CodeWF.Markdown`: the package now provides `MarkdownDocumentExporter`, `ExportKind`, `MarkdownExportDocument`, and public `MarkdownExportStyle` APIs for Markdown string/file export to PNG, selectable-text PDF, and Word `.docx`. After updating to local NuGet packages `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.13, Vex export menu actions call the unified `ExportKind` entry point, choose the save path, and pass the active theme; local `MarkdownPngRenderer`, `MarkdownPdfRenderer`, and `MarkdownDocxExporter` were removed from Vex.
 - Continued moving social-copy capabilities into `CodeWF.Markdown`: the package now provides `CopyKind`, `MarkdownSocialCopyRenderer`, `MarkdownSocialCopyProfiles`, and `MarkdownHtmlClipboardExtensions`; Vex copy actions call `TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)` instead of maintaining local platform HTML templates.
 - Word export moved from Vex into `CodeWF.Markdown`, embeds images under `word/media`, and now uses SkiaSharp for image sizing so the public export API does not require Avalonia UI platform initialization. Added a `.docx` test covering embedded `data:image` content.
-- Verified `cmd /c pack.bat` produced `CodeWF.Markdown.12.0.3.12.nupkg` and related local packages, `dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -v:minimal` passed 41 tests, and Vex built against the local package source.
-- Fixed the social-copy pipeline: `CodeWF.Markdown` now includes `MarkdownHtmlClipboard`, `MarkdownHtmlClipboardExtensions`, and social copy profiles, and was packed locally as 12.0.3.12; Vex consumes `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.12 from the existing local package source, without a cross-repository project reference. Windows `HTML Format` is now UTF-8 CF_HTML bytes, so WeChat's editor no longer receives the HTML fragment as plain text.
+- Verified local packing produced `CodeWF.Markdown.12.0.3.13.nupkg` and `CodeWF.Markdown.Themes.12.0.3.13.nupkg`, `dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -f net8.0` passed 42 tests, and Vex built against the local package source.
+- Fixed the social-copy pipeline: `CodeWF.Markdown` now includes `MarkdownHtmlClipboard`, `MarkdownHtmlClipboardExtensions`, and social copy profiles, and was packed locally as 12.0.3.13; Vex consumes `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.13 from the existing local package source, without a cross-repository project reference. Windows `HTML Format` is now UTF-8 CF_HTML bytes, so WeChat's editor no longer receives the HTML fragment as plain text.
 - Copy to WeChat, Zhihu, and Juejin now all read the active `MarkdownExportStyle` through `CodeWF.Markdown`: root, headings, paragraphs, lists, quotes, code blocks, tables, links, rules, and the Juejin suffix inline the current typography theme and compact-layout colors, font sizes, borders, and backgrounds.
-- Verified `cmd /c pack.bat` produced `CodeWF.Markdown.12.0.3.12.nupkg` and related local packages; `dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -v:minimal` passed 41 tests, `dotnet build Vex.slnx -v:minimal`, and `git diff --check` passed.
+- Verified `CodeWF.Markdown.12.0.3.13.nupkg` and related local packages; `dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -f net8.0` passed 42 tests, `dotnet build src\Vex\Vex.csproj -f net10.0 --no-restore`, and `git diff --check` passed.
 - Moved PDF/PNG/Word export image loading into `CodeWF.Markdown`: Vex now references `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.8, and `MarkdownPngRenderer` plus `MarkdownDocxExporter` reuse the shared `MarkdownImageSourceLoader` and `MarkdownImageRasterizer` for relative local images, `data:image`, HTTP(S) images, SVG rasterization, and GIF/WebP PNG normalization, so exported files can be sent and viewed offline with embedded images.
 - Verified `dotnet test CodeWF.Markdown.slnx -v:minimal`, a lightweight image-raster smoke covering local SVG and GIF first-frame PNG output, a temporary Markdown-to-Word smoke confirming `word/media/image1.png` and `word/media/image2.png` are embedded in the `.docx`, and `dotnet restore Vex.slnx --no-cache` plus `dotnet build Vex.slnx --no-restore -v:minimal`.
-- Continued addressing the actionable `D:\r.md` items except social-copy follow-up: PDF/PNG image-based export now recognizes `data:image` sources, while Word export embeds local, relative, `data:image`, and HTTP(S) images and converts SVG/GIF/WebP assets to PNG before writing them into `.docx`.
+- Continued addressing the actionable `D:\r.md` items except social-copy follow-up: PDF/PNG export now recognizes `data:image` sources, while Word export embeds local, relative, `data:image`, and HTTP(S) images and converts SVG/GIF/WebP assets to PNG before writing them into `.docx`.
 - Removed the View-menu Actual Size, Zoom In, and Zoom Out entries, their window-level zoom shortcuts, and the status-bar zoom indicator. The editor now keeps the default fixed font size while preserving the line-number display setting.
 - Fixed Help-window title and link behavior: Changelog/Acknowledgements Markdown windows and the About window now show explicit left title-bar text; Acknowledgements loads `docs/Thanks.md`, whose website and project entries are Markdown links rendered by `MarkdownViewer`.
 - Adjusted the left Files/Outline tab headers so the sidebar `TabControl` uses equal-width horizontal headers, centered text, and a bold selected state matching the referenced layout.
@@ -203,9 +203,9 @@
 - Built `Vex.slnx` and used a source-structure smoke to verify `MarkdownExportService`, `MarkdownPdfRenderer`, and `MarkdownOutlineService` all call the shared scanner, with the old duplicated `StringReader`/`CountHeadingMarkers` implementations removed.
 - Refreshed localized changelog summaries: `CHANGELOG.zh-Hant.md` and `CHANGELOG.ja-JP.md` now mention recent local-image URL decoding, PNG/PDF task-list export, large-file span scanning, dark context-menu theming, and the MSIX `PrepareOnly` edge fix so localized Help > Changelog windows are not stale.
 - Built `Vex.slnx` and confirmed both localized summary documents are still copied to the output by `Vex.csproj` content entries.
-- Fixed a local-image export path edge case: HTML/print/copy and PNG/PDF image-based exports now try both the original relative/absolute path and a URL-decoded path, with `/` separators normalized for relative paths, so files such as `my%20image.png` can resolve to local filenames with spaces.
+- Fixed a local-image export path edge case: HTML/print/copy and PNG/PDF exports now try both the original relative/absolute path and a URL-decoded path, with `/` separators normalized for relative paths, so files such as `my%20image.png` can resolve to local filenames with spaces.
 - Built `Vex.slnx` and used a source-structure smoke to verify both `MarkdownExportService` and `MarkdownPngRenderer` include `EnumerateLocalImagePathCandidates` plus the `Uri.UnescapeDataString` fallback path.
-- Further filled PNG/PDF block mapping: image-based export now recognizes Markdig `TaskList` inlines while rendering lists and uses `[ ]` or `[x]` markers, so `- [ ]`/`- [x]` tasks no longer export as plain stateless bullets.
+- Further filled PNG/PDF block mapping: PNG/PDF export now recognizes Markdig `TaskList` inlines while rendering lists and uses `[ ]` or `[x]` markers, so `- [ ]`/`- [x]` tasks no longer export as plain stateless bullets.
 - Built `Vex.slnx` and used a source-structure smoke to verify `MarkdownPngRenderer` imports `Markdig.Extensions.TaskLists`, uses `ResolveListMarker` and `TryGetTaskListState`, and has unchecked/checked task-list marker outputs.
 - Further reduced outline-scan allocations for large files: `MarkdownOutlineService` no longer allocates one string per line through `StringReader.ReadLine()`, and instead scans line boundaries, fences, and ATX headings with `ReadOnlySpan<char>`; it creates a title string only when a heading is found and now recognizes `~~~` fences too.
 - Built `Vex.slnx` and used a source-structure smoke to verify the outline path uses `AsSpan`, `FindLineEnd`, `MoveToNextLine`, and a `ReadOnlySpan<char>` `TryParseHeading`, with no remaining `StringReader`/`ReadLine` path.
@@ -223,7 +223,7 @@
 - Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming folder scans filter supported files, `Take(300)`, then sort.
 - Optimized the large-file replace path: `ReplaceNext` no longer rebuilds the whole editor text with string concatenation, and instead calls AvaloniaEdit document-level `Replace`; `ReplaceAll` also replaces the document content after building the final text, reducing editor-document reset overhead.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming replace paths removed `editor.Text = ...` assignment and now use `editor.Document.Replace(...)`.
-- Further refined PDF typography-theme mapping: image-based PDF pages no longer force a white background; header/footer text and divider lines use the current style muted and border colors; page-break blank-band detection now matches the page background color so dark typography themes can also find natural breaks.
+- Further refined PDF typography-theme mapping: PDF pages no longer force a white background; header/footer text and divider lines use the current style muted and border colors; page-break handling reads the page background and export style.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming PDF background, header/footer metadata colors, and blank-band detection all read `MarkdownExportStyle`.
 - Further reduced find-count allocations: `EditorSearchAction.Count` no longer builds a `SearchMatch` list for every hit, and instead computes total count plus current match index in one scan; regex count also enumerates matches only for counting.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a source-structure smoke confirming Count uses the new counting scan while Find/Replace still keep full match lists.
@@ -239,7 +239,7 @@
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering `zh-TW`, `zh-HK`, `zh-SG`, and `fr-FR` help-document resolution.
 - Further matured print preview: the HTML preview toolbar now includes paper, margin, and header/footer controls; print CSS writes a dynamic `@page`, and printed pages can show a fixed document-title header and file footer.
 - Verified all four i18n JSON files, `dotnet build Vex.slnx -v:minimal`, and a temporary console smoke covering print-preview HTML paper/margin controls, header/footer nodes, and the dynamic `@page` script.
-- Improved export typography-theme mapping: HTML/print, PNG, and image-based PDF now share `MarkdownExportStyle`, reading the current Markdown typography theme and compact layout instead of always using one light style.
+- Improved export typography-theme mapping: HTML/print, PNG, and PDF now share `MarkdownExportStyle`, reading the current Markdown typography theme and compact layout instead of always using one light style.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke to cover `InkBlack + Small` export HTML background, body color, compact font size, and link color.
 - Further optimized large-file statistics: `MarkdownStatisticsService` now counts lines, paragraphs, headings, and horizontal rules in one character scan, removing per-line `StringReader` and regex work.
 - Verified `dotnet build Vex.slnx -v:minimal` and used a temporary console smoke covering CRLF/LF line counts, paragraphs, headings, and horizontal rules.

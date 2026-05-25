@@ -4,9 +4,9 @@
 
 ### Fixed
 
-- PDF/PNG/Word exports now share the `CodeWF.Markdown` image loader and rasterizer. They support relative local images, `data:image`, HTTP(S) images, SVG rasterization, and GIF/WebP PNG normalization; PDF and Word embed image assets so shared files remain viewable offline.
-- PDF/PNG/Word export implementation now uses `CodeWF.Markdown` 12.0.3.12 `MarkdownDocumentExporter`; Vex calls the unified `ExportKind` entry point and only selects the save path plus active typography theme instead of maintaining local Word/OpenXML, PDF slicing, and PNG rendering code.
-- WeChat, Zhihu, and Juejin copy now uses `CodeWF.Markdown` 12.0.3.12 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`, so Vex only passes the current Markdown, active typography theme, and publishing target.
+- PDF/PNG/Word exports now share the `CodeWF.Markdown` image loader and rasterizer. They support relative local images, `data:image`, HTTP(S) images, SVG rasterization, and GIF/WebP PNG normalization; PDF now keeps Markdown body text selectable and copyable while PDF and Word embed image assets for offline sharing.
+- PDF/PNG/Word export implementation now uses `CodeWF.Markdown` 12.0.3.13 `MarkdownDocumentExporter`; Vex calls the unified `ExportKind` entry point and only selects the save path plus active typography theme instead of maintaining local Word/OpenXML, PDF text layout, and PNG rendering code.
+- WeChat, Zhihu, and Juejin copy now uses `CodeWF.Markdown` 12.0.3.13 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`, so Vex only passes the current Markdown, active typography theme, and publishing target.
 - Social-copy platform profiles, inline HTML rendering, image embedding, CF_HTML output, and localized suffix/tool metadata now live in `CodeWF.Markdown`; Vex no longer maintains local WeChat/Zhihu/Juejin HTML templates.
 - Removed the View-menu Actual Size, Zoom In, and Zoom Out entries, plus the related window-level zoom shortcuts and status-bar zoom display.
 - Changelog, Acknowledgements, and About windows now show explicit title-bar text. Acknowledgements now loads `docs/Thanks.md` with Markdown links that can be opened from the dialog.
@@ -26,7 +26,7 @@
 - Verified the default 120,000-line stress run: 10,336,464 characters, 154ms outline scan, 498ms statistics scan, with temporary work cleaned automatically.
 - Print preview and PDF header/footer fallback titles now use `DocumentDefaultFileName`/`DocumentDefaultHeading` resources for documents without a path or file name instead of hardcoded `Untitled.md`.
 - Built `Vex.slnx` and used a source-structure smoke to verify the export service and PDF renderer read the default document-name resources.
-- PNG/PDF image-based export table cells now render paragraph inlines, preserving bold, italic, strikethrough, inline code, and link styling instead of flattening everything to plain text.
+- PNG/PDF export table cells now render paragraph inlines, preserving bold, italic, strikethrough, inline code, and link styling instead of flattening everything to plain text.
 - Built `Vex.slnx` and used a source-structure smoke to verify the table-cell path no longer uses the plain-text flattening helpers.
 - Outline, PDF header, and HTML print-preview title extraction now share `MarkdownHeadingScanner`, using a span-based scan that skips fenced sample headings and removes duplicated per-line string scanning.
 - Built `Vex.slnx` and used a source-structure smoke to verify all three heading-scan paths call the shared scanner.
@@ -34,7 +34,7 @@
 - Built `Vex.slnx` and confirmed the localized changelog summary files are still copied to output by the project file.
 - HTML/print/copy and PNG/PDF exports now try URL-decoded local image paths, so `my%20image.png` can resolve to a local filename containing spaces.
 - Built `Vex.slnx` and used a source-structure smoke to verify both image export paths include URL-decoding fallback.
-- PNG/PDF image-based export now preserves task-list state by rendering `- [ ]` and `- [x]` as `[ ]`/`[x]` markers instead of plain bullets.
+- PNG/PDF export now preserves task-list state by rendering `- [ ]` and `- [x]` as `[ ]`/`[x]` markers instead of plain bullets.
 - Built `Vex.slnx` and used a source-structure smoke to verify the export renderer reads Markdig TaskList state.
 - Markdown outline scans now parse lines through `ReadOnlySpan<char>`, avoiding one string allocation per line; title text is allocated only for actual headings, and `~~~` code fences are skipped too.
 - Built `Vex.slnx` and used a source-structure smoke to verify the outline path no longer uses `StringReader.ReadLine()`.
@@ -52,7 +52,7 @@
 - Built `Vex.slnx` and used a source-structure smoke to verify folder scans `Take(300)` before sorting.
 - Replace next and replace all now use AvaloniaEdit document-level `Replace`, avoiding full editor-text resets for single replacements.
 - Built `Vex.slnx` and used a source-structure smoke to verify replace paths use `editor.Document.Replace(...)`.
-- Image-based PDF background, header/footer metadata colors, and page-break blank-band detection now use the active export style, so dark typography themes no longer search for white page breaks.
+- PDF page background, header/footer metadata colors, and page-break handling now use the active export style, so dark typography themes no longer assume white page breaks.
 - Built `Vex.slnx` and used a source-structure smoke to verify PDF background, metadata colors, and blank-band detection read the export style.
 - Changed the find Count path to compute total matches and current index in one scan instead of allocating a `SearchMatch` list for every hit.
 - Built `Vex.slnx` and used a source-structure smoke to verify Count uses the new counting scan while Find/Replace still keep full match lists.
@@ -68,7 +68,7 @@
 - Built `Vex.slnx` and used a temporary console smoke covering `zh-TW`, `zh-HK`, `zh-SG`, and `fr-FR` help-document resolution.
 - Print preview now supports paper, margin, and header/footer controls, with fixed document-title headers and file footers available during printing.
 - Parsed all four i18n JSON files, built `Vex.slnx`, and used a temporary console smoke covering print-preview HTML paper/margin controls, header/footer nodes, and the dynamic `@page` script.
-- HTML/print, PNG, and image-based PDF exports now read the current Markdown typography theme and compact layout through a shared export style map instead of always using one light style.
+- HTML/print, PNG, and PDF exports now read the current Markdown typography theme and compact layout through a shared export style map instead of always using one light style.
 - Built `Vex.slnx` and used a temporary console smoke covering `InkBlack + Small` export HTML background, body color, compact font size, and link color.
 - Markdown line, paragraph, heading, and horizontal-rule statistics now use one character scan, reducing per-line regex overhead in large documents.
 - Built `Vex.slnx` and used a temporary console smoke covering CRLF/LF line counts, paragraphs, headings, and horizontal rules.

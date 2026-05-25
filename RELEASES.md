@@ -20,8 +20,8 @@ Vex 1.1.0 focuses on moving Markdown export and publishing-copy behavior into th
 
 Highlights:
 
-- PDF, PNG, and Word export now use `CodeWF.Markdown` 12.0.3.12 `MarkdownDocumentExporter` and `ExportKind`.
-- Exported PDF and Word documents embed relative local, `data:image`, HTTP(S), SVG/GIF/WebP images so shared files remain viewable offline.
+- PDF, PNG, and Word export now use `CodeWF.Markdown` 12.0.3.13 `MarkdownDocumentExporter` and `ExportKind`.
+- Exported PDF documents now keep Markdown body text selectable and copyable while embedding relative local, `data:image`, HTTP(S), SVG/GIF/WebP images; Word documents continue to embed those images for offline sharing.
 - Copy to WeChat Official Account, Zhihu, and Juejin now uses `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync`, passing only the current Markdown, active typography theme, and publishing target.
 - Social-copy platform profiles, inline HTML rendering, CF_HTML output, image embedding, and localized suffix/tool metadata now live in `CodeWF.Markdown`.
 - Vex consumes locally packed `CodeWF.Markdown` NuGet packages instead of cross-repository project references.
@@ -37,8 +37,8 @@ Vex 1.1.0 重点将 Markdown 导出与自媒体复制能力下沉到共享的 `C
 
 主要亮点：
 
-- PDF、PNG 和 Word 导出改用 `CodeWF.Markdown` 12.0.3.12 的 `MarkdownDocumentExporter` 与 `ExportKind`。
-- 导出的 PDF 和 Word 会嵌入相对本地图、`data:image`、HTTP(S)、SVG/GIF/WebP 图片，文件离线分享后仍可查看。
+- PDF、PNG 和 Word 导出改用 `CodeWF.Markdown` 12.0.3.13 的 `MarkdownDocumentExporter` 与 `ExportKind`。
+- 导出的 PDF 会保留 Markdown 正文为可选择、可复制文本，并嵌入相对本地图、`data:image`、HTTP(S)、SVG/GIF/WebP 图片；Word 会继续嵌入这些图片，文件离线分享后仍可查看。
 - 复制到微信公众号、知乎、稀土掘金改用 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync`，Vex 只传当前 Markdown、排版主题和发布目标。
 - 自媒体平台 profile、inline HTML 渲染、CF_HTML 写入、图片嵌入和尾注/工具名多语言文案已下沉到 `CodeWF.Markdown`。
 - Vex 通过本地打包的 `CodeWF.Markdown` NuGet 包引用公共能力，不使用跨仓库项目引用。

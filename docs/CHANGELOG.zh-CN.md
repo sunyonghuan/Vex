@@ -4,9 +4,9 @@
 
 ### 修复
 
-- 🐞[修复]-PDF/PNG/Word 导出共用 `CodeWF.Markdown` 图片加载与栅格化能力，支持相对本地图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 转 PNG；PDF 与 Word 会嵌入图片资源，离线发送后仍可查看。
-- 🔧[优化]-PDF/PNG/Word 导出实现下沉到 `CodeWF.Markdown` 12.0.3.12 的 `MarkdownDocumentExporter`，Vex 端统一调用 `ExportKind` 入口，只负责选择保存路径和传入当前排版主题，不再维护本地 Word/OpenXML、PDF 切片和 PNG 渲染器。
-- 🔧[优化]-复制到公众号、知乎、稀土掘金现在调用 `CodeWF.Markdown` 12.0.3.12 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，Vex 端只传当前 Markdown、排版主题和发布目标。
+- 🐞[修复]-PDF/PNG/Word 导出共用 `CodeWF.Markdown` 图片加载与栅格化能力，支持相对本地图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 转 PNG；PDF 正文现在可选择、可复制，PDF 与 Word 也会嵌入图片资源，离线发送后仍可查看。
+- 🔧[优化]-PDF/PNG/Word 导出实现下沉到 `CodeWF.Markdown` 12.0.3.13 的 `MarkdownDocumentExporter`，Vex 端统一调用 `ExportKind` 入口，只负责选择保存路径和传入当前排版主题，不再维护本地 Word/OpenXML、PDF 文本排版和 PNG 渲染器。
+- 🔧[优化]-复制到公众号、知乎、稀土掘金现在调用 `CodeWF.Markdown` 12.0.3.13 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，Vex 端只传当前 Markdown、排版主题和发布目标。
 - 🔧[优化]-自媒体平台 profile、inline HTML 渲染、图片嵌入、CF_HTML 写入和尾注/工具名多语言文案已下沉到 `CodeWF.Markdown`，Vex 不再维护本地公众号/知乎/掘金 HTML 模板。
 - 🔧[优化]-视图菜单移除“实际大小”“放大”“缩小”，同步删除窗口级缩放快捷键和状态栏缩放显示。
 - 🐞[修复]-更新日志、鸣谢和关于窗口的标题栏显示明确标题；鸣谢改为加载带 Markdown 链接的 `docs/Thanks.md`，链接可点击打开。
@@ -26,7 +26,7 @@
 - 🧪[测试]-默认 120,000 行压测通过：10,336,464 字符，大纲 154ms，统计 498ms，并自动清理临时工作目录。
 - 🐞[修复]-无路径且无文件名的文档导出时，打印预览和 PDF 页眉页脚改用 `DocumentDefaultFileName`/`DocumentDefaultHeading` 资源，不再在导出路径硬编码 `Untitled.md`。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证导出服务和 PDF 渲染器都读取默认文档名资源。
-- 🔧[优化]-PNG/PDF 图像型导出的表格单元格改为渲染段落 inline，保留粗体、斜体、删除线、行内代码和链接样式，不再全部压平成纯文本。
+- 🔧[优化]-PNG/PDF 导出的表格单元格改为渲染段落 inline，保留粗体、斜体、删除线、行内代码和链接样式，不再全部压平成纯文本。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证表格单元格路径已移除纯文本压平逻辑。
 - 🔧[优化]-大纲、PDF 页眉和 HTML 打印预览标题共用 `MarkdownHeadingScanner`，用 span 扫描跳过代码围栏内的示例标题，并减少重复逐行字符串分配。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证三条标题扫描路径都调用共享扫描器。
@@ -34,7 +34,7 @@
 - 🧪[测试]-构建 `Vex.slnx`，并确认本地化更新日志摘要仍由项目文件复制到输出目录。
 - 🐞[修复]-HTML/打印/复制与 PNG/PDF 导出解析本地图片时会尝试 URL 解码后的路径，`my%20image.png` 可正确匹配带空格的本地文件名。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证两条图片导出链路都具备 URL 解码回退。
-- 🔧[优化]-PNG/PDF 图像型导出会识别任务列表状态，将 `- [ ]` 与 `- [x]` 渲染为 `[ ]`/`[x]` marker，不再退化为普通项目符号。
+- 🔧[优化]-PNG/PDF 导出会识别任务列表状态，将 `- [ ]` 与 `- [x]` 渲染为 `[ ]`/`[x]` marker，不再退化为普通项目符号。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证导出渲染器接入 Markdig TaskList 状态。
 - 🔧[优化]-Markdown 大纲扫描改为 `ReadOnlySpan<char>` 逐行解析，避免为每一行分配字符串；只在命中标题时创建标题文本，并补充跳过 `~~~` 代码围栏。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证大纲路径不再使用 `StringReader.ReadLine()`。
@@ -52,7 +52,7 @@
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证文件夹扫描先 `Take(300)` 再排序。
 - 🔧[优化]-替换下一个和全部替换改用 AvaloniaEdit 文档级 `Replace`，避免单次替换也重建整篇编辑器文本。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证替换路径使用 `editor.Document.Replace(...)`。
-- 🔧[优化]-图像型 PDF 的页面背景、页眉页脚元数据颜色和分页空白带检测继续接入当前排版导出样式，暗色排版主题不再按白底寻找断点。
+- 🔧[优化]-PDF 页面背景、页眉页脚元数据颜色和分页策略继续接入当前排版导出样式，暗色排版主题不再按白底假设处理页面样式。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证 PDF 背景、元数据颜色和空白带检测均读取导出样式。
 - 🔧[优化]-查找 Count 路径改为单次扫描直接计算总数和当前命中索引，不再为全部命中分配 `SearchMatch` 列表。
 - 🧪[测试]-构建 `Vex.slnx`，并用源码结构 smoke 验证 Count 路径使用新的计数扫描，Find/Replace 路径仍保留完整命中列表。
@@ -68,7 +68,7 @@
 - 🧪[测试]-构建 `Vex.slnx`，并用临时 console smoke 覆盖 `zh-TW`、`zh-HK`、`zh-SG` 与 `fr-FR` 的帮助文档解析结果。
 - ✨[新增]-打印预览工具条支持纸张、边距和页眉页脚开关，正式打印时可显示固定文档标题页眉和文件页脚。
 - 🧪[测试]-解析四套 i18n JSON，构建 `Vex.slnx`，并用临时 console smoke 覆盖打印预览 HTML 的纸张/边距控件、页眉页脚节点和动态 `@page` 脚本。
-- 🔧[优化]-HTML/打印、PNG 和图像型 PDF 导出会读取当前 Markdown 排版主题与紧凑布局，共用导出样式映射，不再固定为单一浅色样式。
+- 🔧[优化]-HTML/打印、PNG 和 PDF 导出会读取当前 Markdown 排版主题与紧凑布局，共用导出样式映射，不再固定为单一浅色样式。
 - 🧪[测试]-构建 `Vex.slnx`，并用临时 console smoke 覆盖 `InkBlack + Small` 导出 HTML 的暗色背景、正文颜色、紧凑字号和链接色。
 - 🔧[优化]-Markdown 统计的行数、段落、标题和横线统计合并为单次字符扫描，减少大文件逐行正则匹配开销。
 - 🧪[测试]-构建 `Vex.slnx`，并用临时 console smoke 覆盖 CRLF/LF 行数、段落、标题和横线统计。

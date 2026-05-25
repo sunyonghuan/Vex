@@ -8,9 +8,9 @@
 
 - 単一の Markdown/txt ファイルを開いたとき、同じフォルダー内の Markdown 文書を左側のファイル一覧へ読み込むようにしました。
 - プロパティ、文字数統計、削除確認を UrsaWindow ダイアログに変更しました。長い名前やパスは選択してコピーできます。
-- Word `.docx` エクスポートを追加しました。基本的な Markdown 構造と Word スタイルを保持します。PDF/PNG/Word は `CodeWF.Markdown` の画像読み込みとラスタライズを共有し、相対ローカル画像、`data:image`、HTTP(S)、SVG、GIF、WebP に対応します。PDF と Word は画像を埋め込むため、オフライン共有後も表示できます。
-- PDF/PNG/Word エクスポートの実装は `CodeWF.Markdown` 12.0.3.12 の `MarkdownDocumentExporter` を使うようになりました。Vex 側は統一された `ExportKind` 入口を呼び出し、保存先の選択と現在の組版テーマの受け渡しだけを担当します。Word/OpenXML、PDF 分割、PNG レンダラーはローカルには保持しません。
-- WeChat、知乎、稀土掘金へのコピーは `CodeWF.Markdown` 12.0.3.12 の `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync` を使います。Vex は現在の Markdown、組版テーマ、公開先だけを渡し、プラットフォーム profile、inline HTML、画像埋め込み、CF_HTML、末尾文は共通ライブラリ側で処理します。
+- Word `.docx` エクスポートを追加しました。基本的な Markdown 構造と Word スタイルを保持します。PDF/PNG/Word は `CodeWF.Markdown` の画像読み込みとラスタライズを共有し、相対ローカル画像、`data:image`、HTTP(S)、SVG、GIF、WebP に対応します。PDF 本文は選択・コピー可能になり、PDF と Word は画像を埋め込むため、オフライン共有後も表示できます。
+- PDF/PNG/Word エクスポートの実装は `CodeWF.Markdown` 12.0.3.13 の `MarkdownDocumentExporter` を使うようになりました。Vex 側は統一された `ExportKind` 入口を呼び出し、保存先の選択と現在の組版テーマの受け渡しだけを担当します。Word/OpenXML、PDF テキストレイアウト、PNG レンダラーはローカルには保持しません。
+- WeChat、知乎、稀土掘金へのコピーは `CodeWF.Markdown` 12.0.3.13 の `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync` を使います。Vex は現在の Markdown、組版テーマ、公開先だけを渡し、プラットフォーム profile、inline HTML、画像埋め込み、CF_HTML、末尾文は共通ライブラリ側で処理します。
 - PDF のヘッダー/フッターで CJK 対応フォントを優先し、中国語の文字化けを減らしました。HTML、PDF、PNG、ソーシャルコピーは現在の組版スタイルをより一貫して使用します。
 - WeChat、知乎、稀土掘金へのコピーを改善しました。リッチ HTML クリップボードは `CodeWF.Markdown` の共通機能を使い、Windows `HTML Format` は UTF-8 CF_HTML バイトとして書き込みます。現在の組版テーマ、コンパクトレイアウト、Juejin の末尾文も inline style に反映されます。
 - ヘルプメニューで「テーマ色」と「組版」を直接表示し、行番号、ステータスバー、常に手前に表示のチェック状態と保存を補いました。
@@ -20,7 +20,7 @@
 - 大きなファイルでの性能を改善しました。アウトライン走査は `ReadOnlySpan<char>` で行を解析し、行ごとの文字列割り当てを減らします。ファイル一覧のプレビューも上限付きで走査します。
 - ダークモードを改善しました。通常テキストと右クリックメニューが Vex の動的テーマリソースを使用し、暗色テーマでの明色デフォルトへの戻りを減らします。
 - MSIX パッケージングを改善しました。`PrepareOnly` のレイアウト準備は既存の `.msix` 出力に妨げられなくなりました。
-- PDF エクスポートを改善しました。ヘッダー、フッター、より安定した改ページ位置を追加し、画像ベース PDF の互換性を維持しています。
+- PDF エクスポートを改善しました。ヘッダー、フッター、より安定した改ページ位置を追加しました。最新の出力は選択可能なテキスト PDF で、画像埋め込みも維持しています。
 - 印刷プレビューを改善しました。HTML プレビューに画面用ツールバーを追加し、手動で印刷を再試行したり閉じたりできます。実際の印刷時には非表示になります。
 - i18n のエラー詳細を拡充しました。リネーム、ヘルプ文書の欠落、エクスポート描画、ファイルパス欠落などの境界ケースで 4 言語の文言を使用します。
 - ダークモードを改善しました。About ウィンドウのリンクと Shell オーバーレイの遮光色をテーマリソース化し、暗色テーマでのコントラストを安定させました。
