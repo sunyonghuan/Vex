@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased - 2026-05-24
+## Unreleased - 2026-05-25
 
 ### Fixed
 
@@ -16,6 +16,8 @@
 - The Help menu now exposes Theme Color and Typography as direct submenus, removes the duplicate View > Search item, and shows persisted check states for line numbers, status bar, and always-on-top.
 - Find and replace fields now cap text at 200 characters, force single-line input, and avoid layout expansion from pasted content.
 - WeChat, Zhihu, and Juejin copy now writes HTML clipboard content with `markdown编辑器` and `https://codewf.com` metadata, including the Juejin suffix.
+- WeChat, Zhihu, and Juejin copy now reuses `CodeWF.Markdown` 12.0.3.9 `MarkdownHtmlClipboard`; Windows `HTML Format` is written as UTF-8 CF_HTML bytes, so web editors paste rich HTML instead of raw markup text.
+- The three social-copy paths now inline the active typography theme and compact layout, including heading/body/link colors, table borders, quote colors, code-block backgrounds, and the Juejin suffix.
 - Updated CodeWF Markdown and AvaloniaControls NuGet package versions, built `Vex.slnx -m:1`, and ran `git diff --check`.
 - Added `scripts/stress_vex_markdown_services.ps1` to generate realistic large Markdown input and time outline/statistics services.
 - Verified the default 120,000-line stress run: 10,336,464 characters, 154ms outline scan, 498ms statistics scan, with temporary work cleaned automatically.

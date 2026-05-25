@@ -1,9 +1,12 @@
 # Vex Development Log
 
-## 0.1.0 - 2026-05-24
+## 0.1.0 - 2026-05-25
 
 ### zh-CN
 
+- 自媒体复制链路修复：`CodeWF.Markdown` 新增 `MarkdownHtmlClipboard` 并本地打包为 12.0.3.9；Vex 通过本地包源引用 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.9，不使用跨仓库项目引用。Windows `HTML Format` 改为 UTF-8 CF_HTML 字节载荷，公众号后台不再把 HTML 片段当普通文本显示。
+- 复制到公众号、知乎、稀土掘金三条路径统一读取当前 `MarkdownExportStyle`：根节点、标题、段落、列表、引用、代码块、表格、链接、分割线和掘金尾注都会内联当前排版主题与紧凑布局的颜色、字号、边框和背景。
+- 验证 `cmd /c pack.bat` 生成 `CodeWF.Markdown.12.0.3.9.nupkg` 等本地包；`dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -v:minimal`、`dotnet build Vex.slnx -v:minimal` 和 `git diff --check` 通过。
 - PDF/PNG/Word 导出图片加载逻辑下沉到 `CodeWF.Markdown`：Vex 更新到 `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.8，`MarkdownPngRenderer` 与 `MarkdownDocxExporter` 改为复用公共 `MarkdownImageSourceLoader` 与 `MarkdownImageRasterizer`，统一支持本地相对图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 等格式的 PNG 规范化，导出文件离线发送后可直接查看嵌入图片。
 - 验证 `dotnet test CodeWF.Markdown.slnx -v:minimal`、轻量图片栅格化 smoke（本地 SVG 与 GIF 首帧转 PNG）、临时 Markdown 导出 Word smoke（`.docx` 内含 `word/media/image1.png` 与 `word/media/image2.png` 嵌入图片）和 `dotnet restore Vex.slnx --no-cache` + `dotnet build Vex.slnx --no-restore -v:minimal` 均通过。
 - 本轮继续处理 `D:\r.md` 中除社交复制外的体验问题：PDF/PNG 图像型导出补充 `data:image` 图片识别；Word 导出支持本地图片与 `data:image`，并把 SVG/WebP 转换为 PNG 嵌入 `.docx`，降低导出后缺图概率。
@@ -172,6 +175,9 @@
 
 ### en-US
 
+- Fixed the social-copy pipeline: `CodeWF.Markdown` now includes `MarkdownHtmlClipboard` and was packed locally as 12.0.3.9; Vex consumes `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.9 from the existing local package source, without a cross-repository project reference. Windows `HTML Format` is now UTF-8 CF_HTML bytes, so WeChat's editor no longer receives the HTML fragment as plain text.
+- Copy to WeChat, Zhihu, and Juejin now all read the active `MarkdownExportStyle`: root, headings, paragraphs, lists, quotes, code blocks, tables, links, rules, and the Juejin suffix inline the current typography theme and compact-layout colors, font sizes, borders, and backgrounds.
+- Verified `cmd /c pack.bat` produced `CodeWF.Markdown.12.0.3.9.nupkg` and related local packages; `dotnet test tests\CodeWF.Markdown.Tests\CodeWF.Markdown.Tests.csproj -v:minimal`, `dotnet build Vex.slnx -v:minimal`, and `git diff --check` passed.
 - Moved PDF/PNG/Word export image loading into `CodeWF.Markdown`: Vex now references `CodeWF.Markdown`/`CodeWF.Markdown.Themes` 12.0.3.8, and `MarkdownPngRenderer` plus `MarkdownDocxExporter` reuse the shared `MarkdownImageSourceLoader` and `MarkdownImageRasterizer` for relative local images, `data:image`, HTTP(S) images, SVG rasterization, and GIF/WebP PNG normalization, so exported files can be sent and viewed offline with embedded images.
 - Verified `dotnet test CodeWF.Markdown.slnx -v:minimal`, a lightweight image-raster smoke covering local SVG and GIF first-frame PNG output, a temporary Markdown-to-Word smoke confirming `word/media/image1.png` and `word/media/image2.png` are embedded in the `.docx`, and `dotnet restore Vex.slnx --no-cache` plus `dotnet build Vex.slnx --no-restore -v:minimal`.
 - Continued addressing the actionable `D:\r.md` items except social-copy follow-up: PDF/PNG image-based export now recognizes `data:image` sources, while Word export embeds local, relative, `data:image`, and HTTP(S) images and converts SVG/GIF/WebP assets to PNG before writing them into `.docx`.

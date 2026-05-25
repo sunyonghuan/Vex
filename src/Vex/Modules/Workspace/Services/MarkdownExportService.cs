@@ -4,9 +4,8 @@ using System.Diagnostics;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Input;
-using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
+using CodeWF.Markdown;
 using Markdig;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.TaskLists;
@@ -23,9 +22,6 @@ public sealed class MarkdownExportService : IMarkdownExportService
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
         .Build();
-    private static readonly DataFormat<string> HtmlMimeFormat = DataFormat.CreateStringPlatformFormat("text/html");
-    private static readonly DataFormat<string> MacHtmlFormat = DataFormat.CreateStringPlatformFormat("public.html");
-    private static readonly DataFormat<string> WindowsHtmlFormat = DataFormat.CreateStringPlatformFormat("HTML Format");
     private readonly IEditorAppearanceState _appearanceState;
     private readonly IAppLocalizer _localizer;
     private readonly MarkdownPdfRenderer _pdfRenderer;
@@ -155,8 +151,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var copyHtml = ResolveSocialCopyProfile(target) is { } socialProfile
             ? BuildSocialCopyHtml(document, socialProfile, includeFragmentMarkers: true)
             : BuildGenericCopyHtml(document, target);
-        var transfer = CreateHtmlClipboardData(copyHtml.Text, copyHtml.Html);
-        await clipboard.SetDataAsync(transfer);
+        await MarkdownHtmlClipboard.SetHtmlAsync(clipboard, copyHtml.Html, copyHtml.Text);
         return true;
     }
 
@@ -323,12 +318,12 @@ public sealed class MarkdownExportService : IMarkdownExportService
         if (profile.AppendJuejinSuffix)
         {
             body = string.IsNullOrWhiteSpace(body)
-                ? JuejinSuffixHtml
-                : $"{body}{Environment.NewLine}{JuejinSuffixHtml}";
+                ? RenderJuejinSuffix(style)
+                : $"{body}{Environment.NewLine}{RenderJuejinSuffix(style)}";
         }
 
         return $$"""
-            <section id="vex" data-tool="markdown编辑器" data-website="https://codewf.com" style="{{profile.RootStyle}}">
+            <section id="vex" data-tool="markdown编辑器" data-website="https://codewf.com" style="{{BuildSocialRootStyle(style)}}">
             {{body}}
             </section>
             """;
@@ -364,7 +359,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             ListBlock list => RenderSocialList(list, style, profile),
             QuoteBlock quote => RenderSocialQuote(quote, style, profile),
             CodeBlock codeBlock => RenderSocialCodeBlock(codeBlock, style),
-            ThematicBreakBlock => $"""<hr style="height: 1px; border: none; border-top: 1px solid {profile.BorderColor}; margin: 24px 0;" />""",
+            ThematicBreakBlock => $"""<hr style="height: 1px; border: none; border-top: 1px solid {style.BorderColor}; margin: 24px 0;" />""",
             Table table => RenderSocialTable(table, style, profile),
             HtmlBlock htmlBlock => htmlBlock.Lines.ToString(),
             ContainerBlock container => RenderSocialBlocks(container, style, profile),
@@ -384,24 +379,24 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return profile.Format switch
             {
                 SocialCopyFormat.Mountain => $$"""
-                    <h2 data-tool="markdown编辑器" style="font-weight: bold; color: black; font-size: 22px; display: block; text-align: center; background-image: url(https://my-wechat.mdvex.com/mdvex/mountain_2_20191028221337.png); background-position: center center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; margin-bottom: 10px;"><span class="prefix" style="display: none;"></span><span class="content" style="text-align: center; display: inline-block; height: 38px; line-height: 42px; color: rgb(60, 112, 198); background-position: left center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; font-size: 18px; margin-bottom: 10px;">{{content}}</span><span class="suffix"></span></h2>
+                    <h2 data-tool="markdown编辑器" style="font-weight: bold; color: {{style.HeadingColor}}; font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; display: block; text-align: center; background-image: url(https://my-wechat.mdvex.com/mdvex/mountain_2_20191028221337.png); background-position: center center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; margin-bottom: 10px;"><span class="prefix" style="display: none;"></span><span class="content" style="text-align: center; display: inline-block; height: 38px; line-height: 42px; color: {{style.HeadingColor}}; background-position: left center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; font-size: {{FormatCssNumber(style.Heading3FontSize)}}px; margin-bottom: 10px;">{{content}}</span><span class="suffix"></span></h2>
                     """,
                 _ => $$"""
-                    <h2 data-tool="markdown编辑器" style="margin-top: 30px; font-weight: bold; font-size: 22px; border-bottom: 2px solid rgb(89,89,89); margin-bottom: 30px; color: rgb(89,89,89);"><span class="prefix" style="display: none;"></span><span class="content" style="font-size: 22px; display: inline-block; border-bottom: 2px solid rgb(89,89,89);">{{content}}</span><span class="suffix"></span></h2>
+                    <h2 data-tool="markdown编辑器" style="margin-top: 30px; font-weight: bold; font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; border-bottom: 2px solid {{style.BorderColor}}; margin-bottom: 30px; color: {{style.HeadingColor}};"><span class="prefix" style="display: none;"></span><span class="content" style="font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; display: inline-block; border-bottom: 2px solid {{style.HeadingColor}};">{{content}}</span><span class="suffix"></span></h2>
                     """
             };
         }
 
         var fontSize = level switch
         {
-            1 => 28,
-            3 => 20,
-            4 => 18,
-            5 => 16,
-            _ => 15
+            1 => style.Heading1FontSize,
+            3 => style.Heading3FontSize,
+            4 => style.Heading4FontSize,
+            5 => style.Heading5FontSize,
+            _ => style.Heading6FontSize
         };
         return $$"""
-            <h{{level}} data-tool="markdown编辑器" style="margin-top: 26px; margin-bottom: 16px; font-weight: bold; font-size: {{fontSize}}px; line-height: 1.35; color: {{profile.HeadingColor}};">{{content}}</h{{level}}>
+            <h{{level}} data-tool="markdown编辑器" style="margin-top: 26px; margin-bottom: 16px; font-weight: bold; font-size: {{FormatCssNumber(fontSize)}}px; line-height: 1.35; color: {{style.HeadingColor}};">{{content}}</h{{level}}>
             """;
     }
 
@@ -416,7 +411,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return string.Empty;
         }
 
-        return $"""<p data-tool="markdown编辑器" style="{profile.ParagraphStyle}">{content}</p>""";
+        return $"""<p data-tool="markdown编辑器" style="{BuildSocialParagraphStyle(style)}">{content}</p>""";
     }
 
     private static string RenderSocialList(
@@ -426,7 +421,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
     {
         var tag = list.IsOrdered ? "ol" : "ul";
         var builder = new StringBuilder();
-        builder.Append($"""<{tag} style="margin: 8px 0 16px; padding-left: 24px; color: {profile.BodyColor}; font-size: 16px; line-height: 1.75;">""");
+        builder.Append($"""<{tag} style="margin: 8px 0 16px; padding-left: 24px; color: {style.BodyColor}; font-size: {FormatCssNumber(style.BodyFontSize)}px; line-height: {FormatCssNumber(style.LineHeightRatio + 0.2d)};">""");
         foreach (var item in list.OfType<ListItemBlock>())
         {
             builder.Append("<li style=\"margin: 4px 0; padding-left: 2px;\">");
@@ -445,7 +440,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
     {
         var body = RenderSocialBlocks(quote, style, profile);
         return $$"""
-            <blockquote style="margin: 14px 0; padding: 8px 14px; border-left: 4px solid {{profile.BorderColor}}; background: {{style.InlineCodeBackgroundColor}}; color: {{profile.BodyColor}};">{{body}}</blockquote>
+            <blockquote style="margin: 14px 0; padding: 8px 14px; border-left: 4px solid {{style.QuoteBorderColor}}; background: {{style.InlineCodeBackgroundColor}}; color: {{style.MutedColor}};">{{body}}</blockquote>
             """;
     }
 
@@ -463,7 +458,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
         SocialCopyProfile profile)
     {
         var builder = new StringBuilder();
-        builder.Append($"""<table style="border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; color: {profile.BodyColor};">""");
+        builder.Append($"""<table style="border-collapse: collapse; width: 100%; margin: 14px 0; font-size: {FormatCssNumber(style.TableFontSize)}px; color: {style.BodyColor};">""");
         foreach (var row in table.OfType<TableRow>())
         {
             builder.Append("<tr>");
@@ -471,7 +466,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
             {
                 var tag = row.IsHeader ? "th" : "td";
                 var background = row.IsHeader ? $" background: {style.TableHeaderBackgroundColor};" : string.Empty;
-                builder.Append($"""<{tag} style="border: 1px solid {profile.BorderColor}; padding: 8px 10px; text-align: left;{background}">""");
+                builder.Append($"""<{tag} style="border: 1px solid {style.BorderColor}; padding: 8px 10px; text-align: left;{background}">""");
                 builder.Append(RenderSocialBlocks(cell, style, profile));
                 builder.Append($"</{tag}>");
             }
@@ -542,7 +537,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
     {
         var content = RenderSocialInlines(link, style, profile);
         var url = WebUtility.HtmlEncode(link.Url ?? string.Empty);
-        return $"""<a href="{url}" style="{profile.LinkStyle}">{content}</a>""";
+        return $"""<a href="{url}" style="{BuildSocialLinkStyle(style)}">{content}</a>""";
     }
 
     private static string RenderSocialImage(
@@ -553,6 +548,29 @@ public sealed class MarkdownExportService : IMarkdownExportService
         var url = WebUtility.HtmlEncode(image.Url ?? string.Empty);
         var alt = WebUtility.HtmlEncode(RenderSocialInlines(image, style, profile));
         return $"""<img src="{url}" alt="{alt}" style="max-width: 100%; display: block; margin: 14px auto;" />""";
+    }
+
+    private static string BuildSocialRootStyle(MarkdownExportStyle style)
+    {
+        return $"font-size: {FormatCssNumber(style.BodyFontSize)}px; color: {style.BodyColor}; background: {style.PageBackgroundColor}; padding: 25px 30px; line-height: {FormatCssNumber(style.LineHeightRatio + 0.2d)}; word-spacing: 0px; letter-spacing: 0px; word-break: break-word; word-wrap: break-word; text-align: justify; font-family: {FormatCssFontFamily(style.BodyFontFamily)}; margin-top: -10px;";
+    }
+
+    private static string BuildSocialParagraphStyle(MarkdownExportStyle style)
+    {
+        var lineHeight = style.BodyFontSize * (style.LineHeightRatio + 0.2d);
+        return $"font-size: {FormatCssNumber(style.BodyFontSize)}px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: {FormatCssNumber(lineHeight)}px; color: {style.BodyColor};";
+    }
+
+    private static string BuildSocialLinkStyle(MarkdownExportStyle style)
+    {
+        return $"word-wrap: break-word; color: {style.LinkColor}; text-decoration: none; border-bottom: 1px solid {style.LinkColor};";
+    }
+
+    private static string RenderJuejinSuffix(MarkdownExportStyle style)
+    {
+        return $"""
+            <p id="vex-suffix-juejin-container" class="vex-suffix-juejin-container" data-tool="markdown编辑器" style="{BuildSocialParagraphStyle(style)} margin-top: 20px !important;">本文使用 <a href="https://codewf.com" style="{BuildSocialLinkStyle(style)} font-weight: bold;">codewf.com</a> 排版</p>
+            """;
     }
 
     private MarkdownExportStyle ResolveExportStyle()
@@ -950,68 +968,15 @@ public sealed class MarkdownExportService : IMarkdownExportService
         };
     }
 
-    private static DataTransfer CreateHtmlClipboardData(string text, string html)
-    {
-        var item = new DataTransferItem();
-        item.SetText(text);
-        item.Set(HtmlMimeFormat, html);
-        item.Set(MacHtmlFormat, html);
-        item.Set(WindowsHtmlFormat, BuildWindowsClipboardHtml(html));
-
-        var transfer = new DataTransfer();
-        transfer.Add(item);
-        return transfer;
-    }
-
-    private static string BuildWindowsClipboardHtml(string html)
-    {
-        const string StartMarker = "<!--StartFragment-->";
-        const string EndMarker = "<!--EndFragment-->";
-        const string HeaderFormat = "Version:1.0\r\nStartHTML:{0:0000000000}\r\nEndHTML:{1:0000000000}\r\nStartFragment:{2:0000000000}\r\nEndFragment:{3:0000000000}\r\n";
-
-        var startMarkerIndex = html.IndexOf(StartMarker, StringComparison.Ordinal);
-        var endMarkerIndex = html.IndexOf(EndMarker, StringComparison.Ordinal);
-        if (startMarkerIndex < 0 || endMarkerIndex < 0 || endMarkerIndex < startMarkerIndex)
-        {
-            return html;
-        }
-
-        var blankHeader = string.Format(CultureInfo.InvariantCulture, HeaderFormat, 0, 0, 0, 0);
-        var startHtml = Encoding.UTF8.GetByteCount(blankHeader);
-        var endHtml = startHtml + Encoding.UTF8.GetByteCount(html);
-        var startFragment = startHtml + Encoding.UTF8.GetByteCount(html[..(startMarkerIndex + StartMarker.Length)]);
-        var endFragment = startHtml + Encoding.UTF8.GetByteCount(html[..endMarkerIndex]);
-        var header = string.Format(CultureInfo.InvariantCulture, HeaderFormat, startHtml, endHtml, startFragment, endFragment);
-        return header + html;
-    }
-
-    private const string SocialBodyFontFamily = "Optima-Regular, Optima, PingFangSC-light, PingFangTC-light, 'PingFang SC', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif";
-
-    private const string JuejinSuffixHtml = """
-        <p id="vex-suffix-juejin-container" class="vex-suffix-juejin-container" data-tool="markdown编辑器" style="font-size: 16px; padding-bottom: 8px; margin: 0; padding-top: 23px; color: rgb(74,74,74); line-height: 1.75em; margin-top: 20px !important;">本文使用 <a href="https://codewf.com" style="word-wrap: break-word; font-weight: bold; color: rgb(60, 112, 198); text-decoration: none; border-bottom: 1px solid rgb(60, 112, 198);">codewf.com</a> 排版</p>
-        """;
-
     private static readonly SocialCopyProfile WechatCopyProfile = new(
         "wechat",
         SocialCopyFormat.Wechat,
-        false,
-        $"font-size: 16px; color: black; padding: 25px 30px; line-height: 1.6; word-spacing: 0px; letter-spacing: 0px; word-break: break-word; word-wrap: break-word; text-align: justify; font-family: {SocialBodyFontFamily}; margin-top: -10px;",
-        "font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: rgb(89,89,89);",
-        "rgb(89,89,89)",
-        "rgb(89,89,89)",
-        "rgb(89,89,89)",
-        "word-wrap: break-word; color: rgb(89,89,89); text-decoration: none; border-bottom: 1px solid rgb(89,89,89);");
+        false);
 
     private static readonly SocialCopyProfile ZhihuCopyProfile = new(
         "zhihu",
         SocialCopyFormat.Mountain,
-        false,
-        $"padding: 25px 30px; word-spacing: 0px; word-wrap: break-word; text-align: justify; font-family: {SocialBodyFontFamily}; margin-top: -10px; line-height: 1.6; letter-spacing: .034em; color: rgb(63, 63, 63); font-size: 16px; word-break: all;",
-        "font-size: 16px; padding-bottom: 8px; margin: 0; padding-top: 23px; color: rgb(74,74,74); line-height: 1.75em;",
-        "rgb(74,74,74)",
-        "rgb(60, 112, 198)",
-        "rgb(60, 112, 198)",
-        "word-wrap: break-word; font-weight: bold; color: rgb(60, 112, 198); text-decoration: none; border-bottom: 1px solid rgb(60, 112, 198);");
+        false);
 
     private static readonly SocialCopyProfile JuejinCopyProfile = ZhihuCopyProfile with
     {
@@ -1035,13 +1000,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
     private sealed record SocialCopyProfile(
         string TargetName,
         SocialCopyFormat Format,
-        bool AppendJuejinSuffix,
-        string RootStyle,
-        string ParagraphStyle,
-        string BodyColor,
-        string HeadingColor,
-        string BorderColor,
-        string LinkStyle);
+        bool AppendJuejinSuffix);
 
     private sealed record SocialCopyLayout(string TargetName, int MaxWidth, int PaddingTop, int PaddingX, int PaddingBottom);
 
