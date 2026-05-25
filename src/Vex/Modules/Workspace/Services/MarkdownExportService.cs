@@ -8,8 +8,6 @@ using Avalonia.Platform.Storage;
 using CodeWF.Markdown;
 using CodeWF.Markdown.Themes;
 using Markdig;
-using Markdig.Extensions.Tables;
-using Markdig.Extensions.TaskLists;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Vex.Core.Models;
@@ -151,10 +149,16 @@ public sealed class MarkdownExportService : IMarkdownExportService
             return false;
         }
 
-        var copyHtml = ResolveSocialCopyProfile(target) is { } socialProfile
-            ? BuildSocialCopyHtml(document, socialProfile, includeFragmentMarkers: true)
-            : BuildGenericCopyHtml(document, target);
-        await MarkdownHtmlClipboard.SetHtmlAsync(clipboard, copyHtml.Html, copyHtml.Text);
+        if (await clipboard.TrySetMarkdownHtmlAsync(
+                document.Markdown,
+                _appearanceState.TypographyTheme,
+                target,
+                _appearanceState.TypographySize))
+        {
+            return true;
+        }
+
+        await MarkdownHtmlClipboard.SetHtmlAsync(clipboard, BuildGenericCopyHtml(document, target));
         return true;
     }
 
@@ -273,307 +277,10 @@ public sealed class MarkdownExportService : IMarkdownExportService
             """;
     }
 
-    private HtmlCopyContent BuildGenericCopyHtml(DocumentSnapshot document, string? target)
+    private MarkdownHtmlCopyContent BuildGenericCopyHtml(DocumentSnapshot document, string? target)
     {
         var html = BuildHtml(document, HtmlDocumentMode.Export, target, includeFragmentMarkers: true);
-        return new HtmlCopyContent(html, html);
-    }
-
-    private HtmlCopyContent BuildSocialCopyHtml(
-        DocumentSnapshot document,
-        SocialCopyProfile profile,
-        bool includeFragmentMarkers = false)
-    {
-        var title = WebUtility.HtmlEncode(Path.GetFileNameWithoutExtension(document.FileName));
-        var language = WebUtility.HtmlEncode(_localizer.Culture.Name);
-        var style = ResolveExportStyle();
-        var targetName = WebUtility.HtmlEncode(profile.TargetName);
-        var startFragment = includeFragmentMarkers ? "<!--StartFragment-->" : string.Empty;
-        var endFragment = includeFragmentMarkers ? "<!--EndFragment-->" : string.Empty;
-        var section = RenderSocialSection(document, style, profile);
-        var html = $$"""
-            <!doctype html>
-            <html lang="{{language}}">
-            <head>
-              <meta charset="utf-8">
-              <meta name="vex-copy-target" content="{{targetName}}">
-              <title>{{title}}</title>
-            </head>
-            <body>
-            {{startFragment}}
-            {{section}}
-            {{endFragment}}
-            </body>
-            </html>
-            """;
-
-        return new HtmlCopyContent(section, html);
-    }
-
-    private static string RenderSocialSection(
-        DocumentSnapshot document,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var parsed = Markdig.Markdown.Parse(document.Markdown ?? string.Empty, Pipeline);
-        EmbedLocalImages(parsed, document.FilePath);
-        var body = RenderSocialBlocks(parsed, style, profile);
-        if (profile.AppendJuejinSuffix)
-        {
-            body = string.IsNullOrWhiteSpace(body)
-                ? RenderJuejinSuffix(style)
-                : $"{body}{Environment.NewLine}{RenderJuejinSuffix(style)}";
-        }
-
-        return $$"""
-            <section id="vex" data-tool="markdown编辑器" data-website="https://codewf.com" style="{{BuildSocialRootStyle(style)}}">
-            {{body}}
-            </section>
-            """;
-    }
-
-    private static string RenderSocialBlocks(
-        IEnumerable<Block> blocks,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var builder = new StringBuilder();
-        foreach (var block in blocks)
-        {
-            var html = RenderSocialBlock(block, style, profile);
-            if (!string.IsNullOrWhiteSpace(html))
-            {
-                builder.AppendLine(html);
-            }
-        }
-
-        return builder.ToString().TrimEnd();
-    }
-
-    private static string RenderSocialBlock(
-        Block block,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        return block switch
-        {
-            HeadingBlock heading => RenderSocialHeading(heading, style, profile),
-            ParagraphBlock paragraph => RenderSocialParagraph(paragraph, style, profile),
-            ListBlock list => RenderSocialList(list, style, profile),
-            QuoteBlock quote => RenderSocialQuote(quote, style, profile),
-            CodeBlock codeBlock => RenderSocialCodeBlock(codeBlock, style),
-            ThematicBreakBlock => $"""<hr style="height: 1px; border: none; border-top: 1px solid {style.BorderColor}; margin: 24px 0;" />""",
-            Table table => RenderSocialTable(table, style, profile),
-            HtmlBlock htmlBlock => htmlBlock.Lines.ToString(),
-            ContainerBlock container => RenderSocialBlocks(container, style, profile),
-            _ => string.Empty
-        };
-    }
-
-    private static string RenderSocialHeading(
-        HeadingBlock heading,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var content = RenderSocialInlines(heading.Inline, style, profile);
-        var level = Math.Clamp(heading.Level, 1, 6);
-        if (level == 2)
-        {
-            return profile.Format switch
-            {
-                SocialCopyFormat.Mountain => $$"""
-                    <h2 data-tool="markdown编辑器" style="font-weight: bold; color: {{style.HeadingColor}}; font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; display: block; text-align: center; background-image: url(https://my-wechat.mdvex.com/mdvex/mountain_2_20191028221337.png); background-position: center center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; margin-bottom: 10px;"><span class="prefix" style="display: none;"></span><span class="content" style="text-align: center; display: inline-block; height: 38px; line-height: 42px; color: {{style.HeadingColor}}; background-position: left center; background-repeat: no-repeat; background-attachment: initial; background-origin: initial; background-clip: initial; background-size: 63px; margin-top: 38px; font-size: {{FormatCssNumber(style.Heading3FontSize)}}px; margin-bottom: 10px;">{{content}}</span><span class="suffix"></span></h2>
-                    """,
-                _ => $$"""
-                    <h2 data-tool="markdown编辑器" style="margin-top: 30px; font-weight: bold; font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; border-bottom: 2px solid {{style.BorderColor}}; margin-bottom: 30px; color: {{style.HeadingColor}};"><span class="prefix" style="display: none;"></span><span class="content" style="font-size: {{FormatCssNumber(style.Heading2FontSize)}}px; display: inline-block; border-bottom: 2px solid {{style.HeadingColor}};">{{content}}</span><span class="suffix"></span></h2>
-                    """
-            };
-        }
-
-        var fontSize = level switch
-        {
-            1 => style.Heading1FontSize,
-            3 => style.Heading3FontSize,
-            4 => style.Heading4FontSize,
-            5 => style.Heading5FontSize,
-            _ => style.Heading6FontSize
-        };
-        return $$"""
-            <h{{level}} data-tool="markdown编辑器" style="margin-top: 26px; margin-bottom: 16px; font-weight: bold; font-size: {{FormatCssNumber(fontSize)}}px; line-height: 1.35; color: {{style.HeadingColor}};">{{content}}</h{{level}}>
-            """;
-    }
-
-    private static string RenderSocialParagraph(
-        ParagraphBlock paragraph,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var content = RenderSocialInlines(paragraph.Inline, style, profile);
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return string.Empty;
-        }
-
-        return $"""<p data-tool="markdown编辑器" style="{BuildSocialParagraphStyle(style)}">{content}</p>""";
-    }
-
-    private static string RenderSocialList(
-        ListBlock list,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var tag = list.IsOrdered ? "ol" : "ul";
-        var builder = new StringBuilder();
-        builder.Append($"""<{tag} style="margin: 8px 0 16px; padding-left: 24px; color: {style.BodyColor}; font-size: {FormatCssNumber(style.BodyFontSize)}px; line-height: {FormatCssNumber(style.LineHeightRatio + 0.2d)};">""");
-        foreach (var item in list.OfType<ListItemBlock>())
-        {
-            builder.Append("<li style=\"margin: 4px 0; padding-left: 2px;\">");
-            builder.Append(RenderSocialBlocks(item, style, profile));
-            builder.Append("</li>");
-        }
-
-        builder.Append($"</{tag}>");
-        return builder.ToString();
-    }
-
-    private static string RenderSocialQuote(
-        QuoteBlock quote,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var body = RenderSocialBlocks(quote, style, profile);
-        return $$"""
-            <blockquote style="margin: 14px 0; padding: 8px 14px; border-left: 4px solid {{style.QuoteBorderColor}}; background: {{style.InlineCodeBackgroundColor}}; color: {{style.MutedColor}};">{{body}}</blockquote>
-            """;
-    }
-
-    private static string RenderSocialCodeBlock(CodeBlock codeBlock, MarkdownExportStyle style)
-    {
-        var code = WebUtility.HtmlEncode(codeBlock.Lines.ToString().TrimEnd());
-        return $$"""
-            <pre style="margin: 14px 0; padding: 14px; border-radius: 6px; background: {{style.CodeBackgroundColor}}; color: {{style.CodeForegroundColor}}; overflow: auto; font-size: {{FormatCssNumber(style.CodeFontSize)}}px; line-height: 1.55;"><code style="font-family: {{FormatCssFontFamily(style.MonoFontFamily)}}; background: transparent; color: inherit; padding: 0;">{{code}}</code></pre>
-            """;
-    }
-
-    private static string RenderSocialTable(
-        Table table,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var builder = new StringBuilder();
-        builder.Append($"""<table style="border-collapse: collapse; width: 100%; margin: 14px 0; font-size: {FormatCssNumber(style.TableFontSize)}px; color: {style.BodyColor};">""");
-        foreach (var row in table.OfType<TableRow>())
-        {
-            builder.Append("<tr>");
-            foreach (var cell in row.OfType<TableCell>())
-            {
-                var tag = row.IsHeader ? "th" : "td";
-                var background = row.IsHeader ? $" background: {style.TableHeaderBackgroundColor};" : string.Empty;
-                builder.Append($"""<{tag} style="border: 1px solid {style.BorderColor}; padding: 8px 10px; text-align: left;{background}">""");
-                builder.Append(RenderSocialBlocks(cell, style, profile));
-                builder.Append($"</{tag}>");
-            }
-
-            builder.Append("</tr>");
-        }
-
-        builder.Append("</table>");
-        return builder.ToString();
-    }
-
-    private static string RenderSocialInlines(
-        ContainerInline? container,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        if (container is null)
-        {
-            return string.Empty;
-        }
-
-        var builder = new StringBuilder();
-        var inline = container.FirstChild;
-        while (inline is not null)
-        {
-            builder.Append(RenderSocialInline(inline, style, profile));
-            inline = inline.NextSibling;
-        }
-
-        return builder.ToString();
-    }
-
-    private static string RenderSocialInline(
-        Inline inline,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        return inline switch
-        {
-            LiteralInline literal => WebUtility.HtmlEncode(literal.Content.ToString()),
-            LineBreakInline => "<br />",
-            CodeInline code => $"""<code style="font-family: {FormatCssFontFamily(style.MonoFontFamily)}; font-size: {FormatCssNumber(style.CodeFontSize)}px; color: {style.InlineCodeForegroundColor}; background: {style.InlineCodeBackgroundColor}; padding: 2px 4px; border-radius: 4px;">{WebUtility.HtmlEncode(code.Content)}</code>""",
-            EmphasisInline emphasis => RenderSocialEmphasis(emphasis, style, profile),
-            LinkInline { IsImage: true } image => RenderSocialImage(image, style, profile),
-            LinkInline link => RenderSocialLink(link, style, profile),
-            TaskList taskList => taskList.Checked ? "[x] " : "[ ] ",
-            HtmlInline htmlInline => htmlInline.Tag,
-            ContainerInline nested => RenderSocialInlines(nested, style, profile),
-            _ => WebUtility.HtmlEncode(inline.ToString() ?? string.Empty)
-        };
-    }
-
-    private static string RenderSocialEmphasis(
-        EmphasisInline emphasis,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var content = RenderSocialInlines(emphasis, style, profile);
-        return emphasis.DelimiterCount >= 2
-            ? $"<strong style=\"font-weight: bold;\">{content}</strong>"
-            : $"<em style=\"font-style: italic;\">{content}</em>";
-    }
-
-    private static string RenderSocialLink(
-        LinkInline link,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var content = RenderSocialInlines(link, style, profile);
-        var url = WebUtility.HtmlEncode(link.Url ?? string.Empty);
-        return $"""<a href="{url}" style="{BuildSocialLinkStyle(style)}">{content}</a>""";
-    }
-
-    private static string RenderSocialImage(
-        LinkInline image,
-        MarkdownExportStyle style,
-        SocialCopyProfile profile)
-    {
-        var url = WebUtility.HtmlEncode(image.Url ?? string.Empty);
-        var alt = WebUtility.HtmlEncode(RenderSocialInlines(image, style, profile));
-        return $"""<img src="{url}" alt="{alt}" style="max-width: 100%; display: block; margin: 14px auto;" />""";
-    }
-
-    private static string BuildSocialRootStyle(MarkdownExportStyle style)
-    {
-        return $"font-size: {FormatCssNumber(style.BodyFontSize)}px; color: {style.BodyColor}; background: {style.PageBackgroundColor}; padding: 25px 30px; line-height: {FormatCssNumber(style.LineHeightRatio + 0.2d)}; word-spacing: 0px; letter-spacing: 0px; word-break: break-word; word-wrap: break-word; text-align: justify; font-family: {FormatCssFontFamily(style.BodyFontFamily)}; margin-top: -10px;";
-    }
-
-    private static string BuildSocialParagraphStyle(MarkdownExportStyle style)
-    {
-        var lineHeight = style.BodyFontSize * (style.LineHeightRatio + 0.2d);
-        return $"font-size: {FormatCssNumber(style.BodyFontSize)}px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: {FormatCssNumber(lineHeight)}px; color: {style.BodyColor};";
-    }
-
-    private static string BuildSocialLinkStyle(MarkdownExportStyle style)
-    {
-        return $"word-wrap: break-word; color: {style.LinkColor}; text-decoration: none; border-bottom: 1px solid {style.LinkColor};";
-    }
-
-    private static string RenderJuejinSuffix(MarkdownExportStyle style)
-    {
-        return $"""
-            <p id="vex-suffix-juejin-container" class="vex-suffix-juejin-container" data-tool="markdown编辑器" style="{BuildSocialParagraphStyle(style)} margin-top: 20px !important;">本文使用 <a href="https://codewf.com" style="{BuildSocialLinkStyle(style)} font-weight: bold;">codewf.com</a> 排版</p>
-            """;
+        return new MarkdownHtmlCopyContent(html, html);
     }
 
     private MarkdownExportStyle ResolveExportStyle()
@@ -584,17 +291,6 @@ public sealed class MarkdownExportService : IMarkdownExportService
     private static MarkdownExportDocument ToExportDocument(DocumentSnapshot document)
     {
         return new MarkdownExportDocument(document.Markdown, document.FilePath, document.FileName);
-    }
-
-    private static SocialCopyProfile? ResolveSocialCopyProfile(string? target)
-    {
-        return target?.Trim().ToLowerInvariant() switch
-        {
-            "wechat" or "weixin" => WechatCopyProfile,
-            "zhihu" => ZhihuCopyProfile,
-            "juejin" => JuejinCopyProfile,
-            _ => null
-        };
     }
 
     private static string FormatCssNumber(double value)
@@ -976,22 +672,6 @@ public sealed class MarkdownExportService : IMarkdownExportService
         };
     }
 
-    private static readonly SocialCopyProfile WechatCopyProfile = new(
-        "wechat",
-        SocialCopyFormat.Wechat,
-        false);
-
-    private static readonly SocialCopyProfile ZhihuCopyProfile = new(
-        "zhihu",
-        SocialCopyFormat.Mountain,
-        false);
-
-    private static readonly SocialCopyProfile JuejinCopyProfile = ZhihuCopyProfile with
-    {
-        TargetName = "juejin",
-        AppendJuejinSuffix = true
-    };
-
     private static SocialCopyLayout ResolveSocialLayout(string? target)
     {
         return target?.Trim().ToLowerInvariant() switch
@@ -1003,20 +683,7 @@ public sealed class MarkdownExportService : IMarkdownExportService
         };
     }
 
-    private sealed record HtmlCopyContent(string Text, string Html);
-
-    private sealed record SocialCopyProfile(
-        string TargetName,
-        SocialCopyFormat Format,
-        bool AppendJuejinSuffix);
-
     private sealed record SocialCopyLayout(string TargetName, int MaxWidth, int PaddingTop, int PaddingX, int PaddingBottom);
-
-    private enum SocialCopyFormat
-    {
-        Wechat,
-        Mountain
-    }
 
     private enum HtmlDocumentMode
     {

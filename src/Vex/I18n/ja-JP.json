@@ -229,6 +229,8 @@
       "CopyPlatformWechat": "WeChat 公式アカウント",
       "CopyPlatformZhihu": "知乎",
       "CopyPlatformJuejin": "稀土掘金",
+      "SocialCopyToolName": "Markdown エディター",
+      "SocialCopySuffixFormat": "{0} で整形",
       "ErrorTitle": "操作に失敗しました",
       "ErrorDetailLabel": "エラー詳細",
       "ErrorMessageFileUnavailable": "ファイルを利用できません。存在またはアクセス権を確認してください。",

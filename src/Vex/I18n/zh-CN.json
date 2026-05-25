@@ -229,6 +229,8 @@
       "CopyPlatformWechat": "微信公众号",
       "CopyPlatformZhihu": "知乎",
       "CopyPlatformJuejin": "稀土掘金",
+      "SocialCopyToolName": "Markdown 编辑器",
+      "SocialCopySuffixFormat": "本文使用 {0} 排版",
       "ErrorTitle": "操作失败",
       "ErrorDetailLabel": "错误详情",
       "ErrorMessageFileUnavailable": "文件不可用，请检查它是否存在或是否可访问。",

@@ -234,6 +234,8 @@ public static class VexL
     public static readonly string CopyPlatformWechat = "Vex.VexL.CopyPlatformWechat";
     public static readonly string CopyPlatformZhihu = "Vex.VexL.CopyPlatformZhihu";
     public static readonly string CopyPlatformJuejin = "Vex.VexL.CopyPlatformJuejin";
+    public static readonly string SocialCopyToolName = "Vex.VexL.SocialCopyToolName";
+    public static readonly string SocialCopySuffixFormat = "Vex.VexL.SocialCopySuffixFormat";
     public static readonly string ErrorTitle = "Vex.VexL.ErrorTitle";
     public static readonly string ErrorDetailLabel = "Vex.VexL.ErrorDetailLabel";
     public static readonly string ErrorMessageFileUnavailable = "Vex.VexL.ErrorMessageFileUnavailable";

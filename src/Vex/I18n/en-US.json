@@ -229,6 +229,8 @@
       "CopyPlatformWechat": "WeChat Official Account",
       "CopyPlatformZhihu": "Zhihu",
       "CopyPlatformJuejin": "Juejin",
+      "SocialCopyToolName": "Markdown editor",
+      "SocialCopySuffixFormat": "Formatted with {0}",
       "ErrorTitle": "Operation failed",
       "ErrorDetailLabel": "Error details",
       "ErrorMessageFileUnavailable": "The file is unavailable. Check whether it exists or can be accessed.",
