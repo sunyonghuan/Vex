@@ -30,7 +30,7 @@ Highlights:
 Recommended build verification:
 
 - `dotnet build Vex.slnx`
-- `publish_vex_all.bat --package`
+- `package_all.bat`
 
 #### 简体中文
 
@@ -48,7 +48,7 @@ Vex 1.1.0 重点将 Markdown 导出与自媒体复制能力下沉到共享的 `C
 建议发布前验证：
 
 - `dotnet build Vex.slnx`
-- `publish_vex_all.bat --package`
+- `package_all.bat`
 
 ## v1.0.0 - 2026-05-24
 
@@ -76,7 +76,7 @@ Highlights:
 Recommended build verification:
 
 - `dotnet build Vex.slnx`
-- `publish_vex_all.bat --package`
+- `package_all.bat`
 
 #### 简体中文
 
@@ -96,4 +96,4 @@ Vex 1.0.0 是 Vex 的首个稳定版本。Vex 是基于 .NET 10 与 Avalonia 12 
 建议发布前验证：
 
 - `dotnet build Vex.slnx`
-- `publish_vex_all.bat --package`
+- `package_all.bat`

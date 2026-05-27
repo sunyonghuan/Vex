@@ -9,7 +9,7 @@ if not "%~1"=="" (
     if /I "%~1"=="--package" (
         set "PACKAGE_AFTER=true"
     ) else (
-        echo Usage: publish_vex_all.bat [--package]
+        echo Usage: publish_all.bat [--package]
         exit /b 2
     )
 )

@@ -154,7 +154,7 @@ New-Item -ItemType Directory -Force -Path $ArtifactsRoot | Out-Null
 
 $publishDir = Join-Path $PublishRoot $RuntimeIdentifier
 if (-not (Test-Path -LiteralPath $publishDir -PathType Container)) {
-    throw "Publish directory '$publishDir' was not found. Run publish_vex_all.bat first or pass -PublishRoot."
+    throw "Publish directory '$publishDir' was not found. Run publish_all.bat first or pass -PublishRoot."
 }
 
 $executablePath = Join-Path $publishDir "Vex.exe"

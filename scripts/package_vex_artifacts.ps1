@@ -16,6 +16,82 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+function Get-ReleaseVersion([string]$InputVersion) {
+    if ($InputVersion -match "^[vV]") {
+        return $InputVersion
+    }
+
+    return "v$InputVersion"
+}
+
+function Test-ReleaseFile([System.IO.FileInfo]$File) {
+    return $File.Extension -ine ".pdb"
+}
+
+function Get-Sha256Hex([string]$Path) {
+    $stream = [System.IO.File]::OpenRead($Path)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hashBytes = $sha256.ComputeHash($stream)
+            return -join ($hashBytes | ForEach-Object { $_.ToString("x2") })
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
+function New-ReleaseArchive(
+    [System.IO.FileInfo[]]$Entries,
+    [string]$SourceRoot,
+    [string]$DestinationPath
+) {
+    if (Test-Path -LiteralPath $DestinationPath -PathType Leaf) {
+        Remove-Item -LiteralPath $DestinationPath -Force
+    }
+
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+    $resolvedRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
+    $rootPrefix = $resolvedRoot.TrimEnd(
+        [System.IO.Path]::DirectorySeparatorChar,
+        [System.IO.Path]::AltDirectorySeparatorChar
+    ) + [System.IO.Path]::DirectorySeparatorChar
+
+    $archive = [System.IO.Compression.ZipFile]::Open(
+        $DestinationPath,
+        [System.IO.Compression.ZipArchiveMode]::Create
+    )
+
+    try {
+        foreach ($entry in $Entries) {
+            $entryPath = $entry.FullName
+            if (-not $entryPath.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                throw "Refusing to package '$entryPath' because it is outside '$resolvedRoot'."
+            }
+
+            $relativePath = $entryPath.Substring($rootPrefix.Length)
+            $relativePath = $relativePath.Replace([System.IO.Path]::DirectorySeparatorChar, "/")
+            $relativePath = $relativePath.Replace([System.IO.Path]::AltDirectorySeparatorChar, "/")
+
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                $archive,
+                $entryPath,
+                $relativePath,
+                [System.IO.Compression.CompressionLevel]::Optimal
+            ) | Out-Null
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
+}
+
 $RuntimeIdentifier = @(
     foreach ($rid in $RuntimeIdentifier) {
         foreach ($part in ($rid -split ",")) {
@@ -51,6 +127,8 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
     $Version = [string]$versionNode.Version
 }
 
+$releaseVersion = Get-ReleaseVersion $Version
+
 if ([string]::IsNullOrWhiteSpace($PublishRoot)) {
     $PublishRoot = Join-Path $repoRoot "publish"
 }
@@ -61,7 +139,7 @@ if ([string]::IsNullOrWhiteSpace($ArtifactsRoot)) {
 
 New-Item -ItemType Directory -Force -Path $ArtifactsRoot | Out-Null
 
-$manifestPath = Join-Path $ArtifactsRoot "Vex-$Version-release-manifest.json"
+$manifestPath = Join-Path $ArtifactsRoot "Vex-$releaseVersion-release-manifest.json"
 if ((Test-Path -LiteralPath $manifestPath -PathType Leaf) -and -not $Force) {
     throw "Release manifest already exists: '$manifestPath'. Pass -Force to replace it."
 }
@@ -74,15 +152,17 @@ foreach ($rid in $RuntimeIdentifier) {
 
     $publishDir = Join-Path $PublishRoot $rid
     if (-not (Test-Path -LiteralPath $publishDir -PathType Container)) {
-        throw "Publish directory '$publishDir' was not found. Run publish_vex_all.bat first or pass -PublishRoot."
+        throw "Publish directory '$publishDir' was not found. Run publish_all.bat first or pass -PublishRoot."
     }
 
-    $entries = @(Get-ChildItem -LiteralPath $publishDir -Recurse -File)
+    $allEntries = @(Get-ChildItem -LiteralPath $publishDir -Recurse -File)
+    $entries = @($allEntries | Where-Object { Test-ReleaseFile $_ })
+    $excludedEntries = @($allEntries | Where-Object { -not (Test-ReleaseFile $_) })
     if ($entries.Count -eq 0) {
-        throw "Publish directory '$publishDir' does not contain files."
+        throw "Publish directory '$publishDir' does not contain release files after exclusions."
     }
 
-    $archiveName = "Vex-$Version-$rid.zip"
+    $archiveName = "Vex-$releaseVersion-$rid.zip"
     $archivePath = Join-Path $ArtifactsRoot $archiveName
     $checksumPath = "$archivePath.sha256"
 
@@ -109,6 +189,7 @@ foreach ($rid in $RuntimeIdentifier) {
         ArchivePath = $archivePath
         ChecksumPath = $checksumPath
         UncompressedBytes = [int64]$uncompressedBytes
+        ExcludedFileCount = $excludedEntries.Count
     }) | Out-Null
 }
 
@@ -116,32 +197,33 @@ $packagedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $packages = New-Object System.Collections.Generic.List[object]
 
 foreach ($plan in $plans) {
-    Compress-Archive `
-        -Path (Join-Path $plan.PublishDir "*") `
-        -DestinationPath $plan.ArchivePath `
-        -CompressionLevel Optimal `
-        -Force:$Force
+    New-ReleaseArchive `
+        -Entries $plan.Entries `
+        -SourceRoot $plan.PublishDir `
+        -DestinationPath $plan.ArchivePath
 
-    $hash = Get-FileHash -Algorithm SHA256 -LiteralPath $plan.ArchivePath
-    $sha256 = $hash.Hash.ToLowerInvariant()
+    $sha256 = Get-Sha256Hex $plan.ArchivePath
     Set-Content -Encoding ASCII -LiteralPath $plan.ChecksumPath -Value "$sha256  $($plan.ArchiveName)"
 
     $packages.Add([ordered]@{
         product = "Vex"
         version = $Version
+        releaseVersion = $releaseVersion
         runtimeIdentifier = $plan.RuntimeIdentifier
         archive = $plan.ArchiveName
         sha256 = $sha256
         fileCount = $plan.Entries.Count
+        excludedFileCount = $plan.ExcludedFileCount
         uncompressedBytes = $plan.UncompressedBytes
     }) | Out-Null
 
-    Write-Host "Packaged $($plan.ArchiveName)"
+    Write-Host "Packaged $($plan.ArchiveName) (excluded $($plan.ExcludedFileCount) debug symbol files)"
 }
 
 $manifest = [ordered]@{
     product = "Vex"
     version = $Version
+    releaseVersion = $releaseVersion
     packagedAt = $packagedAt
     packages = $packages
 }

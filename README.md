@@ -16,13 +16,15 @@ Slogan：极简之力，妙笔成章。
 
 ```powershell
 dotnet build Vex.slnx -v:minimal
-.\publish_vex_all.bat
-.\publish_vex_all.bat --package
+.\publish_all.bat
+.\package_all.bat
+.\package_all.bat --force
 .\scripts\package_vex_msix.ps1 -RuntimeIdentifier win-x64 -PrepareOnly
 .\scripts\package_vex_msix.ps1 -RuntimeIdentifier win-x64 -CertificatePath .\cert.pfx
 ```
 
-`publish_vex_all.bat` publishes the configured runtime identifiers into `publish/<RID>/`.
-Passing `--package` runs `scripts/package_vex_artifacts.ps1` after all publishes succeed and writes zip archives, SHA256 files, and a release manifest under `artifacts/release/`.
-The packaging script does not overwrite existing artifacts unless `-Force` is passed to the PowerShell script directly.
+`publish_all.bat` publishes the configured runtime identifiers into `publish/<RID>/`.
+`package_all.bat` first calls `publish_all.bat`, then writes `Vex-v<Version>-<RID>.zip` archives, SHA256 files, and a release manifest under `artifacts/release/`.
+Release archives exclude debug symbol files such as `*.pdb`.
+Existing artifacts are not overwritten unless `package_all.bat --force` is used, or `-Force` is passed to the PowerShell script directly.
 `scripts/package_vex_msix.ps1` creates a Windows MSIX layout under `artifacts/installer/msix-layout/<RID>/`; without `-PrepareOnly`, it uses Windows SDK `makeappx.exe` to write `artifacts/installer/Vex-<Version>-<RID>.msix`, and signs it with `signtool.exe` when `-CertificatePath` is provided.
