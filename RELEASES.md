@@ -3,11 +3,11 @@
 This document keeps copy-ready GitHub Release notes for Vex.
 本文档记录 Vex 每个发布版本可直接复制使用的 GitHub Release 文案。
 
-## v1.1.0 - 2026-05-25
+## v1.1.1 - 2026-05-27
 
 ### Release Title
 
-Vex 1.1.0 - Markdown Export And Social Copy Improvements
+Vex 1.1.1 - Markdown Inline Style Fix
 
 ### Release Notes
 
@@ -17,9 +17,13 @@ Vex 1.1.0 - Markdown Export And Social Copy Improvements
 
 - Paste from web pages now prefers clipboard HTML and converts it to Markdown.
 
+##### Fixed
+
+- Markdown preview now applies inline bold, italic, and strikethrough styles to the correct text ranges when mixed with plain text on the same line.
+
 ##### Improved
 
-- PDF, PNG, and Word export now use `CodeWF.Markdown` 12.0.3.14 `MarkdownDocumentExporter` / `ExportKind`.
+- PDF, PNG, and Word export now use `CodeWF.Markdown` 12.0.3.15 `MarkdownDocumentExporter` / `ExportKind`.
 - Exported PDF text is now selectable and copyable.
 - PDF, PNG, and Word export handle relative local images, `data:image`, HTTP(S), SVG, GIF, and WebP.
 - Word and PDF exports embed image resources for offline sharing.
@@ -42,9 +46,13 @@ Vex 1.1.0 - Markdown Export And Social Copy Improvements
 
 - 从网页粘贴内容时，优先读取剪贴板 HTML 并转换为 Markdown。
 
+##### 修复
+
+- Markdown 预览现在能在同一行普通文本混排时，把加粗、斜体、删除线正确应用到对应文本片段。
+
 ##### 优化
 
-- PDF、PNG、Word 导出统一改用 `CodeWF.Markdown` 12.0.3.14 的 `MarkdownDocumentExporter` / `ExportKind`。
+- PDF、PNG、Word 导出统一改用 `CodeWF.Markdown` 12.0.3.15 的 `MarkdownDocumentExporter` / `ExportKind`。
 - PDF 正文现在可选择、可复制。
 - PDF、PNG、Word 导出增强图片处理，支持相对本地图、`data:image`、HTTP(S)、SVG、GIF、WebP。
 - Word 和 PDF 会嵌入图片资源，文件离线发送后仍可查看。

@@ -1,12 +1,13 @@
 # 更新日志
 
-## 1.1.0 - 2026-05-25
+## 1.1.1 - 2026-05-27
 
 ### 修复
 
+- 🐞[修复]-Markdown 预览升级到 `CodeWF.Markdown` 12.0.3.15，同一行内普通文本与加粗、斜体、删除线混排时，强调样式会正确应用到对应片段，行内代码样式保持不受影响。
 - 🐞[修复]-PDF/PNG/Word 导出共用 `CodeWF.Markdown` 图片加载与栅格化能力，支持相对本地图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 转 PNG；PDF 正文现在可选择、可复制，PDF 与 Word 也会嵌入图片资源，离线发送后仍可查看。
-- 🔧[优化]-PDF/PNG/Word 导出实现下沉到 `CodeWF.Markdown` 12.0.3.14 的 `MarkdownDocumentExporter`，Vex 端统一调用 `ExportKind` 入口，只负责选择保存路径和传入当前排版主题，不再维护本地 Word/OpenXML、PDF 文本排版和 PNG 渲染器。
-- 🔧[优化]-复制到公众号、知乎、稀土掘金现在调用 `CodeWF.Markdown` 12.0.3.14 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，Vex 端只传当前 Markdown、排版主题和发布目标。
+- 🔧[优化]-PDF/PNG/Word 导出实现下沉到 `CodeWF.Markdown` 12.0.3.15 的 `MarkdownDocumentExporter`，Vex 端统一调用 `ExportKind` 入口，只负责选择保存路径和传入当前排版主题，不再维护本地 Word/OpenXML、PDF 文本排版和 PNG 渲染器。
+- 🔧[优化]-复制到公众号、知乎、稀土掘金现在调用 `CodeWF.Markdown` 12.0.3.15 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，Vex 端只传当前 Markdown、排版主题和发布目标。
 - ✨[新增]-从网页复制内容后粘贴到中间编辑器时，Vex 会优先读取剪贴板 HTML，通过 `MarkdownHtmlClipboard.Html2Markdown(htmlContent)` 转成 Markdown；没有 HTML 或转换失败时回落到 AvaloniaEdit 原生粘贴。
 - 🔧[优化]-内置帮助 Markdown 文档收口为中文文件，项目输出只复制 `CHANGELOG.md`、`QuickStart.md`、`ACKNOWLEDGEMENTS.md` 和 `Thanks.md`，帮助菜单不再解析已删除的多语言文档名。
 - 🔧[优化]-自媒体平台 profile、inline HTML 渲染、图片嵌入、CF_HTML 写入和尾注/工具名多语言文案已下沉到 `CodeWF.Markdown`，Vex 不再维护本地公众号/知乎/掘金 HTML 模板。
