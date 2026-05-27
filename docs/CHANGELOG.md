@@ -5,11 +5,13 @@
 ### 修复
 
 - 🐞[修复]-PDF/PNG/Word 导出共用 `CodeWF.Markdown` 图片加载与栅格化能力，支持相对本地图、`data:image`、HTTP(S) 图片、SVG 栅格化和 GIF/WebP 转 PNG；PDF 正文现在可选择、可复制，PDF 与 Word 也会嵌入图片资源，离线发送后仍可查看。
-- 🔧[优化]-PDF/PNG/Word 导出实现下沉到 `CodeWF.Markdown` 12.0.3.13 的 `MarkdownDocumentExporter`，Vex 端统一调用 `ExportKind` 入口，只负责选择保存路径和传入当前排版主题，不再维护本地 Word/OpenXML、PDF 文本排版和 PNG 渲染器。
-- 🔧[优化]-复制到公众号、知乎、稀土掘金现在调用 `CodeWF.Markdown` 12.0.3.13 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，Vex 端只传当前 Markdown、排版主题和发布目标。
+- 🔧[优化]-PDF/PNG/Word 导出实现下沉到 `CodeWF.Markdown` 12.0.3.14 的 `MarkdownDocumentExporter`，Vex 端统一调用 `ExportKind` 入口，只负责选择保存路径和传入当前排版主题，不再维护本地 Word/OpenXML、PDF 文本排版和 PNG 渲染器。
+- 🔧[优化]-复制到公众号、知乎、稀土掘金现在调用 `CodeWF.Markdown` 12.0.3.14 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync(markdown, themeName, targetName, typographySize)`，Vex 端只传当前 Markdown、排版主题和发布目标。
+- ✨[新增]-从网页复制内容后粘贴到中间编辑器时，Vex 会优先读取剪贴板 HTML，通过 `MarkdownHtmlClipboard.Html2Markdown(htmlContent)` 转成 Markdown；没有 HTML 或转换失败时回落到 AvaloniaEdit 原生粘贴。
+- 🔧[优化]-内置帮助 Markdown 文档收口为中文文件，项目输出只复制 `CHANGELOG.md`、`QuickStart.md`、`ACKNOWLEDGEMENTS.md` 和 `Thanks.md`，帮助菜单不再解析已删除的多语言文档名。
 - 🔧[优化]-自媒体平台 profile、inline HTML 渲染、图片嵌入、CF_HTML 写入和尾注/工具名多语言文案已下沉到 `CodeWF.Markdown`，Vex 不再维护本地公众号/知乎/掘金 HTML 模板。
 - 🔧[优化]-视图菜单移除“实际大小”“放大”“缩小”，同步删除窗口级缩放快捷键和状态栏缩放显示。
-- 🐞[修复]-更新日志、鸣谢和关于窗口的标题栏显示明确标题；鸣谢改为加载带 Markdown 链接的 `docs/Thanks.md`，链接可点击打开。
+- 🐞[修复]-更新日志、鸣谢和关于窗口的标题栏显示明确标题；鸣谢改为加载带 Markdown 链接的 `docs/ACKNOWLEDGEMENTS.md`，链接可点击打开。
 - 🔧[优化]-左侧文件/大纲页签 header 改为等宽横向居中布局，选中项加粗，贴近参考图效果。
 - 🧪[测试]-构建 `Vex.slnx`，确认 `net10.0` 与 `net10.0-windows` 均为 0 警告 0 错误，并复查无视图缩放入口残留。
 - ✨[新增]-直接打开单个 Markdown/txt 文件后，左侧文件列表会自动加载同目录下支持的 Markdown 文档。

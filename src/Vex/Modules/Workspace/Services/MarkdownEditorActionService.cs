@@ -1,4 +1,9 @@
+using System.Text;
+
+using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using AvaloniaEdit;
+using CodeWF.Markdown;
 using Vex.Core.Messaging;
 
 namespace Vex.Modules.Workspace.Services;
@@ -16,7 +21,7 @@ public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
         _textMutationService = textMutationService;
     }
 
-    public void Execute(TextEditor editor, EditorActionKind action, Action<Action> runTextMutation)
+    public async Task ExecuteAsync(TextEditor editor, EditorActionKind action, Action<Action> runTextMutation)
     {
         // 这里只维护“用户动作 -> 编辑器变更”的映射，事件发布和同步节流仍由控制器统一处理。
         switch (action)
@@ -34,7 +39,11 @@ public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
                 editor.Copy();
                 break;
             case EditorActionKind.Paste:
-                runTextMutation(editor.Paste);
+                if (!await TryPasteHtmlAsMarkdownAsync(editor, runTextMutation))
+                {
+                    runTextMutation(editor.Paste);
+                }
+
                 break;
             case EditorActionKind.SelectAll:
                 editor.SelectAll();
@@ -130,6 +139,57 @@ public sealed class MarkdownEditorActionService : IMarkdownEditorActionService
                 editor.Focus();
                 break;
         }
+    }
+
+    private async Task<bool> TryPasteHtmlAsMarkdownAsync(TextEditor editor, Action<Action> runTextMutation)
+    {
+        try
+        {
+            var clipboard = TopLevel.GetTopLevel(editor)?.Clipboard;
+            if (clipboard is null)
+            {
+                return false;
+            }
+
+            var htmlContent = await TryGetClipboardHtmlAsync(clipboard);
+            if (string.IsNullOrWhiteSpace(htmlContent))
+            {
+                return false;
+            }
+
+            var markdown = MarkdownHtmlClipboard.Html2Markdown(htmlContent);
+            if (string.IsNullOrWhiteSpace(markdown))
+            {
+                return false;
+            }
+
+            runTextMutation(() => _textMutationService.InsertText(editor, markdown));
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static async Task<string?> TryGetClipboardHtmlAsync(IClipboard clipboard)
+    {
+        var html = await clipboard.TryGetValueAsync(MarkdownHtmlClipboard.HtmlMimeFormat);
+        if (!string.IsNullOrWhiteSpace(html))
+        {
+            return html;
+        }
+
+        html = await clipboard.TryGetValueAsync(MarkdownHtmlClipboard.MacHtmlFormat);
+        if (!string.IsNullOrWhiteSpace(html))
+        {
+            return html;
+        }
+
+        var windowsHtml = await clipboard.TryGetValueAsync(MarkdownHtmlClipboard.WindowsHtmlFormat);
+        return windowsHtml is { Length: > 0 }
+            ? Encoding.UTF8.GetString(windowsHtml)
+            : null;
     }
 
     private void WrapSelection(

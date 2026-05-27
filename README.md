@@ -10,7 +10,7 @@ Slogan：极简之力，妙笔成章。
 
 ## Status
 
-当前版本为 `1.1.0`，已具备 Prism 模块化应用骨架、Typora 风格菜单、左中右三栏工作区、Markdown 编辑/预览链路、同目录文件列表、大纲跳转、查找替换、主题/排版切换、HTML/PDF/PNG/Word 导出、复制到微信公众号/知乎/稀土掘金，以及基于 UrsaWindow 的关键对话框。PDF、PNG 和 Word 导出复用 `CodeWF.Markdown` 12.0.3.13 的 `MarkdownDocumentExporter`/`ExportKind` 公共能力，支持本地相对图、`data:image`、HTTP(S) 图片、SVG/GIF/WebP 转 PNG；PDF 导出会生成可选择、可复制的文本内容并嵌入图片，Word 会嵌入图片资源，导出文件通过邮件、微信等发送后仍可离线查看。自媒体复制复用 `CodeWF.Markdown` 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync`，Vex 只传当前 Markdown、排版主题和目标平台，由公共库渲染微信公众号/知乎/稀土掘金 inline HTML 并写入 `text/html`、`public.html` 和 Windows `HTML Format`。
+当前版本为 `1.1.0`，已具备 Prism 模块化应用骨架、Typora 风格菜单、左中右三栏工作区、Markdown 编辑/预览链路、同目录文件列表、大纲跳转、查找替换、主题/排版切换、HTML/PDF/PNG/Word 导出、复制到微信公众号/知乎/稀土掘金，以及基于 UrsaWindow 的关键对话框。PDF、PNG 和 Word 导出复用 `CodeWF.Markdown` 12.0.3.14 的 `MarkdownDocumentExporter`/`ExportKind` 公共能力，支持本地相对图、`data:image`、HTTP(S) 图片、SVG/GIF/WebP 转 PNG；PDF 导出会生成可选择、可复制的文本内容并嵌入图片，Word 会嵌入图片资源，导出文件通过邮件、微信等发送后仍可离线查看。自媒体复制复用 `CodeWF.Markdown` 的 `MarkdownHtmlClipboardExtensions.TrySetMarkdownHtmlAsync`，Vex 只传当前 Markdown、排版主题和目标平台，由公共库渲染微信公众号/知乎/稀土掘金 inline HTML 并写入 `text/html`、`public.html` 和 Windows `HTML Format`。从网页复制内容后粘贴到中间编辑器时，Vex 会优先读取剪贴板 HTML，并通过 `MarkdownHtmlClipboard.Html2Markdown(htmlContent)` 转为 Markdown 后插入；无 HTML 或转换失败时回落到原生粘贴。
 
 ## Build and Release
 

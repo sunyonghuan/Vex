@@ -85,14 +85,14 @@ public sealed class MarkdownEditorController : IMarkdownEditorController
     }
 
     [EventHandler]
-    public void Execute(EditorActionCommand command)
+    public async void Execute(EditorActionCommand command)
     {
         if (_editor is null)
         {
             return;
         }
 
-        _actionService.Execute(_editor, command.Action, RunTextMutation);
+        await _actionService.ExecuteAsync(_editor, command.Action, RunTextMutation);
     }
 
     [EventHandler]

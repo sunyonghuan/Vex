@@ -43,11 +43,6 @@ public sealed class HelpService : IHelpService
         return Task.CompletedTask;
     }
 
-    public Task OpenLocalizedDocumentAsync(string documentName, string cultureName)
-    {
-        return OpenDocumentAsync(ResolveLocalizedDocumentName(documentName, cultureName));
-    }
-
     public Task ShowDocumentWindowAsync(string title, string fileName)
     {
         var path = GetDocumentPath(fileName);
@@ -59,11 +54,6 @@ public sealed class HelpService : IHelpService
             _appearanceState.TypographyTheme,
             _appearanceState.TypographySize));
         return Task.CompletedTask;
-    }
-
-    public Task ShowLocalizedDocumentWindowAsync(string title, string documentName, string cultureName)
-    {
-        return ShowDocumentWindowAsync(title, ResolveLocalizedDocumentName(documentName, cultureName));
     }
 
     public Task ShowAboutWindowAsync()
@@ -106,55 +96,4 @@ public sealed class HelpService : IHelpService
             : null;
     }
 
-    private static string ResolveLocalizedDocumentName(string documentName, string cultureName)
-    {
-        foreach (var candidate in EnumerateDocumentCandidates(documentName, cultureName))
-        {
-            if (File.Exists(Path.Combine(DocumentsFolder, candidate)))
-            {
-                return candidate;
-            }
-        }
-
-        return $"{documentName}.zh-CN.md";
-    }
-
-    private static IEnumerable<string> EnumerateDocumentCandidates(string documentName, string cultureName)
-    {
-        var isChineseCulture = false;
-        var useTraditionalChineseFallback = false;
-        if (!string.IsNullOrWhiteSpace(cultureName))
-        {
-            yield return $"{documentName}.{cultureName}.md";
-            var dashIndex = cultureName.IndexOf('-', StringComparison.Ordinal);
-            if (dashIndex > 0)
-            {
-                yield return $"{documentName}.{cultureName[..dashIndex]}.md";
-            }
-
-            isChineseCulture = cultureName.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
-            useTraditionalChineseFallback = isChineseCulture && IsTraditionalChineseCulture(cultureName);
-        }
-
-        if (!isChineseCulture)
-        {
-            yield return $"{documentName}.en-US.md";
-        }
-        else if (useTraditionalChineseFallback)
-        {
-            yield return $"{documentName}.zh-Hant.md";
-        }
-
-        yield return $"{documentName}.zh-CN.md";
-    }
-
-    private static bool IsTraditionalChineseCulture(string cultureName)
-    {
-        return cultureName.Equals("zh-Hant", StringComparison.OrdinalIgnoreCase)
-               || cultureName.StartsWith("zh-Hant-", StringComparison.OrdinalIgnoreCase)
-               || cultureName.Equals("zh-CHT", StringComparison.OrdinalIgnoreCase)
-               || cultureName.EndsWith("-TW", StringComparison.OrdinalIgnoreCase)
-               || cultureName.EndsWith("-HK", StringComparison.OrdinalIgnoreCase)
-               || cultureName.EndsWith("-MO", StringComparison.OrdinalIgnoreCase);
-    }
 }

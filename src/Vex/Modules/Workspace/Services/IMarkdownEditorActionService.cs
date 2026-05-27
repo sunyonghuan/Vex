@@ -5,5 +5,5 @@ namespace Vex.Modules.Workspace.Services;
 
 public interface IMarkdownEditorActionService
 {
-    void Execute(TextEditor editor, EditorActionKind action, Action<Action> runTextMutation);
+    Task ExecuteAsync(TextEditor editor, EditorActionKind action, Action<Action> runTextMutation);
 }

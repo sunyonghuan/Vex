@@ -134,9 +134,9 @@ Vex 是面向写作者、开发者和知识工作者的 Markdown 编辑器。核
 7. 支持行列状态同步。
 8. 支持缩放字体大小。
 9. 已支持语法高亮、当前行高亮、行号、Tab 行为、拖放打开文件和回车智能缩进；后续继续完善括号匹配等编辑细节。
-10. 支持复制html：场景是复制网页内容，然后粘贴到编辑器，需要自动转化 为markdown格式，转换操作需要封装到CodeWF.Markdown控件中，建议API
+10. 支持网页 HTML 粘贴为 Markdown：场景是复制网页内容后粘贴到中间编辑器，编辑器应优先读取剪贴板 HTML，并通过 `CodeWF.Markdown` 公共转换能力自动转成 Markdown 后插入；没有 HTML 或转换失败时回落到普通文本粘贴。转换操作封装在 CodeWF.Markdown 控件库中，API 为：
 ```csharp
-string Html2Markdown(string markdown);
+string Html2Markdown(string htmlContent);
 ```
 
 ### 5.4 预览区域
@@ -218,7 +218,7 @@ string Html2Markdown(string markdown);
 | 重做 | Ctrl+Y | 编辑器重做 |
 | 剪切 | Ctrl+X | 编辑器剪切 |
 | 复制 | Ctrl+C | 编辑器复制 |
-| 粘贴 | Ctrl+V | 编辑器粘贴 |
+| 粘贴 | Ctrl+V | 编辑器粘贴；剪贴板含 HTML 时优先转 Markdown 后插入 |
 | 全选 | Ctrl+A | 编辑器全选 |
 | 查找 | Ctrl+F | 显示查找栏 |
 | 替换 | Ctrl+H | 显示查找栏和替换输入 |
@@ -319,8 +319,8 @@ string Html2Markdown(string markdown);
 
 | 菜单项 | 行为 |
 | --- | --- |
-| 更新日志 | 弹出更新日志对话框，使用MarkdownViewer加载内置 `CHANGELOG.[culture].md` |
-| 鸣谢 | 弹出鸣谢对话框，使用MarkdownViewer加载内置 `Thanks.[culture].md` |
+| 更新日志 | 弹出更新日志对话框，使用MarkdownViewer加载内置 `CHANGELOG.md` |
+| 鸣谢 | 弹出鸣谢对话框，使用MarkdownViewer加载内置 `ACKNOWLEDGEMENTS.md` |
 | 官方网站 | 打开 `https://codewf.com` |
 | 反馈 | 打开反馈入口，未确定前可打开官网 |
 | 关于 | 打开关于面板 |
@@ -763,14 +763,13 @@ docs/DEVLOG.md
 文件：
 
 ```text
-docs/CHANGELOG.zh-CN.md
-docs/CHANGELOG.en-US.md
+docs/CHANGELOG.md
 ```
 
 要求：
 
 1. 面向用户，简洁清楚。
-2. 中英文同步。
+2. 当前只维护中文文档。
 3. 区分新增、优化、修复、删除、测试验证。
 4. 不写冗长实现细节。
 
@@ -938,7 +937,7 @@ AI 继续开发时必须遵守：
 7. 新增 NuGet 包前先查许可证、源码仓库、间接依赖。
 8. UI 改动后启动程序截图验证。
 9. 发布配置改动后执行对应发布验证。
-10. 每次提交前更新 `DEVLOG.md` 与中英文 `CHANGELOG`。
+10. 每次提交前更新 `DEVLOG.md` 与中文 `CHANGELOG.md`。
 11. Commit message 使用英文，例如 `feat: add startup folder support`。
 12. 提交后推送远端。
 
@@ -1084,6 +1083,7 @@ AI 继续开发时必须遵守：
 93. 查找和替换输入框限制为 200 字符并强制单行显示，避免粘贴超长内容破坏布局。
 94. 导出 HTML、PDF、PNG、Word 成功后会打开保存目录并定位文件；PDF/PNG/Word 导出已复用 `CodeWF.Markdown` 图片加载和栅格化能力，支持本地相对图、`data:image`、HTTP(S)、SVG/GIF/WebP，并确保 PDF 正文可选择复制、PDF 与 Word 文件可离线查看嵌入图片。
 95. 复制到公众号、知乎、稀土掘金会通过 `CodeWF.Markdown.MarkdownHtmlClipboardExtensions` 写入富 HTML 剪贴板内容，工具名、网站和尾注文案读取 `CodeWF.Markdown` 多语言资源，并把当前 `MarkdownExportStyle` 的主题色、字号、边框、代码块背景和掘金尾注样式内联到片段中。
+96. 从网页复制内容后粘贴到中间编辑器时，Vex 会优先读取 `text/html`、`public.html` 或 Windows `HTML Format`，调用 `CodeWF.Markdown.MarkdownHtmlClipboard.Html2Markdown(htmlContent)` 转为 Markdown；没有 HTML 或转换失败时回落到 AvaloniaEdit 原生粘贴。
 
 ## 24. 近期修复需求（来自 `D:\r.md`）
 

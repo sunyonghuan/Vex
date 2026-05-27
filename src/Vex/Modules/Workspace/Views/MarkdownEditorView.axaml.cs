@@ -31,6 +31,13 @@ public partial class MarkdownEditorView : UserControl
 
     private void OnEditorKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.Key == Key.V && IsPlainPasteGesture(e.KeyModifiers))
+        {
+            e.Handled = true;
+            ViewModel?.Paste();
+            return;
+        }
+
         if (e.Key == Key.Enter && e.KeyModifiers == KeyModifiers.None)
         {
             e.Handled = ViewModel?.HandleEditorKeyDown(e.Key, e.KeyModifiers) == true;
@@ -45,6 +52,11 @@ public partial class MarkdownEditorView : UserControl
         // Tab/Shift+Tab 只发布编辑动作，缩进文本如何变化由 Workspace 控制器统一维护。
         e.Handled = true;
         ViewModel?.HandleEditorKeyDown(e.Key, e.KeyModifiers);
+    }
+
+    private static bool IsPlainPasteGesture(KeyModifiers modifiers)
+    {
+        return modifiers is KeyModifiers.Control or KeyModifiers.Meta;
     }
 
     private void AttachEditorController()
