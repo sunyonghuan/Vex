@@ -3,11 +3,11 @@
 This document keeps copy-ready GitHub Release notes for Vex.
 本文档记录 Vex 每个发布版本可直接复制使用的 GitHub Release 文案。
 
-## v1.1.1 - 2026-05-27
+## v1.1.2 - 2026-05-27
 
 ### Release Title
 
-Vex 1.1.1 - Markdown Inline Style Fix
+Vex 1.1.2 - Markdown Inline Style Fix
 
 ### Release Notes
 
@@ -24,7 +24,7 @@ Vex 1.1.1 - Markdown Inline Style Fix
 
 ##### Improved
 
-- PDF, PNG, and Word export now use `CodeWF.Markdown` 12.0.3.15 `MarkdownDocumentExporter` / `ExportKind`.
+- PDF, PNG, and Word export now use `CodeWF.Markdown` 12.0.3.16 `MarkdownDocumentExporter` / `ExportKind`.
 - Exported PDF text is now selectable and copyable.
 - PDF, PNG, and Word export handle relative local images, `data:image`, HTTP(S), SVG, GIF, and WebP.
 - Word and PDF exports embed image resources for offline sharing.
@@ -55,7 +55,7 @@ Vex 1.1.1 - Markdown Inline Style Fix
 
 ##### 优化
 
-- PDF、PNG、Word 导出统一改用 `CodeWF.Markdown` 12.0.3.15 的 `MarkdownDocumentExporter` / `ExportKind`。
+- PDF、PNG、Word 导出统一改用 `CodeWF.Markdown` 12.0.3.16 的 `MarkdownDocumentExporter` / `ExportKind`。
 - PDF 正文现在可选择、可复制。
 - PDF、PNG、Word 导出增强图片处理，支持相对本地图、`data:image`、HTTP(S)、SVG、GIF、WebP。
 - Word 和 PDF 会嵌入图片资源，文件离线发送后仍可查看。
