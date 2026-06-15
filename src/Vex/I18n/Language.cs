@@ -144,6 +144,7 @@ public static class VexL
     public static readonly string McpGenerateToken = "Vex.VexL.McpGenerateToken";
     public static readonly string McpCopyToken = "Vex.VexL.McpCopyToken";
     public static readonly string McpCopyEndpoint = "Vex.VexL.McpCopyEndpoint";
+    public static readonly string McpEndpoint = "Vex.VexL.McpEndpoint";
     public static readonly string McpAllowedWorkspace = "Vex.VexL.McpAllowedWorkspace";
     public static readonly string McpScopeCurrentDocument = "Vex.VexL.McpScopeCurrentDocument";
     public static readonly string McpScopeCurrentFolder = "Vex.VexL.McpScopeCurrentFolder";
@@ -152,6 +153,10 @@ public static class VexL
     public static readonly string McpRequireConfirmation = "Vex.VexL.McpRequireConfirmation";
     public static readonly string McpSave = "Vex.VexL.McpSave";
     public static readonly string McpCancel = "Vex.VexL.McpCancel";
+    public static readonly string McpStatusStopped = "Vex.VexL.McpStatusStopped";
+    public static readonly string McpStatusTokenMissing = "Vex.VexL.McpStatusTokenMissing";
+    public static readonly string McpStatusLoopbackOnly = "Vex.VexL.McpStatusLoopbackOnly";
+    public static readonly string McpStatusRunningFormat = "Vex.VexL.McpStatusRunningFormat";
     public static readonly string McpOperationConfirmationTitle = "Vex.VexL.McpOperationConfirmationTitle";
     public static readonly string McpOperationConfirmationMessage = "Vex.VexL.McpOperationConfirmationMessage";
     public static readonly string McpOperationConfirm = "Vex.VexL.McpOperationConfirm";

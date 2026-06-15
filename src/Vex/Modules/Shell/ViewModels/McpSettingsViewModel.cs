@@ -12,6 +12,7 @@ public sealed class McpSettingsViewModel : ReactiveObject
 {
     private readonly IAppSettingsStore _settingsStore;
     private readonly IMcpServerHost _serverHost;
+    private readonly IAppLocalizer _localizer;
     private bool _isEnabled;
     private string _host = "127.0.0.1";
     private int _port = 17891;
@@ -21,10 +22,12 @@ public sealed class McpSettingsViewModel : ReactiveObject
     private bool _requireConfirmation = true;
     private string _statusText = string.Empty;
 
-    public McpSettingsViewModel(IAppSettingsStore settingsStore, IMcpServerHost serverHost)
+    public McpSettingsViewModel(IAppSettingsStore settingsStore, IMcpServerHost serverHost, IAppLocalizer localizer)
     {
         _settingsStore = settingsStore;
         _serverHost = serverHost;
+        _localizer = localizer;
+        _localizer.CultureChanged += (_, _) => RefreshStatus();
         Load();
     }
 
@@ -186,7 +189,7 @@ public sealed class McpSettingsViewModel : ReactiveObject
     private void RefreshStatus()
     {
         StatusText = _serverHost.IsRunning
-            ? $"运行中：{Endpoint}"
+            ? _localizer.Format(VexL.McpStatusRunningFormat, Endpoint)
             : _serverHost.StatusText;
     }
 

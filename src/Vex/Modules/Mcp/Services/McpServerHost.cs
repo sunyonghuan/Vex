@@ -12,20 +12,25 @@ public sealed class McpServerHost : IMcpServerHost
 {
     private readonly IAppSettingsStore _settingsStore;
     private readonly IMcpToolDispatcher _toolDispatcher;
+    private readonly IAppLocalizer _localizer;
     private HttpListener? _listener;
     private CancellationTokenSource? _cts;
     private Task? _listenTask;
+    private string? _statusResourceKey;
+    private object?[] _statusArgs = [];
 
-    public McpServerHost(IAppSettingsStore settingsStore, IMcpToolDispatcher toolDispatcher)
+    public McpServerHost(IAppSettingsStore settingsStore, IMcpToolDispatcher toolDispatcher, IAppLocalizer localizer)
     {
         _settingsStore = settingsStore;
         _toolDispatcher = toolDispatcher;
-        StatusText = "未启动";
+        _localizer = localizer;
+        _localizer.CultureChanged += (_, _) => RefreshLocalizedStatus();
+        SetStatus(VexL.McpStatusStopped);
     }
 
     public bool IsRunning { get; private set; }
 
-    public string StatusText { get; private set; }
+    public string StatusText { get; private set; } = string.Empty;
 
     public async Task ApplySettingsAsync()
     {
@@ -34,14 +39,14 @@ public sealed class McpServerHost : IMcpServerHost
         if (settings.IsMcpServerEnabled != true)
         {
             IsRunning = false;
-            StatusText = "未启动";
+            SetStatus(VexL.McpStatusStopped);
             return;
         }
 
         if (string.IsNullOrWhiteSpace(settings.McpAuthorizationToken))
         {
             IsRunning = false;
-            StatusText = "Token 缺失";
+            SetStatus(VexL.McpStatusTokenMissing);
             return;
         }
 
@@ -50,7 +55,7 @@ public sealed class McpServerHost : IMcpServerHost
         if (host is not "127.0.0.1" and not "localhost" and not "::1")
         {
             IsRunning = false;
-            StatusText = "仅允许本机地址";
+            SetStatus(VexL.McpStatusLoopbackOnly);
             return;
         }
 
@@ -62,12 +67,12 @@ public sealed class McpServerHost : IMcpServerHost
             _listener.Start();
             _listenTask = Task.Run(() => ListenAsync(_cts.Token));
             IsRunning = true;
-            StatusText = $"运行中：http://{FormatEndpointHost(host)}:{port}/mcp/";
+            SetStatus(VexL.McpStatusRunningFormat, $"http://{FormatEndpointHost(host)}:{port}/mcp/");
         }
         catch (Exception exception) when (exception is HttpListenerException or InvalidOperationException)
         {
             IsRunning = false;
-            StatusText = exception.Message;
+            SetRawStatus(exception.Message);
             await StopAsync();
         }
     }
@@ -106,7 +111,33 @@ public sealed class McpServerHost : IMcpServerHost
         _cts = null;
         _listenTask = null;
         IsRunning = false;
-        StatusText = "未启动";
+        SetStatus(VexL.McpStatusStopped);
+    }
+
+    private void SetStatus(string resourceKey, params object?[] args)
+    {
+        _statusResourceKey = resourceKey;
+        _statusArgs = args;
+        RefreshLocalizedStatus();
+    }
+
+    private void SetRawStatus(string text)
+    {
+        _statusResourceKey = null;
+        _statusArgs = [];
+        StatusText = text;
+    }
+
+    private void RefreshLocalizedStatus()
+    {
+        if (_statusResourceKey is not { Length: > 0 } resourceKey)
+        {
+            return;
+        }
+
+        StatusText = _statusArgs.Length == 0
+            ? _localizer.Get(resourceKey)
+            : _localizer.Format(resourceKey, _statusArgs);
     }
 
     private async Task ListenAsync(CancellationToken cancellationToken)

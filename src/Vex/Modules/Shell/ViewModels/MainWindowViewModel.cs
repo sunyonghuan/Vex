@@ -23,13 +23,16 @@ public sealed class MainWindowViewModel : ReactiveObject
     private readonly IAutoSaveDraftService _drafts;
     private readonly IShellStatusPublisher _statusPublisher;
     private FileSystemWatcher? _currentFileWatcher;
+    private FileSystemWatcher? _currentFolderWatcher;
     private Timer? _currentFileChangeTimer;
+    private Timer? _currentFolderChangeTimer;
     private Timer? _markdownDerivedStateTimer;
     private DocumentSnapshot _document;
     private IReadOnlyList<DocumentFile> _documentFiles = [];
     private string _lastSavedMarkdown = string.Empty;
     private string _markdown = string.Empty;
     private string? _watchedFilePath;
+    private string? _watchedFolderPath;
     private DateTimeOffset? _watchedFileLastWriteTimeUtc;
     private DateTimeOffset? _lastSkippedExternalWriteTimeUtc;
 
@@ -247,9 +250,14 @@ public sealed class MainWindowViewModel : ReactiveObject
             });
     }
 
-    private void NewDocumentCore()
+    private void NewDocumentCore(bool stopFolderWatcher = true)
     {
         StopCurrentFileWatcher();
+        if (stopFolderWatcher)
+        {
+            StopCurrentFolderWatcher();
+        }
+
         _drafts.Clear(_document);
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
@@ -275,6 +283,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     private void CloseDocumentCore()
     {
         StopCurrentFileWatcher();
+        StopCurrentFolderWatcher();
         _drafts.Clear(_document);
         _document = _documentService.CreateNew();
         _lastSavedMarkdown = _document.Markdown;
@@ -344,6 +353,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _documentFiles = files.ToArray();
         var firstFile = _documentFiles.FirstOrDefault();
         CodeWF.EventBus.EventBus.Default.Publish(new DocumentFilesChangedCommand(_documentFiles, firstFile));
+        StartCurrentFolderWatcher(_documentService.LastOpenedFolderPath);
 
         _text.PublishLoadedMarkdownFiles(_documentFiles.Count);
         if (firstFile is not null)
@@ -478,7 +488,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
         if (wasCurrentDocument)
         {
-            NewDocumentCore();
+            NewDocumentCore(stopFolderWatcher: false);
             CodeWF.EventBus.EventBus.Default.Publish(new DocumentFilesChangedCommand(_documentFiles));
         }
         else
@@ -533,6 +543,11 @@ public sealed class MainWindowViewModel : ReactiveObject
         _lastSavedMarkdown = snapshot.Markdown;
         if (snapshot.FilePath is { Length: > 0 } path)
         {
+            if (_watchedFolderPath is { Length: > 0 } watchedFolder && !IsPathUnderDirectory(path, watchedFolder))
+            {
+                StopCurrentFolderWatcher();
+            }
+
             Recent.AddRecentDocument(path);
             SyncDocumentFileList(path);
         }
@@ -755,6 +770,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             () =>
             {
                 StopCurrentFileWatcher();
+                StopCurrentFolderWatcher();
                 _drafts.Clear(_document);
                 CloseWindowRequested?.Invoke(this, EventArgs.Empty);
                 return Task.CompletedTask;
@@ -891,6 +907,33 @@ public sealed class MainWindowViewModel : ReactiveObject
         _currentFileWatcher.EnableRaisingEvents = true;
     }
 
+    // 文件夹视图监听已打开目录，文件增删改名后复用现有扫描流程刷新左侧列表。
+    private void StartCurrentFolderWatcher(string? folderPath)
+    {
+        StopCurrentFolderWatcher();
+        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+        {
+            return;
+        }
+
+        var fullPath = Path.GetFullPath(folderPath);
+        _watchedFolderPath = fullPath;
+        _currentFolderWatcher = new FileSystemWatcher(fullPath)
+        {
+            IncludeSubdirectories = true,
+            NotifyFilter = NotifyFilters.FileName
+                           | NotifyFilters.DirectoryName
+                           | NotifyFilters.LastWrite
+                           | NotifyFilters.Size
+                           | NotifyFilters.CreationTime
+        };
+        _currentFolderWatcher.Changed += HandleWatchedFolderChanged;
+        _currentFolderWatcher.Created += HandleWatchedFolderChanged;
+        _currentFolderWatcher.Deleted += HandleWatchedFolderChanged;
+        _currentFolderWatcher.Renamed += HandleWatchedFolderChanged;
+        _currentFolderWatcher.EnableRaisingEvents = true;
+    }
+
     private void StopCurrentFileWatcher()
     {
         if (_currentFileWatcher is not null)
@@ -910,6 +953,23 @@ public sealed class MainWindowViewModel : ReactiveObject
         _lastSkippedExternalWriteTimeUtc = null;
     }
 
+    private void StopCurrentFolderWatcher()
+    {
+        if (_currentFolderWatcher is not null)
+        {
+            _currentFolderWatcher.EnableRaisingEvents = false;
+            _currentFolderWatcher.Changed -= HandleWatchedFolderChanged;
+            _currentFolderWatcher.Created -= HandleWatchedFolderChanged;
+            _currentFolderWatcher.Deleted -= HandleWatchedFolderChanged;
+            _currentFolderWatcher.Renamed -= HandleWatchedFolderChanged;
+            _currentFolderWatcher.Dispose();
+            _currentFolderWatcher = null;
+        }
+
+        _currentFolderChangeTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _watchedFolderPath = null;
+    }
+
     private void HandleWatchedFileChanged(object sender, FileSystemEventArgs e)
     {
         if (_watchedFilePath is null)
@@ -923,6 +983,34 @@ public sealed class MainWindowViewModel : ReactiveObject
             Timeout.InfiniteTimeSpan,
             Timeout.InfiniteTimeSpan);
         _currentFileChangeTimer.Change(TimeSpan.FromMilliseconds(500), Timeout.InfiniteTimeSpan);
+    }
+
+    private void HandleWatchedFolderChanged(object sender, FileSystemEventArgs e)
+    {
+        if (_watchedFolderPath is null)
+        {
+            return;
+        }
+
+        _currentFolderChangeTimer ??= new Timer(
+            _ => Dispatcher.UIThread.Post(() => _ = ReloadWatchedFolderAsync()),
+            null,
+            Timeout.InfiniteTimeSpan,
+            Timeout.InfiniteTimeSpan);
+        _currentFolderChangeTimer.Change(TimeSpan.FromMilliseconds(500), Timeout.InfiniteTimeSpan);
+    }
+
+    private async Task ReloadWatchedFolderAsync()
+    {
+        if (_watchedFolderPath is not { Length: > 0 } watchedFolder || !Directory.Exists(watchedFolder))
+        {
+            return;
+        }
+
+        await RunWithErrorOverlayAsync(
+            VexL.ErrorMessageCannotOpenFolderFormat,
+            () => ApplyFolderFilesAsync(watchedFolder),
+            watchedFolder);
     }
 
     private async Task ReloadWatchedFileAsync()
@@ -1004,6 +1092,14 @@ public sealed class MainWindowViewModel : ReactiveObject
         CodeWF.EventBus.EventBus.Default.Publish(new DocumentFilesChangedCommand(_documentFiles, file));
     }
 
+    private async Task ApplyFolderFilesAsync(string folderPath)
+    {
+        var files = await _documentService.OpenFolderPathAsync(folderPath);
+        _documentFiles = files.ToArray();
+        var selected = FindCurrentDocumentFile() ?? _documentFiles.FirstOrDefault();
+        CodeWF.EventBus.EventBus.Default.Publish(new DocumentFilesChangedCommand(_documentFiles, selected));
+    }
+
     private DocumentSnapshot RestoreDraftIfAvailable(DocumentSnapshot document, out bool restoredDraft)
     {
         var restored = _drafts.TryRestore(document);
@@ -1054,6 +1150,22 @@ public sealed class MainWindowViewModel : ReactiveObject
         catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
         {
             return left.Equals(right, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private static bool IsPathUnderDirectory(string path, string directory)
+    {
+        try
+        {
+            var fullPath = Path.GetFullPath(path);
+            var fullDirectory = Path.GetFullPath(directory)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            return fullPath.StartsWith(fullDirectory, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
         }
     }
 }
