@@ -89,6 +89,7 @@
       "DocumentList": "Document List",
       "Search": "Search",
       "SourceMode": "Source Mode",
+      "PreviewMode": "Preview Mode",
       "ShowLineNumbers": "Show Line Numbers",
       "ShowStatusBar": "Show Status Bar",
       "WordCount": "Word Count Window",

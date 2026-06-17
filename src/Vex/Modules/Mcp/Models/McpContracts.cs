@@ -72,7 +72,7 @@ public sealed record UiSetTypographyInput(string TypographyKey);
 
 public sealed record UiSetLanguageInput(string CultureName);
 
-public sealed record UiSetLayoutInput(bool? SidebarVisible, bool? StatusBarVisible, bool? SourceMode, bool? LineNumbersVisible, bool? CompactLayout);
+public sealed record UiSetLayoutInput(bool? SidebarVisible, bool? StatusBarVisible, bool? PreviewVisible, bool? SourceMode, bool? LineNumbersVisible, bool? CompactLayout);
 
 public sealed record UiShowSidebarTabInput(string Tab);
 

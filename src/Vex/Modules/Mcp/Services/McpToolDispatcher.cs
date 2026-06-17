@@ -58,7 +58,7 @@ public sealed class McpToolDispatcher : IMcpToolDispatcher
     private const string UiSetThemeSchema = """{"type":"object","properties":{"themeKey":{"type":"string","enum":["system","light","dark","aquatic","desert","dusk","night-sky"]}},"required":["themeKey"],"additionalProperties":false}""";
     private const string UiSetTypographySchema = """{"type":"object","properties":{"typographyKey":{"type":"string"}},"required":["typographyKey"],"additionalProperties":false}""";
     private const string UiSetLanguageSchema = """{"type":"object","properties":{"cultureName":{"type":"string","enum":["zh-CN","zh-Hant","en-US","ja-JP"]}},"required":["cultureName"],"additionalProperties":false}""";
-    private const string UiSetLayoutSchema = """{"type":"object","properties":{"sidebarVisible":{"type":"boolean"},"statusBarVisible":{"type":"boolean"},"sourceMode":{"type":"boolean"},"lineNumbersVisible":{"type":"boolean"},"compactLayout":{"type":"boolean"}},"additionalProperties":false}""";
+    private const string UiSetLayoutSchema = """{"type":"object","properties":{"sidebarVisible":{"type":"boolean"},"statusBarVisible":{"type":"boolean"},"previewVisible":{"type":"boolean"},"sourceMode":{"type":"boolean"},"lineNumbersVisible":{"type":"boolean"},"compactLayout":{"type":"boolean"}},"additionalProperties":false}""";
     private const string UiShowSidebarTabSchema = """{"type":"object","properties":{"tab":{"type":"string","enum":["files","outline"]}},"required":["tab"],"additionalProperties":false}""";
     private const string UiOpenPanelSchema = """{"type":"object","properties":{"panel":{"type":"string","enum":["find","replace","properties","wordCount","mcpSettings","changelog","thanks","about"]}},"required":["panel"],"additionalProperties":false}""";
     private const string UiApplyEditorCommandSchema = """{"type":"object","properties":{"command":{"type":"string","enum":["undo","redo","copy","selectAll","paragraph","heading1","heading2","heading3","bold","italic","inlineCode","link","image","quote","orderedList","unorderedList","taskList","codeFence","mathBlock","table","horizontalRule","clearFormatting"]}},"required":["command"],"additionalProperties":false}""";
@@ -455,6 +455,11 @@ public sealed class McpToolDispatcher : IMcpToolDispatcher
         if (input.StatusBarVisible is { } statusBar)
         {
             _shell.Layout.IsStatusBarVisible = statusBar;
+        }
+
+        if (input.PreviewVisible is { } preview)
+        {
+            _shell.Layout.IsPreviewVisible = preview;
         }
 
         if (input.LineNumbersVisible is { } lineNumbers)

@@ -12,6 +12,7 @@ public sealed class AppSettingsStore : IAppSettingsStore
     private const string IsSidebarVisible = nameof(AppSettings.IsSidebarVisible);
     private const string IsStatusBarVisible = nameof(AppSettings.IsStatusBarVisible);
     private const string IsPreviewVisible = nameof(AppSettings.IsPreviewVisible);
+    private const string IsSourceMode = nameof(AppSettings.IsSourceMode);
     private const string IsAlwaysOnTop = nameof(AppSettings.IsAlwaysOnTop);
     private const string SelectedSidebarTabIndex = nameof(AppSettings.SelectedSidebarTabIndex);
     private const string EditorZoom = nameof(AppSettings.EditorZoom);
@@ -64,6 +65,7 @@ public sealed class AppSettingsStore : IAppSettingsStore
             IsSidebarVisible = Get<bool?>(configPath, IsSidebarVisible),
             IsStatusBarVisible = Get<bool?>(configPath, IsStatusBarVisible),
             IsPreviewVisible = Get<bool?>(configPath, IsPreviewVisible),
+            IsSourceMode = Get<bool?>(configPath, IsSourceMode),
             IsAlwaysOnTop = Get<bool?>(configPath, IsAlwaysOnTop),
             SelectedSidebarTabIndex = Get<int?>(configPath, SelectedSidebarTabIndex),
             EditorZoom = Get<double?>(configPath, EditorZoom),
@@ -93,6 +95,7 @@ public sealed class AppSettingsStore : IAppSettingsStore
             AppConfigHelper.Set(configPath, IsSidebarVisible, settings.IsSidebarVisible);
             AppConfigHelper.Set(configPath, IsStatusBarVisible, settings.IsStatusBarVisible);
             AppConfigHelper.Set(configPath, IsPreviewVisible, settings.IsPreviewVisible);
+            AppConfigHelper.Set(configPath, IsSourceMode, settings.IsSourceMode);
             AppConfigHelper.Set(configPath, IsAlwaysOnTop, settings.IsAlwaysOnTop);
             AppConfigHelper.Set(configPath, SelectedSidebarTabIndex, settings.SelectedSidebarTabIndex);
             AppConfigHelper.Set(configPath, EditorZoom, settings.EditorZoom);

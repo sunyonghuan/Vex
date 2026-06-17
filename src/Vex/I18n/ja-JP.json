@@ -89,6 +89,7 @@
       "DocumentList": "文書リスト",
       "Search": "検索",
       "SourceMode": "ソースモード",
+      "PreviewMode": "プレビューモード",
       "ShowLineNumbers": "行番号を表示",
       "ShowStatusBar": "ステータスバーを表示",
       "WordCount": "文字数カウント",

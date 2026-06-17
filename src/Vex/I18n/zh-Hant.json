@@ -89,6 +89,7 @@
       "DocumentList": "文件列表",
       "Search": "搜尋",
       "SourceMode": "原始碼模式",
+      "PreviewMode": "預覽模式",
       "ShowLineNumbers": "顯示行號",
       "ShowStatusBar": "顯示狀態列",
       "WordCount": "字數統計視窗",

@@ -660,6 +660,7 @@ src/Vex/Modules/Mcp/Serialization/McpJsonContext.cs
 {
   "sidebarVisible": true,
   "statusBarVisible": true,
+  "previewVisible": true,
   "sourceMode": false,
   "lineNumbersVisible": true,
   "compactLayout": false
@@ -670,7 +671,7 @@ src/Vex/Modules/Mcp/Serialization/McpJsonContext.cs
 
 - 字段可选，只修改传入字段。
 - 不开放全屏和置顶。
-- `sourceMode=true` 会按现有逻辑隐藏侧边栏和预览；`sourceMode=false` 恢复进入源码模式前的布局。
+- `sourceMode` 控制源码编辑面板显示；`previewVisible` 控制预览面板显示，两者可以同时关闭。
 
 #### vex.ui_show_sidebar_tab
 

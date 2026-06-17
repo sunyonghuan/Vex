@@ -16,6 +16,8 @@ public sealed record AppSettings
 
     public bool? IsPreviewVisible { get; init; }
 
+    public bool? IsSourceMode { get; init; }
+
     public bool? IsAlwaysOnTop { get; init; }
 
     public int? SelectedSidebarTabIndex { get; init; }
