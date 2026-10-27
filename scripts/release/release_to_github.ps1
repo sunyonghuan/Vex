@@ -132,7 +132,7 @@ function New-GitHubRelease {
         'release', 'create', $Tag,
         $zipFile,
         '--title', "Markdor $ReleaseVersion",
-        '--repo', 'sunyonghuan/Markdor'
+        '--repo', 'sunyonghuan/Vex'
     )
 
     if ($Notes) {
