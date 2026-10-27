@@ -1,23 +1,23 @@
 /* ============================================================
-   Vex 界面原型 · 交互层（单页版）
-   主窗体为 Vex.html，采用单窗口固定视图组合；菜单与状态栏的界面
+   Markdor 界面原型 · 交互层（单页版）
+   主窗体为 Markdor.html，采用单窗口固定视图组合；菜单与状态栏的界面
    在窗体内以浮层呼出：
-   - VexProto.toast(msg)          操作反馈（对应 App 状态栏提示）
-   - VexProto.applyTheme(key)     程序化切主题
-   - VexProto.attachMenuBar(el)   标题菜单栏（数据取自 ShellTitleMenuView.axaml）
-   - VexProto.handleAction        页面注入：处理菜单呼出动作（act 名）
+   - MarkdorProto.toast(msg)          操作反馈（对应 App 状态栏提示）
+   - MarkdorProto.applyTheme(key)     程序化切主题
+   - MarkdorProto.attachMenuBar(el)   标题菜单栏（数据取自 ShellTitleMenuView.axaml）
+   - MarkdorProto.handleAction        页面注入：处理菜单呼出动作（act 名）
    ============================================================ */
 (function () {
-  var VexProto = {
+  var MarkdorProto = {
     applyTheme: function (key) {
-      window.VexTheme.setMode(key);
+      window.MarkdorTheme.setMode(key);
     }
   };
-  window.VexProto = VexProto;
+  window.MarkdorProto = MarkdorProto;
 
   /* ---------- Toast ---------- */
   var toastWrap = null;
-  VexProto.toast = function (msg) {
+  MarkdorProto.toast = function (msg) {
     if (!toastWrap) {
       toastWrap = document.createElement('div');
       toastWrap.className = 'proto-toast-wrap';
@@ -37,7 +37,7 @@
   /* ---------- 标题菜单（ShellTitleMenuView.axaml 的原型化） ---------- */
   var THEME_ITEMS = [
     { label:'跟随系统', action:'theme', arg:'system', check:true }, { label:'浅色', action:'theme', arg:'light', check:true }, { label:'深色', action:'theme', arg:'dark', check:true }, { sep:true }
-  ].concat(VexPalettes.map(function(p){return {label:p.label,action:'palette',arg:p.key,check:true};}));
+  ].concat(MarkdorPalettes.map(function(p){return {label:p.label,action:'palette',arg:p.key,check:true};}));
 
   var MENUS = [
     { key: 'file', label: '文件(F)', items: [
@@ -94,7 +94,7 @@
       { label: '无序列表', action: 'insert-list' }, { label: '有序列表', action: 'insert-ordered' }, { label: '任务列表', action: 'insert-task' },
       { label: '引用', action: 'insert-quote' },
       { sep: true },
-      { label: '表格', action: 'insert-table', sub:VexElementMenu.tableItems() }, { label: '代码块', action: 'insert-code' },
+      { label: '表格', action: 'insert-table', sub:MarkdorElementMenu.tableItems() }, { label: '代码块', action: 'insert-code' },
       { label: '公式块', action: 'insert-math' }, { label: '水平分割线', action: 'insert-rule' },
       { label: '链接', action: 'insert-link' }, { label: '图片', action: 'insert-image' },
       { sep: true },
@@ -127,8 +127,8 @@
     { key: 'help', label: '帮助(H)', items: [
       { label: '新手引导', action: 'guide' }, { label: '更新日志', act: 'dlg-doc', arg: '更新日志' },
       { label: '鸣谢', act: 'dlg-doc', arg: '鸣谢' }, { sep: true },
-      { label: '官方网站', toast: '官方网站：codewf.com' }, { label: '反馈', toast: '反馈入口：github.com/dotnet9/Vex/issues' },
-      { label: '检查更新', act: 'dlg-update' }, { label: '关于 Vex', act: 'dlg-about' }
+      { label: '官方网站', toast: '官方网站：codewf.com' }, { label: '反馈', toast: '反馈入口：github.com/dotnet9/Markdor/issues' },
+      { label: '检查更新', act: 'dlg-update' }, { label: '关于 Markdor', act: 'dlg-about' }
     ]}
   ];
   var originalInsert = MENUS[2].items;
@@ -140,15 +140,15 @@
     paragraphItem('insert-heading4'), paragraphItem('insert-heading5'), paragraphItem('insert-heading6'), {sep:true},
     paragraphItem('insert-list'), paragraphItem('insert-ordered'), paragraphItem('insert-task'), paragraphItem('insert-quote'), {sep:true},
     paragraphItem('insert-table'), paragraphItem('insert-code'), paragraphItem('insert-math'),
-    {label:'Mermaid 图表',sub:VexMermaid.items.map(function (item) {return {label:item.label,action:'insert-mermaid-'+item.key};})},
+    {label:'Mermaid 图表',sub:MarkdorMermaid.items.map(function (item) {return {label:item.label,action:'insert-mermaid-'+item.key};})},
     {sep:true}, paragraphItem('insert-rule'), {label:'脚注',action:'insert-footnote'}
   ]};
   MENUS.splice(3,0,{key:'format',label:'格式(O)',items:[{label:'加粗',gesture:'Ctrl+B',action:'insert-bold'},{label:'斜体',gesture:'Ctrl+I',action:'insert-italic'},{label:'删除线',action:'insert-strike'},{label:'高亮',action:'insert-highlight'},{label:'上标',action:'insert-superscript'},{label:'下标',action:'insert-subscript'},{label:'行内代码',action:'insert-inline-code'},{sep:true},{label:'链接',action:'insert-link'},{label:'图片',action:'insert-image'},{sep:true},{label:'清除格式',action:'clear-format'}]});
   var toolsMenu = MENUS.find(function (menu) { return menu.key === 'tools'; });
   toolsMenu.items.unshift({label:'偏好设置…',gesture:'Ctrl+,',action:'preferences'},{sep:true});
   toolsMenu.items = toolsMenu.items.map(function (item) { return item.label === 'MCP 设置' ? {label:'MCP 设置',action:'preferences-mcp'} : item.label === 'MCP 审计' ? {label:'MCP 审计',action:'mcp-audit'} : item; });
-  if (new URLSearchParams(location.search).get('platform') === 'macos') MENUS.unshift({key:'app',label:'Vex',items:[{label:'关于 Vex',act:'dlg-about'},{label:'偏好设置…',gesture:'⌘,',action:'preferences'},{sep:true},{label:'退出 Vex',gesture:'⌘Q',action:'exit-app'}]});
-  VexProto.menuData = MENUS;
+  if (new URLSearchParams(location.search).get('platform') === 'macos') MENUS.unshift({key:'app',label:'Markdor',items:[{label:'关于 Markdor',act:'dlg-about'},{label:'偏好设置…',gesture:'⌘,',action:'preferences'},{sep:true},{label:'退出 Markdor',gesture:'⌘Q',action:'exit-app'}]});
+  MarkdorProto.menuData = MENUS;
   var menuNav = document.querySelector('.tb-menu');
   menuNav.innerHTML = MENUS.map(function (menu) { return '<button class="tb-menuitem" type="button" aria-haspopup="true" aria-expanded="false">' + menu.label + '</button>'; }).join('');
 
@@ -164,7 +164,7 @@
     var visible = !sub.hidden;
     sub.hidden = true; sub._owner.setAttribute('aria-expanded','false');
     submenus.filter(function (item) { return item._owner.closest('.submenu') === sub; }).forEach(hideSubmenu);
-    if (visible) window.dispatchEvent(new CustomEvent('vex-menu-positioned'));
+    if (visible) window.dispatchEvent(new CustomEvent('markdor-menu-positioned'));
   }
   function clearSubmenus() { submenus.forEach(function (sub) { clearTimeout(sub._openTimer); clearTimeout(sub._hideTimer); sub.remove(); }); submenus = []; }
   function closeOpenMenu(restoreFocus) {
@@ -176,9 +176,9 @@
     document.querySelectorAll('.tb-menuitem.open').forEach(function (m) { m.classList.remove('open'); });
     document.querySelectorAll('.tb-menuitem').forEach(function (m) { m.setAttribute('aria-expanded', 'false'); });
     if (restoreFocus === true && trigger?.isConnected) trigger.focus({preventScroll:true});
-    window.dispatchEvent(new CustomEvent('vex-menu-positioned'));
+    window.dispatchEvent(new CustomEvent('markdor-menu-positioned'));
   }
-  VexProto.closeMenu = closeOpenMenu;
+  MarkdorProto.closeMenu = closeOpenMenu;
 
   function fitMenu(menu, availableHeight) {
     // Keep every command reachable even when compact groups exceed the window.
@@ -205,7 +205,7 @@
   function buildItem(it, toastAll, depth) {
     depth = depth || 0;
     if (it.sep) { var s = document.createElement('div'); s.className = 'menu-sep'; s.setAttribute('role','separator'); return s; }
-    if (it.check && it.action && VexProto.isActionChecked) it.on = VexProto.isActionChecked(it.action, it);
+    if (it.check && it.action && MarkdorProto.isActionChecked) it.on = MarkdorProto.isActionChecked(it.action, it);
     if (it.action === 'theme') it.on = document.documentElement.dataset.themeMode === it.arg;
     if (it.action === 'palette') it.on = document.documentElement.dataset.palette === it.arg;
     var el = document.createElement('div');
@@ -238,7 +238,7 @@
     });
     el.className = 'menu-item' + (it.danger ? ' danger' : '') + (it.on ? ' checked' : '') + (it.sub ? ' has-sub' : '');
     var indicator = document.createElement('span'); indicator.className = 'menu-state'; indicator.setAttribute('aria-hidden', 'true'); indicator.textContent = it.on ? '✓' : ''; el.appendChild(indicator);
-    var label = document.createElement('span'); label.className = 'menu-label'; label.textContent = window.VexL ? VexL.label(it.label) : it.label; el.appendChild(label);
+    var label = document.createElement('span'); label.className = 'menu-label'; label.textContent = window.MarkdorL ? MarkdorL.label(it.label) : it.label; el.appendChild(label);
     if (it.gesture) {
       var g = document.createElement('span');
       g.className = 'mi-gesture';
@@ -248,14 +248,14 @@
       var a = document.createElement('span');
       a.className = 'mi-arrow';
       a.setAttribute('aria-hidden','true');
-      a.innerHTML = '<svg class="ico vex-expand-icon" aria-hidden="true"><use href="#i-chevron"/></svg>';
+      a.innerHTML = '<svg class="ico markdor-expand-icon" aria-hidden="true"><use href="#i-chevron"/></svg>';
       el.appendChild(a);
     }
     if (it.sub) {
       var sub = document.createElement('div');
-      sub.className = 'submenu flyout'; sub.setAttribute('role', 'menu'); sub.setAttribute('aria-label', window.VexL ? VexL.label(it.label) : it.label);
+      sub.className = 'submenu flyout'; sub.setAttribute('role', 'menu'); sub.setAttribute('aria-label', window.MarkdorL ? MarkdorL.label(it.label) : it.label);
       sub._owner = el; sub._depth = depth; sub.dataset.parentLabel = it.label;
-      sub.id = 'vex-submenu-' + submenus.length; submenus.push(sub);
+      sub.id = 'markdor-submenu-' + submenus.length; submenus.push(sub);
       sub.hidden = true; document.body.appendChild(sub);
       el.setAttribute('aria-haspopup','menu'); el.setAttribute('aria-expanded','false'); el.setAttribute('aria-controls',sub.id);
       it.sub.forEach(function (s) { sub.appendChild(buildItem(s,toastAll,depth+1)); });
@@ -273,11 +273,11 @@
         sub.style.left = Math.max(bounds.left, Math.min(flip ? left : right, bounds.right - sub.offsetWidth)) + 'px';
         sub.style.top = Math.max(bounds.top, Math.min(r.top - 6, bounds.bottom - sub.offsetHeight)) + 'px';
         el.setAttribute('aria-expanded','true');
-        window.dispatchEvent(new CustomEvent('vex-menu-positioned'));
+        window.dispatchEvent(new CustomEvent('markdor-menu-positioned'));
       }
       function branchHovered(menu) { return menu.matches(':hover') || submenus.some(function (child) { return child._owner.closest('.submenu') === menu && !child.hidden && branchHovered(child); }); }
-      function scheduleHide() { clearTimeout(sub._hideTimer); sub._hideTimer = setTimeout(function () { if (!window.VexGuide?.active && !branchHovered(sub) && !el.matches(':hover')) hideSubmenu(sub); },220); }
-      el.addEventListener('mouseenter', function () { if(!window.VexGuide?.active||VexGuide.allows(el)) { clearTimeout(sub._openTimer); sub._openTimer = setTimeout(placeSub,120); } });
+      function scheduleHide() { clearTimeout(sub._hideTimer); sub._hideTimer = setTimeout(function () { if (!window.MarkdorGuide?.active && !branchHovered(sub) && !el.matches(':hover')) hideSubmenu(sub); },220); }
+      el.addEventListener('mouseenter', function () { if(!window.MarkdorGuide?.active||MarkdorGuide.allows(el)) { clearTimeout(sub._openTimer); sub._openTimer = setTimeout(placeSub,120); } });
       el.addEventListener('mouseleave', function () { clearTimeout(sub._openTimer); scheduleHide(); });
       sub.addEventListener('mouseenter', function () { clearTimeout(sub._hideTimer); });
       sub.addEventListener('mouseleave',scheduleHide);
@@ -292,30 +292,30 @@
         return;
       }
       if (it.action === 'theme' || it.action === 'palette') {
-        if (it.action === 'palette') window.VexTheme.setPalette(it.arg);
-        else VexProto.applyTheme(it.arg);
+        if (it.action === 'palette') window.MarkdorTheme.setPalette(it.arg);
+        else MarkdorProto.applyTheme(it.arg);
         closeOpenMenu();
-        VexProto.toast('主题已切换为「' + it.label + '」');
+        MarkdorProto.toast('主题已切换为「' + it.label + '」');
         return;
       }
-      if (it.toast) { closeOpenMenu(); VexProto.toast(it.toast); return; }
-      if (it.action && typeof VexProto.handleAction === 'function') {
+      if (it.toast) { closeOpenMenu(); MarkdorProto.toast(it.toast); return; }
+      if (it.action && typeof MarkdorProto.handleAction === 'function') {
         closeOpenMenu();
-        var handled = VexProto.handleAction(it.action, it);
+        var handled = MarkdorProto.handleAction(it.action, it);
         if (handled !== false) return;
       }
       closeOpenMenu();
-      if (it.act && typeof VexProto.handleAction === 'function') {
-        VexProto.handleAction(it.act, it);
+      if (it.act && typeof MarkdorProto.handleAction === 'function') {
+        MarkdorProto.handleAction(it.act, it);
         return;
       }
       var msg = it.toast || (toastAll ? toastAll.replace('%s', it.label) : null);
-      if (msg) VexProto.toast(msg);
+      if (msg) MarkdorProto.toast(msg);
     });
     return el;
   }
 
-  VexProto.attachMenuBar = function (nav) {
+  MarkdorProto.attachMenuBar = function (nav) {
     var host = document.createElement('div');
     host.className = 'menu-flyout';
     host.hidden = true;
@@ -338,8 +338,8 @@
       var data = MENUS.filter(function (m) { return m.label === key || m.key === key; })[0];
       if (!data) return;
       clearSubmenus(); host.innerHTML = '';
-      window.VexTypography?.close(); window.VexWorkspace?.closeAppearance();
-      var languageMenu = document.getElementById('vex-language-menu'); if (languageMenu) languageMenu.open = false;
+      window.MarkdorTypography?.close(); window.MarkdorWorkspace?.closeAppearance();
+      var languageMenu = document.getElementById('markdor-language-menu'); if (languageMenu) languageMenu.open = false;
       var box = document.createElement('div');
       box.className = 'flyout';
       data.items.forEach(function (it) { box.appendChild(buildItem(it, data.toastAll)); });
@@ -347,7 +347,7 @@
       nav.querySelectorAll('.tb-menuitem').forEach(function (button) { button.setAttribute('aria-expanded', 'false'); });
       item.setAttribute('aria-expanded', 'true');
       box.setAttribute('role', 'menu');
-      box.id = 'vex-menu-' + data.key; box.setAttribute('aria-labelledby',item.id); item.setAttribute('aria-controls',box.id);
+      box.id = 'markdor-menu-' + data.key; box.setAttribute('aria-labelledby',item.id); item.setAttribute('aria-controls',box.id);
       host.hidden = false;
       host.style.left = item.getBoundingClientRect().left - bar.getBoundingClientRect().left + 'px';
       host.style.top = (nav.offsetTop + nav.offsetHeight + 2) + 'px';
@@ -357,12 +357,12 @@
       host.style.left = Math.max(app.left, Math.min(bounds.left, app.right - bounds.width)) - bar.getBoundingClientRect().left + 'px';
       openMenuKey = data.key;
       menuTrigger = item; hoverSwitch = !!fromHover; activate(item);
-      window.dispatchEvent(new CustomEvent('vex-menu-positioned'));
+      window.dispatchEvent(new CustomEvent('markdor-menu-positioned'));
     }
 
     nav.querySelectorAll('.tb-menuitem').forEach(function (item, index) {
       var key = MENUS[index].key;
-      item.id = 'vex-menu-trigger-' + key;
+      item.id = 'markdor-menu-trigger-' + key;
       item.tabIndex = index === 0 ? 0 : -1;
       item.setAttribute('role','menuitem'); item.setAttribute('aria-haspopup','menu');
       item.setAttribute('data-menu', MENUS[index].label);
@@ -378,7 +378,7 @@
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); event.stopPropagation(); var next = buttons[(index + (event.key === 'ArrowRight' ? 1 : buttons.length - 1)) % buttons.length]; if (openMenuKey) openFor(next); else buttons.forEach(function (button) {button.tabIndex = button === next ? 0 : -1;}); next.focus(); }
       });
       item.addEventListener('mouseenter', function () {
-        if(window.VexGuide?.active&&!VexGuide.allows(item))return;
+        if(window.MarkdorGuide?.active&&!MarkdorGuide.allows(item))return;
         if (openMenuKey && openMenuKey !== key) {
           document.querySelectorAll('.tb-menuitem.open').forEach(function (m) { m.classList.remove('open'); });
           item.classList.add('open');
@@ -394,7 +394,7 @@
       if (event.key === 'Tab' && openMenuKey) closeOpenMenu(true);
       if (!event.altKey || event.ctrlKey || event.metaKey || event.isComposing) return;
       var item = buttons.find(function (button) {return button.dataset.menu.match(/\((.)\)/)?.[1].toLowerCase() === event.key.toLowerCase();});
-      if (item && (!window.VexGuide?.active || VexGuide.allows(item))) { event.preventDefault(); openFor(item); focusItem(host); }
+      if (item && (!window.MarkdorGuide?.active || MarkdorGuide.allows(item))) { event.preventDefault(); openFor(item); focusItem(host); }
     });
     window.addEventListener('resize',function () {closeOpenMenu();});
     window.addEventListener('blur',function () {closeOpenMenu();});

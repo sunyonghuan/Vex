@@ -1,0 +1,289 @@
+<codewf:CodeWFWindow
+    x:Class="Netor.Markdor.Modules.Shell.Views.MainWindow" x:Name="ShellWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:codewf="https://codewf.com"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Netor.Markdor"
+    xmlns:regions="using:Netor.Markdor.Core.Regions"
+    xmlns:conv="using:Netor.Markdor.Core.Converters"
+    xmlns:shell="using:Netor.Markdor.Modules.Shell.Views"
+    xmlns:workspace="using:Netor.Markdor.Modules.Workspace.Views"
+    xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels" xmlns:model="using:Netor.Markdor.Core.Models" xmlns:md="https://codewf.com"
+    xmlns:u="https://irihi.tech/ursa"
+    x:DataType="vm:MainWindowViewModel"
+    Title="{Binding DocumentInfo.WindowTitle}"
+    Width="1280"
+    Height="820"
+    MinWidth="800"
+    MinHeight="480"
+    Icon="/Assets/logo.ico"
+    BorderBrush="{DynamicResource MarkdorPanelBorderBrush}"
+    TitleBarHeight="33"
+    TitleBarBackground="{DynamicResource MarkdorPanelBackgroundBrush}"
+    CaptionButtonWidth="46" CaptionGlyphSize="16"
+    IsTitleBarVisible="{Binding !Workbench.IsPresenting}"
+    IsManagedResizerVisible="{Binding !Workbench.IsPresenting}"
+    Topmost="{Binding Layout.IsAlwaysOnTop}"
+    WindowState="{Binding Layout.CurrentWindowState, Mode=TwoWay}"
+    WindowStartupLocation="CenterScreen">
+
+    <codewf:CodeWFWindow.Resources>
+        <conv:FirstPositiveWidthConverter x:Key="FirstPositiveWidth" />
+    </codewf:CodeWFWindow.Resources>
+
+    <codewf:CodeWFWindow.LeftContent>
+        <StackPanel
+            Margin="8 0 10 0"
+            Height="33"
+            Orientation="Horizontal"
+            Spacing="12"
+            VerticalAlignment="Center"
+            IsEnabled="{Binding !IsInModalStatus, ElementName=ShellDialogHost}">
+            <!-- 对应原型 .brand：22×22 圆角标识 + 15px/750 字标，间距 7。 -->
+            <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+                <Border
+                    Width="22"
+                    Height="22"
+                    CornerRadius="5"
+                    Background="#24766B"
+                    VerticalAlignment="Center">
+                    <Canvas Width="22" Height="22">
+                        <Path
+                            Data="M5.5 5.3 L11 17 L16.5 5.3"
+                            Stroke="#FFFFFF"
+                            StrokeThickness="3.9"
+                            StrokeLineCap="Round"
+                            StrokeJoin="Round" />
+                    </Canvas>
+                </Border>
+                <TextBlock
+                    Classes="titlebar-text"
+                    FontSize="15"
+                    FontWeight="Bold"
+                    LetterSpacing="-0.4"
+                    Text="Markdor"
+                    VerticalAlignment="Center" />
+            </StackPanel>
+            <shell:ShellTitleMenuView x:Name="TitleMenuView" VerticalAlignment="Center" />
+            <!-- 原型把文档名放在菜单之后左对齐，而不是标题栏正中。 -->
+            <TextBlock
+                x:Name="TitleDocumentLabel"
+                Text="{Binding DocumentInfo.CurrentDocumentTitle}"
+                FontSize="12"
+                FontWeight="Normal"
+                MaxWidth="300"
+                TextTrimming="CharacterEllipsis"
+                VerticalAlignment="Center"
+                IsHitTestVisible="False"
+                AutomationProperties.Name="{Binding DocumentInfo.CurrentDocumentTitle}" />
+        </StackPanel>
+    </codewf:CodeWFWindow.LeftContent>
+
+    <codewf:CodeWFWindow.RightContent>
+        <StackPanel x:Name="TitleBarAppearance" Orientation="Horizontal" Spacing="6" Margin="0,0,8,0"
+                    VerticalAlignment="Center" IsEnabled="{Binding !IsInModalStatus, ElementName=ShellDialogHost}">
+            <Button x:Name="FindButton" Classes="tb-icon titlebar-action" Command="{Binding ShowFindPanel}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.Find}}" AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.Find}}" VerticalAlignment="Center">
+                <Path Classes="wb-icon" Data="{StaticResource WBSearchIcon}" />
+            </Button>
+            <shell:ShellAppearanceMenuView x:Name="AppearanceMenu"/>
+        </StackPanel>
+    </codewf:CodeWFWindow.RightContent>
+
+    <!-- 自定义窗口不含 UrsaWindow 的默认宿主，显式复用 Ursa 浮层控件。
+         放在整窗浮层槽（12.2.8 OverlayContent）里，遮罩才能像原型 .markdor-settings-host 一样盖住标题条；
+         遮罩色对齐原型：#0B1729 28% 透明度。 -->
+    <codewf:CodeWFWindow.OverlayContent>
+        <u:OverlayDialogHost x:Name="ShellDialogHost" OverlayMaskBrush="#470B1729" />
+    </codewf:CodeWFWindow.OverlayContent>
+
+    <!-- CodeWFWindow 模板已预留标题栏高度；标题栏下方不再绘制分隔线。 -->
+    <Border x:Name="ShellTitleDivider"
+            BorderBrush="{DynamicResource MarkdorPanelBorderBrush}" BorderThickness="0">
+    <Grid
+        x:Name="ShellGuideRoot"
+        ClipToBounds="False"
+        Background="{DynamicResource MarkdorShellBackgroundBrush}"
+        RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" IsVisible="{Binding !Workbench.IsPresenting}">
+            <StackPanel>
+                <shell:ShellWorkflowNotice/>
+                <shell:ShellFindBarView DataContext="{Binding FindBar}" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1" x:Name="WorkspaceColumns" ClipToBounds="False" IsVisible="{Binding !Workbench.PresentationOutline}" Margin="{Binding Workbench.PresentationContentMargin}">
+            <Grid.ColumnDefinitions>
+                <!-- 列宽是侧栏尺寸的唯一来源，拖动结果直接通过双向绑定进入布局状态。 -->
+                <ColumnDefinition Width="{Binding Layout.SidebarColumnWidth, Mode=TwoWay}"
+                                  MinWidth="{Binding Layout.MinimumVisibleSidebarWidth}"
+                                  MaxWidth="{Binding Layout.MaximumVisibleSidebarWidth}" />
+                <ColumnDefinition Width="{Binding Layout.SidebarSplitterWidth}" />
+                <ColumnDefinition Width="*" MinWidth="280" />
+                <ColumnDefinition Width="{Binding Layout.OutlineSplitterWidth}" />
+                <ColumnDefinition Width="{Binding Layout.OutlineColumnWidth, Mode=TwoWay}"
+                                  MinWidth="{Binding Layout.MinimumOutlineWidth}" MaxWidth="{Binding Layout.MaximumOutlineWidth}" />
+            </Grid.ColumnDefinitions>
+
+            <Border
+                x:Name="SidebarGuideTarget"
+                Grid.Column="0"
+                ClipToBounds="True"
+                IsHitTestVisible="{Binding Layout.ShowSidebar}">
+                <Border Classes="panel">
+                    <ContentControl regions:RegionManagerExtensions.RegionName="{x:Static regions:RegionNames.ShellSidebarRegion}" />
+                </Border>
+            </Border>
+
+            <!-- 扩大命中区域，但只绘制细分隔线；窄窗口仍为正文保留最小宽度。 -->
+            <GridSplitter
+                x:Name="SidebarSplitter"
+                Grid.Column="1"
+                HorizontalAlignment="Stretch"
+                IsVisible="{Binding Layout.ShowSidebar}"
+                ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" ShowsPreview="False" />
+
+            <Grid Grid.Column="2" RowDefinitions="Auto,*" Background="{DynamicResource MarkdorDocumentPaperBrush}">
+                <StackPanel x:Name="FloatingViewShelf" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="12,4" IsVisible="False"/>
+                <Panel Grid.Row="1">
+                <!-- 原型：钉住的格式条只占源码列顶部，阅读/导图窗格从工作区顶端起排，
+                     所以 42px 让位只加在编辑/即时视图上，而不是整个 ViewSurface。 -->
+                <Grid x:Name="ViewSurface">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding Workbench.SourceColumnWidth}"/>
+                    <ColumnDefinition Width="{Binding Workbench.SplitterWidth}"/>
+                    <ColumnDefinition Width="{Binding Workbench.PreviewColumnWidth}"/>
+                </Grid.ColumnDefinitions>
+                <workspace:MarkdownEditorView x:Name="EditorGuideTarget" Grid.Column="0" Margin="{Binding #ShellWindow.((vm:MainWindowViewModel)DataContext).Workbench.EditorSurfaceMargin}" IsVisible="{Binding #ShellWindow.((vm:MainWindowViewModel)DataContext).Workbench.IsSourceVisible}" />
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" ResizeDirection="Columns" IsVisible="{Binding Workbench.IsSourceVisible}" />
+                <workspace:MarkdownPreviewView x:Name="PreviewGuideTarget" IsReadingMode="{Binding #ShellWindow.((vm:MainWindowViewModel)DataContext).Workbench.IsReading}" Grid.Column="2" IsVisible="{Binding #ShellWindow.((vm:MainWindowViewModel)DataContext).Workbench.IsPreviewVisible}" />
+                <workspace:MarkdownInstantView x:Name="InstantGuideTarget" Grid.ColumnSpan="3" Margin="{Binding Workbench.EditorSurfaceMargin}" IsVisible="{Binding Workbench.IsInstantEditing}" />
+                <workspace:MarkdownMindMapHost x:Name="MindMapGuideTarget" Grid.Column="{Binding Workbench.MapColumn}" Grid.ColumnSpan="{Binding Workbench.MapSpan}" IsVisible="{Binding Workbench.IsMapVisible}" />
+                </Grid>
+                <!-- 对应原型 #edit-options：叠在正文顶端的悬浮条，静默 1% 不透明度，悬停/聚焦时显现。
+                     必须与 ViewSurface 同级，工作区重建会清空 ViewSurface 的子级。
+                     宽度跟随源码列（原型格式条只横跨编辑窗格），源码窗格隐藏时回退满宽。 -->
+                <shell:ShellEditorOptionsView x:Name="EditorOptions" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <shell:ShellEditorOptionsView.Width>
+                        <MultiBinding Converter="{StaticResource FirstPositiveWidth}">
+                            <Binding Path="IsVisible" ElementName="EditorGuideTarget"/>
+                            <Binding Path="Bounds.Width" ElementName="EditorGuideTarget"/>
+                            <Binding Path="Bounds.Width" ElementName="ViewSurface"/>
+                        </MultiBinding>
+                    </shell:ShellEditorOptionsView.Width>
+                </shell:ShellEditorOptionsView>
+                <!-- 中间栏底部面板折叠按钮：左下角控制文件面板，右下角控制大纲面板 -->
+                <Border x:Name="SidebarCollapseHitArea" Width="26" Height="26" Padding="0"
+                        Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="12,0,0,12"
+                        ClipToBounds="False" IsVisible="{Binding Layout.ShowSidebar}">
+                    <Grid Width="26" Height="26">
+                        <Border Classes="sidebar-expand-surface" />
+                        <Button x:Name="SidebarCollapseButton" Classes="sidebar-expand-toggle"
+                                Command="{Binding Layout.CollapseSidebar}"
+                                ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.CollapseFilesPanel}}"
+                                AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.CollapseFilesPanel}}">
+                            <Viewbox Width="10" Height="10">
+                                <Path x:Name="SidebarCollapseIcon" Classes="panel-toggle-icon" />
+                            </Viewbox>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border x:Name="OutlineCollapseHitArea" Width="26" Height="26" Padding="0"
+                        Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,12"
+                        ClipToBounds="False" IsVisible="{Binding Layout.ShowOutlineSidebar}">
+                    <Grid Width="26" Height="26">
+                        <Border Classes="sidebar-expand-surface" />
+                        <Button x:Name="OutlineCollapseButton" Classes="sidebar-expand-toggle"
+                                Command="{Binding Layout.CollapseOutline}"
+                                ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.CollapseOutlinePanel}}"
+                                AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.CollapseOutlinePanel}}">
+                            <Viewbox Width="10" Height="10">
+                                <Path x:Name="OutlineCollapseIcon" Classes="panel-toggle-icon" />
+                            </Viewbox>
+                        </Button>
+                    </Grid>
+                </Border>
+                </Panel>
+            </Grid>
+            <GridSplitter x:Name="OutlineSplitter" Grid.Column="3" HorizontalAlignment="Stretch"
+                          IsVisible="{Binding Layout.ShowOutlineSidebar}" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" ShowsPreview="False" />
+            <Border x:Name="OutlineGuideTarget" Grid.Column="4" IsVisible="{Binding Layout.ShowOutlineSidebar}"
+                    Background="{DynamicResource MarkdorPanelBackgroundBrush}" ClipToBounds="True">
+                <shell:ShellAuxiliaryPanelView/>
+            </Border>
+
+        </Grid>
+
+        <!-- 工作区独立叠加层：脱离三栏网格边界，给两侧悬浮按钮的阴影留出完整扩散空间。 -->
+        <Grid x:Name="WorkspacePanelOverlay" Grid.Row="1" ClipToBounds="False"
+              IsVisible="{Binding !Workbench.PresentationOutline}"
+              Margin="{Binding Workbench.PresentationContentMargin}"
+              Panel.ZIndex="110">
+            <Border x:Name="SidebarExpandHitArea" Width="26" Height="26" Padding="0"
+                    Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="12,0,0,12"
+                    ClipToBounds="False" IsVisible="{Binding Layout.ShowSidebarExpandButton}">
+                <Grid Width="26" Height="26">
+                    <Border Classes="sidebar-expand-surface" />
+                    <Button x:Name="SidebarExpandButton" Classes="sidebar-expand-toggle"
+                            Command="{Binding Layout.ExpandSidebar}"
+                            ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.ExpandFilesPanel}}"
+                            AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.ExpandFilesPanel}}">
+                        <Viewbox Width="10" Height="10">
+                            <Path x:Name="SidebarExpandIcon" Classes="panel-toggle-icon" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Border>
+            <Border x:Name="OutlineExpandHitArea" Width="26" Height="26" Padding="0"
+                    Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,12"
+                    ClipToBounds="False" IsVisible="{Binding Layout.ShowOutlineExpandButton}">
+                <Grid Width="26" Height="26">
+                    <Border Classes="sidebar-expand-surface" />
+                    <Button x:Name="OutlineExpandButton" Classes="sidebar-expand-toggle"
+                            Command="{Binding Layout.ExpandOutline}"
+                            ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.ExpandOutlinePanel}}"
+                            AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.ExpandOutlinePanel}}">
+                        <Viewbox Width="10" Height="10">
+                            <Path x:Name="OutlineExpandIcon" Classes="panel-toggle-icon" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 浮动状态栏：透明背景，固定在底部，层级在所有内容之上 -->
+        <shell:ShellStatusBarView x:Name="StatusBarGuideTarget" Grid.Row="1"
+                                  IsVisible="{Binding #ShellWindow.((vm:MainWindowViewModel)DataContext).Layout.ShowStatusBar}"
+                                  VerticalAlignment="Bottom"
+                                  Margin="0,0,0,8"
+                                  ZIndex="100" />
+
+        <shell:ShellPresentationOutlineView x:Name="PresentationOutline" Grid.RowSpan="4" IsVisible="{Binding Workbench.PresentationOutline}"/>
+        <Border x:Name="PresentationTools" Classes="presentation-tools" Grid.RowSpan="4" IsVisible="{Binding Workbench.IsPresenting}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="24" Padding="6" Background="{DynamicResource MarkdorPanelBackgroundBrush}" BorderBrush="{DynamicResource MarkdorPanelBorderBrush}" BorderThickness="1" CornerRadius="8">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="3">
+                    <ToggleButton x:Name="PresentationDocumentToggle" Classes="wb-quiet" Command="{Binding Workbench.ShowPresentationDocument}" IsChecked="{Binding Workbench.PresentationDocument, Mode=OneWay}" Content="{i18n:I18n {x:Static l:MarkdorL.WBPresentationContent}}" ToolTip.Tip="D"/>
+                    <ToggleButton x:Name="PresentationOutlineToggle" Classes="wb-quiet" Command="{Binding Workbench.ShowPresentationOutline}" IsChecked="{Binding Workbench.PresentationOutline, Mode=OneWay}" Content="{i18n:I18n {x:Static l:MarkdorL.WBPresentationOutline}}" ToolTip.Tip="O"/>
+                    <ToggleButton x:Name="PresentationMapToggle" Classes="wb-quiet" Command="{Binding Workbench.ShowPresentationMap}" IsChecked="{Binding Workbench.PresentationMap, Mode=OneWay}" Content="{i18n:I18n {x:Static l:MarkdorL.WBPresentationMap}}" ToolTip.Tip="M"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center" IsVisible="{Binding Workbench.PresentationDocument}">
+                    <Button x:Name="PresentationPrevious" Classes="wb-quiet" Content="←" Command="{Binding Workbench.PreviousPresentation}" IsEnabled="{Binding Workbench.CanPreviousPresentation}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBPresentationPrevious}}"/>
+                    <TextBlock Text="{Binding Workbench.PresentationProgress}" VerticalAlignment="Center" MinWidth="72" TextAlignment="Center"/>
+                    <Button x:Name="PresentationNext" Classes="wb-quiet" Content="→" Command="{Binding Workbench.NextPresentation}" IsEnabled="{Binding Workbench.CanNextPresentation}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBPresentationNext}}"/>
+                </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="3">
+                <TextBlock x:Name="PresentationSmallerLabel" Text="A−" IsVisible="{Binding Workbench.PresentationDocument}" VerticalAlignment="Center" Margin="4,0,6,0" FontSize="11" Foreground="{DynamicResource MarkdorMutedBrush}"/>
+                <Slider x:Name="PresentationZoomSlider" Width="150" Minimum="1" Maximum="2.5" SmallChange="0.1" IsVisible="{Binding Workbench.PresentationDocument}" Value="{Binding Workbench.PresentationZoomValue}" VerticalAlignment="Center" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBPresentationZoom}}"/>
+                <TextBlock x:Name="PresentationLargerLabel" Text="A+" IsVisible="{Binding Workbench.PresentationDocument}" VerticalAlignment="Center" Margin="2,0,6,0" FontSize="11" Foreground="{DynamicResource MarkdorMutedBrush}"/>
+                <TextBlock Text="{Binding Workbench.PresentationZoomText}" IsVisible="{Binding Workbench.PresentationDocument}" VerticalAlignment="Center" MinWidth="40" FontSize="11" Foreground="{DynamicResource MarkdorMutedBrush}"/>
+                <Button x:Name="PresentationExit" Classes="markdor-dismiss" Command="{Binding Workbench.StopPresentation}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBPresentationExit}}" AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.WBPresentationExit}}"/>
+            </StackPanel>
+            </Grid>
+        </Border>
+        <shell:ShellTypographyGallery x:Name="TypographyGallery" Grid.RowSpan="4" IsVisible="{Binding Workbench.ShowTypography}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="18,38,18,18"/>
+        <!-- 对齐原型：选择视图面板锚定底栏「更多」按钮上方，轻量关闭由代码后置处理。 -->
+        <shell:WorkspaceLayoutGallery x:Name="LayoutGallery" Grid.RowSpan="4" IsVisible="{Binding Workbench.ShowLayouts}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="18,18,30,52"/>
+        <shell:WorkbenchGuideView x:Name="WorkbenchGuide" Grid.RowSpan="4"/>
+    </Grid>
+    </Border>
+</codewf:CodeWFWindow>

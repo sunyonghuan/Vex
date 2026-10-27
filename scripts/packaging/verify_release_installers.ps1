@@ -9,11 +9,11 @@ $directory = (Resolve-Path -LiteralPath $PackageDirectory).Path
 $files = @(Get-ChildItem -LiteralPath $directory -File)
 $releaseVersion = $Version.Trim().TrimStart('v', 'V')
 $expected = @{
-    'win-x64' = "Vex-v$releaseVersion-win-x64-setup.exe"
-    'linux-x64' = "Vex-v$releaseVersion-linux-x64.deb"
-    'linux-arm64' = "Vex-v$releaseVersion-linux-arm64.deb"
-    'osx-x64' = "Vex-$releaseVersion-osx-x64.dmg"
-    'osx-arm64' = "Vex-$releaseVersion-osx-arm64.dmg"
+    'win-x64' = "Markdor-v$releaseVersion-win-x64-setup.exe"
+    'linux-x64' = "Markdor-v$releaseVersion-linux-x64.deb"
+    'linux-arm64' = "Markdor-v$releaseVersion-linux-arm64.deb"
+    'osx-x64' = "Markdor-$releaseVersion-osx-x64.dmg"
+    'osx-arm64' = "Markdor-$releaseVersion-osx-arm64.dmg"
 }
 $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 foreach ($rid in $expected.Keys) {

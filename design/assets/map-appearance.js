@@ -8,7 +8,7 @@
   var colors = ['var(--accent)','var(--branch-secondary, var(--accent))','var(--branch-tertiary, var(--accent))','var(--muted)'];
   function miniature(layout, style) {
     var tree = {children:[{children:[{},{}]},{children:[{},{}]}]};
-    var graph = VexMapLayout.layout(tree, {mode:layout, measure:function (node) {node.width=52;node.height=22;}});
+    var graph = MarkdorMapLayout.layout(tree, {mode:layout, measure:function (node) {node.width=52;node.height=22;}});
     return '<svg class="map-miniature" data-map-style="'+style+'" viewBox="-12 -12 '+(graph.width+24)+' '+(graph.height+24)+'" aria-hidden="true">'+graph.links.map(function (link,index) {
       return '<path class="map-preview-link" style="--map-branch:'+colors[index%colors.length]+'" d="'+link.path+'"/>';
     }).join('')+graph.nodes.map(function (node,index) {
@@ -18,10 +18,10 @@
   function create(adapter) {
     var style = 'quiet', trigger, tab = 'structure';
     var isolated = new URLSearchParams(location.search).get('preview') === '1';
-    try { var stored = isolated ? null : localStorage.getItem('vex-prototype-map-style'); if (styles.some(function (item) {return item.key===stored;})) style=stored; } catch (_) {}
+    try { var stored = isolated ? null : localStorage.getItem('markdor-prototype-map-style'); if (styles.some(function (item) {return item.key===stored;})) style=stored; } catch (_) {}
     var panel = document.createElement('section'); panel.id='map-appearance-panel'; panel.className='map-appearance-popover'; panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','导图样式');
-    panel.innerHTML='<header class="appearance-heading"><strong>导图样式</strong><button class="vex-icon-button" data-map-close aria-label="关闭导图样式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="appearance-tabs" role="tablist" aria-label="导图外观"><button role="tab" id="map-tab-structure" data-map-tab="structure" aria-controls="map-structure-choices">结构</button><button role="tab" id="map-tab-style" data-map-tab="style" aria-controls="map-style-choices">风格</button></div><div class="map-choice-grid" id="map-structure-choices" role="tabpanel" aria-labelledby="map-tab-structure"></div><div class="map-choice-grid" id="map-style-choices" role="tabpanel" aria-labelledby="map-tab-style" hidden></div>';
+    panel.innerHTML='<header class="appearance-heading"><strong>导图样式</strong><button class="markdor-icon-button" data-map-close aria-label="关闭导图样式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="appearance-tabs" role="tablist" aria-label="导图外观"><button role="tab" id="map-tab-structure" data-map-tab="structure" aria-controls="map-structure-choices">结构</button><button role="tab" id="map-tab-style" data-map-tab="style" aria-controls="map-style-choices">风格</button></div><div class="map-choice-grid" id="map-structure-choices" role="tabpanel" aria-labelledby="map-tab-structure"></div><div class="map-choice-grid" id="map-style-choices" role="tabpanel" aria-labelledby="map-tab-style" hidden></div>';
     adapter.parent.appendChild(panel);
     function apply() {
       adapter.scene.dataset.mapStyle=style;
@@ -30,7 +30,7 @@
       panel.querySelectorAll('[data-map-style-choice]').forEach(function (button) {button.setAttribute('aria-pressed',String(button.dataset.mapStyleChoice===style));});
     }
     function render() {
-      panel.querySelector('#map-structure-choices').innerHTML=VexMapLayout.items.map(function (item) {return '<button class="map-choice" data-map-layout="'+item.key+'">'+miniature(item.key,style)+'<strong>'+item.label+'</strong></button>';}).join('');
+      panel.querySelector('#map-structure-choices').innerHTML=MarkdorMapLayout.items.map(function (item) {return '<button class="map-choice" data-map-layout="'+item.key+'">'+miniature(item.key,style)+'<strong>'+item.label+'</strong></button>';}).join('');
       panel.querySelector('#map-style-choices').innerHTML=styles.map(function (item) {return '<button class="map-choice" data-map-style-choice="'+item.key+'">'+miniature(adapter.getLayout(),item.key)+'<strong>'+item.label+'</strong></button>';}).join('');
       apply();
     }
@@ -41,7 +41,7 @@
     function close() {panel.hidden=true;if(trigger)trigger.setAttribute('aria-expanded','false');}
     function choose(key) {
       if(!styles.some(function(item){return item.key===key;}))return;
-      style=key;if(!isolated&&!adapter.isTemporary?.())try{localStorage.setItem('vex-prototype-map-style',style);}catch(_){}render();
+      style=key;if(!isolated&&!adapter.isTemporary?.())try{localStorage.setItem('markdor-prototype-map-style',style);}catch(_){}render();
     }
     function position() {
       if(panel.hidden)return;
@@ -72,5 +72,5 @@
     window.addEventListener('resize',position);apply();selectTab(tab);
     return {toggle:toggle,close:close,choose:choose,sync:apply,get style(){return style;}};
   }
-  window.VexMapAppearance={styles:styles,miniature:miniature,create:create};
+  window.MarkdorMapAppearance={styles:styles,miniature:miniature,create:create};
 })();

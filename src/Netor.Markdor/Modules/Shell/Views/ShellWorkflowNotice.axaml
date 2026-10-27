@@ -1,0 +1,31 @@
+<UserControl x:Class="Netor.Markdor.Modules.Shell.Views.ShellWorkflowNotice" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:i18n="https://codewf.com" xmlns:l="clr-namespace:Netor.Markdor" xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels" x:DataType="vm:MainWindowViewModel" IsVisible="{Binding Protection.HasNotice}">
+ <Border Padding="18,10" Background="{DynamicResource MarkdorPanelBackgroundBrush}" BorderBrush="{DynamicResource MarkdorPanelBorderBrush}" BorderThickness="0,0,0,1">
+  <StackPanel Spacing="8">
+   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding Protection.HasRecovery}">
+    <TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.ReviewRecoveryTitle}}" FontSize="12" VerticalAlignment="Center"/>
+    <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.ReviewDraft}}" Command="{Binding ReviewRecoveryAsync}"/>
+   </Grid>
+   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding Protection.HasExternal}">
+    <TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.ReviewExternalTitle}}" FontSize="12" VerticalAlignment="Center"/>
+    <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.ReviewCompare}}" Command="{Binding CompareExternalAsync}"/>
+   </Grid>
+   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding Protection.HasDraftError}">
+    <TextBlock Text="{Binding Protection.DraftError}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+    <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.RetrySave}}" Command="{Binding RetryDraft}"/>
+   </Grid>
+   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding Protection.HasFileReadError}">
+    <TextBlock Text="{Binding Protection.FileReadError}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+    <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesRetry}}" Command="{Binding RetryCurrentFileAsync}"/>
+   </Grid>
+   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding Protection.HasSaveError}">
+    <StackPanel Spacing="3"><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.SaveFailureKept}}" FontWeight="SemiBold" FontSize="12"/><TextBlock Text="{Binding Protection.SaveError}" TextWrapping="Wrap" Classes="wb-muted"/></StackPanel>
+    <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.RetrySave}}" Command="{Binding RetrySaveAsync}" VerticalAlignment="Center"/>
+   </Grid>
+   <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding Protection.HasExportError}">
+    <StackPanel Spacing="3"><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.ExportFailureKept}}" FontWeight="SemiBold" FontSize="12"/><TextBlock Text="{Binding Protection.ExportError}" TextWrapping="Wrap" Classes="wb-muted"/></StackPanel>
+    <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.RetryExport}}" Command="{Binding RetryExportAsync}" VerticalAlignment="Center"/>
+   </Grid>
+  </StackPanel>
+ </Border>
+</UserControl>

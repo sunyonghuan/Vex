@@ -42,7 +42,7 @@ function Get-ProjectVersion {
 function Show-NativePublishUsage {
     $hostRuntime = Get-HostRuntimeIdentifier
     $versionText = Get-ProjectVersion
-    Write-Output "Vex $versionText native publish"
+    Write-Output "Markdor $versionText native publish"
     Write-Output "Current host: $hostRuntime"
     Write-Output ''
     Write-Output 'Supported platforms:'
@@ -58,7 +58,7 @@ function Show-NativePublishUsage {
     Write-Output '  publish_native.bat all             Publish every RID that matches this host.'
     Write-Output ''
     Write-Output 'Options: -Version x.y.z  -ArtifactsRoot <dir>  -PublishRoot <dir>'
-    Write-Output 'Output:  artifacts/publish/<RID>/Vex'
+    Write-Output 'Output:  artifacts/publish/<RID>/Markdor'
     Write-Output 'Payload: Native AOT single file. Unchainable native libraries stay beside the executable.'
     Write-Output 'Excluded: documents, scripts, pdb, xml, and app config.'
 }
@@ -122,15 +122,15 @@ function Publish-NativeRuntime {
         throw 'Native publish requires the .NET 10 SDK.'
     }
 
-    $payload = if ($PublishRoot) { [IO.Path]::GetFullPath($PublishRoot) } else { Join-Path $repositoryRoot "artifacts/publish/$Rid/Vex" }
+    $payload = if ($PublishRoot) { [IO.Path]::GetFullPath($PublishRoot) } else { Join-Path $repositoryRoot "artifacts/publish/$Rid/Markdor" }
     $arguments = @(
-        'publish', (Join-Path $repositoryRoot 'src/Vex/Vex.csproj'),
+        'publish', (Join-Path $repositoryRoot 'src/Netor.Markdor/Netor.Markdor.csproj'),
         '-c', 'Release', '-f', $(if ($Rid.StartsWith('win-')) { 'net10.0-windows' } else { 'net10.0' }),
         '-r', $Rid, '-m:1',
         '-p:PublishAot=true', '-p:PublishTrimmed=true', '-p:PublishSingleFile=true',
         '-p:EnableCompressionInSingleFile=true', '-p:IncludeNativeLibrariesForSelfExtract=true',
         '-p:IncludeAllContentForSelfExtract=true', '-p:DebugSymbols=false', '-p:DebugType=none',
-        '-p:CopyOutputSymbolsToPublishDirectory=false', '-p:VexExcludePublishDocuments=true',
+        '-p:CopyOutputSymbolsToPublishDirectory=false', '-p:MarkdorExcludePublishDocuments=true',
         '-p:IlcSingleThreaded=true', '-p:IlcUseServerGc=false',
         "-p:Version=$ReleaseVersion", "-p:PublishDir=$payload/"
     )
@@ -156,7 +156,7 @@ function Publish-NativeRuntime {
     }
 
     Clear-NativePayload -Payload $payload
-    $executable = Join-Path $payload $(if ($Rid.StartsWith('win-')) { 'Vex.exe' } else { 'Vex' })
+    $executable = Join-Path $payload $(if ($Rid.StartsWith('win-')) { 'Markdor.exe' } else { 'Markdor' })
     if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw "Native executable is missing: $executable" }
     Write-Host "Native payload: $payload"
 }

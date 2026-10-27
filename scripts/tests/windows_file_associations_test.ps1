@@ -25,13 +25,13 @@ function Read-RegistryTree([string] $Path) {
 }
 
 function Get-AssociationSnapshot {
-    # 只读 Vex 自身候选及三种扩展名的现有选择，不创建或修改任何注册项。
+    # 只读 Markdor 自身候选及三种扩展名的现有选择，不创建或修改任何注册项。
     $snapshot = [ordered]@{}
-    foreach ($path in @('Software\Classes\Vex.Markdown', 'Software\Classes\Applications\Vex.exe')) {
+    foreach ($path in @('Software\Classes\Markdor.Markdown', 'Software\Classes\Applications\Markdor.exe')) {
         $snapshot[$path] = Read-RegistryTree $path
     }
     foreach ($extension in @('.md', '.markdown', '.mdown')) {
-        foreach ($path in @("Software\Classes\$extension", "Software\Classes\SystemFileAssociations\$extension\shell\OpenWithVex", "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\$extension\UserChoice")) {
+        foreach ($path in @("Software\Classes\$extension", "Software\Classes\SystemFileAssociations\$extension\shell\OpenWithMarkdor", "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\$extension\UserChoice")) {
             $snapshot[$path] = Read-RegistryTree $path
         }
     }

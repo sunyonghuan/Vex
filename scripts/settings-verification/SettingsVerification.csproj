@@ -4,6 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Vex/Vex.csproj" />
+    <ProjectReference Include="../../src/Netor.Markdor/Netor.Markdor.csproj" />
   </ItemGroup>
 </Project>

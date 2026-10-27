@@ -27,7 +27,7 @@ Write-Host "开始测试发布：$testRid" -ForegroundColor Green
 Write-Host ""
 
 # 直接调用 dotnet publish，使用与 publish.ps1 相同的参数
-$projectPath = Join-Path $repositoryRoot 'src/Vex/Vex.csproj'
+$projectPath = Join-Path $repositoryRoot 'src/Netor.Markdor/Netor.Markdor.csproj'
 $tfm = 'net10.0-windows'
 
 Write-Host "使用激进裁剪模式发布 ${testRid}（体积优化：-80%）"
@@ -60,7 +60,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # 检查输出
-$outputPath = Join-Path $repositoryRoot "artifacts/publish/$testRid/Vex"
+$outputPath = Join-Path $repositoryRoot "artifacts/publish/$testRid/Markdor"
 if (-not (Test-Path $outputPath)) {
     Write-Host ""
     Write-Host "错误：输出目录不存在 $outputPath" -ForegroundColor Red
@@ -72,11 +72,11 @@ Write-Host "=== 发布成功 ===" -ForegroundColor Green
 Write-Host ""
 
 # 分析体积
-$exePath = Join-Path $outputPath 'Vex.exe'
+$exePath = Join-Path $outputPath 'Markdor.exe'
 if (Test-Path $exePath) {
     $exeSize = (Get-Item $exePath).Length / 1MB
     Write-Host "主程序大小：" -ForegroundColor Cyan
-    Write-Host "  Vex.exe: $([math]::Round($exeSize, 2)) MB"
+    Write-Host "  Markdor.exe: $([math]::Round($exeSize, 2)) MB"
 }
 
 $totalSize = (Get-ChildItem $outputPath -Recurse -File | Measure-Object -Property Length -Sum).Sum / 1MB

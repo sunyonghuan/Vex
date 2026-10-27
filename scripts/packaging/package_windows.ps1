@@ -14,7 +14,7 @@ if (-not $Version) {
     $Version = [string] $props.Project.PropertyGroup.Version
 }
 if ($Version -notmatch '^\d+\.\d+\.\d+(?:\.\d+)?$') { throw '安装包版本必须是三段或四段数字。' }
-if (-not $WorkRoot) { $WorkRoot = Join-Path $repositoryRoot '../../temp_files/vex-windows' }
+if (-not $WorkRoot) { $WorkRoot = Join-Path $repositoryRoot '../../temp_files/markdor-windows' }
 $WorkRoot = [IO.Path]::GetFullPath($WorkRoot)
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $repositoryRoot 'artifacts/release' }
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
@@ -49,12 +49,12 @@ if (-not (Get-Command dotnet -CommandType Application -ErrorAction SilentlyConti
 
 # 每次使用独立构建目录，手工改代码后重做不会混入上次发布遗留的文件。
 $runRoot = Join-Path $WorkRoot ('builds/' + [guid]::NewGuid().ToString('N'))
-$publishRoot = Join-Path $repositoryRoot 'artifacts/publish/win-x64/Vex'
+$publishRoot = Join-Path $repositoryRoot 'artifacts/publish/win-x64/Markdor'
 $artifactsRoot = Join-Path $runRoot 'artifacts'
 # 只清理固定发布目录，确保手工重新制作时不会混入旧版本载荷。
 if (Test-Path -LiteralPath $publishRoot) {
     $resolvedPublishRoot = (Resolve-Path -LiteralPath $publishRoot).Path
-    $expectedPublishRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/publish/win-x64/Vex'))
+    $expectedPublishRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts/publish/win-x64/Markdor'))
     if ($resolvedPublishRoot -ne $expectedPublishRoot) { throw '发布目录解析结果与仓库固定路径不一致。' }
     Remove-Item -LiteralPath $resolvedPublishRoot -Recurse -Force
 }
@@ -70,8 +70,8 @@ try {
     $env:TEMP = $temporaryDirectory
     $env:TMP = $temporaryDirectory
     & (Join-Path $PSScriptRoot 'publish.ps1') -RuntimeIdentifier win-x64 -Version $Version -ArtifactsRoot $artifactsRoot -PublishRoot $publishRoot
-    $executable = Join-Path $publishRoot 'Vex.exe'
-    if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw '发布目录缺少 Vex.exe。' }
+    $executable = Join-Path $publishRoot 'Markdor.exe'
+    if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw '发布目录缺少 Markdor.exe。' }
 
     # 正式载荷自检使用隔离配置，不安装产品，也不修改用户现有设置。
     $verificationRoot = Join-Path $runRoot 'runtime-verification'
@@ -94,9 +94,9 @@ try {
     if ($evidence -notmatch '^NativeAOT runtime verification passed;') { throw '缺少 NativeAOT 自检成功记录。' }
     Write-Host $evidence
 
-    & $InnoSetupCompiler '/Q' (Join-Path $PSScriptRoot 'Vex.iss') "/DAppVersion=$Version" "/DSourceDir=$publishRoot" "/DOutputDir=$OutputDirectory"
+    & $InnoSetupCompiler '/Q' (Join-Path $PSScriptRoot 'Markdor.iss') "/DAppVersion=$Version" "/DSourceDir=$publishRoot" "/DOutputDir=$OutputDirectory"
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup 编译失败：$LASTEXITCODE" }
-    $installerName = "Vex-v$Version-win-x64-setup.exe"
+    $installerName = "Markdor-v$Version-win-x64-setup.exe"
     $installer = Join-Path $OutputDirectory $installerName
     if (-not (Test-Path -LiteralPath $installer -PathType Leaf) -or (Get-Item -LiteralPath $installer).Length -eq 0) { throw '未生成非空 Windows 安装包。' }
     $sha = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()

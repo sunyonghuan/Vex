@@ -1,0 +1,33 @@
+<UserControl
+    x:Class="Netor.Markdor.Modules.Shell.Views.ShellPropertiesOverlayView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Netor.Markdor"
+    xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellDocumentInfoViewModel">
+    <Border Classes="dialog-card" Width="520" Padding="0" CornerRadius="8" ClipToBounds="True">
+        <StackPanel>
+            <Border Height="36" Padding="16,0,0,0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MarkdorPanelBorderBrush}" Background="{DynamicResource MarkdorShellBackgroundBrush}">
+                <Grid ColumnDefinitions="*,46" VerticalAlignment="Center">
+                    <TextBlock FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" Text="{i18n:I18n Markdor.MarkdorL.Properties}"/>
+                    <Button Grid.Column="1" Classes="markdor-dismiss" Width="46" Height="32" Click="Close_OnClick" AutomationProperties.Name="{i18n:I18n Markdor.MarkdorL.Close}"/>
+                </Grid>
+            </Border>
+            <Grid Margin="24,20,24,14" ColumnDefinitions="44,*" ColumnSpacing="14">
+                <Border Width="44" Height="44" CornerRadius="11" Background="{DynamicResource MarkdorAccentSoftBrush}"><Path Classes="stroke-ico" Stroke="{DynamicResource MarkdorAccentBrush}" Width="21" Height="21" Data="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8Z M14 2V8H20 M8 13H16 M8 17H14"/></Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3"><TextBlock FontSize="15.5" FontWeight="Bold" Text="{Binding PropertyNameText}" TextTrimming="CharacterEllipsis"/><TextBlock Classes="muted" FontSize="12" Text="{i18n:I18n Markdor.MarkdorL.PropertyDocumentType}"/></StackPanel>
+            </Grid>
+            <StackPanel Margin="24,4,24,22">
+                <Border Padding="0,9" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MarkdorSplitterBrush}"><Grid ColumnDefinitions="76,*" ColumnSpacing="14"><TextBlock Classes="muted" FontSize="12.5" Text="{i18n:I18n Markdor.MarkdorL.StatusState}"/>
+                        <StackPanel Grid.Column="1">
+                            <Border Classes="pill-ok" IsVisible="{Binding !IsModified}"><StackPanel Orientation="Horizontal" Spacing="5"><Ellipse/><TextBlock Text="{Binding DocumentStateText}"/></StackPanel></Border>
+                            <TextBlock IsVisible="{Binding IsModified}" Foreground="{DynamicResource MarkdorAccentBrush}" Text="{Binding DocumentStateText}"/>
+                        </StackPanel></Grid></Border>
+<Border Padding="0,9" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MarkdorSplitterBrush}"><Grid ColumnDefinitions="76,*" ColumnSpacing="14"><TextBlock Classes="muted" FontSize="12.5" Text="{i18n:I18n Markdor.MarkdorL.StatusEncoding}"/><SelectableTextBlock Grid.Column="1" FontSize="12.5" Text="{Binding CurrentEncodingText}" TextWrapping="Wrap"/></Grid></Border>
+<Border Padding="0,9" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MarkdorSplitterBrush}"><Grid ColumnDefinitions="76,*" ColumnSpacing="14"><TextBlock Classes="muted" FontSize="12.5" Text="{i18n:I18n Markdor.MarkdorL.PropertySizeLabel}"/><SelectableTextBlock Grid.Column="1" FontSize="12.5" Text="{Binding PropertySizeText}" TextWrapping="Wrap"/></Grid></Border>
+<Border Padding="0,9" BorderThickness="0,0,0,0" BorderBrush="{DynamicResource MarkdorSplitterBrush}"><Grid ColumnDefinitions="76,*" ColumnSpacing="14"><TextBlock Classes="muted" FontSize="12.5" Text="{i18n:I18n Markdor.MarkdorL.PropertyPathLabel}"/><Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8"><SelectableTextBlock Text="{Binding PropertyLocationText}" TextWrapping="Wrap" FontSize="11.5" Foreground="{DynamicResource MarkdorMutedBrush}"/><Button Grid.Column="1" VerticalAlignment="Top" Padding="7,2" FontSize="11" Click="CopyPath_OnClick" Content="{i18n:I18n Markdor.MarkdorL.Copy}"/></Grid></Grid></Border>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

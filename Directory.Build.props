@@ -7,21 +7,21 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- <UseArtifactsOutput>true</UseArtifactsOutput> -->
-    <!-- <ArtifactsPath Condition="'$(CI)' != 'true'">$(MSBuildThisFileDirectory)..\..\temp_files\vex-build\</ArtifactsPath> -->
+    <!-- <ArtifactsPath Condition="'$(CI)' != 'true'">$(MSBuildThisFileDirectory)..\..\temp_files\markdor-build\</ArtifactsPath> -->
     <!-- <ArtifactsPath Condition="'$(CI)' == 'true'">$(MSBuildThisFileDirectory)artifacts\</ArtifactsPath> -->
     <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\packages\</PackageOutputPath>
-    <Version>1.10.7</Version>
+    <Version>1.10.9</Version>
     <Authors>沙漠尽头的狼</Authors>
     <Company>CodeWF</Company>
-    <Title>Vex - 维刻</Title>
-    <Product>Vex</Product>
+    <Title>Markdor - 维刻</Title>
+    <Product>Markdor</Product>
     <Description>极简之力，妙笔成章 | Markdown 编辑器</Description>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/dotnet9/Vex</RepositoryUrl>
-    <PackageProjectUrl>https://vex.codewf.com/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sunyonghuan/Vex</RepositoryUrl>
+    <PackageProjectUrl>https://markdor.codewf.com/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright © 2026 Vex(维刻) - CodeWF(码坊) https://codewf.com</Copyright>
+    <Copyright>Copyright © 2026 Markdor(维刻) - CodeWF(码坊) https://codewf.com</Copyright>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>

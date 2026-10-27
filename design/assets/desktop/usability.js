@@ -1,7 +1,7 @@
 /* 用户评审：明确状态、辅助面板与多视图控制。只操作原型内存。 */
 (function () {
   'use strict';
-  var W = window.VexWorkbench, $ = function (id) { return document.getElementById(id); };
+  var W = window.MarkdorWorkbench, $ = function (id) { return document.getElementById(id); };
   var status = null, details = document.createElement('section');
   details.id = 'document-save-details'; details.className = 'save-details'; details.hidden = true;
   details.setAttribute('role', 'dialog'); details.setAttribute('aria-label', '文档与保存状态');
@@ -18,12 +18,12 @@
   }
   function openSaveDetails() { if (details.hidden) { updateSaveDetails(); details.hidden = false; details.querySelector('button').focus(); } else { details.hidden = true; } }
   function closeSaveDetails() { details.hidden = true; }
-  window.addEventListener('vex-open-save-details', openSaveDetails);
+  window.addEventListener('markdor-open-save-details', openSaveDetails);
   details.querySelector('.icon-button').onclick = function () { closeSaveDetails(true); };
-  $('save-details-retry').onclick = function () { VexProto.handleAction('save'); updateSaveDetails(); };
+  $('save-details-retry').onclick = function () { MarkdorProto.handleAction('save'); updateSaveDetails(); };
   document.addEventListener('pointerdown', function (event) { if (!details.contains(event.target)) closeSaveDetails(); });
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !details.hidden) closeSaveDetails(true); });
-  window.addEventListener('vex-save-state-changed', updateSaveDetails);
+  window.addEventListener('markdor-save-state-changed', updateSaveDetails);
 
   /* 视图联动保持默认开启；状态栏不再展示"自由浏览 / 各栏独立浏览 / 回到编辑位置"三个入口（降低理解负担）。 */
   var followToggle = $('view-follow-toggle');
@@ -36,8 +36,8 @@
       $('view-follow-driver').textContent = following ? '跟随' + (W.state.followDriver || '编辑位置') : '各栏独立浏览';
     }
     followToggle.onclick = function () { W.setFollow(!W.state.followViews); };
-    $('return-to-editing').onclick = function () { VexWorkspace.openPanel('editor'); W.returnToEditing(); };
-    window.addEventListener('vex-follow-changed', updateFollow); updateFollow();
+    $('return-to-editing').onclick = function () { MarkdorWorkspace.openPanel('editor'); W.returnToEditing(); };
+    window.addEventListener('markdor-follow-changed', updateFollow); updateFollow();
   }
   function focusPanel(target) {
     var active = target.closest('.view-panel'); if (!active) return;
@@ -53,7 +53,7 @@
   document.querySelector('.content-area').before(blankNote);
   var mapEmpty = document.createElement('div'); mapEmpty.className = 'map-empty-hint';
   mapEmpty.innerHTML = '<strong>正文还没有章节标题</strong><span>在正文中输入 # 标题，章节会出现在这里。</span><button type="button">回到正文</button>';
-  $('map-viewport').appendChild(mapEmpty); mapEmpty.querySelector('button').onclick = function () { VexWorkspace.setLayout('instant'); W.returnToEditing(); };
+  $('map-viewport').appendChild(mapEmpty); mapEmpty.querySelector('button').onclick = function () { MarkdorWorkspace.setLayout('instant'); W.returnToEditing(); };
   function updateEmptyState() {
     var empty = W.state.emptyWorkspace;
     document.querySelector('.workspace-main').classList.toggle('workspace-empty', empty); welcome.hidden = !empty;
@@ -62,21 +62,21 @@
     var saveButton = document.querySelector('.save-button'); if (saveButton) saveButton.disabled = empty || !!W.documents[W.state.doc].readOnly;
     $('document-name').textContent = empty ? '未打开文档' : W.name;
   }
-  window.addEventListener('vex-content-changed', updateEmptyState); window.addEventListener('vex-document-loaded', updateEmptyState); updateEmptyState();
+  window.addEventListener('markdor-content-changed', updateEmptyState); window.addEventListener('markdor-document-loaded', updateEmptyState); updateEmptyState();
 
   function updateSelectionCount() {
     var input = $('markdown-input'), selected = '', count = 0;
     if (document.activeElement === input && input.selectionStart !== input.selectionEnd) {
-      selected = input.value.slice(input.selectionStart, input.selectionEnd); count = VexWriting.metrics(selected).count;
+      selected = input.value.slice(input.selectionStart, input.selectionEnd); count = MarkdorWriting.metrics(selected).count;
     } else {
       var selection = window.getSelection();
       if (selection && !selection.isCollapsed && [selection.anchorNode, selection.focusNode].every(function (node) { var element = node && (node.nodeType === 1 ? node : node.parentElement); return element && element.closest('#instant-content, #markdown-preview'); })) {
-        selected = selection.toString(); count = VexWriting.measureText(selected).count;
+        selected = selection.toString(); count = MarkdorWriting.measureText(selected).count;
       }
     }
-    $('sb-wordcount').textContent = (selected ? '选中 ' + count.toLocaleString() + ' · ' : '') + '字数 ' + VexWriting.metrics(W.text).count.toLocaleString();
+    $('sb-wordcount').textContent = (selected ? '选中 ' + count.toLocaleString() + ' · ' : '') + '字数 ' + MarkdorWriting.metrics(W.text).count.toLocaleString();
   }
   document.addEventListener('selectionchange', updateSelectionCount); $('markdown-input').addEventListener('select', updateSelectionCount);
-  window.addEventListener('vex-content-changed', updateSelectionCount);
+  window.addEventListener('markdor-content-changed', updateSelectionCount);
   updateSaveDetails(); updateSelectionCount();
 })();

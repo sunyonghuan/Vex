@@ -5,10 +5,10 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using Avalonia.Threading;
-using Vex.Core.Services;
-using Vex.Modules.Shell.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
 
 /// <summary>
 /// 与 design 原型逐场景离屏对比的截图器：同尺寸(1440x900)、同语言、同明暗、
@@ -31,7 +31,7 @@ internal static class VisualParityCapture
         "### 人民公园\n\n" +
         "坐在茶社里，看本地人摆龙门阵，一下午就过去了。\n";
 
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         void Render()
@@ -53,7 +53,7 @@ internal static class VisualParityCapture
         // 与输入通道一致地写正文（事件总线会刷新统计、文件列表与预览），避免状态栏残留旧文档字数。
         const char cNewline = (char)10;
         CodeWF.Toolkit.EventBus.EventBus.Default.Publish(
-            new Vex.Core.Messaging.MarkdownTextChangedCommand(SampleDocument, 1, 1, SampleDocument.Count(character => character == cNewline) + 1));
+            new Markdor.Core.Messaging.MarkdownTextChangedCommand(SampleDocument, 1, 1, SampleDocument.Count(character => character == cNewline) + 1));
         Render();
         // 统计与派生状态是防抖刷新：等待真实时间窗口再继续，保证状态栏字数为样例文档的。
         Thread.Sleep(900);
@@ -112,7 +112,7 @@ internal static class VisualParityCapture
         // 逐面板回滚到顶，保证与原型同一视口起点。
         void ResetScrolls()
         {
-            if (window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")
+            if (window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")
                     ?.FindControl<CodeWF.Avalonia.Markdown.Editor.Controls.MarkdownEditorView>("MarkdownEditor") is { } source)
             {
                 source.Editor.CaretOffset = 0;

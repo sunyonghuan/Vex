@@ -1,7 +1,7 @@
 {
   "source_repository": "https://github.com/dotnet9/CodeWF.Avalonia",
   "source_directory": "scripts/installer/macos",
-  "visual_reference": "https://github.com/dotnet9/Vex/blob/main/design/Vex-Installer-macOS.html",
+  "visual_reference": "https://github.com/sunyonghuan/Vex/blob/main/design/Markdor-Installer-macOS.html",
   "style": {
     "brand": "#24766B",
     "finder_window": [
@@ -23,9 +23,9 @@
         220
       ]
     },
-    "product": "Vex",
+    "product": "Markdor",
     "chinese_name": "维刻",
-    "slogan": "维刻 Vex · 写下想法，看见脉络。",
+    "slogan": "维刻 Markdor · 写下想法，看见脉络。",
     "website": "codewf.com",
     "website_interaction": "static background text only"
   },
@@ -79,5 +79,5 @@
       "sha256": "7b2a49e115b0d6416e411b8b88ae6f01cfb7f812c796246efd970bad3f51d9b1"
     }
   ],
-  "local_design": "Vex design/Vex-Installer-macOS.html overrides the shared visual assets; shared packaging engine retained; README.md is a local navigation document consolidated into docs"
+  "local_design": "Markdor design/Markdor-Installer-macOS.html overrides the shared visual assets; shared packaging engine retained; README.md is a local navigation document consolidated into docs"
 }

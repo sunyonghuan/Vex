@@ -1,13 +1,13 @@
 /* Reviewable failure/recovery flows. External changes here are explicit simulations. */
 (function () {
   'use strict';
-  const W=VexWorkbench,host=document.querySelector('.window-body');
+  const W=MarkdorWorkbench,host=document.querySelector('.window-body');
   const notice=document.createElement('section');notice.className='workflow-notice';notice.hidden=true;notice.setAttribute('aria-label','文档操作提示');
   document.querySelector('.titlebar').after(notice);
   const dialog=document.createElement('dialog');dialog.className='workflow-dialog';dialog.setAttribute('aria-labelledby','workflow-title');host.append(dialog);
   const esc=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let drafts=[],draftError=false,origin=null;
-  try{const stored=VexStorage.getItem('vex-design-exit-drafts');if(stored){drafts=JSON.parse(stored);if(!Array.isArray(drafts)||!drafts.every(x=>typeof x.name==='string'&&typeof x.text==='string'))throw Error('Invalid draft');}}catch(_){drafts=[];draftError=true;}
+  try{const stored=MarkdorStorage.getItem('markdor-design-exit-drafts');if(stored){drafts=JSON.parse(stored);if(!Array.isArray(drafts)||!drafts.every(x=>typeof x.name==='string'&&typeof x.text==='string'))throw Error('Invalid draft');}}catch(_){drafts=[];draftError=true;}
   function update(){
     const doc=W.documents[W.state.doc];
     let title='',description='',actions='',kind='info';
@@ -37,15 +37,15 @@
     const button=event.target.closest('[data-workflow]');if(!button)return;
     event.stopPropagation();const doc=W.documents[W.state.doc];
     switch(button.dataset.workflow){
-      case 'retry-save':VexProto.handleAction('save');break;
-      case 'retry-export':VexProto.handleAction('export-html');break;
+      case 'retry-save':MarkdorProto.handleAction('save');break;
+      case 'retry-export':MarkdorProto.handleAction('export-html');break;
       case 'compare':compare();break;
       case 'recover':recover();break;
       case 'cancel':close();break;
       case 'later':drafts=[];break;
-      case 'keep-current':delete doc.externalText;close();VexProto.toast('已保留当前版本，外部版本未写入正文');break;
-      case 'copy-current':VexProto.handleAction('save');{const error=dialog.querySelector('#workflow-error');error.hidden=!doc.saveError;error.textContent='副本下载失败，当前与外部版本均已保留。请再次下载，或取消后继续编辑。';}if(!doc.saveError)VexProto.toast('已发起当前副本下载，仍可继续比较外部版本');break;
-      case 'load-external':{const text=doc.externalText;delete doc.externalText;close();W.loadExternalVersion(text);VexProto.toast('已载入外部版本，可用撤销恢复刚才的编辑');break;}
+      case 'keep-current':delete doc.externalText;close();MarkdorProto.toast('已保留当前版本，外部版本未写入正文');break;
+      case 'copy-current':MarkdorProto.handleAction('save');{const error=dialog.querySelector('#workflow-error');error.hidden=!doc.saveError;error.textContent='副本下载失败，当前与外部版本均已保留。请再次下载，或取消后继续编辑。';}if(!doc.saveError)MarkdorProto.toast('已发起当前副本下载，仍可继续比较外部版本');break;
+      case 'load-external':{const text=doc.externalText;delete doc.externalText;close();W.loadExternalVersion(text);MarkdorProto.toast('已载入外部版本，可用撤销恢复刚才的编辑');break;}
       case 'restore-drafts':{const recovered=drafts;drafts=[];close();W.recoverDrafts(recovered);break;}
     }
     update();
@@ -53,10 +53,10 @@
   notice.addEventListener('click',action);dialog.addEventListener('click',action);
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('keydown',event=>{event.stopPropagation();if((event.ctrlKey||event.metaKey)&&['s','o','n','w'].includes(event.key.toLowerCase()))event.preventDefault();});
-  window.addEventListener('vex-workflow-result',update);window.addEventListener('vex-save-state-changed',update);window.addEventListener('vex-document-loaded',update);
-  window.VexWorkflows={simulateExternal(text){W.finish();W.documents[W.state.doc].externalText=text;update();},showDrafts(items){drafts=items;update();},compare};
+  window.addEventListener('markdor-workflow-result',update);window.addEventListener('markdor-save-state-changed',update);window.addEventListener('markdor-document-loaded',update);
+  window.MarkdorWorkflows={simulateExternal(text){W.finish();W.documents[W.state.doc].externalText=text;update();},showDrafts(items){drafts=items;update();},compare};
   const scenario=new URLSearchParams(location.search).get('scenario');
-  if(scenario==='external-change')VexWorkflows.simulateExternal(W.text+'\n\n## 来自外部的补充\n\n这段内容来自另一个程序，等待比较后载入。\n');
+  if(scenario==='external-change')MarkdorWorkflows.simulateExternal(W.text+'\n\n## 来自外部的补充\n\n这段内容来自另一个程序，等待比较后载入。\n');
   if(scenario==='draft')drafts=[{name:'昨日写作手记.md',text:'# 昨日写作手记\n\n这是一段尚未保存的思路。\n\n## 接下来\n\n把观察整理成文章，再保存副本。\n'}];
   update();
 })();

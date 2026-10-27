@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 if (!$LibraryRoot) { $LibraryRoot = Join-Path $repositoryRoot '../../libs/CodeWF.Avalonia' }
-if (!$WorkRoot) { $WorkRoot = Join-Path $repositoryRoot '../../temp_files/vex-libraries' }
+if (!$WorkRoot) { $WorkRoot = Join-Path $repositoryRoot '../../temp_files/markdor-libraries' }
 if (!$PackageRoot) { $PackageRoot = Join-Path $repositoryRoot '../../temp_nugets' }
 $LibraryRoot = (Resolve-Path -LiteralPath $LibraryRoot).Path
 $PackageRoot = [IO.Path]::GetFullPath($PackageRoot)
@@ -48,11 +48,11 @@ $escapedPackageRoot = [Security.SecurityElement]::Escape($PackageRoot)
 [IO.File]::WriteAllText($configPath, @"
 <?xml version="1.0" encoding="utf-8"?>
 <configuration><packageSources><clear />
-<add key="VexLocalLibraries" value="$escapedPackageRoot" />
+<add key="MarkdorLocalLibraries" value="$escapedPackageRoot" />
 <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
 </packageSources></configuration>
 "@)
 dotnet restore (Join-Path $repositoryRoot 'scripts/ui-verification/UiVerification.csproj') `
-    --configfile $configPath "-p:ArtifactsPath=$WorkRoot/vex-artifacts"
-if ($LASTEXITCODE -ne 0) { throw 'Vex 本地 NuGet 还原失败。' }
+    --configfile $configPath "-p:ArtifactsPath=$WorkRoot/markdor-artifacts"
+if ($LASTEXITCODE -ne 0) { throw 'Markdor 本地 NuGet 还原失败。' }
 Write-Host "已通过 NuGet 接入 $PackageVersion；未添加跨仓项目引用。"

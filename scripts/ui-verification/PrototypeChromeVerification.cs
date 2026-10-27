@@ -5,14 +5,14 @@ using Avalonia.Headless;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Vex.Core.Models;
-using Vex.Core.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
 
 internal static class PrototypeChromeVerification
 {
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         void Render() { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); }
@@ -92,7 +92,7 @@ internal static class PrototypeChromeVerification
         vm.Workbench.SelectLayout("source-render"); Render();
         var readingHeader = window.WorkspaceViews.ReadingHeader;
         var pinToggle = window.WorkspaceViews.ReadingPin!;
-        var mapBar = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!.FindControl<Border>("MapEditingToolbar")!;
+        var mapBar = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!.FindControl<Border>("MapEditingToolbar")!;
         Check(pinToggle.IsChecked == true && pinToggle.GetVisualDescendants().OfType<Viewbox>().First(v => v.Classes.Contains("pin-on")).IsVisible,
             "Pin button shows the pinned icon by default");
         pins.PinReadingToolbar = false; pins.PinMapToolbar = false; Render();
@@ -123,7 +123,7 @@ internal static class PrototypeChromeVerification
         Check(vm.Appearance.RemoveCustomPalette(customKey) && vm.Appearance.PaletteOptions.Count == 9 && vm.Appearance.SelectedPalette!.Key == "indigo",
             "Removing the custom palette falls back to the default palette");
         // 导图布局与样式：六种布局切换不改变节点数；样式与布局随设置持久化。
-        var mapHost = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
+        var mapHost = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
         var map = mapHost.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
         vm.Workbench.SelectLayout("map"); Render();
         var beforeCount = map.RealizedNodeCount;
@@ -143,15 +143,15 @@ internal static class PrototypeChromeVerification
         vm.Workbench.MindMapLayout = "right"; vm.Workbench.MindMapStyle = "quiet"; Render();
         // 表格工具：阅读视图的渲染表格可提取并还原 Markdown / CSV。
         vm.Workbench.SelectLayout("read"); Render();
-        var preview = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+        var preview = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
         var previewScroll = preview.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
         if (previewScroll is not null) { previewScroll.Offset = new Vector(0, previewScroll.Extent.Height); Render(); previewScroll.Offset = new Vector(0, previewScroll.Extent.Height); Render(); }
         var tableContainer = window.GetVisualDescendants().OfType<Border>().FirstOrDefault(b => b.Classes.Contains("MdTableContainer"));
         Check(tableContainer is not null, "Reading view renders table containers");
-        var extracted = Vex.Modules.Workspace.Views.TableTools.Extract(tableContainer!);
+        var extracted = Markdor.Modules.Workspace.Views.TableTools.Extract(tableContainer!);
         Check(extracted.Length >= 2 && extracted[0][0] == "API", "Table tools extract rendered cells");
-        Check(Vex.Modules.Workspace.Views.TableTools.ToMarkdown(extracted).StartsWith("| API | 说明 |"), "Table tools rebuild markdown");
-        Check(Vex.Modules.Workspace.Views.TableTools.ToCsv(extracted).Contains("Read,读取文档"), "Table tools build csv");
+        Check(Markdor.Modules.Workspace.Views.TableTools.ToMarkdown(extracted).StartsWith("| API | 说明 |"), "Table tools rebuild markdown");
+        Check(Markdor.Modules.Workspace.Views.TableTools.ToCsv(extracted).Contains("Read,读取文档"), "Table tools build csv");
         previewScroll!.Offset = default; Render();
         // 自定义排版：注册→目录出现并可选中→持久化；删除回退简约。
         var typeKey = vm.Appearance.RegisterCustomTypography("", "暖纸手记", "#B4642D", "#D8973C", "#8A5A2B", "#C89A6B", "serif", 2.1);
@@ -161,7 +161,7 @@ internal static class PrototypeChromeVerification
         Check(vm.Appearance.RemoveCustomTypography(typeKey) && vm.Appearance.TypographyOptions.Count == 12 && vm.Appearance.SelectedTypography!.Key == "Simple",
             "Removing the custom typography falls back to Simple");
         // 导入：HTML 走共享转换器；docx 解包 OOXML 读取标题与段落。
-        var htmlMarkdown = Vex.Modules.Workspace.Services.MarkdownImportService.ConvertHtml("<h1>导入标题</h1><p>导入段落文本</p>");
+        var htmlMarkdown = Markdor.Modules.Workspace.Services.MarkdownImportService.ConvertHtml("<h1>导入标题</h1><p>导入段落文本</p>");
         Check(htmlMarkdown.Contains("# 导入标题") && htmlMarkdown.Contains("导入段落文本"), "HTML import converts headings and paragraphs");
         var docxBuffer = new MemoryStream();
         using (var zip = new System.IO.Compression.ZipArchive(docxBuffer, System.IO.Compression.ZipArchiveMode.Create, true))
@@ -173,7 +173,7 @@ internal static class PrototypeChromeVerification
             var bytes = System.Text.Encoding.UTF8.GetBytes(xml);
             entry.Write(bytes, 0, bytes.Length);
         }
-        var docxMarkdown = Vex.Modules.Workspace.Services.MarkdownImportService.ConvertDocx(docxBuffer.ToArray());
+        var docxMarkdown = Markdor.Modules.Workspace.Services.MarkdownImportService.ConvertDocx(docxBuffer.ToArray());
         Check(docxMarkdown.Contains("# 导入标题") && docxMarkdown.Contains("正文段落"), "Word import reads headings and text");
         foreach (var culture in vm.Appearance.LanguageOptions)
         {

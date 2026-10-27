@@ -103,7 +103,7 @@ function Show-Platforms {
 
     $releaseVersion = Get-ReleaseVersion
     $hostRuntime = Get-HostRuntimeIdentifier
-    Write-Output "Vex $releaseVersion Native AOT release"
+    Write-Output "Markdor $releaseVersion Native AOT release"
     Write-Output "Current host: $hostRuntime"
     Write-Output ''
     if ($ShowAll) {
@@ -130,7 +130,7 @@ function Show-Platforms {
     Write-Output '  publish_aot.bat <win|linux|osx|RID|all>  Publish Native AOT payload and ZIP.'
     Write-Output ''
     Write-Output 'Options: -Version x.y.z  -PublishRoot <dir>'
-    Write-Output 'Output:  <PublishRoot>/artifacts/<RID>/Vex and <PublishRoot>/packages/Vex-<version>-<RID>.zip'
+    Write-Output 'Output:  <PublishRoot>/artifacts/<RID>/Markdor and <PublishRoot>/packages/Markdor-<version>-<RID>.zip'
     Write-Output 'Native AOT can only be compiled on a matching OS and architecture.'
 }
 
@@ -176,8 +176,8 @@ function Publish-AotRuntime {
     $resourceRoot = Join-Path $releaseRoot 'artifacts'
     $packageRoot = Join-Path $releaseRoot 'packages'
     $ridRoot = Join-Path $resourceRoot $Rid
-    $payloadRoot = Join-Path $ridRoot 'Vex'
-    $zipPath = Join-Path $packageRoot "Vex-$ReleaseVersion-$Rid.zip"
+    $payloadRoot = Join-Path $ridRoot 'Markdor'
+    $zipPath = Join-Path $packageRoot "Markdor-$ReleaseVersion-$Rid.zip"
     $nativeParameters = @{
         Platform = $Rid
         Version = $ReleaseVersion
@@ -194,7 +194,7 @@ function Publish-AotRuntime {
     if (-not (Test-Path -LiteralPath $payloadRoot -PathType Container)) {
         throw "Native payload directory is missing: $payloadRoot"
     }
-    $executable = Join-Path $payloadRoot $(if ($Rid.StartsWith('win-')) { 'Vex.exe' } else { 'Vex' })
+    $executable = Join-Path $payloadRoot $(if ($Rid.StartsWith('win-')) { 'Markdor.exe' } else { 'Markdor' })
     if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
         throw "Native executable is missing: $executable"
     }

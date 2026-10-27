@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var serif = '"Noto Serif SC","Songti SC",SimSun,serif';
-  window.VexTypes = [
+  window.MarkdorTypes = [
     { key:'Simple', label:'简约', en:'Minimal', variant:'simple', light:'#343B43', dark:'#DFE3E8',
       rules:'BODY{--type-size:16px;--type-leading:1.9}BODY h1{font-weight:650}BODY h2,BODY h3{color:var(--fg)}' },
     { key:'Basic', label:'文档', en:'Document', variant:'document', light:'#376C9A', dark:'#97BDE0',
@@ -14,7 +14,7 @@
     { key:'WeChatFormat', label:'刊物', en:'Editorial', variant:'editorial', light:'#24766B', dark:'#8AC8B3',
       rules:'BODY{--type-size:16px;--type-leading:2}BODY h1{text-align:center;font-size:2em;margin-bottom:.7em}BODY h2{text-align:center;font-size:1.25em;border-top:1px solid var(--type-decoration);border-bottom:1px solid var(--type-decoration);padding:.35em 0}BODY h3{text-align:center;font-size:1.1em;color:var(--fg)}BODY h4{text-align:center}BODY p{text-align:justify}BODY blockquote{border-left:0;text-align:center;padding:.8em 1.3em}' }
   ];
-  window.VexTypeKey = function (key) { return key; };
+  window.MarkdorTypeKey = function (key) { return key; };
   var base = [
     'BODY{font-family:var(--font,system-ui),sans-serif;font-size:var(--writing-size,var(--type-size,16px));line-height:var(--type-leading,1.9);letter-spacing:0;color:var(--fg);margin-left:auto;margin-right:auto}',
     'BODY h1{font-size:2em;line-height:1.45;letter-spacing:0;margin:0 0 .55em;padding:0;border:0;background:none;border-radius:0;color:var(--fg);font-weight:700;text-align:left}',
@@ -25,12 +25,12 @@
     'BODY .instant-block:has(+.instant-block>:is(h1,h2,h3,h4))>:last-child{margin-bottom:0}',
     'BODY blockquote{margin:1.1em 0;border:0;border-left:3px solid var(--type-decoration);padding:.6em 1em;background:color-mix(in srgb,var(--typography-accent) 6%,transparent);color:var(--muted)}BODY blockquote p{margin:0;text-indent:0}'
   ].join('');
-  window.VexTypeRules = function (key, compact) {
-    var item = VexTypes.find(function (t) { return t.key === key; }) || VexTypes[0];
+  window.MarkdorTypeRules = function (key, compact) {
+    var item = MarkdorTypes.find(function (t) { return t.key === key; }) || MarkdorTypes[0];
     return base + item.rules + (compact ? 'BODY{font-size:calc(var(--writing-size,var(--type-size,16px)) * .93);line-height:1.65}BODY h2{margin-top:1.3em;margin-bottom:.45em}BODY h3{margin-top:1em;margin-bottom:.35em}' : '');
   };
-  window.VexTypeExport = function (key, compact) {
-    var item = VexTypes.find(function (t) { return t.key === key; }) || VexTypes[0];
-    return VexTypeRules(key, compact).replaceAll('BODY', 'body') + 'body{--document-bg:#fff;--fg:#30343b;--muted:#606770;--border:#dde1e5;--typography-accent:'+item.light+'}';
+  window.MarkdorTypeExport = function (key, compact) {
+    var item = MarkdorTypes.find(function (t) { return t.key === key; }) || MarkdorTypes[0];
+    return MarkdorTypeRules(key, compact).replaceAll('BODY', 'body') + 'body{--document-bg:#fff;--fg:#30343b;--muted:#606770;--border:#dde1e5;--typography-accent:'+item.light+'}';
   };
 })();

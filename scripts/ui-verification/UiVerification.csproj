@@ -7,8 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia.Headless" />
-    <TrimmerRootDescriptor Include="../../src/Vex/Properties/Trimming/TrimmerRoots.xml" />
-    <ProjectReference Include="..\..\src\Vex\Vex.csproj" />
+    <TrimmerRootDescriptor Include="../../src/Netor.Markdor/Properties/Trimming/TrimmerRoots.xml" />
+    <ProjectReference Include="..\..\src\Netor.Markdor\Netor.Markdor.csproj" />
     <Content Include="MarkdownSamples\*.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

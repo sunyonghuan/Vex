@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:anim="using:Avalonia.Animation.Easings"
+    xmlns:sys="using:System">
+    <!-- Markdor 控件的三档动效时长，与 MotionResources 保持一致；关闭动效时统一归零。 -->
+    <x:Boolean x:Key="MarkdorMotionEnabled">True</x:Boolean>
+    <sys:TimeSpan x:Key="MotionDurationFast">0:0:0.14</sys:TimeSpan>
+    <sys:TimeSpan x:Key="MotionDurationMid">0:0:0.22</sys:TimeSpan>
+    <sys:TimeSpan x:Key="MotionDurationSlow">0:0:0.26</sys:TimeSpan>
+
+    <!-- 缓动曲线：InOut 用于常规过渡，Out 用于入场，In 用于出场 -->
+    <anim:CubicEaseInOut x:Key="MotionEaseInOut" />
+    <anim:CubicEaseOut x:Key="MotionEaseOut" />
+    <anim:CubicEaseIn x:Key="MotionEaseIn" />
+</ResourceDictionary>

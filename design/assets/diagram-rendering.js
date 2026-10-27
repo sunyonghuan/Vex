@@ -41,7 +41,7 @@
     let entry = cache.get(source);
     if (!entry) {
       initialize();
-      entry = mermaid.render('vex-cached-' + (++cacheSerial), source).then(result => {
+      entry = mermaid.render('markdor-cached-' + (++cacheSerial), source).then(result => {
         const svg = themed(result.svg), ids = [...svg.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
         const escaped = [...new Set(ids)].sort((a,b) => b.length-a.length).map(value => value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
         return {svg, ids, references:new RegExp('(#|id=["\'])(' + escaped.join('|') + ')(?![\\w-])','g')};
@@ -87,7 +87,7 @@
   function mount(host, source, label) {
     const svg=host.querySelector('svg');
     if (!svg) return;
-    svg.setAttribute('role','img');svg.setAttribute('aria-label',label || VexMermaid.label(source));
+    svg.setAttribute('role','img');svg.setAttribute('aria-label',label || MarkdorMermaid.label(source));
     if (/^\s*sankey/m.test(source)) {
       // Multiplication turns translucent ribbons almost black on dark paper.
       for (const element of svg.querySelectorAll('[style*="mix-blend-mode"]')) element.style.mixBlendMode='normal';
@@ -117,7 +117,7 @@
       svg.setAttribute('width',box.width);svg.setAttribute('height',box.height);
     }
     host.tabIndex=0;
-    host.setAttribute('aria-label',label || VexMermaid.label(source));
+    host.setAttribute('aria-label',label || MarkdorMermaid.label(source));
   }
-  window.VexDiagramRendering={render,mount,schedule};
+  window.MarkdorDiagramRendering={render,mount,schedule};
 })();

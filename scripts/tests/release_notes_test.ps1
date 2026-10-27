@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $temporaryRoot = [IO.Path]::GetFullPath($(if ($env:CODEWF_TEST_TMP) { $env:CODEWF_TEST_TMP } else { [IO.Path]::GetTempPath() }))
-$fixture = Join-Path $temporaryRoot ('vex-release-notes-test-' + [guid]::NewGuid().ToString('N'))
+$fixture = Join-Path $temporaryRoot ('markdor-release-notes-test-' + [guid]::NewGuid().ToString('N'))
 $prepare = Join-Path $PSScriptRoot '../prepare_release_notes.ps1'
 function Invoke-CheckedGit {
     & git @args
@@ -27,7 +27,7 @@ try {
     Set-Content -LiteralPath (Join-Path $checkout 'docs/更新日志.md') -Encoding utf8 -Value "# 更新日志`n`n## V1.2.30（2026-10-20）`n`n- 😄[新增]-错误版本内容`n- 🐛[修复]-正确版本内容（v1.2.3）`n- ❌[删除]-移除重复入口（v1.2.3）`n- 🔨[优化]-旧版内容（v1.2.2）"
     Invoke-CheckedGit -C $checkout add docs/更新日志.md
     Invoke-CheckedGit -C $checkout commit --quiet -m '无关提交标题'
-    $tagBody = "Vex 1.2.3`n`n完整中文附注说明`n`n- 第一项`n- 第二项"
+    $tagBody = "Markdor 1.2.3`n`n完整中文附注说明`n`n- 第一项`n- 第二项"
     $tagFile = Join-Path $fixture 'tag.md'
     Set-Content -LiteralPath $tagFile -Value $tagBody -Encoding utf8
     Invoke-CheckedGit -C $checkout tag -a v1.2.3 -F $tagFile
@@ -71,7 +71,7 @@ try {
 finally {
     $resolved = [IO.Path]::GetFullPath($fixture)
     if ([IO.Path]::GetDirectoryName($resolved) -ne $temporaryRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) -or
-        -not [IO.Path]::GetFileName($resolved).StartsWith('vex-release-notes-test-')) { throw '临时目录范围错误。' }
+        -not [IO.Path]::GetFileName($resolved).StartsWith('markdor-release-notes-test-')) { throw '临时目录范围错误。' }
     if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -Force }
 }
 # 预期的 show-ref 未命中不能成为整个测试进程的失败退出码。

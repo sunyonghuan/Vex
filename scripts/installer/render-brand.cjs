@@ -5,7 +5,7 @@ const sharp = require('sharp');
 async function main() {
   for (const [theme, background] of Object.entries({light:'#e8eee5', dark:'#243a2d'})) {
     const size = 224, stride = size * 3;
-    const rgb = await sharp(path.join(__dirname, '../../design/assets/vex-logo.svg'))
+    const rgb = await sharp(path.join(__dirname, '../../design/assets/markdor-logo.svg'))
       .resize(size, size).flatten({background}).removeAlpha().raw().toBuffer();
     const bmp = Buffer.alloc(54 + stride * size);
     bmp.write('BM'); bmp.writeUInt32LE(bmp.length, 2); bmp.writeUInt32LE(54, 10);
@@ -15,7 +15,7 @@ async function main() {
       const from=(y*size+x)*3, to=54+(size-1-y)*stride+x*3;
       bmp[to]=rgb[from+2]; bmp[to+1]=rgb[from+1]; bmp[to+2]=rgb[from];
     }
-    fs.writeFileSync(path.join(__dirname, `vex-brand-${theme}.bmp`), bmp);
+    fs.writeFileSync(path.join(__dirname, `markdor-brand-${theme}.bmp`), bmp);
   }
 }
 main().catch(error => {console.error(error); process.exitCode=1;});

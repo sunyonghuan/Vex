@@ -2,13 +2,13 @@
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 & (Join-Path $PSScriptRoot 'linux_metadata_test.ps1')
-$fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ('Vex-deb-test-' + [Guid]::NewGuid().ToString('N'))
+$fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ('Markdor-deb-test-' + [Guid]::NewGuid().ToString('N'))
 $source = Join-Path $fixtureRoot 'source with spaces'
 $output = Join-Path $fixtureRoot 'output'
 $nativeDpkg = Get-Command dpkg-deb -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
 $global:CodeWFDebFixture = @{
-    App = 'Vex'; Command = 'vex'; Executable = 'Vex'; AppDirectory = 'usr/lib/vex'
-    BinDirectory = 'usr/bin'; Icon = 'usr/share/icons/hicolor/256x256/apps/vex.png'; NativeDpkg = $nativeDpkg; Fail = $false; Inspections = 0
+    App = 'Markdor'; Command = 'markdor'; Executable = 'Markdor'; AppDirectory = 'usr/lib/markdor'
+    BinDirectory = 'usr/bin'; Icon = 'usr/share/icons/hicolor/256x256/apps/markdor.png'; NativeDpkg = $nativeDpkg; Fail = $false; Inspections = 0
 }
 function global:dpkg-deb {
     $context = $global:CodeWFDebFixture
@@ -48,12 +48,12 @@ function global:dpkg-deb {
 }
 try {
     New-Item -ItemType Directory -Path (Join-Path $source 'I18n'), (Join-Path $source 'fixture.dSYM/Contents') -Force | Out-Null
-    [IO.File]::WriteAllText((Join-Path $source 'Vex'), '#!/bin/sh' + [char]10 + 'exit 0' + [char]10)
+    [IO.File]::WriteAllText((Join-Path $source 'Markdor'), '#!/bin/sh' + [char]10 + 'exit 0' + [char]10)
     [IO.File]::WriteAllText((Join-Path $source 'I18n/en-US.json'), '{}')
     foreach ($symbol in 'fixture.pdb', 'fixture.dbg', 'fixture.dSYM/Contents/symbol') { [IO.File]::WriteAllText((Join-Path $source $symbol), 'symbols') }
     foreach ($rid in 'linux-x64', 'linux-arm64') {
         & (Join-Path $repositoryRoot 'scripts/packaging/package_linux_deb.ps1') -RuntimeIdentifier $rid -Version 1.2.3 -SourceDirectory $source -OutputDirectory $output -Force
-        $package = Join-Path $output "Vex-v1.2.3-$rid.deb"
+        $package = Join-Path $output "Markdor-v1.2.3-$rid.deb"
         $expected = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
         if (-not ([IO.File]::ReadAllText("$package.sha256")).StartsWith("$expected  ")) { throw '安装包校验和错误。' }
     }

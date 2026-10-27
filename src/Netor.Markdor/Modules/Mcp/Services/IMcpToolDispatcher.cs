@@ -1,0 +1,15 @@
+using System.Text.Json;
+using Netor.Markdor.Modules.Mcp.Models;
+
+namespace Netor.Markdor.Modules.Mcp.Services;
+
+public interface IMcpToolDispatcher
+{
+    McpToolsListResult ListTools();
+
+    Task<ResourceListResult> ListResourcesAsync();
+
+    ResourceReadResult ReadResource(string uri);
+
+    Task<McpToolCallResult> CallToolAsync(string name, JsonElement? arguments);
+}

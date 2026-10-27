@@ -12,17 +12,17 @@ $definitions = @(Get-ChildItem -LiteralPath $scripts -Filter '*.iss' -File)
 if ($definitions.Count -ne 1) { throw '每仓必须有一个产品安装入口。' }
 $definition = $definitions[0]
 $content = Get-Content -LiteralPath $definition.FullName -Raw -Encoding UTF8
-$visualEngine = if ($definition.BaseName -eq 'Vex') { 'Vex.Setup.iss' } else { 'CodeWF.Setup.iss' }
+$visualEngine = if ($definition.BaseName -eq 'Markdor') { 'Markdor.Setup.iss' } else { 'CodeWF.Setup.iss' }
 if ($content -notmatch ('(?m)^#include\s+"installer\\' + [regex]::Escape($visualEngine) + '"\s*$')) { throw '安装入口未包含本仓视觉引擎。' }
 if (-not (Test-Path -LiteralPath (Join-Path $scripts ('installer/' + $visualEngine)))) { throw '产品视觉引擎缺失。' }
 if ($content -notmatch '(?m)^LicenseFile=\.\.\\LICENSE\s*$') { throw '安装入口未声明本仓许可。' }
 if ($content -notmatch 'Name: "english"; MessagesFile: "compiler:Default\.isl"') { throw '英文基础资源缺失。' }
 if ($content -notmatch 'Name: "chinesesimplified"; MessagesFile: "Languages\\ChineseSimplified\.isl"') { throw '本仓中文基础资源缺失。' }
-if ($definition.BaseName -eq 'Vex') {
-    if ($content -notmatch '(?m)^Name: "markdownassociation"; Description: "\{cm:MarkdownAssociation\}"; GroupDescription: "\{cm:FileAssociations\}"\s*$') { throw 'Vex 必须提供默认选中的 Markdown 打开候选选项。' }
+if ($definition.BaseName -eq 'Markdor') {
+    if ($content -notmatch '(?m)^Name: "markdownassociation"; Description: "\{cm:MarkdownAssociation\}"; GroupDescription: "\{cm:FileAssociations\}"\s*$') { throw 'Markdor 必须提供默认选中的 Markdown 打开候选选项。' }
     $registryLines = @($content -split "`r?`n" | Where-Object { $_ -match '^Root:' })
-    if ($registryLines.Count -ne 11 -or @($registryLines | Where-Object { $_ -notmatch '; Tasks: markdownassociation\s*$' }).Count -ne 0) { throw 'Vex 所有候选、图标和右键注册项必须受 Markdown 选项控制。' }
-    if ($content -match 'UserChoice|ValueName: "ProgId"') { throw 'Vex 不能修改用户的默认打开选择。' }
+    if ($registryLines.Count -ne 11 -or @($registryLines | Where-Object { $_ -notmatch '; Tasks: markdownassociation\s*$' }).Count -ne 0) { throw 'Markdor 所有候选、图标和右键注册项必须受 Markdown 选项控制。' }
+    if ($content -match 'UserChoice|ValueName: "ProgId"') { throw 'Markdor 不能修改用户的默认打开选择。' }
 }
 $license = Join-Path $repository 'LICENSE'
 if (-not (Test-Path -LiteralPath $license -PathType Leaf)) { throw '仓库许可文件缺失。' }

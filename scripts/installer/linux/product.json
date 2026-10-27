@@ -1,9 +1,9 @@
 {
-  "id": "com.codewf.vex",
-  "package": "vex",
-  "command": "vex",
-  "name": "Vex",
-  "chineseName": "维刻 Vex",
+  "id": "com.codewf.markdor",
+  "package": "markdor",
+  "command": "markdor",
+  "name": "Markdor",
+  "chineseName": "维刻 Markdor",
   "summary": "Markdown writing and document structure",
   "chineseSummary": "Markdown 写作与文章结构",
   "description": "Write, read and organize your thoughts in one space. Keep your ideas in local Markdown files.",
@@ -12,5 +12,5 @@
     "Office",
     "TextEditor"
   ],
-  "homepage": "https://vex.codewf.com/"
+  "homepage": "https://markdor.codewf.com/"
 }

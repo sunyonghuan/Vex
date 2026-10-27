@@ -12,13 +12,13 @@ rm -rf artifacts/publish/win-x64-trimmed
 
 # 发布激进裁剪版本
 echo "开始发布..."
-dotnet publish src/Vex/Vex.csproj \
+dotnet publish src/Netor.Markdor/Netor.Markdor.csproj \
   -c Release \
   -f net10.0-windows \
   -r win-x64 \
   -p:PublishAot=false \
   -p:PublishSingleFile=true \
-  -p:VexExcludePublishDocuments=false \
+  -p:MarkdorExcludePublishDocuments=false \
   -o artifacts/publish/win-x64-trimmed
 
 if [ $? -eq 0 ]; then
@@ -28,11 +28,11 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "=== 体积对比 ==="
     echo "优化前（原版本）:"
-    ls -lh artifacts/publish/win-x64/Vex/Vex.exe 2>/dev/null || echo "  未找到原版本"
-    du -sh artifacts/publish/win-x64/Vex 2>/dev/null || echo "  未找到原版本目录"
+    ls -lh artifacts/publish/win-x64/Markdor/Markdor.exe 2>/dev/null || echo "  未找到原版本"
+    du -sh artifacts/publish/win-x64/Markdor 2>/dev/null || echo "  未找到原版本目录"
     echo ""
     echo "优化后（激进裁剪）:"
-    ls -lh artifacts/publish/win-x64-trimmed/Vex.exe 2>/dev/null || echo "  未找到 Vex.exe"
+    ls -lh artifacts/publish/win-x64-trimmed/Markdor.exe 2>/dev/null || echo "  未找到 Markdor.exe"
     du -sh artifacts/publish/win-x64-trimmed
     echo ""
     echo "最大的 10 个文件:"

@@ -1,20 +1,20 @@
 /* 外观集中在折叠面板中，保留三态、八套配色、界面密度三档和语言入口。 */
 (function () {
   /* 推荐配色置顶（角标标识），其余按原顺序跟随。 */
-  var palettes=[].concat(VexPalettes.filter(function(p){return p.recommended;}),VexPalettes.filter(function(p){return !p.recommended;})).map(function(p){return [p.key,p.label,Array.isArray(p.swatch)?p.swatch:[p.light]];});
+  var palettes=[].concat(MarkdorPalettes.filter(function(p){return p.recommended;}),MarkdorPalettes.filter(function(p){return !p.recommended;})).map(function(p){return [p.key,p.label,Array.isArray(p.swatch)?p.swatch:[p.light]];});
   function swatchDots(colors){return '<span class="swatch-dots">'+colors.map(function(color){return '<i style="background:'+color+'"></i>';}).join('')+'</span>';}
   var modes=[['light','ThemeLight','☀'],['dark','ThemeDark','☾'],['system','ThemeSystem','◐']];
   var densities=[['compact','紧凑'],['normal','正常'],['relaxed','宽松']];
   var mdsizes=[['compact','紧凑'],['normal','正常'],['relaxed','宽松']];
-  var storeKey='vex-design-appearance',system=matchMedia('(prefers-color-scheme: dark)'),state={mode:'light',palette:'indigo',density:'normal',mdsize:'normal'};
-  try{Object.assign(state,JSON.parse(VexStorage.getItem(storeKey)||'{}'));}catch(_){}
-  state.palette=VexPaletteKey(state.palette);
+  var storeKey='markdor-design-appearance',system=matchMedia('(prefers-color-scheme: dark)'),state={mode:'light',palette:'indigo',density:'normal',mdsize:'normal'};
+  try{Object.assign(state,JSON.parse(MarkdorStorage.getItem(storeKey)||'{}'));}catch(_){}
+  state.palette=MarkdorPaletteKey(state.palette);
   if(!densities.some(item=>item[0]===state.density))state.density='normal';
   if(!mdsizes.some(item=>item[0]===state.mdsize))state.mdsize='normal';
   var query=new URLSearchParams(location.search),theme=query.get('theme');
   if(modes.some(item=>item[0]===theme))state.mode=theme;else if(palettes.some(item=>item[0]===theme))state.palette=theme;
-  if(query.has('palette'))state.palette=query.get('palette');state.palette=VexPaletteKey(state.palette);
-  function word(key){return window.VexL?VexL.get(key):key;}
+  if(query.has('palette'))state.palette=query.get('palette');state.palette=MarkdorPaletteKey(state.palette);
+  function word(key){return window.MarkdorL?MarkdorL.get(key):key;}
   var themeFrame = 0;
   function apply(syncLanguage){
     if(!modes.some(item=>item[0]===state.mode))state.mode='system';
@@ -33,8 +33,8 @@
     root.dataset.palette=state.palette;
     root.dataset.density=state.density;
     root.dataset.mdsize=state.mdsize;
-    /* 正文字号档（§11）：提供基准 BodySize，预览与源码编辑区同档（--vex-writing-size）。 */
-    root.style.setProperty('--vex-writing-size',{compact:'13px',normal:'15px',relaxed:'17px'}[state.mdsize]||'15px');
+    /* 正文字号档（§11）：提供基准 BodySize，预览与源码编辑区同档（--markdor-writing-size）。 */
+    root.style.setProperty('--markdor-writing-size',{compact:'13px',normal:'15px',relaxed:'17px'}[state.mdsize]||'15px');
     if(changed && root.dataset.theme){
       themeFrame=requestAnimationFrame(function(){
         themeFrame=requestAnimationFrame(function(){
@@ -43,11 +43,11 @@
         });
       });
     }
-    try{VexStorage.setItem(storeKey,JSON.stringify(state));}catch(_){}
-    document.querySelectorAll('#vex-theme-panel [data-mode],#vex-theme-panel [data-palette],#vex-theme-panel [data-density],#vex-theme-panel [data-mdsize]').forEach(button=>{
+    try{MarkdorStorage.setItem(storeKey,JSON.stringify(state));}catch(_){}
+    document.querySelectorAll('#markdor-theme-panel [data-mode],#markdor-theme-panel [data-palette],#markdor-theme-panel [data-density],#markdor-theme-panel [data-mdsize]').forEach(button=>{
       var active=button.dataset.mode?button.dataset.mode===state.mode:button.dataset.palette?button.dataset.palette===state.palette:button.dataset.density?button.dataset.density===state.density:button.dataset.mdsize===state.mdsize;
-      var palette=button.dataset.palette&&VexPalettes.find(p=>p.key===button.dataset.palette);
-      button.title=palette?palette[window.VexL?.culture==='en-US'?'en':'label']:word(button.dataset.resource);
+      var palette=button.dataset.palette&&MarkdorPalettes.find(p=>p.key===button.dataset.palette);
+      button.title=palette?palette[window.MarkdorL?.culture==='en-US'?'en':'label']:word(button.dataset.resource);
       button.setAttribute('aria-label',button.title);
       if(button.matches('input[type="radio"]')){
         button.checked=active;
@@ -58,24 +58,24 @@
     });
     // Language controls do not need to be walked on every palette/mode switch.
     if(syncLanguage){
-      document.querySelectorAll('#vex-language-menu [data-language]').forEach(button=>{
-        var active=button.dataset.language===window.VexL?.culture;
+      document.querySelectorAll('#markdor-language-menu [data-language]').forEach(button=>{
+        var active=button.dataset.language===window.MarkdorL?.culture;
         button.setAttribute('aria-checked',String(active));button.classList.toggle('on',active);
       });
-      var language=document.querySelector('#vex-language-menu>summary');
+      var language=document.querySelector('#markdor-language-menu>summary');
       if(language){language.title=word('MenuLanguage');language.setAttribute('aria-label',language.title);}
     }
   }
-  /* 自定义配色（规则 §7 编写层 4 色）：持久化于 VexStorage，启动时恢复派生结果并注册进配色目录。 */
-  var CUSTOM='user-custom',customStore='vex-custom-palette';
-  function customFull(base,mode){return Object.assign({},base,VexPaletteRulesData.statusDefaults[mode]);}
-  function customVars(base,mode){return VexPaletteRules.deriveVars(customFull(base,mode),mode,VexPaletteRulesData.derivation[mode]);}
+  /* 自定义配色（规则 §7 编写层 4 色）：持久化于 MarkdorStorage，启动时恢复派生结果并注册进配色目录。 */
+  var CUSTOM='user-custom',customStore='markdor-custom-palette';
+  function customFull(base,mode){return Object.assign({},base,MarkdorPaletteRulesData.statusDefaults[mode]);}
+  function customVars(base,mode){return MarkdorPaletteRules.deriveVars(customFull(base,mode),mode,MarkdorPaletteRulesData.derivation[mode]);}
   function customCss(base,mode){
     var vars=customVars(base,mode);
     return ':root[data-theme="'+mode+'"][data-palette="'+CUSTOM+'"]{'+Object.entries(vars).map(function(pair){return '--'+pair[0]+':'+pair[1];}).join(';')+'}';
   }
   function customSwatch(base){
-    var defs=VexPaletteRulesData.statusDefaults.light;
+    var defs=MarkdorPaletteRulesData.statusDefaults.light;
     return [base.paper,base.surface,base.ink,base.accent,defs.danger,defs.success,defs.warning,defs.info];
   }
   function registerCustom(saved){
@@ -84,11 +84,11 @@
       light:saved.light.accent,dark:saved.dark.accent,swatch:customSwatch(saved.light),
       bg:varsLight.bg,paper:saved.light.paper,panel:saved.light.surface,fg:saved.light.ink,muted:varsLight.muted,
       darkBg:varsDark.bg,darkPaper:saved.dark.paper,darkPanel:saved.dark.surface,darkFg:saved.dark.ink,darkMuted:varsDark.muted};
-    var known=VexPalettes.some(function(p){return p.key===CUSTOM;});
+    var known=MarkdorPalettes.some(function(p){return p.key===CUSTOM;});
     if(!known){
-      VexPalettes.push(entry);palettes.push([entry.key,entry.label,entry.swatch]);
+      MarkdorPalettes.push(entry);palettes.push([entry.key,entry.label,entry.swatch]);
     }else{
-      VexPalettes=VexPalettes.map(function(p){return p.key===CUSTOM?entry:p;});
+      MarkdorPalettes=MarkdorPalettes.map(function(p){return p.key===CUSTOM?entry:p;});
       palettes=palettes.map(function(item){return item[0]===CUSTOM?[entry.key,entry.label,entry.swatch]:item;});
     }
     renderPaletteGrid();
@@ -96,13 +96,13 @@
     if(!style){style=document.createElement('style');style.id='custom-palette-style';document.head.append(style);}
     style.textContent=customCss(saved.light,'light')+'\n'+customCss(saved.dark,'dark');
   }
-  function readCustom(){try{return JSON.parse(VexStorage.getItem(customStore)||'null');}catch(_){return null;}}
+  function readCustom(){try{return JSON.parse(MarkdorStorage.getItem(customStore)||'null');}catch(_){return null;}}
   /* 界面配色网格渲染：自定义卡带 ✎/× 工具；无自定义时末尾显示"+"新增块。（IIFE 顶层，启动恢复时也可调用） */
   function renderPaletteGrid(){
-    var grid=document.querySelector('#vex-appearance-menu .studio-palettes');
+    var grid=document.querySelector('#markdor-appearance-menu .studio-palettes');
     if(!grid)return;
     grid.innerHTML=palettes.map(function(item){
-      var info=VexPalettes.find(function(p){return p.key===item[0];});
+      var info=MarkdorPalettes.find(function(p){return p.key===item[0];});
       var card='<button type="button" data-palette="'+item[0]+'" aria-label="'+item[1]+'">'+(info.recommended?'<em class="palette-badge">推荐</em>':'')+swatchDots(item[2])+'<span class="palette-label"><b>'+item[1]+'</b><small>'+info.note+'</small></span></button>';
       if(item[0]===CUSTOM)card='<div class="palette-wrap">'+card+'<span class="palette-card-tools"><button type="button" data-edit-palette title="编辑此配色" aria-label="编辑自定义配色">✎</button><button type="button" data-delete-palette title="删除此配色" aria-label="删除自定义配色">×</button></span></div>';
       return card;
@@ -111,48 +111,48 @@
     if(current)current.setAttribute('aria-pressed','true');
   }
   function restoreCustom(){
-    if(!window.VexPaletteRules||!window.VexPaletteRulesData)return;
+    if(!window.MarkdorPaletteRules||!window.MarkdorPaletteRulesData)return;
     var saved=readCustom();
     if(saved&&saved.light&&saved.dark)registerCustom(saved);
   }
-  window.VexTheme={
+  window.MarkdorTheme={
     state:state,
     setMode(value){state.mode=value;apply(false);},
-    setPalette(value){state.palette=VexPaletteKey(value);apply(false);},
+    setPalette(value){state.palette=MarkdorPaletteKey(value);apply(false);},
     /* 两个独立档位：界面密度只作用于界面控件；渲染密度（setMdSize）只作用于 Markdown 渲染。 */
-    setDensity(value){if(densities.some(item=>item[0]===value)){state.density=value;apply(false);if(window.VexPreferences&&VexPreferences.values.uiDensity!==value)VexPreferences.set('uiDensity',value);}},
-    setMdSize(value){if(mdsizes.some(item=>item[0]===value)){state.mdsize=value;apply(false);if(window.VexPreferences&&VexPreferences.values.mdSize!==value)VexPreferences.set('mdSize',value);}},
+    setDensity(value){if(densities.some(item=>item[0]===value)){state.density=value;apply(false);if(window.MarkdorPreferences&&MarkdorPreferences.values.uiDensity!==value)MarkdorPreferences.set('uiDensity',value);}},
+    setMdSize(value){if(mdsizes.some(item=>item[0]===value)){state.mdsize=value;apply(false);if(window.MarkdorPreferences&&MarkdorPreferences.values.mdSize!==value)MarkdorPreferences.set('mdSize',value);}},
     /* 供偏好面板复用的自定义配色 API（增加/修改 = upsert，清除 = 删除）。 */
-    applyCustomPalette(saved){if(!saved||!saved.light||!saved.dark)return false;VexStorage.setItem(customStore,JSON.stringify(saved));registerCustom(saved);VexTheme.setPalette(CUSTOM);return true;},
-    clearCustomPalette(){VexStorage.removeItem(customStore);var style=document.getElementById('custom-palette-style');if(style)style.remove();var index=VexPalettes.findIndex(function(p){return p.key===CUSTOM;});if(index>=0){VexPalettes.splice(index,1);palettes=palettes.filter(function(item){return item[0]!==CUSTOM;});}renderPaletteGrid();if(state.palette===CUSTOM)VexTheme.setPalette(VexPaletteRulesData.default);},
+    applyCustomPalette(saved){if(!saved||!saved.light||!saved.dark)return false;MarkdorStorage.setItem(customStore,JSON.stringify(saved));registerCustom(saved);MarkdorTheme.setPalette(CUSTOM);return true;},
+    clearCustomPalette(){MarkdorStorage.removeItem(customStore);var style=document.getElementById('custom-palette-style');if(style)style.remove();var index=MarkdorPalettes.findIndex(function(p){return p.key===CUSTOM;});if(index>=0){MarkdorPalettes.splice(index,1);palettes=palettes.filter(function(item){return item[0]!==CUSTOM;});}renderPaletteGrid();if(state.palette===CUSTOM)MarkdorTheme.setPalette(MarkdorPaletteRulesData.default);},
     readCustomPalette:readCustom
   };
   restoreCustom();apply(false);
   system.addEventListener('change',()=>{if(state.mode==='system')apply(false);});
   window.addEventListener('storage',event=>{if(event.key===storeKey)try{Object.assign(state,JSON.parse(event.newValue||'{}'));apply(true);}catch(_){}});
-  window.addEventListener('vex-language-changed',()=>apply(true));
-  window.addEventListener('keydown',event=>{var index=Number(event.key)-1;if(event.altKey&&!event.ctrlKey&&index>=0&&index<palettes.length)VexTheme.setPalette(palettes[index][0]);if(event.key==='Escape'){var menu=document.getElementById('vex-language-menu');if(menu)menu.open=false;}});
+  window.addEventListener('markdor-language-changed',()=>apply(true));
+  window.addEventListener('keydown',event=>{var index=Number(event.key)-1;if(event.altKey&&!event.ctrlKey&&index>=0&&index<palettes.length)MarkdorTheme.setPalette(palettes[index][0]);if(event.key==='Escape'){var menu=document.getElementById('markdor-language-menu');if(menu)menu.open=false;}});
   document.addEventListener('DOMContentLoaded',()=>{
     var windowPanel=document.createElement('section');windowPanel.id='prototype-window-state';windowPanel.hidden=true;windowPanel.innerHTML='<p></p><button type="button" id="restore-window"></button>';document.body.append(windowPanel);
     windowPanel.querySelector('button').onclick=()=>{document.querySelector('.app-window').hidden=false;windowPanel.hidden=true;document.querySelector('#caption-btns button').focus();};
-    document.getElementById('caption-btns').addEventListener('click',event=>{var button=event.target.closest('[data-action]');if(!button)return;event.stopImmediatePropagation();var app=document.querySelector('.app-window'),action=button.dataset.action;if((action==='close'||action==='exit-app')&&window.VexProto){VexProto.handleAction('exit-app');return;}if(action==='maximize'){app.classList.toggle('expanded');return;}var words=({'zh-CN':['窗口已最小化','窗口已关闭','还原窗口','重新打开'],'zh-Hant':['視窗已最小化','視窗已關閉','還原視窗','重新開啟'],'en-US':['Window minimized','Window closed','Restore window','Reopen'],'ja-JP':['ウィンドウを最小化しました','ウィンドウを閉じました','ウィンドウを復元','もう一度開く']})[VexL.culture];app.hidden=true;windowPanel.dataset.state=action;windowPanel.querySelector('p').textContent=words[action==='close'?1:0];windowPanel.querySelector('button').textContent=words[action==='close'?3:2];windowPanel.hidden=false;windowPanel.querySelector('button').focus();},true);
-    var panel=document.createElement('div');panel.id='vex-theme-panel';panel.className='studio-title-controls';
+    document.getElementById('caption-btns').addEventListener('click',event=>{var button=event.target.closest('[data-action]');if(!button)return;event.stopImmediatePropagation();var app=document.querySelector('.app-window'),action=button.dataset.action;if((action==='close'||action==='exit-app')&&window.MarkdorProto){MarkdorProto.handleAction('exit-app');return;}if(action==='maximize'){app.classList.toggle('expanded');return;}var words=({'zh-CN':['窗口已最小化','窗口已关闭','还原窗口','重新打开'],'zh-Hant':['視窗已最小化','視窗已關閉','還原視窗','重新開啟'],'en-US':['Window minimized','Window closed','Restore window','Reopen'],'ja-JP':['ウィンドウを最小化しました','ウィンドウを閉じました','ウィンドウを復元','もう一度開く']})[MarkdorL.culture];app.hidden=true;windowPanel.dataset.state=action;windowPanel.querySelector('p').textContent=words[action==='close'?1:0];windowPanel.querySelector('button').textContent=words[action==='close'?3:2];windowPanel.hidden=false;windowPanel.querySelector('button').focus();},true);
+    var panel=document.createElement('div');panel.id='markdor-theme-panel';panel.className='studio-title-controls';
     /* 语言菜单名片化：语言缩写徽标 + 自称，选中项徽标反色。 */
     var langChips={'zh-CN':'中','zh-Hant':'繁','en-US':'EN','ja-JP':'日'};
-    panel.innerHTML='<button type="button" class="icon-button find-launch" data-action="find" title="查找当前正文 · Ctrl+F" aria-label="查找当前正文"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></button><details id="vex-appearance-menu"><summary title="外观：主题与配色"><svg class="ico" aria-hidden="true"><use href="#i-palette"/></svg><span>外观</span></summary><div class="appearance-choices"><strong>界面密度</strong><div class="density-options" role="group" aria-label="Density">'+densities.map(function(item){return '<button type="button" data-density="'+item[0]+'">'+item[1]+'</button>';}).join('')+'</div><strong>明暗模式</strong><div class="density-options" role="group" aria-label="Theme mode">'+modes.map(function(item){return '<button type="button" data-mode="'+item[0]+'">'+word(item[1])+'</button>';}).join('')+'</div><strong>界面配色</strong><div class="studio-palettes" role="group" aria-label="Palette"></div></div></details><details id="vex-language-menu" class="studio-language"><summary>文<span aria-hidden="true">A</span></summary><div role="menu">'+Object.entries(VEX_DATA.languages).map(([code])=>'<button type="button" role="menuitemradio" data-language="'+code+'"><i class="lang-chip" aria-hidden="true">'+(langChips[code]||code.slice(0,2))+'</i><span>'+({"zh-CN":"简体中文","zh-Hant":"繁體中文","en-US":"English","ja-JP":"日本語"}[code]||code)+'</span></button>').join('')+'</div></details>';
+    panel.innerHTML='<button type="button" class="icon-button find-launch" data-action="find" title="查找当前正文 · Ctrl+F" aria-label="查找当前正文"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></button><details id="markdor-appearance-menu"><summary title="外观：主题与配色"><svg class="ico" aria-hidden="true"><use href="#i-palette"/></svg><span>外观</span></summary><div class="appearance-choices"><strong>界面密度</strong><div class="density-options" role="group" aria-label="Density">'+densities.map(function(item){return '<button type="button" data-density="'+item[0]+'">'+item[1]+'</button>';}).join('')+'</div><strong>明暗模式</strong><div class="density-options" role="group" aria-label="Theme mode">'+modes.map(function(item){return '<button type="button" data-mode="'+item[0]+'">'+word(item[1])+'</button>';}).join('')+'</div><strong>界面配色</strong><div class="studio-palettes" role="group" aria-label="Palette"></div></div></details><details id="markdor-language-menu" class="studio-language"><summary>文<span aria-hidden="true">A</span></summary><div role="menu">'+Object.entries(MARKDOR_DATA.languages).map(([code])=>'<button type="button" role="menuitemradio" data-language="'+code+'"><i class="lang-chip" aria-hidden="true">'+(langChips[code]||code.slice(0,2))+'</i><span>'+({"zh-CN":"简体中文","zh-Hant":"繁體中文","en-US":"English","ja-JP":"日本語"}[code]||code)+'</span></button>').join('')+'</div></details>';
     document.getElementById('caption-btns').before(panel);
     /* 界面配色网格渲染见 IIFE 顶层 renderPaletteGrid()。 */
-    window.VexThemeRenderPaletteGrid=renderPaletteGrid;
+    window.MarkdorThemeRenderPaletteGrid=renderPaletteGrid;
     panel.addEventListener('click',event=>{
       var button=event.target.closest('button');if(!button)return;
-      if(button.dataset.mode){VexTheme.setMode(button.dataset.mode);return;}
+      if(button.dataset.mode){MarkdorTheme.setMode(button.dataset.mode);return;}
       if(button.id==='add-custom-palette'){openPaletteDialog(null);return;}
       if(button.hasAttribute('data-edit-palette')){openPaletteDialog(readCustom());return;}
-      if(button.hasAttribute('data-delete-palette')){VexTheme.clearCustomPalette();if(window.VexPreferences)VexPreferences.set('palette',VexPaletteRulesData.default);return;}
-      if(button.dataset.palette)VexTheme.setPalette(button.dataset.palette);
-      if(button.dataset.density)VexTheme.setDensity(button.dataset.density);
-      if(button.dataset.mdsize)VexTheme.setMdSize(button.dataset.mdsize);
-      if(button.dataset.language){VexL.set(button.dataset.language);document.getElementById('vex-language-menu').open=false;}
+      if(button.hasAttribute('data-delete-palette')){MarkdorTheme.clearCustomPalette();if(window.MarkdorPreferences)MarkdorPreferences.set('palette',MarkdorPaletteRulesData.default);return;}
+      if(button.dataset.palette)MarkdorTheme.setPalette(button.dataset.palette);
+      if(button.dataset.density)MarkdorTheme.setDensity(button.dataset.density);
+      if(button.dataset.mdsize)MarkdorTheme.setMdSize(button.dataset.mdsize);
+      if(button.dataset.language){MarkdorL.set(button.dataset.language);document.getElementById('markdor-language-menu').open=false;}
     });
     /* 新增/编辑配色对话框（双明暗 8 色，规则 §7）：独立于弹出层，保存即派生校验并应用。 */
     var paletteDialog=document.createElement('section');paletteDialog.id='palette-dialog';paletteDialog.hidden=true;
@@ -166,7 +166,7 @@
     document.body.append(paletteDialog);
     function pdField(name){return paletteDialog.querySelector('[data-pf="'+name+'"]');}
     function openPaletteDialog(saved){
-      var defaults=VexPaletteRulesData.palettes[VexPaletteRulesData.default];
+      var defaults=MarkdorPaletteRulesData.palettes[MarkdorPaletteRulesData.default];
       var light=(saved&&saved.light)||defaults.light,dark=(saved&&saved.dark)||defaults.dark;
       pdField('name').value=(saved&&saved.name)||'';
       pdField('note').value=(saved&&saved.note)||'';
@@ -181,16 +181,16 @@
     paletteDialog.querySelector('#pd-apply').onclick=function(){
       var pick=function(mode){var base={};['paper','surface','ink','accent'].forEach(function(key){base[key]=pdField(mode+'-'+key).value.toUpperCase();});return base;};
       var saved={name:pdField('name').value.trim()||'自定义',note:pdField('note').value.trim(),light:pick('light'),dark:pick('dark')};
-      var issues=VexPaletteRules.validate(customFull(saved.light,'light'),'light',VexPaletteRulesData.statusDefaults,VexPaletteRulesData.derivation.light)
-        .concat(VexPaletteRules.validate(customFull(saved.dark,'dark'),'dark',VexPaletteRulesData.statusDefaults,VexPaletteRulesData.derivation.dark));
+      var issues=MarkdorPaletteRules.validate(customFull(saved.light,'light'),'light',MarkdorPaletteRulesData.statusDefaults,MarkdorPaletteRulesData.derivation.light)
+        .concat(MarkdorPaletteRules.validate(customFull(saved.dark,'dark'),'dark',MarkdorPaletteRulesData.statusDefaults,MarkdorPaletteRulesData.derivation.dark));
       var report=paletteDialog.querySelector('#palette-dialog-report');
-      if(!window.VexTheme.applyCustomPalette(saved)){report.textContent='⚠ 保存失败，请重试';return;}
-      if(window.VexPreferences)VexPreferences.set('palette',CUSTOM);
+      if(!window.MarkdorTheme.applyCustomPalette(saved)){report.textContent='⚠ 保存失败，请重试';return;}
+      if(window.MarkdorPreferences)MarkdorPreferences.set('palette',CUSTOM);
       report.textContent=issues.length?('⚠ '+issues.join('；')):'✓ 对比度校验通过（规则 §5）';
       if(!issues.length)closePaletteDialog();
     };
     renderPaletteGrid();
-    document.addEventListener('click',event=>{if(!event.target.closest('#vex-language-menu'))document.getElementById('vex-language-menu').open=false;if(!event.target.closest('#vex-appearance-menu')&&!event.target.closest('#palette-dialog'))document.getElementById('vex-appearance-menu').open=false;});
-    document.addEventListener('keydown',event=>{if(event.key==='Escape'){var menu=document.getElementById('vex-appearance-menu');if(menu.open){menu.open=false;menu.querySelector('summary').focus();}}});apply(true);
+    document.addEventListener('click',event=>{if(!event.target.closest('#markdor-language-menu'))document.getElementById('markdor-language-menu').open=false;if(!event.target.closest('#markdor-appearance-menu')&&!event.target.closest('#palette-dialog'))document.getElementById('markdor-appearance-menu').open=false;});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'){var menu=document.getElementById('markdor-appearance-menu');if(menu.open){menu.open=false;menu.querySelector('summary').focus();}}});apply(true);
   });
 })();

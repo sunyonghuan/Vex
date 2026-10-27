@@ -6,10 +6,10 @@ using Avalonia.Media.Imaging;
 using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 using CodeWF.Toolkit.Core.UpdateChecking;
-using Vex;
-using Vex.Core.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
+using Netor.Markdor;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
 
 var directory = Path.GetFullPath(args.FirstOrDefault() ?? "artifacts/about-visual-verification");
 Directory.CreateDirectory(directory);
@@ -19,7 +19,7 @@ var localizer = new AppLocalizer();
 foreach (var culture in new[] { "zh-CN", "en-US", "zh-Hant", "ja-JP" })
 {
     localizer.SetCulture(culture);
-    using var updates = new UpdateService(new UpdateServiceOptions { Repository = "Vex", ProductName = "Vex" });
+    using var updates = new UpdateService(new UpdateServiceOptions { Repository = "Markdor", ProductName = "Markdor" });
     using var model = new ShellAboutViewModel(localizer, _ => { });
     if (model.VersionText != UpdateVersion.Display(typeof(App).Assembly) || !DateTime.TryParseExact(model.CompileTimeText, "yyyy-MM-dd HH:mm:ss",
             CultureInfo.InvariantCulture, DateTimeStyles.None, out var builtAt) || builtAt < DateTime.Now.AddDays(-1) || builtAt > DateTime.Now.AddMinutes(5))
@@ -29,7 +29,7 @@ foreach (var culture in new[] { "zh-CN", "en-US", "zh-Hant", "ja-JP" })
     window.Show();
     window.UpdateLayout();
     Dispatcher.UIThread.RunJobs();
-    if (view.Bounds.Width <= 0 || view.Bounds.Height <= 0 || localizer.Get(VexL.AboutCheckUpdate).StartsWith("Vex.VexL."))
+    if (view.Bounds.Width <= 0 || view.Bounds.Height <= 0 || localizer.Get(MarkdorL.AboutCheckUpdate).StartsWith("Markdor.MarkdorL."))
         throw new InvalidOperationException("About view or localized binding failed: " + culture);
     using var bitmap = new RenderTargetBitmap(new PixelSize(640, 760));
     bitmap.Render(window);

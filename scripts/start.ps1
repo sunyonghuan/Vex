@@ -9,12 +9,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Command dotnet -CommandType Application -ErrorAction SilentlyContinue)) {
-    throw 'The .NET 10 SDK is required to start Vex.'
+    throw 'The .NET 10 SDK is required to start Markdor.'
 }
 
-$runArguments = @('run', '--project', (Join-Path $PSScriptRoot '../src/Vex/Vex.csproj'),
+$runArguments = @('run', '--project', (Join-Path $PSScriptRoot '../src/Netor.Markdor/Netor.Markdor.csproj'),
     '--framework', 'net10.0', '--configuration', $Configuration)
-if (-not $ArtifactsPath) { $ArtifactsPath = Join-Path $PSScriptRoot '../../../temp_files/vex-start' }
+if (-not $ArtifactsPath) { $ArtifactsPath = Join-Path $PSScriptRoot '../../../temp_files/markdor-start' }
 $runArguments += "-p:ArtifactsPath=$([IO.Path]::GetFullPath($ArtifactsPath))"
 if ($ApplicationArguments.Count -gt 0) { $runArguments += @('--') + $ApplicationArguments }
 

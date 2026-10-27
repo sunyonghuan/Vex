@@ -1,0 +1,277 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:semi="https://irihi.tech/semi">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="ListBoxItemDefaultBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverForeground" Color="#101828" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverBackground" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedForeground" Color="#101828" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedBackground" Color="#E8F1FF" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedForeground" Color="#101828" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="#EAF4FF" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Color="#DCEBFA" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledForeground" Color="#98A2B3" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedDisabledBackground" Color="#F2F4F7" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="ListBoxItemDefaultBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverForeground" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverBackground" Color="#1B2533" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedForeground" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedBackground" Color="#263244" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedForeground" Color="#F3F4F6" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="#1D3A5F" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Color="#243F66" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledForeground" Color="#7D8999" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedDisabledBackground" Color="#263244" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="{x:Static semi:SemiTheme.Aquatic}">
+                    <SolidColorBrush x:Key="ListBoxItemDefaultBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverForeground" Color="#16323A" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverBackground" Color="#EFF8FA" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedForeground" Color="#16323A" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedBackground" Color="#CDEFF5" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedForeground" Color="#16323A" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="#DFF7FA" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Color="#CDEFF5" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledForeground" Color="#7A99A1" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedDisabledBackground" Color="#EFF8FA" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="{x:Static semi:SemiTheme.Desert}">
+                    <SolidColorBrush x:Key="ListBoxItemDefaultBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverForeground" Color="#32261B" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverBackground" Color="#FFF5E8" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedForeground" Color="#32261B" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedBackground" Color="#F4DEC2" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedForeground" Color="#32261B" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="#FFF0D9" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Color="#F4DEC2" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledForeground" Color="#9A856D" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedDisabledBackground" Color="#FFF5E8" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="{x:Static semi:SemiTheme.Dusk}">
+                    <SolidColorBrush x:Key="ListBoxItemDefaultBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverForeground" Color="#2C2237" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverBackground" Color="#F3F1FA" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedForeground" Color="#2C2237" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedBackground" Color="#E3DAF8" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedForeground" Color="#2C2237" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="#F0E9FF" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Color="#E3DAF8" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledForeground" Color="#8A7A98" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedDisabledBackground" Color="#F3F1FA" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="{x:Static semi:SemiTheme.NightSky}">
+                    <SolidColorBrush x:Key="ListBoxItemDefaultBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverForeground" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ListBoxItemPointeroverBackground" Color="#1E2A3F" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedForeground" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ListBoxItemPressedBackground" Color="#1E335A" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedForeground" Color="#EBF2FF" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="#1E335A" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Color="#25436F" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledForeground" Color="#7F8CA3" />
+                    <SolidColorBrush x:Key="ListBoxItemDisabledBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="ListBoxItemSelectedDisabledBackground" Color="#1E2A3F" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <Style Selector="ListBox.side-list">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.side-list ListBoxItem">
+        <Setter Property="Padding" Value="10 5" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="FontSize" Value="12.5" />
+    </Style>
+
+    <Style Selector="ListBox.side-list TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextBlockDefaultForeground}" />
+    </Style>
+
+    <Style Selector="ListBox.side-list TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource MenuItemInputGestureTextForeground}" />
+    </Style>
+
+    <Style Selector="ListBox.side-list TextBlock.side-heading">
+        <Setter Property="Foreground" Value="{DynamicResource TextBlockDisabledForeground}" />
+    </Style>
+
+    <Style Selector="ListBox.side-list ListBoxItem:pointerover TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource ListBoxItemPointeroverForeground}" />
+    </Style>
+
+    <Style Selector="ListBox.side-list ListBoxItem:selected TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" />
+    </Style>
+
+    <Style Selector="ListBox.side-list ListBoxItem:selected TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource MenuItemInputGestureTextForeground}" />
+    </Style>
+
+    <Style Selector="ListBox.side-list ListBoxItem:selected TextBlock.side-heading">
+        <Setter Property="Foreground" Value="{DynamicResource ButtonSolidPrimaryBackground}" />
+    </Style>
+
+    <!-- 大纲层级角标（对应原型 H1-H4 标签）：accent-soft 底 + accent 字 -->
+    <Style Selector="ListBox.side-list Border.lvl-badge">
+        <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="4 0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+    </Style>
+    <Style Selector="ListBox.side-list Border.lvl-badge.on">
+        <Setter Property="Background" Value="{DynamicResource MarkdorAccentBrush}" />
+    </Style>
+    <Style Selector="ListBox.side-list TextBlock.outline-title.current">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <!-- 通用徽章文字规则必须放在 .on 覆盖规则之后：Avalonia 同特异性按定义顺序裁决，
+         否则选中徽章的文字色被通用主题色覆盖（文字与底同色 → 隐形）。 -->
+    <Style Selector="ListBox.side-list Border.lvl-badge > TextBlock">
+        <Setter Property="FontSize" Value="9.5" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ListBox.side-list Border.lvl-badge.on > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree">
+        <Style.Resources>
+            <x:Double x:Key="TreeViewItemIndent">16</x:Double>
+        </Style.Resources>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree TreeViewItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <!-- 在模板行上绘制背景，覆盖展开箭头、层级缩进和整行剩余宽度。 -->
+    <Style Selector="TreeView.side-tree TreeViewItem">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem:selected">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem:pointerover">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem:selected:pointerover">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem:pointerover /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem:selected /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem:selected:pointerover /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem /template/ ToggleButton#PART_ExpandCollapseChevron">
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TreeView.side-tree TreeViewItem /template/ ToggleButton#PART_ExpandCollapseChevron /template/ PathIcon#PART_ExpandIconPath">
+        <Setter Property="Width" Value="8" />
+        <Setter Property="Height" Value="8" />
+    </Style>
+
+    <!-- 内容卡片保持透明，选中底色统一由通栏模板行绘制。 -->
+    <Style Selector="TreeView.side-tree Border.file-card">
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Padding" Value="4,0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree Border.file-card TextBlock.file-title">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="TreeView.side-tree Border.file-card.selected TextBlock.file-title">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TreeView.side-tree Border.file-card.selected Path.tree-ico">
+        <Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree Border.file-card TextBlock.file-muted">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree Path.tree-ico">
+        <Setter Property="Width" Value="13" />
+        <Setter Property="Height" Value="13" />
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="Stroke" Value="{DynamicResource MarkdorMutedBrush}" />
+        <Setter Property="StrokeThickness" Value="1.4" />
+        <Setter Property="StrokeLineCap" Value="Round" />
+        <Setter Property="StrokeJoin" Value="Round" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree Border.file-card TextBlock.file-heading">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Normal" />
+    </Style>
+
+    <Style Selector="TreeView.side-tree Border.file-card.selected TextBlock.file-heading">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+    </Style>
+    <!-- 大纲徽章兜底规则（放文件末尾）：ListBoxItem:selected 的通用文字色会命中徽章内文字，
+         必须以更全的选择器 + 更后位置覆盖，否则选中项的 H2 角标文字与底色同色而隐形。 -->
+    <Style Selector="ListBox.side-list ListBoxItem Border.lvl-badge.on > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+    </Style>
+    <Style Selector="ListBox.side-list ListBoxItem:selected Border.lvl-badge.on > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+    </Style>
+</Styles>

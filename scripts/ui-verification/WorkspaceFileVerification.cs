@@ -1,15 +1,15 @@
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Vex.Core.Models;
-using Vex.Core.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Workspace.Services;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Workspace.Services;
 
 /// <summary>验证目录缓存、索引、摘要和监控恢复，磁盘数据全部位于独立输出目录。</summary>
 internal static class WorkspaceFileVerification
 {
-    public static void Run(VerificationVexApp app, Window window, string output)
+    public static void Run(VerificationMarkdorApp app, Window window, string output)
     {
         var results = new List<string>();
         var main = (MainWindowViewModel)window.DataContext!;

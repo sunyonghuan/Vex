@@ -1,0 +1,1397 @@
+using Avalonia.Threading;
+using CodeWF.Toolkit.EventBus;
+using ReactiveUI;
+using Netor.Markdor.Core.Messaging;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+
+namespace Netor.Markdor.Modules.Shell.ViewModels;
+
+public sealed partial class MainWindowViewModel : ReactiveObject
+{
+    private static readonly TimeSpan MarkdownDerivedStateDebounce = TimeSpan.FromMilliseconds(220);
+    private readonly IDocumentService _documentService;
+    private readonly IWorkspaceDocumentState _workspaceDocumentState;
+    private readonly IMarkdownOutlineService _outlineService;
+    private readonly IMarkdownStatisticsService _statisticsService;
+    private readonly IDocumentFileFactory _documentFileFactory;
+    private readonly IAppSettingsStore _settingsStore;
+    private readonly IShellDocumentWorkflowText _text;
+    private readonly IShellUnsavedChangesGuard _unsavedChanges;
+    private readonly IShellDocumentUtilityActions _documentUtilities;
+    private readonly IShellExternalPathResolver _externalPaths;
+    private readonly IAutoSaveDraftService _drafts;
+    private readonly IShellStatusPublisher _statusPublisher;
+    private readonly IShellOverlayService _overlays;
+    private readonly IAppLocalizer _localizer;
+    private readonly IWorkspaceFileService _workspaceFiles;
+    private FileSystemWatcher? _currentFileWatcher;
+    private Timer? _currentFileChangeTimer;
+    private Timer? _markdownDerivedStateTimer;
+    private Timer? _autoSaveTimer;
+    private bool _autoSaveInProgress;
+    private DocumentSnapshot _document;
+    private IReadOnlyList<DocumentFile> _documentFiles = [];
+    private string _lastSavedMarkdown = string.Empty;
+    private string _markdown = string.Empty;
+    private long _documentVersion;
+    private long _documentOpenVersion;
+    private string? _currentWorkspaceFolderPath;
+    private (DocumentSnapshot Document, string LastSaved, long Version, IReadOnlyList<DocumentFile> Files, string? Folder)? _guideDocument;
+    private string? _watchedFilePath;
+    private string? _watchedFolderPath;
+    private DateTimeOffset? _watchedFileLastWriteTimeUtc;
+
+    public MainWindowViewModel(
+        IDocumentService documentService,
+        IWorkspaceDocumentState workspaceDocumentState,
+        IMarkdownOutlineService outlineService,
+        IMarkdownStatisticsService statisticsService,
+        IDocumentFileFactory documentFileFactory,
+        IAppSettingsStore settingsStore,
+        ShellAppearanceViewModel appearance,
+        ShellDocumentInfoViewModel documentInfo,
+        ShellDialogsViewModel dialogs,
+        ShellEditorActionsViewModel editorActions,
+        ShellEditorDisplayViewModel editorDisplay,
+        ShellFindBarViewModel findBar,
+        ShellHelpViewModel help,
+        ShellWindowLayoutViewModel layout,
+        ShellWorkbenchViewModel workbench,
+        ShellNavigationViewModel navigation,
+        ShellRecentDocumentsViewModel recent,
+        ShellStatusViewModel status,
+        IShellDocumentWorkflowText text,
+        IShellUnsavedChangesGuard unsavedChanges,
+        IShellDocumentUtilityActions documentUtilities,
+        IShellExternalPathResolver externalPaths,
+        IAutoSaveDraftService drafts,
+        IShellStatusPublisher statusPublisher, IShellOverlayService overlays, IAppLocalizer localizer,
+        IWorkspaceFileService workspaceFiles)
+    {
+        _documentService = documentService;
+        _workspaceDocumentState = workspaceDocumentState;
+        _outlineService = outlineService;
+        _statisticsService = statisticsService;
+        _documentFileFactory = documentFileFactory;
+        _settingsStore = settingsStore;
+        Appearance = appearance;
+        DocumentInfo = documentInfo;
+        Dialogs = dialogs;
+        EditorActions = editorActions;
+        EditorDisplay = editorDisplay;
+        FindBar = findBar;
+        Help = help;
+        Layout = layout;
+        Workbench = workbench;
+        Navigation = navigation;
+        Recent = recent;
+        Status = status;
+        _text = text;
+        _unsavedChanges = unsavedChanges;
+        _documentUtilities = documentUtilities;
+        _externalPaths = externalPaths;
+        _drafts = drafts;
+        _statusPublisher = statusPublisher;
+        _overlays = overlays; _localizer = localizer;
+        _workspaceFiles = workspaceFiles;
+        _workspaceFiles.Changed += WorkspaceFilesChanged;
+        _drafts.StateChanged += (_, _) => Dispatcher.UIThread.Post(() => Protection.DraftError = _drafts.LastError);
+        CodeWF.Toolkit.EventBus.EventBus.Default.Subscribe(this);
+
+        _document = _documentService.CreateNew();
+        _lastSavedMarkdown = _document.Markdown;
+        Markdown = _document.Markdown;
+        RefreshDocumentInfo();
+        DiscoverRecoveryDraft(_document);
+        CodeWF.Toolkit.Lang.I18nManager.Instance.CultureChanged += OnCultureChanged;
+    }
+
+    public event EventHandler? CloseWindowRequested;
+    public event EventHandler? CommitPendingEditsRequested;
+
+    /// <summary>只刷新文件时间文案，保留树节点、选择、过滤及未保存内容。</summary>
+    private void OnCultureChanged(object? sender, EventArgs args)
+    {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(() => OnCultureChanged(sender, args));
+            return;
+        }
+
+        foreach (var file in _documentFiles.Concat(_guideDocument?.Files ?? []).Distinct())
+            file.ModifiedText = _documentFileFactory.GetModifiedText(file.Path);
+    }
+
+    public ShellAppearanceViewModel Appearance { get; }
+    public ShellDocumentInfoViewModel DocumentInfo { get; }
+    public ShellDialogsViewModel Dialogs { get; }
+    public ShellEditorActionsViewModel EditorActions { get; }
+    public ShellEditorDisplayViewModel EditorDisplay { get; }
+    public ShellFindBarViewModel FindBar { get; }
+    public ShellHelpViewModel Help { get; }
+    public ShellWindowLayoutViewModel Layout { get; }
+    public ShellWorkbenchViewModel Workbench { get; }
+    public ShellNavigationViewModel Navigation { get; }
+    public ShellRecentDocumentsViewModel Recent { get; }
+    public ShellStatusViewModel Status { get; }
+    public ShellDocumentProtection Protection { get; } = new();
+    private bool _retrySaveAs;
+    private string? _retryExportFormat;
+
+    public Task OpenPathLocationAsync(string path) => OpenFileLocationCoreAsync(path);
+    public Task RefreshFilesAsync()
+    {
+        if (_workspaceFiles.RootPath is not null) _workspaceFiles.Refresh();
+        return Task.CompletedTask;
+    }
+
+    public async Task OpenStartupDocumentAsync(IEnumerable<string> arguments)
+    {
+        var normalizedArguments = arguments.ToArray();
+        var target = _externalPaths.ResolveStartupArgument(normalizedArguments);
+        if (target.Path is not { Length: > 0 } path)
+        {
+            if (normalizedArguments.Length == 0)
+            {
+                if (_settingsStore.Current.RestoreWorkspace == true)
+                {
+                    await RestoreLastWorkspaceFolderAsync();
+                }
+                else
+                {
+                    // 首次使用（未开启工作区恢复）时打开随附演示文档，对齐原型的首启观感。
+                    await OpenDemoDocumentsAsync();
+                }
+            }
+
+            return;
+        }
+
+        if (target.Kind == ShellExternalPathKind.Folder)
+        {
+            await RequestUnsavedConfirmationAsync(
+                _text.TitleBeforeOpeningFolder,
+                _text.BeforeOpeningFolder(_document.FileName),
+                GuardedAction(
+                    MarkdorL.ErrorMessageCannotOpenFolderFormat,
+                    async () => await ApplyDocumentFilesAsync(await _documentService.OpenFolderPathAsync(path), true),
+                    path));
+            return;
+        }
+
+        if (target.Kind == ShellExternalPathKind.File)
+        {
+            await RequestUnsavedConfirmationAsync(
+                _text.TitleBeforeOpening,
+                _text.BeforeOpeningFile(_document.FileName, target.FileName ?? path),
+                GuardedAction(
+                    MarkdorL.ErrorMessageCannotOpenFileFormat,
+                    () => LoadDocumentPathAsync(path),
+                    path));
+        }
+    }
+
+    /// <summary>打开随应用分发的演示文档文件夹，并落在《排版与写作》。</summary>
+    private async Task OpenDemoDocumentsAsync()
+    {
+        var folder = Markdor.Core.Services.BundledDocuments.SamplesFolder;
+        if (!Directory.Exists(folder)) return;
+        var files = await _documentService.OpenFolderPathAsync(folder);
+        await ApplyDocumentFilesAsync(files, true);
+        var featured = files.FirstOrDefault(file => file.Name == "排版与写作.md");
+        if (featured is not null && !string.Equals(DocumentInfo.CurrentFilePath, featured.Path, StringComparison.OrdinalIgnoreCase))
+        {
+            await OpenDocumentFileCoreAsync(featured);
+        }
+    }
+
+    private async Task RestoreLastWorkspaceFolderAsync()
+    {
+        var folderPath = _settingsStore.Current.LastWorkspaceFolderPath;
+        if (string.IsNullOrWhiteSpace(folderPath))
+        {
+            return;
+        }
+
+        if (!Directory.Exists(folderPath))
+        {
+            ClearLastWorkspaceFolder(folderPath);
+            return;
+        }
+
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpeningFolder,
+            _text.BeforeOpeningFolder(_document.FileName),
+            GuardedAction(
+                MarkdorL.ErrorMessageCannotOpenFolderFormat,
+                () => OpenFolderPathCoreAsync(folderPath),
+                folderPath));
+    }
+
+    public Task OpenDroppedPathAsync(string path)
+    {
+        var target = _externalPaths.ResolveDroppedPath(path);
+        if (target.Kind == ShellExternalPathKind.Missing)
+        {
+            return PublishAndComplete(_text.PublishDroppedItemUnavailable);
+        }
+
+        if (target.Kind == ShellExternalPathKind.Unsupported)
+        {
+            return PublishAndComplete(_text.PublishDropMarkdownOrTextFile);
+        }
+
+        if (target.Path is not { Length: > 0 } resolvedPath)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (target.Kind == ShellExternalPathKind.Folder)
+        {
+            return RequestUnsavedConfirmationAsync(
+                _text.TitleBeforeOpeningFolder,
+                _text.BeforeOpeningDroppedFolder(_document.FileName),
+                GuardedAction(
+                    MarkdorL.ErrorMessageCannotOpenFolderFormat,
+                    () => OpenFolderPathCoreAsync(resolvedPath),
+                    resolvedPath));
+        }
+
+        return RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpening,
+            _text.BeforeOpeningFile(_document.FileName, target.FileName ?? resolvedPath),
+            GuardedAction(
+                MarkdorL.ErrorMessageCannotOpenFileFormat,
+                () => OpenPathCoreAsync(resolvedPath),
+                resolvedPath));
+    }
+
+    public string Markdown
+    {
+        get => _markdown;
+        set => SetMarkdown(value, refreshImmediately: true);
+    }
+
+    public void BeginGuideDocument(string markdown)
+    {
+        if (_guideDocument is not null) return;
+        _guideDocument = (_document, _lastSavedMarkdown, _documentVersion, _documentFiles, _currentWorkspaceFolderPath);
+        StopCurrentFileWatcher();
+        StopCurrentFolderWatcher();
+        _document = _documentService.CreateNew() with { FileName = "快速上手.md", Markdown = markdown };
+        _lastSavedMarkdown = markdown;
+        Markdown = markdown;
+        RefreshDocumentInfo(); PublishWorkspaceDocumentState();
+    }
+
+    public void EndGuideDocument()
+    {
+        if (_guideDocument is not { } saved) return;
+        CancelScheduledMarkdownDerivedStateRefresh();
+        _document = saved.Document; _lastSavedMarkdown = saved.LastSaved;
+        this.RaiseAndSetIfChanged(ref _markdown, saved.Document.Markdown, nameof(Markdown));
+        _documentVersion = saved.Version;
+        _documentFiles = saved.Files; _currentWorkspaceFolderPath = saved.Folder;
+        PublishDocumentFilesChanged(FindCurrentDocumentFile());
+        RefreshDocumentInfo(); PublishWorkspaceDocumentState();
+        _guideDocument = null;
+        StartCurrentFileWatcher();
+        StartCurrentFolderWatcher(_currentWorkspaceFolderPath);
+    }
+
+    public long DocumentVersion => _documentVersion;
+
+    public IReadOnlyList<DocumentFile> DocumentFiles => _documentFiles;
+
+    /// <summary>完整清单只供搜索、快速打开和 MCP 按需请求。</summary>
+    public Task<IReadOnlyList<DocumentFile>> GetWorkspaceFilesAsync(CancellationToken cancellationToken = default)
+        => _workspaceFiles.RootPath is null ? Task.FromResult(_documentFiles) : _workspaceFiles.GetFilesAsync(cancellationToken);
+
+    public string? WorkspaceFolderPath => _currentWorkspaceFolderPath;
+
+    public DocumentSnapshot GetCurrentDocumentSnapshot()
+    {
+        return _document with { Markdown = Markdown };
+    }
+
+    public void ReplaceMarkdownFromMcp(string markdown)
+    {
+        Markdown = markdown;
+        EditorActions.FocusEditor();
+    }
+
+    public void ApplyTextEditFromMcp(int startOffset, int length, string replacement)
+    {
+        var markdown = Markdown;
+        var start = Math.Clamp(startOffset, 0, markdown.Length);
+        var editLength = Math.Clamp(length, 0, markdown.Length - start);
+        Markdown = markdown[..start] + replacement + markdown[(start + editLength)..];
+        EditorActions.FocusEditor();
+    }
+
+    public async Task<bool> OpenPathFromMcpAsync(string path, string? encodingName = null)
+    {
+        var opened = false;
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpening,
+            _text.BeforeOpeningFile(_document.FileName, Path.GetFileName(path)),
+            GuardedAction(
+                MarkdorL.ErrorMessageCannotOpenFileFormat,
+                async () =>
+                {
+                    opened = await LoadDocumentPathAsync(path, encodingName);
+                },
+                path));
+        return opened;
+    }
+
+    private void SetMarkdown(string? value, bool refreshImmediately)
+    {
+        var normalized = value ?? string.Empty;
+        if (_markdown == normalized)
+        {
+            return;
+        }
+
+        this.RaiseAndSetIfChanged(ref _markdown, normalized);
+        _document = _document with { Markdown = _markdown };
+        _documentVersion++;
+        ScheduleAutoSave();
+
+        if (refreshImmediately)
+        {
+            CancelScheduledMarkdownDerivedStateRefresh();
+            RefreshMarkdownDerivedState();
+            return;
+        }
+
+        RefreshDocumentState();
+        PublishWorkspaceDocumentState();
+        if (_guideDocument is null && _settingsStore.Current.RecoveryDrafts != false) _drafts.QueueSave(_document, Markdown, _lastSavedMarkdown);
+        ScheduleMarkdownDerivedStateRefresh();
+    }
+
+    private void ScheduleAutoSave()
+    {
+        _autoSaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        if (_settingsStore.Current.AutoSave != true || _guideDocument is not null || _document.FilePath is null) return;
+        _autoSaveTimer ??= new Timer(state => Dispatcher.UIThread.Post(() => _ = AutoSaveCurrentAsync()), null,
+            Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _autoSaveTimer.Change(TimeSpan.FromSeconds(Math.Clamp(_settingsStore.Current.AutoSaveDelay ?? 2, 2, 60)), Timeout.InfiniteTimeSpan);
+    }
+
+    private async Task AutoSaveCurrentAsync()
+    {
+        if (_autoSaveInProgress || Protection.HasExternal || Protection.HasFileReadError || _settingsStore.Current.AutoSave != true || _guideDocument is not null
+            || _document.FilePath is not { } path || !DocumentInfo.IsModified || !File.Exists(path)) return;
+        // 外部写入应先由文件监控流程处理，自动保存不得覆盖未确认的磁盘改动。
+        if (_watchedFileLastWriteTimeUtc is not { } watched || new DateTimeOffset(File.GetLastWriteTimeUtc(path)) != watched) return;
+        var snapshot = _document with { Markdown = Markdown };
+        _autoSaveInProgress = true;
+        try
+        {
+            if (!await _documentService.TryAutoSaveAsync(snapshot, _lastSavedMarkdown)) return;
+            if (_document.FilePath != path) return;
+            _lastSavedMarkdown = snapshot.Markdown;
+            Protection.SaveError = null;
+            _watchedFileLastWriteTimeUtc = new DateTimeOffset(File.GetLastWriteTimeUtc(path));
+            RefreshDocumentState();
+            if (!DocumentInfo.IsModified) _drafts.Clear(_document);
+            else ScheduleAutoSave();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            Protection.SaveError = exception.Message;
+            // 保留修改状态和恢复草稿，由用户通过普通保存流程处理磁盘错误。
+            _statusPublisher.PublishResource(MarkdorL.ErrorMessageActionFailed);
+        }
+        finally { _autoSaveInProgress = false; }
+    }
+
+    public Task NewDocument()
+    {
+        return RequestUnsavedConfirmationAsync(
+            _text.TitleSaveChanges,
+            _text.BeforeNewDocument(_document.FileName),
+            () =>
+            {
+                NewDocumentCore();
+                return Task.CompletedTask;
+            });
+    }
+
+    private void NewDocumentCore(bool stopFolderWatcher = true)
+    {
+        ++_documentOpenVersion;
+        StopCurrentFileWatcher();
+
+        _drafts.Clear(_document);
+        _document = _documentService.CreateNew();
+        _lastSavedMarkdown = _document.Markdown;
+        Markdown = _document.Markdown;
+        _text.PublishNewDocumentCreated();
+        RefreshDocumentInfo();
+        PublishWorkspaceDocumentState();
+        Workbench.ResetHistory();
+        EditorActions.FocusEditor();
+    }
+
+    public Task CloseDocument()
+    {
+        return RequestUnsavedConfirmationAsync(
+            _text.TitleSaveChanges,
+            _text.BeforeClosingDocument(_document.FileName),
+            () =>
+            {
+                CloseDocumentCore();
+                return Task.CompletedTask;
+            });
+    }
+
+    private void CloseDocumentCore()
+    {
+        ++_documentOpenVersion;
+        StopCurrentFileWatcher();
+        StopCurrentFolderWatcher();
+        _drafts.Clear(_document);
+        _document = _documentService.CreateNew();
+        _lastSavedMarkdown = _document.Markdown;
+        Markdown = _document.Markdown;
+        _documentFiles = [];
+        _currentWorkspaceFolderPath = null;
+        PublishDocumentFilesChanged();
+        _text.PublishDocumentClosed();
+        RefreshDocumentInfo();
+        PublishWorkspaceDocumentState();
+        Workbench.ResetHistory();
+        EditorActions.FocusEditor();
+    }
+
+    public async Task OpenAsync()
+    {
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpening,
+            _text.BeforeOpeningAnotherFile(_document.FileName),
+            GuardedAction(MarkdorL.ErrorMessageCannotOpenFile, OpenAsyncCore));
+    }
+
+    /// <summary>导入 HTML/PDF/Word：转换落盘后按常规打开流程载入。</summary>
+    public async Task ImportAsync(string? format)
+    {
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpening,
+            _text.BeforeOpeningAnotherFile(_document.FileName),
+            GuardedAction(MarkdorL.ErrorMessageCannotOpenFile, async () =>
+            {
+                var snapshot = await _documentService.ImportAsync(format ?? "HTML");
+                if (snapshot is not null) ApplyDocument(snapshot);
+            }));
+    }
+
+    private async Task OpenAsyncCore()
+    {
+        var request = ++_documentOpenVersion;
+        var snapshot = await _documentService.OpenAsync();
+        if (snapshot is not null && request == _documentOpenVersion)
+        {
+            ApplyDocument(snapshot);
+        }
+    }
+
+    /// <summary>
+    /// Ctrl+P 快速打开的候选列表：当前文件夹文档 + 最近文件，按路径去重。
+    /// </summary>
+    public IReadOnlyList<QuickOpenItem> BuildQuickOpenItems()
+    {
+        var items = new List<QuickOpenItem>();
+        var seen = new HashSet<string>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+
+        foreach (var file in _documentFiles)
+        {
+            if (seen.Add(file.Path))
+            {
+                items.Add(new QuickOpenItem(file.Path, file.Name, file.FolderName));
+            }
+        }
+
+        foreach (var recent in Recent.RecentDocuments)
+        {
+            if (seen.Add(recent.Path))
+            {
+                items.Add(new QuickOpenItem(recent.Path, recent.FileName, recent.FolderName));
+            }
+        }
+
+        return items;
+    }
+
+    public async Task<IReadOnlyList<QuickOpenItem>> BuildQuickOpenItemsAsync(CancellationToken cancellationToken = default)
+    {
+        var files = await GetWorkspaceFilesAsync(cancellationToken);
+        return files.Select(file => new QuickOpenItem(file.Path, file.Name, file.FolderName))
+            .Concat(BuildQuickOpenItems())
+            .DistinctBy(item => item.Path, OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    /// <summary>按路径载入文档；交互入口先处理未保存确认。</summary>
+    public Task OpenPathAsync(string path) => RunWithErrorOverlayAsync(
+        MarkdorL.ErrorMessageCannotOpenFile,
+        () => OpenPathCoreAsync(path),
+        Path.GetFileName(path));
+
+    /// <summary>从 HTML / Word / PDF 导入为未保存文档：转换写入临时 md 后按普通文档打开。</summary>
+    public async Task ImportAsync(object? parameter)
+    {
+        var kind = parameter as string ?? "html";
+        var patterns = kind switch
+        {
+            "docx" => new[] { "*.docx" },
+            "pdf" => new[] { "*.pdf" },
+            _ => new[] { "*.html", "*.htm" },
+        };
+        var window = (Avalonia.Controls.Window?)Avalonia.Application.Current?.ApplicationLifetime
+            is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime ? lifetime.MainWindow : null;
+        if (window is null) return;
+        var files = await window.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
+        {
+            AllowMultiple = false,
+            FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType(kind.ToUpperInvariant()) { Patterns = patterns }],
+        });
+        if (files.Count == 0) return;
+        var source = files[0];
+        await using var stream = await source.OpenReadAsync();
+        using var reader = new BinaryReader(stream);
+        var bytes = reader.ReadBytes((int)stream.Length);
+        var markdown = kind switch
+        {
+            "docx" => Markdor.Modules.Workspace.Services.MarkdownImportService.ConvertDocx(bytes),
+            "pdf" => Markdor.Modules.Workspace.Services.MarkdownImportService.ConvertPdf(bytes),
+            _ => Markdor.Modules.Workspace.Services.MarkdownImportService.ConvertHtml(System.Text.Encoding.UTF8.GetString(bytes)),
+        };
+        if (string.IsNullOrWhiteSpace(markdown)) return;
+        var target = Path.Combine(Path.GetTempPath(), "Markdor-import-" + Guid.NewGuid().ToString("N")[..8] + ".md");
+        await File.WriteAllTextAsync(target, markdown, new System.Text.UTF8Encoding(false));
+        var request = ++_documentOpenVersion;
+        var snapshot = await _documentService.OpenPathAsync(target);
+        if (snapshot is not null && request == _documentOpenVersion)
+        {
+            snapshot = snapshot with { FilePath = null, FileName = Path.GetFileNameWithoutExtension(source.Name) + ".md" };
+            ApplyDocument(snapshot);
+        }
+    }
+
+    public async Task OpenFolderAsync()
+    {
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpeningFolder,
+            _text.BeforeOpeningFolder(_document.FileName),
+            GuardedAction(MarkdorL.ErrorMessageCannotOpenFolder, OpenFolderAsyncCore));
+    }
+
+    private async Task OpenFolderAsyncCore()
+    {
+        await ApplyDocumentFilesAsync(await _documentService.OpenFolderAsync(), true);
+    }
+
+    private async Task OpenPathCoreAsync(string path)
+    {
+        await LoadDocumentPathAsync(path);
+    }
+
+    // 文件列表连续点击时，慢文件的较早结果不能覆盖用户最后选择的文件。
+    private async Task<bool> LoadDocumentPathAsync(string path, string? encodingName = null, bool revealPath = true)
+    {
+        var request = ++_documentOpenVersion;
+        DocumentSnapshot snapshot;
+        try
+        {
+            snapshot = await _documentService.OpenPathAsync(path, encodingName);
+        }
+        catch when (request != _documentOpenVersion)
+        {
+            return false;
+        }
+        if (request != _documentOpenVersion) return false;
+        try { await EnsureDocumentWorkspaceAsync(path); }
+        catch (OperationCanceledException) { return false; }
+        if (request != _documentOpenVersion) return false;
+        ApplyDocument(snapshot, revealPath: revealPath);
+        return true;
+    }
+
+    private async Task OpenFolderPathCoreAsync(string folder)
+    {
+        await ApplyDocumentFilesAsync(await _documentService.OpenFolderPathAsync(folder), true);
+    }
+
+    private async Task ApplyDocumentFilesAsync(IReadOnlyList<DocumentFile> files, bool bypassUnsavedPrompt = false)
+    {
+        var workspaceFolder = _documentService.LastOpenedFolderPath;
+        if (files.Count == 0 && string.IsNullOrWhiteSpace(workspaceFolder))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(workspaceFolder))
+        {
+            UpdateCurrentWorkspaceFolder(workspaceFolder, true);
+        }
+
+        _documentFiles = files.ToArray();
+        var firstFile = _documentFiles.FirstOrDefault();
+        PublishDocumentFilesChanged(firstFile, focusWorkspaceRoot: true);
+        var workspaceGeneration = _workspaceFiles.Generation;
+        StartCurrentFolderWatcher(_currentWorkspaceFolderPath);
+
+        _text.PublishLoadedMarkdownFiles(_documentFiles.Count);
+        if (firstFile is not null)
+        {
+            if (bypassUnsavedPrompt)
+            {
+                await LoadDocumentPathAsync(firstFile.Path, revealPath: false);
+            }
+            else
+            {
+                await OpenDocumentFileAsync(firstFile, null);
+            }
+        }
+
+        // 文件载入会同步文档选择；最后再将导航焦点落在本次打开的文件夹。
+        if (workspaceGeneration == _workspaceFiles.Generation)
+            PublishDocumentFilesChanged(firstFile, focusWorkspaceRoot: true);
+    }
+
+    private async Task OpenDocumentFileAsync(DocumentFile file, DocumentFile? previousSelection)
+    {
+        if (DocumentInfo.CurrentFilePath?.Equals(file.Path,
+                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) == true)
+        {
+            ++_documentOpenVersion;
+            return;
+        }
+
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeSwitchingFiles,
+            _text.BeforeSwitchingFile(_document.FileName, file.Name),
+            GuardedAction(
+                MarkdorL.ErrorMessageCannotOpenFileFormat,
+                () => OpenDocumentFileCoreAsync(file),
+                file.Path),
+            () => CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new DocumentFileSelectionChangedCommand(previousSelection)));
+    }
+
+    private async Task OpenDocumentFileCoreAsync(DocumentFile file)
+    {
+        await LoadDocumentPathAsync(file.Path);
+    }
+
+    public async Task SaveAsync()
+    {
+        CommitPendingEditsRequested?.Invoke(this, EventArgs.Empty);
+        if (Protection.HasExternal) { await CompareExternalAsync(); return; }
+        _retrySaveAs = false;
+        await RunWithErrorOverlayAsync(
+            MarkdorL.ErrorMessageCannotSaveFormat,
+            async () =>
+            {
+                var source = _document with { Markdown = Markdown };
+                var version = _documentOpenVersion;
+                var saved = await _documentService.SaveAsync(source);
+                if (saved is not null)
+                {
+                    if (version != _documentOpenVersion) return;
+                    _drafts.Clear(_document);
+                    CompleteRecoveredSave();
+                    ApplyDocument(saved, false, false);
+                    ScheduleCurrentFileCheck();
+                    Protection.SaveError = null;
+                    _text.PublishSaved(saved.FileName);
+                }
+            },
+            _document.FileName);
+    }
+
+    public async Task SaveAsAsync()
+    {
+        CommitPendingEditsRequested?.Invoke(this, EventArgs.Empty);
+        _retrySaveAs = true;
+        await RunWithErrorOverlayAsync(
+            MarkdorL.ErrorMessageCannotSaveFormat,
+            async () =>
+            {
+                var version = _documentOpenVersion;
+                var saved = await _documentService.SaveAsAsync(_document with { Markdown = Markdown });
+                if (saved is not null)
+                {
+                    if (version != _documentOpenVersion) return;
+                    _drafts.Clear(_document);
+                    CompleteRecoveredSave();
+                    ApplyDocument(saved, false, false);
+                    ScheduleCurrentFileCheck();
+                    Protection.SaveError = null;
+                    _text.PublishSavedAs(saved.FileName);
+                }
+            },
+            _document.FileName);
+    }
+
+    public async Task SaveAllAsync()
+    {
+        // 当前仍是单文档编辑器，保留“保存全部”入口时必须明确只保存当前文档。
+        await SaveAsync();
+        _text.PublishSaveAllResult(DocumentInfo.IsModified);
+    }
+
+    public Task DeleteAsync()
+    {
+        if (DocumentInfo.CurrentFilePath is not { Length: > 0 } path)
+        {
+            return Task.CompletedTask;
+        }
+
+        return RequestDeleteFileAsync(path);
+    }
+
+    public async Task OpenFileLocationAsync()
+    {
+        if (DocumentInfo.CurrentFilePath is { Length: > 0 } path)
+        {
+            await OpenFileLocationCoreAsync(path);
+        }
+    }
+
+    private async Task RequestDeleteFileAsync(string path)
+    {
+        if (!IsCurrentDocumentPath(path))
+        {
+            if (await Dialogs.ShowDeleteConfirmationAsync(path))
+            {
+                await DeleteFileCoreAsync(path);
+            }
+
+            return;
+        }
+
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeDeleting,
+            _text.BeforeDeleting(_document.FileName),
+            async () =>
+            {
+                if (await Dialogs.ShowDeleteConfirmationAsync(path))
+                {
+                    await DeleteFileCoreAsync(path);
+                }
+            });
+    }
+
+    private async Task DeleteFileCoreAsync(string path)
+    {
+        var wasCurrentDocument = IsCurrentDocumentPath(path);
+        if (wasCurrentDocument)
+        {
+            StopCurrentFileWatcher();
+            _drafts.Clear(_document);
+        }
+
+        await _documentService.DeleteAsync(path);
+        Recent.RemoveRecentDocument(path);
+        RemoveDocumentFileFromList(path);
+
+        if (wasCurrentDocument)
+        {
+            NewDocumentCore(stopFolderWatcher: false);
+            PublishDocumentFilesChanged();
+        }
+        else
+        {
+            var selected = FindCurrentDocumentFile();
+            PublishDocumentFilesChanged(selected);
+        }
+
+        _text.PublishFileDeleted();
+    }
+
+    private Task OpenFileLocationCoreAsync(string path)
+    {
+        return RunWithErrorOverlayAsync(
+            MarkdorL.ErrorMessageCannotOpenLocationFormat,
+            () => _documentService.OpenFileLocationAsync(path),
+            path);
+    }
+
+    public async Task ReopenWithEncodingAsync(string? encodingName)
+    {
+        if (DocumentInfo.CurrentFilePath is not { Length: > 0 } path || string.IsNullOrWhiteSpace(encodingName))
+        {
+            _text.PublishOpenFileBeforeEncoding();
+            return;
+        }
+
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeReopening,
+            _text.BeforeReopeningWithEncoding(_document.FileName, encodingName),
+            GuardedAction(
+                MarkdorL.ErrorMessageCannotOpenFileFormat,
+                () => ReopenWithEncodingCoreAsync(path, encodingName),
+                path));
+    }
+
+    private async Task ReopenWithEncodingCoreAsync(string path, string encodingName)
+    {
+        if (await LoadDocumentPathAsync(path, encodingName))
+            _text.PublishReopenedWithEncoding(encodingName);
+    }
+
+    private void ApplyDocument(DocumentSnapshot snapshot, bool updateMarkdown = true, bool restoreDraft = true, bool revealPath = true)
+    {
+        ++_documentOpenVersion;
+        if (!IsSameDocument(_document, snapshot))
+        {
+            _drafts.Clear(_document);
+            Protection.SaveError = null;
+            Protection.ExportError = null;
+            _recoverySource = null;
+        }
+
+        _document = snapshot;
+        Protection.External = null;
+        Protection.FileReadError = null;
+        _lastSavedMarkdown = snapshot.Markdown;
+        if (snapshot.FilePath is { Length: > 0 } path)
+        {
+            if (_watchedFolderPath is { Length: > 0 } watchedFolder && !IsPathUnderDirectory(path, watchedFolder))
+            {
+                StopCurrentFolderWatcher();
+            }
+
+            Recent.AddRecentDocument(path);
+            SyncDocumentFileList(path, revealPath && updateMarkdown);
+        }
+
+        if (updateMarkdown)
+        {
+            Markdown = _document.Markdown;
+        }
+
+        RefreshDocumentInfo();
+        PublishWorkspaceDocumentState();
+        StartCurrentFileWatcher();
+        _text.PublishOpened(snapshot.FileName);
+        if (updateMarkdown) Workbench.ResetHistory();
+        if (restoreDraft) DiscoverRecoveryDraft(snapshot);
+
+        EditorActions.FocusEditor();
+    }
+
+    [EventHandler]
+    public void ApplyMarkdownTextChanged(MarkdownTextChangedCommand command)
+    {
+        if (Markdown != command.Markdown)
+        {
+            SetMarkdown(command.Markdown, refreshImmediately: false);
+        }
+    }
+
+    [EventHandler]
+    public void ApplyDocumentFileOpenRequested(DocumentFileOpenRequestedCommand command) => _ = OpenDocumentFileAsync(command.File, command.PreviousSelection);
+
+    [EventHandler]
+    public void ApplyDocumentFileOpenLocationRequested(DocumentFileOpenLocationRequestedCommand command) => _ = OpenFileLocationCoreAsync(command.File.Path);
+
+    [EventHandler]
+    public void ApplyDocumentFileDeleteRequested(DocumentFileDeleteRequestedCommand command) => _ = RequestDeleteFileAsync(command.File.Path);
+
+    [EventHandler]
+    public void ApplyDocumentFileRenameRequested(DocumentFileRenameRequestedCommand command) => _ = RenameFileFlowAsync(command.File.Path);
+
+    private async Task RenameFileFlowAsync(string path)
+    {
+        var newName = await Dialogs.RenameFileAsync(path);
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            return;
+        }
+
+        await RunWithErrorOverlayAsync(
+            MarkdorL.ErrorMessageCannotRenameFormat,
+            () => RenameFileCoreAsync(path, newName.Trim()),
+            path);
+    }
+
+    [EventHandler]
+    public void ApplyShellDroppedPath(ShellDroppedPathCommand command) => _ = OpenDroppedPathAsync(command.Path);
+
+    [EventHandler]
+    public void ApplyShellStartupArguments(ShellStartupArgumentsCommand command) => _ = OpenStartupDocumentAsync(command.Arguments);
+
+    private void RefreshMarkdownDerivedState()
+    {
+        PublishWorkspaceDocumentState();
+        RefreshDocumentInfo();
+        CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new OutlineItemsChangedCommand(_outlineService.BuildOutline(Markdown)));
+    }
+
+    private void RefreshDocumentState()
+    {
+        DocumentInfo.RefreshState(_document, Markdown, _lastSavedMarkdown);
+    }
+
+    private void ScheduleMarkdownDerivedStateRefresh()
+    {
+        _markdownDerivedStateTimer ??= new Timer(
+            _ => Dispatcher.UIThread.Post(RefreshMarkdownDerivedState),
+            null,
+            Timeout.InfiniteTimeSpan,
+            Timeout.InfiniteTimeSpan);
+        _markdownDerivedStateTimer.Change(MarkdownDerivedStateDebounce, Timeout.InfiniteTimeSpan);
+    }
+
+    private void CancelScheduledMarkdownDerivedStateRefresh()
+    {
+        _markdownDerivedStateTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+    }
+
+    private void PublishWorkspaceDocumentState()
+    {
+        _workspaceDocumentState.UpdateDocument(Markdown, _document.FilePath);
+    }
+
+    private void PublishDocumentFilesChanged(DocumentFile? selectedFile = null, bool focusWorkspaceRoot = false)
+    {
+        CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new DocumentFilesChangedCommand(
+            _documentFiles,
+            selectedFile,
+            _currentWorkspaceFolderPath,
+            focusWorkspaceRoot));
+    }
+
+    private void UpdateCurrentWorkspaceFolder(string? folderPath, bool persist)
+    {
+        var fullPath = NormalizeExistingDirectoryPath(folderPath);
+        if (fullPath is null)
+        {
+            return;
+        }
+
+        _currentWorkspaceFolderPath = fullPath;
+        if (!persist)
+        {
+            return;
+        }
+
+        var savedPath = _settingsStore.Current.LastWorkspaceFolderPath;
+        if (!string.IsNullOrWhiteSpace(savedPath) && PathsEqual(savedPath, fullPath))
+        {
+            return;
+        }
+
+        _settingsStore.Update(settings => settings with { LastWorkspaceFolderPath = fullPath });
+    }
+
+    private void ClearLastWorkspaceFolder(string folderPath)
+    {
+        var savedPath = _settingsStore.Current.LastWorkspaceFolderPath;
+        if (string.IsNullOrWhiteSpace(savedPath) || !PathsEqual(savedPath, folderPath))
+        {
+            return;
+        }
+
+        _settingsStore.Update(settings => settings with { LastWorkspaceFolderPath = null });
+    }
+
+    private void RefreshDocumentInfo()
+    {
+        DocumentInfo.Refresh(_document, Markdown, _lastSavedMarkdown, _statisticsService.Count(Markdown));
+        if (_guideDocument is null && _settingsStore.Current.RecoveryDrafts != false) _drafts.QueueSave(_document, Markdown, _lastSavedMarkdown);
+    }
+
+    private void SyncDocumentFileList(string path, bool revealPath = true)
+    {
+        var selected = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path));
+        // 已打开的深层文档不要求整棵树预先存在，也不在 UI 线程扫描目录。
+        selected ??= new DocumentFile(path, Path.GetFileName(path), Path.GetFileName(Path.GetDirectoryName(path)) ?? string.Empty, string.Empty, string.Empty);
+        CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new DocumentFileSelectionChangedCommand(selected, revealPath: revealPath));
+        if (_workspaceFiles.RootPath is not { } root || !IsPathUnderDirectory(path, root))
+            _ = InitializeDocumentWorkspaceAsync(path);
+    }
+
+    private DocumentFile? FindCurrentDocumentFile()
+    {
+        return _document.FilePath is { Length: > 0 } path
+            ? _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path))
+            : null;
+    }
+
+    private void RemoveDocumentFileFromList(string path)
+    {
+        _documentFiles = _documentFiles
+            .Where(file => !PathsEqual(file.Path, path))
+            .ToArray();
+    }
+
+    [EventHandler]
+    public void ApplyShellImageDropped(ShellImageDroppedCommand command)
+    {
+        _ = HandleImageDroppedAsync(command.SourcePath);
+    }
+
+    // 拖入图片：复制到 assets/ 后把 ![](assets/xxx.png) 插到编辑器当前插入点，
+    // 文本变更仍走 EventBus 的编辑器通道，撤销栈保持一致。
+    private async Task HandleImageDroppedAsync(string sourcePath)
+    {
+        if (!Workbench.IsEditing) return;
+        try
+        {
+            var relativePath = _documentUtilities.CopyImageToAssets(_workspaceDocumentState.FilePath, sourcePath);
+            if (relativePath is null)
+            {
+                _statusPublisher.PublishResource(MarkdorL.ErrorMessageImageDropFailed);
+                return;
+            }
+
+            CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new MarkdownEditorInsertTextCommand($"![]({relativePath})"));
+            _statusPublisher.PublishResourceFormat(MarkdorL.StatusImageInserted, relativePath);
+        }
+        catch (Exception exception)
+        {
+            Dialogs.ShowError(MarkdorL.ErrorMessageImageDropFailed, exception);
+        }
+
+        await Task.CompletedTask;
+    }
+
+    public void ShowProperties() => _documentUtilities.ShowProperties(DocumentInfo);
+    public async Task Export(string? format)
+    {
+        _retryExportFormat = format;
+        await RunWithErrorOverlayAsync(MarkdorL.ErrorMessageCannotExportFormat, async () =>
+        {
+            if (await _documentUtilities.ExportAsync(_document, Markdown, format)) Protection.ExportError = null;
+        }, string.IsNullOrWhiteSpace(format) ? _document.FileName : format);
+    }
+    public Task RetrySaveAsync() => _retrySaveAs ? SaveAsAsync() : SaveAsync();
+    public Task RetryExportAsync() => Export(_retryExportFormat);
+    public void DismissOperationErrors() { Protection.SaveError = null; Protection.ExportError = null; }
+
+    public Task CopyHtml(string? target) => RunWithErrorOverlayAsync(
+        MarkdorL.ErrorMessageCannotCopyHtmlFormat,
+        () => _documentUtilities.CopyHtmlAsync(_document, Markdown, target),
+        _text.CopyTargetName(target));
+
+    public Task Print() => RunWithErrorOverlayAsync(
+        MarkdorL.ErrorMessageCannotPrintFormat,
+        () => _documentUtilities.PrintAsync(_document, Markdown));
+
+    public void RefreshPreview()
+    {
+        CodeWF.Toolkit.EventBus.EventBus.Default.Publish(
+            new MarkdownPreviewRefreshCommand(
+                Markdown,
+                _document.FilePath,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+        _statusPublisher.PublishResource(MarkdorL.StatusPreviewRefreshed);
+    }
+
+    public void WordCount() => _documentUtilities.WordCount(DocumentInfo);
+    public void ShowFindPanel() => FindBar.ShowFindPanel();
+    public void ShowReplacePanel() => FindBar.ShowReplacePanel();
+    public void CloseFindPanel() => FindBar.CloseFindPanel();
+    public void FindNext() => FindBar.FindNext();
+    public void ReplaceNext() => FindBar.ReplaceNext();
+    public void ReplaceAll() => FindBar.ReplaceAll();
+
+    public async Task OpenRecentDocumentAsync(int index)
+    {
+        if (!Recent.TryGetDocument(index, out var recent) || recent is null)
+        {
+            _text.PublishRecentFileUnavailable();
+            return;
+        }
+
+        var target = _externalPaths.ResolveRecentPath(recent.Path);
+        if (target is not { Kind: ShellExternalPathKind.File, Path: { Length: > 0 } path })
+        {
+            Recent.RemoveRecentDocument(recent.Path);
+            _text.PublishRecentFileRemovedMissing();
+            return;
+        }
+
+        await RequestUnsavedConfirmationAsync(
+            _text.TitleBeforeOpeningRecent,
+            _text.BeforeOpeningRecent(_document.FileName, recent.DisplayText),
+            GuardedAction(
+                MarkdorL.ErrorMessageCannotOpenFileFormat,
+                async () => await LoadDocumentPathAsync(path),
+                path));
+    }
+
+    private bool _closeReviewPending;
+    public async Task BeginWindowCloseAsync()
+    {
+        CommitPendingEditsRequested?.Invoke(this, EventArgs.Empty);
+        if (_closeReviewPending) return;
+        _closeReviewPending = true;
+        var keepDraft = false;
+        try
+        {
+        await _unsavedChanges.RunAsync(
+            _text.TitleBeforeClosingMarkdor,
+            _text.BeforeClosingMarkdor(_document.FileName),
+            DocumentInfo.IsModified, DocumentInfo.CurrentFilePath,
+            () =>
+            {
+                StopCurrentFileWatcher();
+                StopCurrentFolderWatcher();
+                _autoSaveTimer?.Dispose(); _autoSaveTimer = null;
+                if (!keepDraft) _drafts.Clear(_document);
+                CloseWindowRequested?.Invoke(this, EventArgs.Empty);
+                return Task.CompletedTask;
+            }, saveAsync: SaveAsync, isStillModified: () => DocumentInfo.IsModified,
+            keepDraftAsync: () =>
+            {
+                _drafts.QueueSave(_document, Markdown, _lastSavedMarkdown);
+                keepDraft = _drafts.Flush();
+                Protection.DraftError = _drafts.LastError;
+                return Task.FromResult(keepDraft);
+            },
+            flow: ShellUnsavedFlow.Exit);
+        }
+        finally { _closeReviewPending = false; }
+    }
+
+    private static Task PublishAndComplete(Action publish)
+    {
+        publish();
+        return Task.CompletedTask;
+    }
+
+    private Task RequestUnsavedConfirmationAsync(
+        string title,
+        string message,
+        Func<Task> continuation,
+        Action? cancellation = null)
+    {
+        CommitPendingEditsRequested?.Invoke(this, EventArgs.Empty);
+        return _unsavedChanges.RunAsync(
+            title,
+            message,
+            DocumentInfo.IsModified,
+            DocumentInfo.CurrentFilePath,
+            continuation,
+            cancellation,
+            () => SaveAsync(),
+            () => DocumentInfo.IsModified);
+    }
+
+    private Func<Task> GuardedAction(string messageResourceKey, Func<Task> action, params object?[] messageArgs)
+    {
+        return () => RunWithErrorOverlayAsync(messageResourceKey, action, messageArgs);
+    }
+
+    private async Task RunWithErrorOverlayAsync(string messageResourceKey, Func<Task> action, params object?[] messageArgs)
+    {
+        try
+        {
+            await action();
+        }
+        catch (Exception exception)
+        {
+            if (messageResourceKey == MarkdorL.ErrorMessageCannotSaveFormat) { Protection.SaveError = exception.Message; return; }
+            if (messageResourceKey == MarkdorL.ErrorMessageCannotExportFormat) { Protection.ExportError = exception.Message; return; }
+            Dialogs.ShowError(messageResourceKey, exception, messageArgs);
+        }
+    }
+
+    private async Task RenameFileCoreAsync(string path, string newName)
+    {
+        var wasCurrentDocument = IsCurrentDocumentPath(path);
+        if (wasCurrentDocument)
+        {
+            StopCurrentFileWatcher();
+        }
+
+        var renamedPath = await _documentService.RenameAsync(path, newName);
+        var renamedFile = ReplaceRenamedDocumentFile(path, renamedPath);
+        Recent.RemoveRecentDocument(path);
+        if (wasCurrentDocument)
+        {
+            _drafts.Clear(_document);
+            _document = _document with
+            {
+                FilePath = renamedPath,
+                FileName = Path.GetFileName(renamedPath)
+            };
+            Recent.AddRecentDocument(renamedPath);
+            RefreshDocumentInfo();
+            PublishWorkspaceDocumentState();
+            StartCurrentFileWatcher();
+        }
+
+        var selectedFile = wasCurrentDocument ? renamedFile : FindCurrentDocumentFile() ?? renamedFile;
+        PublishDocumentFilesChanged(selectedFile);
+        _text.PublishRenamedFile(Path.GetFileName(renamedPath));
+    }
+
+    private DocumentFile ReplaceRenamedDocumentFile(string oldPath, string newPath)
+    {
+        var existing = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, oldPath));
+        var renamed = existing is null
+            ? _documentFileFactory.Create(newPath)
+            : new DocumentFile(
+                newPath,
+                Path.GetFileName(newPath),
+                existing.FolderName,
+                existing.ModifiedText,
+                existing.Preview);
+
+        _documentFiles = _documentFiles.Count == 0
+            ? [renamed]
+            : _documentFiles
+                .Select(file => PathsEqual(file.Path, oldPath) ? renamed : file)
+                .ToArray();
+
+        if (!_documentFiles.Any(file => PathsEqual(file.Path, newPath)))
+        {
+            _documentFiles = [.. _documentFiles, renamed];
+        }
+
+        return renamed;
+    }
+
+    private void StartCurrentFileWatcher()
+    {
+        StopCurrentFileWatcher();
+        if (_document.FilePath is not { Length: > 0 } path || !File.Exists(path))
+        {
+            return;
+        }
+
+        var fullPath = Path.GetFullPath(path);
+        var directory = Path.GetDirectoryName(fullPath);
+        var fileName = Path.GetFileName(fullPath);
+        if (string.IsNullOrWhiteSpace(directory) || string.IsNullOrWhiteSpace(fileName))
+        {
+            return;
+        }
+
+        _watchedFilePath = fullPath;
+        _watchedFileLastWriteTimeUtc = TryGetLastWriteTimeUtc(fullPath);
+        _currentFileWatcher = new FileSystemWatcher(directory)
+        {
+            NotifyFilter = NotifyFilters.FileName
+                           | NotifyFilters.LastWrite
+                           | NotifyFilters.Size
+                           | NotifyFilters.CreationTime
+        };
+        _currentFileWatcher.Changed += HandleWatchedFileChanged;
+        _currentFileWatcher.Created += HandleWatchedFileChanged;
+        _currentFileWatcher.Deleted += HandleWatchedFileChanged;
+        _currentFileWatcher.Renamed += HandleWatchedFileChanged;
+        _currentFileWatcher.Error += HandleCurrentFileWatcherError;
+        _currentFileWatcher.EnableRaisingEvents = true;
+        ScheduleCurrentFileCheck();
+    }
+
+    private void RefreshDocumentFileInList(string path)
+    {
+        var existing = _documentFiles.FirstOrDefault(file => PathsEqual(file.Path, path));
+        if (existing is null)
+        {
+            var selected = _documentFileFactory.Create(path);
+            _documentFiles = [selected];
+            PublishDocumentFilesChanged(selected);
+            return;
+        }
+
+        // 外部版本载入只失效当前摘要，保留稳定的 DocumentFile 实例和树节点引用。
+        existing.ModifiedText = _documentFileFactory.GetModifiedText(path);
+        existing.Preview = string.Empty;
+        PublishDocumentFilesChanged(existing);
+    }
+
+    private async Task ApplyFolderFilesAsync(string folderPath, bool refresh = false)
+    {
+        var snapshot = await _workspaceFiles.GetDirectoryAsync(folderPath, refresh);
+        if (!_workspaceFiles.IsCurrent(snapshot)) return;
+        _documentFiles = snapshot.Entries.Select(entry => entry.DocumentFile).OfType<DocumentFile>().ToArray();
+        PublishDocumentFilesChanged(FindCurrentDocumentFile());
+    }
+
+
+    private static bool IsSameDocument(DocumentSnapshot left, DocumentSnapshot right)
+    {
+        if (left.FilePath is { Length: > 0 } leftPath && right.FilePath is { Length: > 0 } rightPath)
+        {
+            return PathsEqual(leftPath, rightPath);
+        }
+
+        return string.IsNullOrWhiteSpace(left.FilePath) && string.IsNullOrWhiteSpace(right.FilePath);
+    }
+
+    private bool IsCurrentDocumentPath(string path)
+    {
+        return _document.FilePath is { Length: > 0 } currentPath
+               && PathsEqual(currentPath, path);
+    }
+
+    private static DateTimeOffset? TryGetLastWriteTimeUtc(string path)
+    {
+        try
+        {
+            return new DateTimeOffset(File.GetLastWriteTimeUtc(path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    private static string? NormalizeExistingDirectoryPath(string? folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Path.GetFullPath(folderPath);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return null;
+        }
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        try
+        {
+            return Path.GetFullPath(left).Equals(Path.GetFullPath(right),
+                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return left.Equals(right, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
+    }
+
+    private static bool IsPathUnderDirectory(string path, string directory)
+    {
+        try
+        {
+            var fullPath = Path.GetFullPath(path);
+            var fullDirectory = Path.GetFullPath(directory)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            return fullPath.StartsWith(fullDirectory, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
+    }
+}

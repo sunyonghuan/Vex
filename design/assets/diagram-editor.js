@@ -5,7 +5,7 @@
   let serial = 0;
   const reduced = () => matchMedia('(prefers-reduced-motion:reduce)').matches || document.documentElement.dataset.motion === 'false';
   function mount(element, block, options) {
-    const original = block.raw, fence = VexCodeFence.parse(original);
+    const original = block.raw, fence = MarkdorCodeFence.parse(original);
     if (!fence) return;
     const node = element.querySelector('.md-diagram') || element;
     node.className = 'diagram-editor'; node.contentEditable = 'false'; node.tabIndex = 0;
@@ -20,9 +20,9 @@
       clearTimeout(timer); const version = ++revision;
       preview.dataset.loading = 'true';
       try {
-        const svg = await VexDiagramRendering.render('vex-edit-diagram-' + (++serial),textarea.value);
+        const svg = await MarkdorDiagramRendering.render('markdor-edit-diagram-' + (++serial),textarea.value);
         if (version !== revision || !node.isConnected) return;
-        preview.innerHTML = svg; VexDiagramRendering.mount(preview,textarea.value); preview.dataset.stale = 'false'; error.hidden = true;
+        preview.innerHTML = svg; MarkdorDiagramRendering.mount(preview,textarea.value); preview.dataset.stale = 'false'; error.hidden = true;
       } catch (failure) {
         if (version !== revision || !node.isConnected) return;
         const line = /(?:line|行)\s*(\d+)/i.exec(String(failure));
@@ -62,10 +62,10 @@
     textarea.addEventListener('compositionend',() => {composing = false;sync();});
     textarea.addEventListener('input',() => {if (!composing) sync();});
     node.addEventListener('focusout',event => {if (!node.contains(event.relatedTarget)) close();});
-    VexDiagramRendering.schedule(preview,render);
+    MarkdorDiagramRendering.schedule(preview,render);
   }
   document.addEventListener('pointerdown',event => {
     for (const session of sessions) { if (!session.element.isConnected) {sessions.delete(session);continue;} if (!session.element.contains(event.target)) session.close(); }
   },true);
-  window.VexDiagramEditing = {mount,busy(host) {return [...sessions].some(s => host.contains(s.element) && s.busy());}};
+  window.MarkdorDiagramEditing = {mount,busy(host) {return [...sessions].some(s => host.contains(s.element) && s.busy());}};
 })();

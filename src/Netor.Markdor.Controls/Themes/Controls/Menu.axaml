@@ -1,0 +1,104 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="using:Avalonia.Controls.Converters" xmlns:data="using:Avalonia.Data.Converters">
+    <Styles.Resources>
+        <converters:PlatformKeyGestureConverter x:Key="MarkdorMenuGestureConverter" />
+        <x:Double x:Key="MarkdorMenuFontSize">13</x:Double>
+    </Styles.Resources>
+    <Style Selector="MenuItem">
+        <Setter Property="FontSize" Value="{DynamicResource MarkdorMenuFontSize}" />
+    </Style>
+    <!-- 每行独立分配标题宽度，避免原生菜单的共享快捷键列截断所有标题。 -->
+    <Style Selector="MenuItem.design-menu-entry">
+        <Setter Property="FontSize" Value="{DynamicResource MarkdorMenuFontSize}" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <Border Name="PART_LayoutRoot" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <Grid ColumnDefinitions="14,*,Auto" ColumnSpacing="6" MinHeight="22">
+                            <Panel Width="14" Height="14" VerticalAlignment="Center">
+                                <ContentPresenter Content="{TemplateBinding Icon}" IsVisible="{TemplateBinding Icon, Converter={x:Static data:ObjectConverters.IsNotNull}}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                                <TextBlock Text="✓" IsVisible="{TemplateBinding IsChecked}" Foreground="{DynamicResource MarkdorAccentBrush}" FontSize="{DynamicResource MarkdorMenuFontSize}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            </Panel>
+                            <ContentPresenter Name="PART_HeaderPresenter" Grid.Column="1" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" RecognizesAccessKey="True" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Name="PART_InputGestureText" Text="{TemplateBinding InputGesture, Converter={StaticResource MarkdorMenuGestureConverter}}" IsVisible="{TemplateBinding InputGesture, Converter={x:Static data:ObjectConverters.IsNotNull}}" Margin="10,0,0,0" FontSize="{DynamicResource MarkdorMenuFontSize}" Foreground="{DynamicResource MarkdorMutedBrush}" VerticalAlignment="Center" />
+                                <Path Name="PART_ExpandIcon" Width="12" Height="12" Margin="10,0,0,0" Data="M5 3L9 7L5 11" Stroke="{DynamicResource MarkdorMutedBrush}" StrokeThickness="1.2" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Popup Name="PART_Popup" IsOpen="{TemplateBinding IsSubMenuOpen, Mode=TwoWay}" Placement="RightEdgeAlignedTop" HorizontalOffset="-4" VerticalOffset="-12" InheritsTransform="True" IsLightDismissEnabled="False" WindowManagerAddShadowHint="False">
+                        <Border Width="248" Margin="8" Padding="6" Background="{DynamicResource MenuFlyoutBackground}" BorderBrush="{DynamicResource MenuFlyoutBorderBrush}" BorderThickness="1" CornerRadius="8" BoxShadow="0 8 30 0 #18000000">
+                            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="MenuItem.design-menu-entry /template/ ContentPresenter#PART_HeaderPresenter AccessText">
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="MenuItem.design-menu-entry:empty /template/ Path#PART_ExpandIcon"><Setter Property="IsVisible" Value="False" /></Style>
+    <Style Selector="MenuItem.design-menu-entry:selected /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}" /></Style>
+    <Style Selector="MenuItem.design-menu-entry.danger /template/ ContentPresenter#PART_HeaderPresenter"><Setter Property="Foreground" Value="{DynamicResource MarkdorDangerBrush}" /></Style>
+    <Style Selector="MenuItem.design-menu-entry.danger:selected /template/ Border#PART_LayoutRoot"><Setter Property="Background" Value="{DynamicResource MarkdorDangerSoftBrush}" /></Style>
+    <Style Selector="MenuItem.danger /template/ Border#PART_LayoutRoot Viewbox.menu-icon-host Path.menu-icon"><Setter Property="Stroke" Value="{DynamicResource MarkdorDangerBrush}" /></Style>
+    <Style Selector="MenuItem:selected /template/ Border#PART_LayoutRoot Viewbox.menu-icon-host Path.menu-icon"><Setter Property="Stroke" Value="{DynamicResource MenuItemPointeroverForeground}" /></Style>
+    <Style Selector="MenuItem:pointerover /template/ Border#PART_LayoutRoot Viewbox.menu-icon-host Path.menu-icon"><Setter Property="Stroke" Value="{DynamicResource MenuItemPointeroverForeground}" /></Style>
+    <Style Selector="MenuItem.design-menu-entry:disabled"><Setter Property="Opacity" Value="0.48" /></Style>
+    <Style Selector="Menu.title-menu Separator"><Setter Property="Margin" Value="4,4" /><Setter Property="Height" Value="1" /></Style>
+    <Style Selector="Menu.title-menu > MenuItem /template/ Popup#PART_Popup > Border">
+        <Setter Property="Padding" Value="6" /><Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="Menu.title-menu">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!-- 主题会在 MenuItem 上重写字号，父级继承到不了下拉项。 -->
+    <Style Selector="Menu.title-menu MenuItem">
+        <Setter Property="FontSize" Value="{DynamicResource MarkdorMenuFontSize}" />
+    </Style>
+
+    <!-- 对应原型 .tb-menuitem：12px 字号、28px 行高、10px 内边距、6px 圆角、2px 间距。 -->
+    <Style Selector="Menu.title-menu > MenuItem">
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="Padding" Value="8 0" />
+        <Setter Property="Margin" Value="0 0 2 0" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+
+    <Style Selector="MenuItem /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MenuItemForeground}" />
+    </Style>
+
+    <Style Selector="MenuItem:selected /template/ ContentPresenter#PART_HeaderPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource MenuItemPointeroverForeground}" />
+    </Style>
+
+    <Style Selector="MenuItem:selected /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MenuItemPointeroverForeground}" />
+    </Style>
+
+    <Style Selector="MenuItem:pointerover /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MenuItemPointeroverForeground}" />
+    </Style>
+
+    <Style Selector="MenuFlyoutPresenter">
+        <Setter Property="Width" Value="248" />
+        <Setter Property="Background" Value="{DynamicResource MenuFlyoutBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MenuFlyoutBorderBrush}" />
+    </Style>
+    <Style Selector="MenuFlyoutPresenter MenuItem, ContextMenu MenuItem">
+        <Setter Property="FontSize" Value="{DynamicResource MarkdorMenuFontSize}" />
+    </Style>
+
+    <Style Selector="ContextMenu">
+        <Setter Property="Width" Value="248" />
+        <Setter Property="Background" Value="{DynamicResource MenuFlyoutBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MenuFlyoutBorderBrush}" />
+    </Style>
+</Styles>

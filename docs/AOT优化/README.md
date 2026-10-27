@@ -1,8 +1,8 @@
-# Vex Native AOT 优化方案
+# Markdor Native AOT 优化方案
 
 ## 📖 文档导航
 
-本文件夹包含 Vex Markdown 编辑器实现 Native AOT 支持的完整方案和执行步骤。
+本文件夹包含 Markdor Markdown 编辑器实现 Native AOT 支持的完整方案和执行步骤。
 
 ### 核心文档
 
@@ -226,13 +226,13 @@ git push -u origin aot-native
 ### 第四步：验证结果
 ```bash
 # Native AOT 编译
-dotnet publish src/Vex/Vex.csproj -c Release -r win-x64 -p:PublishAot=true
+dotnet publish src/Netor.Markdor/Netor.Markdor.csproj -c Release -r win-x64 -p:PublishAot=true
 
 # 检查体积
-ls -lh artifacts/publish/win-x64/Vex/Vex.exe
+ls -lh artifacts/publish/win-x64/Markdor/Markdor.exe
 
 # 运行测试
-.\artifacts\publish\win-x64\Vex\Vex.exe
+.\artifacts\publish\win-x64\Markdor\Markdor.exe
 ```
 
 ---

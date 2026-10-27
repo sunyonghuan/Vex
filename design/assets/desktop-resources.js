@@ -2,7 +2,7 @@
  * Source: CodeWF.Avalonia 12.1.4.33. See docs/原型与资源.md.
  * This file is self-contained and works with file:// previews.
  */
-window.VexDesktopResources = {
+window.MarkdorDesktopResources = {
   "source": "CodeWF.Avalonia 12.1.4.33",
   "palettes": [
     {
@@ -2345,7 +2345,7 @@ window.VexDesktopResources = {
 };
 
 (function () {
-  const resource = window.VexDesktopResources;
+  const resource = window.MarkdorDesktopResources;
   /* 配色已不再从本快照注入：界面配色统一由 palette-rules 生成器产出（palettes.js/palettes.css）。
    * 本快照仅继续提供正文排版目录（typographies）。 */
   const decorations={Foundation:'underline',Clear:'plain',OrangeHeart:'bar',InkNight:'double',ColorfulPurple:'tint',TenderGreen:'plain',Verdant:'bar',RedScarlet:'underline',BlueGlow:'tint',TechAzure:'bar',LanQing:'underline',Yamabuki:'tint',FrontendPeak:'badge',GeekBlack:'mono',RosePurple:'double',CuteGreen:'pill',FullStackBlue:'bar',WeChatPaper:'center'};
@@ -2359,11 +2359,11 @@ window.VexDesktopResources = {
     if(kind==='center')rule+='BODY h1,BODY h3{text-align:center}';
     if(kind==='mono')rule+='BODY h1,BODY h3{font-family:var(--mono)}';
     const light=t.light.ButtonSolidPrimaryBackground||'#3E64FF',dark=t.dark.ButtonSolidPrimaryBackground||'#8EA2FF';
-    VexTypes.push({key:t.key,label:t.label,en:t.en,note:t.en,variant:t.key.toLowerCase(),light,dark,rules:rule});
+    MarkdorTypes.push({key:t.key,label:t.label,en:t.en,note:t.en,variant:t.key.toLowerCase(),light,dark,rules:rule});
   }
-  VexTypes.forEach(t=>{if(!t.note)t.note=t.en;});
-  const originalRules=window.VexTypeRules;
-  window.VexTypeRules=function(key,compact){const t=VexTypes.find(t=>t.key===key)||VexTypes[0];return originalRules(key,compact)+'BODY{--type-accent-light:'+t.light+';--type-accent-dark:'+t.dark+';--typography-accent:light-dark(var(--type-accent-light),var(--type-accent-dark));--type-on-accent:light-dark(#fff,#17211c)}';};
+  MarkdorTypes.forEach(t=>{if(!t.note)t.note=t.en;});
+  const originalRules=window.MarkdorTypeRules;
+  window.MarkdorTypeRules=function(key,compact){const t=MarkdorTypes.find(t=>t.key===key)||MarkdorTypes[0];return originalRules(key,compact)+'BODY{--type-accent-light:'+t.light+';--type-accent-dark:'+t.dark+';--typography-accent:light-dark(var(--type-accent-light),var(--type-accent-dark));--type-on-accent:light-dark(#fff,#17211c)}';};
   // Exports use light paper regardless of the workspace mode.
-  window.VexTypeExport=function(key,compact){const t=VexTypes.find(t=>t.key===key)||VexTypes[0];return VexTypeRules(key,compact).replaceAll('BODY','body')+'.md-table-scroll{max-width:100%;overflow-x:auto}table{table-layout:auto;width:max-content;max-width:100%}th,td{width:auto;overflow-wrap:anywhere}body{color-scheme:light;--document-bg:#fff;--fg:#30343b;--muted:#606770;--border:#dde1e5;--typography-accent:'+t.light+';--type-on-accent:#fff}';};
+  window.MarkdorTypeExport=function(key,compact){const t=MarkdorTypes.find(t=>t.key===key)||MarkdorTypes[0];return MarkdorTypeRules(key,compact).replaceAll('BODY','body')+'.md-table-scroll{max-width:100%;overflow-x:auto}table{table-layout:auto;width:max-content;max-width:100%}th,td{width:auto;overflow-wrap:anywhere}body{color-scheme:light;--document-bg:#fff;--fg:#30343b;--muted:#606770;--border:#dde1e5;--typography-accent:'+t.light+';--type-on-accent:#fff}';};
 })();

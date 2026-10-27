@@ -103,5 +103,5 @@
     if(spine) links.unshift({parent:root,node:root,path:`M${point(spine.x+dx,dy)} H${root.x.toFixed(2)}`});
     return {nodes,links,width:Math.max(...nodes.map(n=>n.x+n.width))+40,height:Math.max(...nodes.map(n=>n.y+n.height))+48};
   }
-  window.VexMapLayout={items,valid,layout};
+  window.MarkdorMapLayout={items,valid,layout};
 })();

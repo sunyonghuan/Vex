@@ -1,9 +1,9 @@
-using Vex.Core.Services;
+using Netor.Markdor.Core.Services;
 using CodeWF.Toolkit.Files.Helpers;
 using System.Xml.Linq;
 
 // 使用隔离配置验证真实存储，不读取用户设置。
-var directory = Path.Combine(args.FirstOrDefault() ?? "E:/github/temp_files/vex-prototype/settings", Guid.NewGuid().ToString("N"));
+var directory = Path.Combine(args.FirstOrDefault() ?? "E:/github/temp_files/markdor-prototype/settings", Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(directory);
 var path = Path.Combine(directory, "verification.config");
 AppContext.SetData("APP_CONFIG_FILE", path);
@@ -24,7 +24,7 @@ try
     var restored = new AppSettingsStore().Current;
     var defaults = new EditorPreferences(new AppSettingsStore());
     if (defaults.DefaultEncoding != "utf-8" || defaults.DefaultNewline != "system" || defaults.BodyFont != "system"
-        || defaults.ExportFormat != "HTML" || defaults.PdfSize != "A4" || defaults.ImageFolder != "assets" || defaults.WatermarkText != "维刻 Vex")
+        || defaults.ExportFormat != "HTML" || defaults.PdfSize != "A4" || defaults.ImageFolder != "assets" || defaults.WatermarkText != "维刻 Markdor")
         throw new InvalidOperationException("An unrelated settings update lost effective preference defaults.");
     Console.WriteLine("PASS: real storage preserves default choices and watermark after unrelated updates.");
     if (restored.ThemeKey != "dark" || restored.PaletteKey != "aurora" || restored.ShowLineNumbers != true)

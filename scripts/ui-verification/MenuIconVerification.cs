@@ -6,10 +6,10 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Vex.Controls;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
-using Vex.Modules.Workspace.Views;
+using Netor.Markdor.Controls;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
+using Netor.Markdor.Modules.Workspace.Views;
 using MenuPath = Avalonia.Controls.Shapes.Path;
 
 internal static class MenuIconVerification

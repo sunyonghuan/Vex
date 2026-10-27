@@ -1,0 +1,419 @@
+<Styles xmlns:motion="using:CodeWF.Avalonia.Controls.Animations" xmlns:anim="using:Avalonia.Animation.Easings" xmlns:u="https://irihi.tech/ursa" xmlns:i18n="https://codewf.com" xmlns:l="clr-namespace:Netor.Markdor" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="FlyoutPresenter, MenuFlyoutPresenter, Border.dialog-card, Border.wb-popover">
+    <Setter Property="motion:EntranceMotion.IsEnabled" Value="True"/>
+    <Setter Property="motion:EntranceMotion.Animate" Value="{DynamicResource MarkdorMotionEnabled}"/>
+    <Setter Property="motion:EntranceMotion.Duration" Value="{DynamicResource MotionDurationFast}"/>
+    <Setter Property="motion:EntranceMotion.Easing"><anim:SplineEasing X1=".2" Y1=".8" X2=".2" Y2="1"/></Setter>
+  </Style>
+  <!-- 原型所有弹出层为面板白（随主题明暗）：Flyout/MenuFlyout 统一面板底。 -->
+  <Style Selector="FlyoutPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorPanelBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}" />
+  </Style>
+  <Style Selector="FlyoutPresenter, Border.wb-popover">
+    <Setter Property="motion:EntranceMotion.OffsetY" Value="-4"/>
+    <Setter Property="motion:EntranceMotion.InitialScale" Value=".985"/>
+  </Style>
+  <Style Selector="Border.dialog-card">
+    <Setter Property="motion:EntranceMotion.Duration" Value="{DynamicResource MotionDurationMid}"/>
+    <Setter Property="motion:EntranceMotion.OffsetY" Value="9"/>
+    <Setter Property="motion:EntranceMotion.InitialScale" Value=".99"/>
+  </Style>
+  <Style Selector="MenuItem /template/ Popup#PART_Popup > Border">
+    <Setter Property="motion:EntranceMotion.IsEnabled" Value="True"/>
+    <Setter Property="motion:EntranceMotion.Animate" Value="{DynamicResource MarkdorMotionEnabled}"/>
+    <Setter Property="motion:EntranceMotion.Duration" Value="{DynamicResource MotionDurationFast}"/>
+    <Setter Property="motion:EntranceMotion.Easing"><anim:SplineEasing X1=".2" Y1=".8" X2=".2" Y2="1"/></Setter>
+  </Style>
+  <Style Selector="FlyoutPresenter, Border.wb-popover"><Setter Property="RenderTransformOrigin" Value="0%,0%"/></Style>
+  <Styles.Resources>
+    <StreamGeometry x:Key="WBSidebarIcon">M3 3H21V21H3Z M9 3V21</StreamGeometry>
+    <StreamGeometry x:Key="WBEditIcon">M11 4H4V20H20V13 M18 2L22 6L12 16L8 17L9 13Z</StreamGeometry>
+    <StreamGeometry x:Key="WBReadIcon">M2 12C7 3 17 3 22 12C17 21 7 21 2 12Z M15 12A3 3 0 1 1 9 12A3 3 0 1 1 15 12</StreamGeometry>
+    <StreamGeometry x:Key="WBMapIcon">M2 9H8V15H2Z M16 2H22V8H16Z M16 16H22V22H16Z M8 12H12V5H16 M12 12V19H16</StreamGeometry>
+    <StreamGeometry x:Key="WBSearchIcon">M17 10A7 7 0 1 1 3 10A7 7 0 1 1 17 10 M15 15L22 22</StreamGeometry>
+    <StreamGeometry x:Key="WBSaveIcon">M3 3H17L21 7V21H3Z M7 3V9H16V3 M7 21V14H17V21</StreamGeometry>
+    <StreamGeometry x:Key="WBFitIcon">M3 9V3H9 M15 3H21V9 M21 15V21H15 M9 21H3V15 M8 8H16V16H8Z</StreamGeometry>
+    <StreamGeometry x:Key="WBColumnsIcon">M3 3H21V21H3Z M12 3V21</StreamGeometry>
+    <StreamGeometry x:Key="WBCloseIcon">M6 6L18 18 M18 6L6 18</StreamGeometry>
+    <StreamGeometry x:Key="WBPinIcon">M12 17v5 M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z</StreamGeometry>
+    <StreamGeometry x:Key="WBPinOffIcon">M12 17v5 M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89 M2 2l20 20 M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11</StreamGeometry>
+    <StreamGeometry x:Key="WBGearIcon">M15 12A3 3 0 1 1 9 12A3 3 0 1 1 15 12 M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z</StreamGeometry>
+  </Styles.Resources>
+  <Style Selector="Button.selected-choice /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorAccentBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}"/>
+  </Style>
+  <Style Selector="FlyoutPresenter.design-title-picker"><Setter Property="Padding" Value="18"/><Setter Property="CornerRadius" Value="16"/><Setter Property="Background" Value="{DynamicResource MarkdorPanelBackgroundBrush}"/><Setter Property="BorderThickness" Value="0"/></Style>
+  <!-- 原型 .density-options：30 高分段胶囊；选中=实底强调色（workspace-chrome 999px 圆角）。 -->
+  <Style Selector="Button.appearance-pill">
+    <Setter Property="Height" Value="28"/><Setter Property="MinHeight" Value="0"/><Setter Property="CornerRadius" Value="15"/>
+    <Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="10,4"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="Normal"/>
+    <Setter Property="Background" Value="{DynamicResource MarkdorPanelBackgroundBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+  </Style>
+  <Style Selector="Button.appearance-pill:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}"/>
+  </Style>
+  <Style Selector="Button.appearance-pill-on /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentBrush}"/><Setter Property="Foreground" Value="{DynamicResource StudioOnPrimary}"/><Setter Property="BorderBrush" Value="{DynamicResource MarkdorAccentBrush}"/><Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="Button.appearance-pill-on">
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="Button.appearance-pill-on TextBlock">
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <!-- 排版面板的密度选项默认不加粗，选中后保留加粗。FontWeight 只存在于按钮和文字，不能设到 ContentPresenter。 -->
+  <Style Selector="Button.typography-density">
+    <Setter Property="FontWeight" Value="Normal"/>
+  </Style>
+  <Style Selector="Button.typography-density TextBlock">
+    <Setter Property="FontWeight" Value="Normal"/>
+  </Style>
+  <Style Selector="Button.typography-density.appearance-pill-on">
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="Button.typography-density.appearance-pill-on TextBlock">
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+
+  <!-- 原型 .studio-palettes button：1px #E2E2E4 边框、6px 圆角、7px 内边距的纸面卡片。 -->
+  <Style Selector="Button.palette-card">
+    <Setter Property="Padding" Value="7"/><Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="BorderThickness" Value="1"/><Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource MarkdorPanelBackgroundBrush}"/>
+  </Style>
+  <Style Selector="Button.palette-card /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="BoxShadow" Value="0 1 5 0 #0D000000"/>
+  </Style>
+  <!-- 原型选中态：border-color:transparent + box-shadow 0 0 0 1.5px accent；阴影色随配色变化，由代码按 MarkdorAccentBrush 回放。 -->
+  <Style Selector="Button.palette-card-on">
+    <Setter Property="BorderBrush" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.palette-card:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="Button.palette-card:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="Button.palette-add-card">
+    <Setter Property="Padding" Value="0"/><Setter Property="CornerRadius" Value="8"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+  </Style>
+  <Style Selector="Button.palette-add-card:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+  <Style Selector="Button.palette-add-card:pointerover">
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+  <!-- 原型 .studio-language 行：透明底、hover 灰底，选中着色由代码按主题画刷回放。 -->
+  <Style Selector="Button.language-item">
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+  </Style>
+  <Style Selector="Button.language-item:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/>
+  </Style>
+  <!-- 原型 aria-checked 行：accent-soft 底色，文字/徽标强调色由代码回放。 -->
+  <Style Selector="Button.language-item-on /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/>
+  </Style>
+  <Style Selector="Button#TitleBarAppearanceButton">
+    <Setter Property="FontWeight" Value="Normal"/>
+  </Style>
+  <Style Selector="Button#TitleBarAppearanceButton TextBlock">
+    <Setter Property="FontWeight" Value="Normal"/>
+  </Style>
+  <!-- 原型 #markdor-appearance-menu[open]>summary：弹出层打开时外观按钮呈选中态。 -->
+  <Style Selector="Button.title-picker-open /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <Style Selector="FlyoutPresenter.design-language-picker"><Setter Property="Padding" Value="5"/><Setter Property="CornerRadius" Value="8"/><Setter Property="Background" Value="{DynamicResource MarkdorPanelBackgroundBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/></Style>
+  <Style Selector="Border.choice-filter"><Setter Property="Padding" Value="3"/><Setter Property="CornerRadius" Value="6"/><Setter Property="BorderThickness" Value="1"/><Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/><Setter Property="Background" Value="{DynamicResource MarkdorShellBackgroundBrush}"/></Style>
+  <Style Selector="Button.choice-filter-selected /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource MarkdorPanelBackgroundBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="BoxShadow" Value="0 1 3 0 #12000000"/></Style>
+  <Style Selector="ListBox.preferences-navigation ListBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="Template"><ControlTemplate><Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}"><ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Foreground="{TemplateBinding Foreground}"/></Border></ControlTemplate></Setter>
+  </Style>
+  <Style Selector="ListBox.preferences-navigation ListBoxItem:selected"><Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+  <Style Selector="ListBox.preferences-navigation ListBoxItem:pointerover"><Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/></Style>
+  <Style Selector="ListBox.preferences-navigation ListBoxItem TextBlock"><Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/></Style>
+  <Style Selector="ListBox.preferences-navigation ListBoxItem:selected TextBlock"><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+  <Style Selector="ListBox.preferences-navigation ListBoxItem:selected Path"><Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}"/></Style>
+  <!-- 原型 .markdor-pref-row input[type=checkbox]：34x20 轨道、14 圆钮、选中 accent -->
+  <Style Selector="ToggleButton.pref-switch">
+    <Setter Property="Width" Value="34"/><Setter Property="Height" Value="20"/><Setter Property="Padding" Value="0"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="SwitchTrack" Width="34" Height="20" CornerRadius="10" Background="{DynamicResource MarkdorPanelBorderBrush}">
+          <Canvas>
+            <Ellipse Name="SwitchKnob" Width="14" Height="14" Canvas.Left="3" Canvas.Top="3" Fill="White">
+              <Ellipse.Effect><DropShadowEffect OffsetX="0" OffsetY="1" BlurRadius="1.5" Opacity="0.13"/></Ellipse.Effect>
+            </Ellipse>
+          </Canvas>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.pref-switch:checked /template/ Border#SwitchTrack"><Setter Property="Background" Value="{DynamicResource MarkdorAccentBrush}"/></Style>
+  <Style Selector="ToggleButton.pref-switch:checked /template/ Ellipse#SwitchKnob"><Setter Property="(Canvas.Left)" Value="17"/></Style>
+  <Style Selector="Path.wb-icon">
+    <Setter Property="Width" Value="14"/><Setter Property="Height" Value="14"/>
+    <Setter Property="Stretch" Value="Uniform"/><Setter Property="Stroke" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="StrokeThickness" Value="1.6"/><Setter Property="StrokeLineCap" Value="Round"/><Setter Property="StrokeJoin" Value="Round"/>
+  </Style>
+  <Style Selector="Border.sidebar-search">
+    <Setter Property="CornerRadius" Value="2"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+  </Style>
+  <Style Selector="Border.sidebar-search:focus-within">
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <!-- 底线搜索框保持透明，覆盖 Semi 输入模板的悬停和按下背景。 -->
+  <Style Selector="TextBox.sidebar-search-input /template/ Border#PART_ContentPresenterBorder, TextBox.sidebar-search-input:pointerover /template/ Border#PART_ContentPresenterBorder, TextBox.sidebar-search-input:pressed /template/ Border#PART_ContentPresenterBorder">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.sidebar-search-clear">
+    <Setter Property="Width" Value="20"/><Setter Property="Height" Value="20"/>
+    <Setter Property="MinWidth" Value="0"/><Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/><Setter Property="CornerRadius" Value="2"/>
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.sidebar-search-clear:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.sidebar-search-clear:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.sidebar-panel-toggle, Button.sidebar-expand-toggle">
+    <Setter Property="Width" Value="26"/><Setter Property="Height" Value="26"/><Setter Property="MinWidth" Value="26"/><Setter Property="MinHeight" Value="26"/>
+    <Setter Property="Padding" Value="5"/><Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Path.panel-toggle-icon">
+    <Setter Property="Stretch" Value="Uniform"/>
+    <Setter Property="Fill" Value="Transparent"/><Setter Property="Stroke" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="StrokeThickness" Value="1.5"/><Setter Property="StrokeLineCap" Value="Round"/><Setter Property="StrokeJoin" Value="Round"/>
+  </Style>
+  <Style Selector="Button.sidebar-panel-toggle:pointerover, Button.sidebar-panel-toggle:focus-visible, Button.sidebar-expand-toggle:pointerover, Button.sidebar-expand-toggle:focus-visible">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <Style Selector="Button.sidebar-panel-toggle:pointerover Path.panel-toggle-icon, Button.sidebar-panel-toggle:focus-visible Path.panel-toggle-icon, Button.sidebar-expand-toggle:pointerover Path.panel-toggle-icon, Button.sidebar-expand-toggle:focus-visible Path.panel-toggle-icon, Button.sidebar-panel-toggle:pressed Path.panel-toggle-icon, Button.sidebar-expand-toggle:pressed Path.panel-toggle-icon">
+    <Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <Style Selector="Border.sidebar-expand-surface">
+    <Setter Property="Width" Value="26"/><Setter Property="Height" Value="26"/>
+    <Setter Property="CornerRadius" Value="13"/>
+    <Setter Property="Background" Value="{DynamicResource MarkdorElevatedBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/><Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BoxShadow" Value="0 2 7 0 #24000000"/><Setter Property="ClipToBounds" Value="False"/>
+  </Style>
+  <Style Selector="Button.sidebar-expand-toggle">
+    <Setter Property="Width" Value="26"/><Setter Property="Height" Value="26"/><Setter Property="MinWidth" Value="26"/><Setter Property="MinHeight" Value="26"/>
+    <Setter Property="Padding" Value="0"/><Setter Property="CornerRadius" Value="13"/>
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.sidebar-expand-toggle /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="CornerRadius" Value="13"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.sidebar-expand-toggle:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.sidebar-expand-toggle:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.sidebar-expand-toggle:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorPressedBrush}"/>
+  </Style>
+  <Style Selector="Button.wb-quiet, ToggleButton.wb-quiet">
+    <Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="Normal"/><Setter Property="MinHeight" Value="28"/><Setter Property="Padding" Value="8,4"/>
+    <Setter Property="CornerRadius" Value="5"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+  </Style>
+  <Style Selector="Button.wb-quiet TextBlock, ToggleButton.wb-quiet TextBlock">
+    <Setter Property="FontWeight" Value="Normal"/>
+  </Style>
+  <!-- 对应原型标题栏 .studio-title-controls button：30×28、4px 圆角、透明底。 -->
+  <Style Selector="Button.tb-icon">
+    <Setter Property="Width" Value="30"/><Setter Property="Height" Value="28"/><Setter Property="MinHeight" Value="0"/><Setter Property="MinWidth" Value="0"/>
+    <Setter Property="Padding" Value="0"/><Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.tb-icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.titlebar-action, ToggleButton.titlebar-action">
+    <Setter Property="MinHeight" Value="0"/><Setter Property="MinWidth" Value="0"/>
+    <Setter Property="Padding" Value="0"/><Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.titlebar-action:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.titlebar-action:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.titlebar-action:focus-visible /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.titlebar-action:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.titlebar-action:pointerover, ToggleButton.titlebar-action:pointerover, Button.titlebar-action:focus-visible, ToggleButton.titlebar-action:focus-visible">
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <Style Selector="Button.titlebar-action:pointerover Path.wb-icon, ToggleButton.titlebar-action:pointerover Path.wb-icon, Button.titlebar-action:focus-visible Path.wb-icon, ToggleButton.titlebar-action:focus-visible Path.wb-icon, Button.titlebar-action:pressed Path.wb-icon, ToggleButton.titlebar-action:pressed Path.wb-icon">
+    <Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <Style Selector="Button.titlebar-action:pressed /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.titlebar-action:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorPressedBrush}"/>
+  </Style>
+  <Style Selector="Button.wb-quiet:pointerover, ToggleButton.wb-quiet:pointerover"><Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/></Style>
+  <Style Selector="ToggleButton.wb-quiet:checked"><Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/></Style>
+  <!-- Semi 在模板层设置交互颜色，这里同步轻量切换按钮的实际呈现状态。 -->
+  <Style Selector="ToggleButton.wb-quiet:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.wb-quiet:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+  </Style>
+  <Style Selector="ToggleButton.wb-quiet:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.wb-quiet:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.wb-quiet:checked:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+  </Style>
+  <Style Selector="ToggleButton.wb-view">
+    <Setter Property="Width" Value="86"/><Setter Property="Height" Value="28"/><Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="FontSize" Value="12"/><Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+  </Style>
+  <Style Selector="ToggleButton.wb-view:checked"><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Background" Value="Transparent"/></Style>
+  <Style Selector="ToggleButton.wb-view:checked Path.wb-icon"><Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}"/></Style>
+  <Style Selector="ToggleButton.wb-view:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.wb-view:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+  </Style>
+  <Style Selector="ToggleButton.wb-view:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.wb-view:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.wb-view:checked:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+  </Style>
+  <Style Selector="Border.wb-popover">
+    <Setter Property="Background" Value="{DynamicResource MarkdorElevatedBackgroundBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="BoxShadow" Value="0 8 30 0 #18000000"/>
+    <Setter Property="ClipToBounds" Value="False"/>
+  </Style>
+  <Style Selector="TextBlock.wb-muted"><Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/><Setter Property="FontSize" Value="11.5"/></Style>
+  <Style Selector="Border.pane-head"><Setter Property="Height" Value="44"/><Setter Property="Padding" Value="20,0"/></Style>
+  <Style Selector="Border.kbd-chip"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/></Style>
+  <Style Selector="ListBox.typography-grid"><Setter Property="Padding" Value="0"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Background" Value="Transparent"/><Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/></Style>
+  <Style Selector="ListBox.typography-grid ListBoxItem"><Setter Property="Width" Value="98"/><Setter Property="Padding" Value="4"/><Setter Property="Margin" Value="0"/><Setter Property="MinHeight" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Center"/></Style>
+  <Style Selector="ListBox.typography-grid ListBoxItem:selected"><Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/><Setter Property="CornerRadius" Value="7"/></Style>
+  <Style Selector="Border.typography-card"><Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/></Style>
+  <Style Selector="ListBox.typography-grid ListBoxItem:selected Border.typography-card"><Setter Property="BorderBrush" Value="{DynamicResource MarkdorAccentBrush}"/><Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/></Style>
+  <Style Selector="Button.typography-card-button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MarkdorHoverBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="Button.wb-format">
+    <Setter Property="Width" Value="28"/><Setter Property="Height" Value="28"/><Setter Property="MinHeight" Value="0"/><Setter Property="MinWidth" Value="0"/>
+    <Setter Property="Padding" Value="5"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorValueBrush}"/><Setter Property="CornerRadius" Value="5"/>
+  </Style>
+  <Style Selector="Button.wb-format PathIcon"><Setter Property="Width" Value="14"/><Setter Property="Height" Value="14"/></Style>
+  <Style Selector="Path.format-stroke"><Setter Property="Stroke" Value="{DynamicResource MarkdorValueBrush}"/><Setter Property="StrokeThickness" Value="1.8"/><Setter Property="StrokeLineCap" Value="Round"/><Setter Property="StrokeJoin" Value="Round"/></Style>
+  <Style Selector="Border.presentation-tools"><Setter Property="Opacity" Value="0.75"/><Setter Property="Transitions"><Transitions><DoubleTransition Property="Opacity" Duration="{DynamicResource MotionDurationFast}"/></Transitions></Setter></Style>
+  <Style Selector="Border.presentation-tools:pointerover, Border.presentation-tools:focus-within"><Setter Property="Opacity" Value="1"/></Style>
+  <!-- 对应原型 #edit-options：静默 1%，悬停或聚焦后立即显现，离开 2 秒后淡出。 -->
+  <Style Selector="Border.edit-options">
+    <Setter Property="Opacity" Value="0.01"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.25" Delay="0:0:2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.edit-options:pointerover">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Transitions">
+      <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.2"/></Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.edit-options:focus-within">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Transitions">
+      <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.2"/></Transitions>
+    </Setter>
+  </Style>
+
+  <!-- ===== 悬浮工具条「钉住」（对应原型 data-pin-*）：钉住=占位常驻；取消钉住=悬浮静默、悬停/聚焦显现。 ===== -->
+  <Style Selector="Border.edit-options.pinned">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Transitions">
+      <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.2"/></Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.pane-head.floating, Border.map-topbar.floating">
+    <Setter Property="Opacity" Value="0.01"/>
+    <Setter Property="Transitions">
+      <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.25" Delay="0:0:2"/></Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.pane-head.floating:pointerover, Border.pane-head.floating:focus-within, Border.map-topbar.floating:pointerover, Border.map-topbar.floating:focus-within">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Transitions">
+      <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.2"/></Transitions>
+    </Setter>
+  </Style>
+
+  <!-- Lucide 图钉双态：钉住与取消钉住使用成对的 pin / pin-off 几何。 -->
+  <Style Selector="ToggleButton.toolbar-pin">
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="4,3"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin:checked /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin:not(:checked)">
+    <Setter Property="Opacity" Value="0.55"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin Path">
+    <Setter Property="Stroke" Value="{DynamicResource MarkdorMutedBrush}"/>
+    <Setter Property="StrokeThickness" Value="1.7"/>
+    <Setter Property="StrokeLineCap" Value="Round"/>
+    <Setter Property="StrokeJoin" Value="Round"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin:pointerover Path">
+    <Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin:checked Viewbox.pin-off">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
+  <Style Selector="ToggleButton.toolbar-pin:not(:checked) Viewbox.pin-on">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
+
+  <!-- 原型偏好滑块是浏览器 range+accent-color 观感：已选段实心强调色。
+       Semi Slider 模板的填充段取 Foreground、未选段取 Background，直接覆这两个画刷即可，
+       不能用 Style 覆 Template（ControlTheme 优先级更高，覆不动）。 -->
+  <Style Selector="Slider.pref-range">
+    <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource MarkdorPanelBorderBrush}"/>
+  </Style>
+</Styles>

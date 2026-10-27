@@ -20,7 +20,7 @@ else {
     $tagRef = "refs/tags/$tagName"
     if ($FetchTag) {
         # checkout 可能把本地标签引用指向提交；另取远端标签对象，不改写标签。
-        $tagRef = "refs/vex-release-tags/$tagName"
+        $tagRef = "refs/markdor-release-tags/$tagName"
         git -C $root fetch --quiet origin "refs/tags/${tagName}:$tagRef"
         if ($LASTEXITCODE -ne 0) { throw "无法读取远端标签：$tagName" }
     }

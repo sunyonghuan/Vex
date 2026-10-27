@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 从已有发布产物打包 Vex macOS .app 与 dmg。
+# 从已有发布产物打包 Markdor macOS .app 与 dmg。
 # 发布由工作流（dotnet publish，仓库自带 PublishProfile）完成，本脚本只做 bundle / 签名 / dmg。
 # 用法：./package_macos.sh osx-x64|osx-arm64|all
 set -euo pipefail
@@ -7,9 +7,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # 仓内自包含的品牌化 Finder 镜像助手。
 source "$ROOT_DIR/scripts/installer/macos/create-branded-dmg.sh"
-APP_NAME="${APP_NAME:-Vex}"
-EXECUTABLE_NAME="${EXECUTABLE_NAME:-Vex}"
-BUNDLE_ID="${BUNDLE_ID:-com.codewf.vex}"
+APP_NAME="${APP_NAME:-Markdor}"
+EXECUTABLE_NAME="${EXECUTABLE_NAME:-Markdor}"
+BUNDLE_ID="${BUNDLE_ID:-com.codewf.markdor}"
 ICON_SOURCE="${ICON_SOURCE:-$ROOT_DIR/assets/logo.png}"
 PUBLISH_ROOT="${PUBLISH_ROOT:-$ROOT_DIR/artifacts/publish}"
 ARTIFACTS_ROOT="${ARTIFACTS_ROOT:-$ROOT_DIR/artifacts/macos}"
@@ -25,9 +25,9 @@ Usage:
   ./package_macos.sh osx-x64|osx-arm64|all
 
 Environment:
-  APP_NAME                 App bundle name. Default: Vex
-  EXECUTABLE_NAME          Executable inside publish dir. Default: Vex
-  BUNDLE_ID                CFBundleIdentifier. Default: com.codewf.vex
+  APP_NAME                 App bundle name. Default: Markdor
+  EXECUTABLE_NAME          Executable inside publish dir. Default: Markdor
+  BUNDLE_ID                CFBundleIdentifier. Default: com.codewf.markdor
   CODESIGN_IDENTITY        Developer ID identity. Empty means ad-hoc signing.
   ENTITLEMENTS             Optional entitlements plist used with Developer ID signing.
   NOTARIZE                 Set to 1 to submit DMGs with xcrun notarytool.
@@ -147,7 +147,7 @@ PLIST
 create_app_bundle() {
   local rid="$1"
   local macos_version="$2"
-  local publish_dir="$PUBLISH_ROOT/$rid/Vex"
+  local publish_dir="$PUBLISH_ROOT/$rid/Markdor"
   local app_dir="$WORK_ROOT/$rid/$APP_NAME.app"
   local contents_dir="$app_dir/Contents"
   local macos_dir="$contents_dir/MacOS"

@@ -4,18 +4,18 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 (async () => {
-  const browser = await chromium.launch({channel:process.env.VEX_BROWSER_CHANNEL || 'msedge',headless:true});
+  const browser = await chromium.launch({channel:process.env.MARKDOR_BROWSER_CHANNEL || 'msedge',headless:true});
   try {
     const page = await browser.newPage({viewport:{width:1280,height:820}}), errors = [];
     page.on('pageerror',error => errors.push(error.message));
-    await page.goto((process.env.VEX_PREVIEW_URL || 'http://127.0.0.1:4317/design/') + 'Vex.html');
-    await page.evaluate(() => VexWorkbench.loadDocument(VexWorkbench.documents.findIndex(doc => doc.name === 'Mermaid 图表图鉴.md')));
+    await page.goto((process.env.MARKDOR_PREVIEW_URL || 'http://127.0.0.1:4317/design/') + 'Markdor.html');
+    await page.evaluate(() => MarkdorWorkbench.loadDocument(MarkdorWorkbench.documents.findIndex(doc => doc.name === 'Mermaid 图表图鉴.md')));
     await page.locator('.instant-scroll .diagram-preview svg').first().waitFor();
     assert.ok(await page.locator('.instant-scroll .diagram-preview svg').count() < 22,'Only nearby diagrams render on opening');
     assert.equal(await page.locator('#markdown-preview svg').count(),0,'Hidden reading view does not render diagrams');
     const report = [];
     for (const mode of ['instant','read']) {
-      await page.evaluate(mode => mode === 'read' ? VexWorkbench.setView('read') : VexWorkbench.setEditMode('instant'),mode);
+      await page.evaluate(mode => mode === 'read' ? MarkdorWorkbench.setView('read') : MarkdorWorkbench.setEditMode('instant'),mode);
       const diagrams = page.locator(mode === 'read' ? '#markdown-preview .md-diagram' : '.instant-scroll .diagram-preview');
       assert.equal(await diagrams.count(),22);
       for (let index=0; index<22; index++) {
@@ -43,10 +43,10 @@ const path = require('node:path');
       const diagram=page.locator('#markdown-preview .md-diagram').nth(index);await diagram.scrollIntoViewIfNeeded();
       assert.ok(await diagram.evaluate(host=>host.scrollWidth<=host.clientWidth+1),`Narrow diagram ${index} fits`);
     }
-    if (process.env.VEX_CAPTURE_DIR) {
-      fs.mkdirSync(process.env.VEX_CAPTURE_DIR,{recursive:true});
+    if (process.env.MARKDOR_CAPTURE_DIR) {
+      fs.mkdirSync(process.env.MARKDOR_CAPTURE_DIR,{recursive:true});
       await page.locator('#markdown-preview .md-diagram').nth(15).scrollIntoViewIfNeeded();
-      await page.screenshot({path:path.join(process.env.VEX_CAPTURE_DIR,'mermaid-responsive.png')});
+      await page.screenshot({path:path.join(process.env.MARKDOR_CAPTURE_DIR,'mermaid-responsive.png')});
     }
     assert.deepEqual(errors,[]);console.log(JSON.stringify({report,errors}));
   } finally { await browser.close(); }

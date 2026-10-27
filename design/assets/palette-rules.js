@@ -3,7 +3,7 @@
  * 本模块只实现公式引擎、"收敛步骤"与"原型变量映射层"，禁止在任何一侧另抄公式或常数。 */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.VexPaletteRules = factory();
+  else root.MarkdorPaletteRules = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 

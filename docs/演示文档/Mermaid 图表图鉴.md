@@ -189,10 +189,10 @@ block-beta
 C4Context
   title 本地写作空间
   Person(writer, "写作者", "记录与整理想法")
-  System(vex, "维刻 Vex", "Markdown 工作区")
+  System(markdor, "维刻 Markdor", "Markdown 工作区")
   System_Ext(files, "本地文件", "Markdown 文档")
-  Rel(writer, vex, "写作")
-  Rel(vex, files, "读写")
+  Rel(writer, markdor, "写作")
+  Rel(markdor, files, "读写")
 ```
 
 

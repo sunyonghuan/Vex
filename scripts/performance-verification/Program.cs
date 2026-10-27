@@ -11,15 +11,15 @@ using CodeWF.Avalonia.Markdown.Controls;
 using CodeWF.Avalonia.Markdown.Editor.Controls.Wysiwyg;
 using CodeWF.Avalonia.Markdown.Highlighting;
 using Prism.Ioc;
-using Vex.Core.Models;
-using Vex.Core.Messaging;
-using Vex.Core.Services;
-using Vex.Modules.Shell.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Workspace.Views;
-using Vex.Modules.Workspace.ViewModels;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Messaging;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Workspace.Views;
+using Netor.Markdor.Modules.Workspace.ViewModels;
 
-var output = Path.GetFullPath(args.FirstOrDefault() ?? Path.Combine(Path.GetTempPath(), "VexPerformance"));
+var output = Path.GetFullPath(args.FirstOrDefault() ?? Path.Combine(Path.GetTempPath(), "MarkdorPerformance"));
 Directory.CreateDirectory(output);
 // 只读写独立配置和文档，不使用用户的设置、草稿、最近记录或网络资源。
 AppContext.SetData("APP_CONFIG_FILE", Path.Combine(output, "performance.config"));
@@ -37,7 +37,7 @@ var settings = new AppSettingsStore();
 Measure("settings.update.20", () => { for (var i = 0; i < 20; i++) settings.Update(s => s with { PaletteKey = i % 2 == 0 ? "dotnet" : "aurora" }); });
 
 var startup = Stopwatch.StartNew();
-AppBuilder.Configure<PerformanceApp>().UseSkia().With(VexFonts.Options)
+AppBuilder.Configure<PerformanceApp>().UseSkia().With(MarkdorFonts.Options)
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
 var app = (PerformanceApp)Application.Current!;
 var window = app.Shell!;
@@ -237,7 +237,7 @@ internal sealed class LayoutProbe : Decorator
     }
 }
 
-public sealed class PerformanceApp : Vex.App
+public sealed class PerformanceApp : Markdor.App
 {
     public Window? Shell { get; private set; }
     protected override void RegisterTypes(IContainerRegistry registry)

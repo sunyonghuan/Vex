@@ -1,0 +1,97 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:semi="https://irihi.tech/semi">
+    <!-- 独立控件主题保留浅深默认资源；Markdor 应用在自身资源中映射共享 Studio 配色。 -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="MarkdorShellBackgroundBrush" Color="#FFFDFDFD" />
+            <SolidColorBrush x:Key="MarkdorPanelBackgroundBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="MarkdorPanelBorderBrush" Color="#E4E7EC" />
+            <SolidColorBrush x:Key="MarkdorSplitterBrush" Color="#F2F4F7" />
+            <SolidColorBrush x:Key="MarkdorEditorBackgroundBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="MarkdorEditorForegroundBrush" Color="#101828" />
+            <SolidColorBrush x:Key="MarkdorEditorCurrentLineBackgroundBrush" Color="#FFF4F7FB" />
+            <SolidColorBrush x:Key="MarkdorEditorCurrentLineBorderBrush" Color="#FFE4E9F2" />
+            <SolidColorBrush x:Key="MarkdorPreviewBackgroundBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="MarkdorStatusBarBackgroundBrush" Color="#FFF7F8FA" />
+            <SolidColorBrush x:Key="MarkdorStatusBarBorderBrush" Color="#E4E7EC" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeBackgroundBrush" Color="#F8FAFC" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeBorderBrush" Color="#D8DEE8" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeLabelBrush" Color="#667085" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeValueBrush" Color="#1D2939" />
+            <SolidColorBrush x:Key="MarkdorLinkBrush" Color="#1677FF" />
+            <SolidColorBrush x:Key="MarkdorImageBrush" Color="#7C3AED" />
+            <SolidColorBrush x:Key="MarkdorAccentBrush" Color="#1677FF" />
+            <Color x:Key="MarkdorAccentColor">#1677FF</Color>
+            <SolidColorBrush x:Key="MarkdorAccentSoftBrush" Color="#E8F1FF" />
+            <SolidColorBrush x:Key="MarkdorDangerBrush" Color="#DC2626" />
+            <SolidColorBrush x:Key="MarkdorDangerSoftBrush" Color="#FEECEB" />
+            <SolidColorBrush x:Key="MarkdorSuccessBrush" Color="#067647" />
+            <SolidColorBrush x:Key="MarkdorSuccessSoftBrush" Color="#1A067647" />
+            <SolidColorBrush x:Key="MarkdorWarningBrush" Color="#B54708" />
+            <SolidColorBrush x:Key="MarkdorMutedBrush" Color="#667085" />
+            <SolidColorBrush x:Key="MarkdorValueBrush" Color="#1D2939" />
+            <SolidColorBrush x:Key="MarkdorDisabledBrush" Color="#98A2B3" />
+            <SolidColorBrush x:Key="MarkdorHoverBrush" Color="#F2F4F7" />
+            <SolidColorBrush x:Key="MarkdorPressedBrush" Color="#E8F1FF" />
+            <LinearGradientBrush x:Key="MarkdorTitleGradBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#1677FF" Offset="0" />
+                <GradientStop Color="#69B1FF" Offset="1" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="MarkdorCodeFgBrush" Color="#B42318" />
+            <SolidColorBrush x:Key="MarkdorQuoteBrush" Color="#667085" />
+            <SolidColorBrush x:Key="MarkdorQuoteBackgroundBrush" Color="#0F1677FF" />
+            <SolidColorBrush x:Key="MarkdorMarkerBrush" Color="#98A2B3" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="MarkdorShellBackgroundBrush" Color="#111827" />
+            <SolidColorBrush x:Key="MarkdorPanelBackgroundBrush" Color="#151B26" />
+            <SolidColorBrush x:Key="MarkdorPanelBorderBrush" Color="#2B3443" />
+            <SolidColorBrush x:Key="MarkdorSplitterBrush" Color="#232B38" />
+            <SolidColorBrush x:Key="MarkdorEditorBackgroundBrush" Color="#111827" />
+            <SolidColorBrush x:Key="MarkdorEditorForegroundBrush" Color="#E5E7EB" />
+            <SolidColorBrush x:Key="MarkdorEditorCurrentLineBackgroundBrush" Color="#1B2533" />
+            <SolidColorBrush x:Key="MarkdorEditorCurrentLineBorderBrush" Color="#334155" />
+            <SolidColorBrush x:Key="MarkdorPreviewBackgroundBrush" Color="#111827" />
+            <SolidColorBrush x:Key="MarkdorStatusBarBackgroundBrush" Color="#151B26" />
+            <SolidColorBrush x:Key="MarkdorStatusBarBorderBrush" Color="#2B3443" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeBackgroundBrush" Color="#1B2533" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeBorderBrush" Color="#334155" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeLabelBrush" Color="#AAB4C3" />
+            <SolidColorBrush x:Key="MarkdorStatusBadgeValueBrush" Color="#F3F4F6" />
+            <SolidColorBrush x:Key="MarkdorLinkBrush" Color="#60A5FA" />
+            <SolidColorBrush x:Key="MarkdorImageBrush" Color="#C4B5FD" />
+            <SolidColorBrush x:Key="MarkdorAccentBrush" Color="#60A5FA" />
+            <Color x:Key="MarkdorAccentColor">#60A5FA</Color>
+            <SolidColorBrush x:Key="MarkdorAccentSoftBrush" Color="#1D3A5F" />
+            <SolidColorBrush x:Key="MarkdorDangerBrush" Color="#F87171" />
+            <SolidColorBrush x:Key="MarkdorDangerSoftBrush" Color="#3B1D23" />
+            <SolidColorBrush x:Key="MarkdorSuccessBrush" Color="#4ADE80" />
+            <SolidColorBrush x:Key="MarkdorSuccessSoftBrush" Color="#1A4ADE80" />
+            <SolidColorBrush x:Key="MarkdorWarningBrush" Color="#FBBF24" />
+            <SolidColorBrush x:Key="MarkdorMutedBrush" Color="#AAB4C3" />
+            <SolidColorBrush x:Key="MarkdorValueBrush" Color="#F3F4F6" />
+            <SolidColorBrush x:Key="MarkdorDisabledBrush" Color="#7D8999" />
+            <SolidColorBrush x:Key="MarkdorHoverBrush" Color="#263244" />
+            <SolidColorBrush x:Key="MarkdorPressedBrush" Color="#1D3A5F" />
+            <LinearGradientBrush x:Key="MarkdorTitleGradBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#60A5FA" Offset="0" />
+                <GradientStop Color="#A5C8FF" Offset="1" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="MarkdorCodeFgBrush" Color="#FBBF77" />
+            <SolidColorBrush x:Key="MarkdorQuoteBrush" Color="#AAB4C3" />
+            <SolidColorBrush x:Key="MarkdorQuoteBackgroundBrush" Color="#0F60A5FA" />
+            <SolidColorBrush x:Key="MarkdorMarkerBrush" Color="#7D8999" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="{x:Static semi:SemiTheme.Aquatic}">
+            <SolidColorBrush x:Key="MarkdorHoverBrush" Color="#EFF8FA" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="{x:Static semi:SemiTheme.Desert}">
+            <SolidColorBrush x:Key="MarkdorHoverBrush" Color="#FFF5E8" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="{x:Static semi:SemiTheme.Dusk}">
+            <SolidColorBrush x:Key="MarkdorHoverBrush" Color="#F3F1FA" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="{x:Static semi:SemiTheme.NightSky}">
+            <SolidColorBrush x:Key="MarkdorHoverBrush" Color="#1E2A3F" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

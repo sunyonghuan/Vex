@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),context={document:{createElement:()=>({}),head:{append(){}}}};context.window=context;vm.createContext(context);
 for(const file of ['palettes.js','typography-catalog.js','desktop-resources.js','design-system.js'])vm.runInContext(fs.readFileSync(path.join(root,'design/assets',file),'utf8'),context);
-const paletteNames=Object.fromEntries(context.VexPalettes.map(p=>[p.key,p.key[0].toUpperCase()+p.key.slice(1)]));
+const paletteNames=Object.fromEntries(context.MarkdorPalettes.map(p=>[p.key,p.key[0].toUpperCase()+p.key.slice(1)]));
 const palettePurposeEn=['Neutral · Value contrast','Classic blue · Everyday default','Cool teal · Fresh notes','Pine green · Calm focus','Sky blue · Open and clear','Warm amber · Long reading','Crimson · Vivid energy','Amethyst · Creative work','Terracotta · Ideas and notes'];
 const palettePurposeJa=['無彩色・明度の対比','定番の青・日常の既定','冷たい青緑・爽やかな記録','松の緑・落ち着いた集中','空の青・清朗で開放的','暖かな琥珀・長時間の読書','緋色・鮮やかな活力','紫水晶・創造的な整理','暖かな陶土・ひらめきの手記'];
 const purposeEn=['Work documents · Clear hierarchy','Everyday writing · Open spacing','Long reads · Book typography','Code handbooks · Monospace headings','Personal essays · Warm accents','Opinion pieces · Red underlines','Creative writing · Violet panels','Lifestyle columns · Warm panels','Technical documents · Structured sections','Cultural essays · Fine teal rules','Everyday notes · Gentle green','Editorial articles · Centered headings'];
@@ -14,7 +14,7 @@ const extra={
 };
 const traditional=s=>s.replace(/[观记录写让温图体绿蓝细线书术简专栏报头圆页选开关应]/g,c=>({'观':'觀','记':'記','录':'錄','写':'寫','让':'讓','温':'溫','图':'圖','体':'體','绿':'綠','蓝':'藍','细':'細','线':'線','书':'書','术':'術','简':'簡','专':'專','栏':'欄','报':'報','头':'頭','圆':'圓','页':'頁','选':'選','开':'開','关':'關','应':'應'}[c]));
 for(const culture of Object.keys(extra)){
- const file=path.join(root,'src/Vex/I18n',culture+'.json'),data=JSON.parse(fs.readFileSync(file,'utf8')),strings=data.Vex.VexL;
+ const file=path.join(root,'src/Netor.Markdor/I18n',culture+'.json'),data=JSON.parse(fs.readFileSync(file,'utf8')),strings=data.Markdor.MarkdorL;
  Object.assign(strings,extra[culture]);
  Object.assign(strings,{
    SidebarFilesFilterPlaceholder: {'zh-CN':'按文件名查找…','zh-Hant':'依檔名尋找…','en-US':'Find by filename…','ja-JP':'ファイル名で検索…'}[culture],
@@ -42,15 +42,15 @@ for(const culture of Object.keys(extra)){
    ,ChooseChapter: {'zh-CN':'选择一个章节','zh-Hant':'選擇一個章節','en-US':'Select a chapter','ja-JP':'章を選択'}[culture]
    ,ChooseChapterHint: {'zh-CN':'在大纲或导图中选择章节，即可查看和编辑详情。','zh-Hant':'在大綱或導圖中選擇章節，即可查看和編輯詳情。','en-US':'Select a chapter in the outline or mind map to view and edit its details.','ja-JP':'アウトラインまたはマインドマップで章を選択すると、詳細を表示・編集できます。'}[culture]
  });
- context.VexPalettes.forEach((p,i)=>{const name=paletteNames[p.key];strings['Palette'+name]=culture==='zh-CN'?p.label:culture==='zh-Hant'?traditional(p.label):p.en;strings['PalettePurpose'+name]=culture.startsWith('zh')? (culture==='zh-Hant'?traditional(p.note):p.note):culture==='ja-JP'?palettePurposeJa[i]:palettePurposeEn[i];});
- context.VexTypes.forEach((t,i)=>{strings['Typography'+t.key]=culture==='zh-CN'?t.label:culture==='zh-Hant'?traditional(t.label):t.en;strings['TypographyPurpose'+t.key]=culture==='zh-CN'?t.note:culture==='zh-Hant'?traditional(t.note):culture==='ja-JP'?purposeJa[i]:purposeEn[i];});
+ context.MarkdorPalettes.forEach((p,i)=>{const name=paletteNames[p.key];strings['Palette'+name]=culture==='zh-CN'?p.label:culture==='zh-Hant'?traditional(p.label):p.en;strings['PalettePurpose'+name]=culture.startsWith('zh')? (culture==='zh-Hant'?traditional(p.note):p.note):culture==='ja-JP'?palettePurposeJa[i]:palettePurposeEn[i];});
+ context.MarkdorTypes.forEach((t,i)=>{strings['Typography'+t.key]=culture==='zh-CN'?t.label:culture==='zh-Hant'?traditional(t.label):t.en;strings['TypographyPurpose'+t.key]=culture==='zh-CN'?t.note:culture==='zh-Hant'?traditional(t.note):culture==='ja-JP'?purposeJa[i]:purposeEn[i];});
  /* 规则 §9 定稿后只保留 12 套排版、9 套配色的标签；旧主题键随快照一起清除。 */
  const allowed=new Set(['PaletteSelectionSummary','Typography','TypographyPreviewMarkdown']);
- context.VexPalettes.forEach(p=>{allowed.add('Palette'+paletteNames[p.key]);allowed.add('PalettePurpose'+paletteNames[p.key]);});
- context.VexTypes.forEach(t=>{allowed.add('Typography'+t.key);allowed.add('TypographyPurpose'+t.key);});
+ context.MarkdorPalettes.forEach(p=>{allowed.add('Palette'+paletteNames[p.key]);allowed.add('PalettePurpose'+paletteNames[p.key]);});
+ context.MarkdorTypes.forEach(t=>{allowed.add('Typography'+t.key);allowed.add('TypographyPurpose'+t.key);});
  for(const key of Object.keys(strings)) if(/^(Palette|Typography)/.test(key)&&!allowed.has(key)) delete strings[key];
  fs.writeFileSync(file,JSON.stringify(data,null,2)+'\n');
 }
-const data=JSON.parse(fs.readFileSync(path.join(root,'src/Vex/I18n/zh-CN.json'),'utf8'));
-fs.writeFileSync(path.join(root,'src/Vex/I18n/Language.cs'),'// <auto-generated> Generated from I18n/zh-CN.json. </auto-generated>\nnamespace Vex;\npublic static class VexL\n{\n'+Object.keys(data.Vex.VexL).map(key=>'    public static readonly string '+key+' = "Vex.VexL.'+key+'";').join('\n')+'\n}\n');
-console.log('Synchronized '+context.VexPalettes.length+' palette and '+context.VexTypes.length+' typography labels in four languages.');
+const data=JSON.parse(fs.readFileSync(path.join(root,'src/Netor.Markdor/I18n/zh-CN.json'),'utf8'));
+fs.writeFileSync(path.join(root,'src/Netor.Markdor/I18n/Language.cs'),'// <auto-generated> Generated from I18n/zh-CN.json. </auto-generated>\nnamespace Netor.Markdor;\npublic static class MarkdorL\n{\n'+Object.keys(data.Markdor.MarkdorL).map(key=>'    public static readonly string '+key+' = "Markdor.MarkdorL.'+key+'";').join('\n')+'\n}\n');
+console.log('Synchronized '+context.MarkdorPalettes.length+' palette and '+context.MarkdorTypes.length+' typography labels in four languages.');

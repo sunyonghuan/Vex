@@ -61,5 +61,5 @@
       const empty = document.createElement('p'); empty.className = 'empty-state'; empty.textContent = '没有匹配的文档'; container.append(empty);
     }
   }
-  window.VexWriting = {metrics, measureText, renderFiles};
+  window.MarkdorWriting = {metrics, measureText, renderFiles};
 })();

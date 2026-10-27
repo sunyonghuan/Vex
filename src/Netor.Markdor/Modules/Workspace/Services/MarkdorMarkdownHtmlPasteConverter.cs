@@ -1,0 +1,13 @@
+using CodeWF.Avalonia.Markdown;
+using CodeWF.Avalonia.Markdown.Editor.Services;
+
+namespace Netor.Markdor.Modules.Workspace.Services;
+
+/// <summary>
+/// 把导出包（CodeWF.Avalonia.Markdown.Export）的 HTML → Markdown 转换接到编辑器动作服务上，
+/// 保留 Markdor「粘贴网页内容自动转 Markdown」的行为。
+/// </summary>
+public sealed class MarkdorMarkdownHtmlPasteConverter : IMarkdownHtmlPasteConverter
+{
+    public string? Html2Markdown(string html) => MarkdownHtmlClipboard.Html2Markdown(html);
+}

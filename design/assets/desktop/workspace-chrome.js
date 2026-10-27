@@ -1,7 +1,7 @@
 /* 桌面工作区：同一辅助面板承载大纲、文章信息和章节详情。 */
 (function () {
   'use strict';
-  var W = window.VexWorkbench, $ = function (id) { return document.getElementById(id); };
+  var W = window.MarkdorWorkbench, $ = function (id) { return document.getElementById(id); };
   var sidebar = $('structure-sidebar'), inner = sidebar.querySelector('.structure-inner');
   var active = 'outline', opener = $('outline-toggle'), inspector = $('node-inspector');
 
@@ -26,7 +26,7 @@
 
   function updateInfo() {
     if (active !== 'info' || sidebar.classList.contains('collapsed')) return;
-    var counts = VexWriting.metrics(W.text), blocks = W.state.parsed.blocks;
+    var counts = MarkdorWriting.metrics(W.text), blocks = W.state.parsed.blocks;
     panels.info.querySelector('.article-info-name').textContent = W.name;
     $('article-info-count').textContent = counts.count.toLocaleString();
     $('article-info-reading').textContent = counts.count ? '约 ' + Math.ceil(counts.count / 350) + ' 分钟读完' : '尚未开始写作';
@@ -67,19 +67,19 @@
     return false;
   }
 
-  ['vex-content-changed', 'vex-save-state-changed', 'vex-document-loaded'].forEach(function (name) { window.addEventListener(name, updateInfo); });
+  ['markdor-content-changed', 'markdor-save-state-changed', 'markdor-document-loaded'].forEach(function (name) { window.addEventListener(name, updateInfo); });
   document.addEventListener('pointerdown', function (event) {
     if (!sidebar.classList.contains('collapsed') && document.querySelector('.workspace').classList.contains('auxiliary-overlay') && event.target.closest('#view-surface, .sidebar')) close(false);
   });
   document.addEventListener('keydown', function (event) {
     if (event.key !== 'Escape' || sidebar.classList.contains('collapsed') || event.defaultPrevented) return;
-    var popup = Array.from(document.querySelectorAll('[role="dialog"], .overlay, .vex-overlay, .typography-popover, .settings-popover, .chapter-delete-dialog, .file-navigation-menu, .file-context-menu, .menu-flyout, .vex-element-menu, details[open]#vex-appearance-menu')).some(function (element) { return !sidebar.contains(element) && element.getClientRects().length > 0; });
+    var popup = Array.from(document.querySelectorAll('[role="dialog"], .overlay, .markdor-overlay, .typography-popover, .settings-popover, .chapter-delete-dialog, .file-navigation-menu, .file-context-menu, .menu-flyout, .markdor-element-menu, details[open]#markdor-appearance-menu')).some(function (element) { return !sidebar.contains(element) && element.getClientRects().length > 0; });
     if (event.target.closest('.chapter-title-input') || popup) return;
     event.preventDefault(); event.stopPropagation(); close(true);
   }, true);
-  var beginGuide = VexProto.beginGuideSession, endGuide = VexProto.endGuideSession;
-  VexProto.beginGuideSession = function () { var snapshot = beginGuide(); snapshot.auxiliary = {active:active, open:!sidebar.classList.contains('collapsed')}; return snapshot; };
-  VexProto.endGuideSession = function (snapshot) { endGuide(snapshot); if (snapshot?.auxiliary) { active = snapshot.auxiliary.active; W.showStructure(snapshot.auxiliary.open); sync(); } };
-  window.VexAuxiliary = {show:show, close:close, sync:sync, handleAction:handleAction, get active() { return active; }};
+  var beginGuide = MarkdorProto.beginGuideSession, endGuide = MarkdorProto.endGuideSession;
+  MarkdorProto.beginGuideSession = function () { var snapshot = beginGuide(); snapshot.auxiliary = {active:active, open:!sidebar.classList.contains('collapsed')}; return snapshot; };
+  MarkdorProto.endGuideSession = function (snapshot) { endGuide(snapshot); if (snapshot?.auxiliary) { active = snapshot.auxiliary.active; W.showStructure(snapshot.auxiliary.open); sync(); } };
+  window.MarkdorAuxiliary = {show:show, close:close, sync:sync, handleAction:handleAction, get active() { return active; }};
   sync();
 })();

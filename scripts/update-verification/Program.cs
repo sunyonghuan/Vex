@@ -3,10 +3,10 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using CodeWF.Toolkit.Core.UpdateChecking;
 using ReactiveUI;
-using Vex;
-using Vex.Core.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Help.Services;
+using Netor.Markdor;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Help.Services;
 
 RxApp.MainThreadScheduler = CurrentThreadScheduler.Instance;
 int passed = 0;
@@ -18,7 +18,7 @@ using (var about = new ShellAboutViewModel(localizer, opened.Add))
 {
     Check(about.PlatformText.Contains("Avalonia"), "runtime metadata");
     about.WebsiteCommand.Execute().Subscribe();
-    Check(opened.Single() == "https://vex.codewf.com/", "About uses the configured website");
+    Check(opened.Single() == "https://markdor.codewf.com/", "About uses the configured website");
     opened.Clear();
     about.UpdateCommand.Execute().Subscribe();
     Check(about.WantsUpdates, "About requests the shared update view");
@@ -84,9 +84,9 @@ using (var model = new ShellUpdateViewModel(service, localizer, opened.Add, () =
 Check(localizer.Subscribers == 0, "closing releases culture subscription");
 if (OperatingSystem.IsWindows())
 {
-    var directory = Path.Combine(Path.GetTempPath(), "Vex handoff 测试 " + Guid.NewGuid().ToString("N"));
+    var directory = Path.Combine(Path.GetTempPath(), "Markdor handoff 测试 " + Guid.NewGuid().ToString("N"));
     Directory.CreateDirectory(directory);
-    var package = Path.Combine(directory, "Vex setup.exe");
+    var package = Path.Combine(directory, "Markdor setup.exe");
     await File.WriteAllTextAsync(package, "controlled fixture, never executed");
     try
     {
@@ -101,7 +101,7 @@ if (OperatingSystem.IsWindows())
                 if (mode == "start-failed") return false;
                 if (mode == "ready")
                 {
-                    var name = info.ArgumentList.Single(arg => arg.StartsWith("/VEXUPDATEREADY="))[16..];
+                    var name = info.ArgumentList.Single(arg => arg.StartsWith("/MARKDORUPDATEREADY="))[20..];
                     using var signal = EventWaitHandle.OpenExisting(name);
                     signal.Set();
                 }
@@ -128,12 +128,12 @@ void Check(bool success, string scenario)
 }
 
 static UpdateCheckResult Available(bool checksum) => new(new UpdateInfo(new Version(9, 0, 0),
-    "v9.0.0", "Vex", "Release notes", "https://example.test/releases/tag/v9.0.0",
-    "https://example.test/Vex-setup.exe", "Vex-setup.exe", checksum ? "https://example.test/Vex-setup.exe.sha256" : null), true, null);
+    "v9.0.0", "Markdor", "Release notes", "https://example.test/releases/tag/v9.0.0",
+    "https://example.test/Markdor-setup.exe", "Markdor-setup.exe", checksum ? "https://example.test/Markdor-setup.exe.sha256" : null), true, null);
 
 sealed class FakeUpdates : IUpdateService
 {
-    public UpdateServiceOptions Options { get; } = new() { Repository = "Vex", ProductName = "Vex" };
+    public UpdateServiceOptions Options { get; } = new() { Repository = "Markdor", ProductName = "Markdor" };
     public Version CurrentVersion => new(1, 0, 0);
     public string CurrentVersionText => "1.0.0";
     public UpdateCheckResult Result { get; set; } = UpdateCheckResult.Latest();
@@ -152,7 +152,7 @@ sealed class FakeUpdates : IUpdateService
         Downloads++;
         if (DownloadError is { } error) throw error;
         progress?.Report(new UpdateDownloadProgress(50, 100));
-        return Task.FromResult(new UpdateDownloadResult("Vex-setup.exe", "Vex-setup.exe", 100));
+        return Task.FromResult(new UpdateDownloadResult("Markdor-setup.exe", "Markdor-setup.exe", 100));
     }
     public Task<UpdateInstallResult> InstallAsync(UpdateDownloadResult download, CancellationToken cancellationToken = default) => Task.FromResult(Install);
 }

@@ -10,14 +10,14 @@ using Avalonia.VisualTree;
 using CodeWF.Avalonia.Markdown.Controls;
 using CodeWF.Avalonia.Markdown;
 using CodeWF.Avalonia.Markdown.Themes;
-using Vex.Core.Services;
-using Vex.Controls;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Controls;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
 
 internal static class PrototypeAppearanceVerification
 {
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         FontManager.Current.TryMatchCharacter('文', FontStyle.Normal, FontWeight.Normal, FontStretch.Normal,
@@ -62,7 +62,7 @@ internal static class PrototypeAppearanceVerification
         foreach (var language in vm.Appearance.LanguageOptions)
         {
             vm.Appearance.SelectedLanguage = language; Render();
-            Check(gallery.GetVisualDescendants().OfType<TextBlock>().All(t => t.Text?.StartsWith("Vex.VexL.") != true), "Typography labels resolve in " + language.CultureName);
+            Check(gallery.GetVisualDescendants().OfType<TextBlock>().All(t => t.Text?.StartsWith("Markdor.MarkdorL.") != true), "Typography labels resolve in " + language.CultureName);
         }
         vm.Appearance.SelectLanguageByCulture("zh-CN"); vm.Workbench.ShowTypography = false;
         var appearanceMenu = window.FindControl<ShellAppearanceMenuView>("AppearanceMenu")!;
@@ -73,13 +73,13 @@ internal static class PrototypeAppearanceVerification
         {
             vm.Appearance.SelectThemeByKey(theme); Render();
             window.MouseMove(new Point(1, window.ClientSize.Height - 1)); Render();
-            Application.Current!.TryGetResource("VexMutedBrush", window.ActualThemeVariant, out var normalIconBrush);
+            Application.Current!.TryGetResource("MarkdorMutedBrush", window.ActualThemeVariant, out var normalIconBrush);
             Check(appearanceIcon!.Bounds.Size == new Size(15, 15)
                 && appearanceIcon.Stroke is ISolidColorBrush normalStroke && normalIconBrush is ISolidColorBrush normalBrush
                 && normalStroke.Color == normalBrush.Color, "Palette icon keeps its 15px size and theme stroke under " + theme);
             var button = appearanceMenu.AppearanceButton;
             window.MouseMove(button.TranslatePoint(new Point(button.Bounds.Width / 2, button.Bounds.Height / 2), window)!.Value); Render();
-            Application.Current.TryGetResource("VexAccentBrush", window.ActualThemeVariant, out var hoverIconBrush);
+            Application.Current.TryGetResource("MarkdorAccentBrush", window.ActualThemeVariant, out var hoverIconBrush);
             Check(button.IsPointerOver && appearanceIcon.Stroke is ISolidColorBrush hoverStroke
                 && hoverIconBrush is ISolidColorBrush hoverBrush && hoverStroke.Color == hoverBrush.Color,
                 "Palette icon follows the title bar theme hover color under " + theme);
@@ -125,10 +125,10 @@ internal static class PrototypeAppearanceVerification
         {
             vm.Appearance.SelectedPalette = palette; vm.Appearance.SelectThemeByKey(mode); Render();
             var variant = mode == "light" ? ThemeVariant.Light : ThemeVariant.Dark;
-            Application.Current!.TryGetResource("VexDocumentPaperBrush", window.ActualThemeVariant, out var paperResource);
+            Application.Current!.TryGetResource("MarkdorDocumentPaperBrush", window.ActualThemeVariant, out var paperResource);
             var paper = ((ISolidColorBrush)paperResource!).Color;
             Application.Current.TryGetResource("StudioSelected", window.ActualThemeVariant, out var selectedBrush);
-            Application.Current.TryGetResource("VexAccentSoftBrush", window.ActualThemeVariant, out var applicationSelected);
+            Application.Current.TryGetResource("MarkdorAccentSoftBrush", window.ActualThemeVariant, out var applicationSelected);
             Check(((ISolidColorBrush)selectedBrush!).Color == ((ISolidColorBrush)applicationSelected!).Color,
                 "Selected surface follows " + palette.Key + "/" + mode);
             foreach (var article in ArticleTypographyCatalog.All)

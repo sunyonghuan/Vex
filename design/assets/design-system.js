@@ -18,7 +18,7 @@
   const onSolid = color => contrast('#FFFFFF',color)>=contrast('#17211C',color)?'#FFFFFF':'#17211C';
   /* 排版文字的可达背景集合：取自生成配色数据的基础面（paper/panel/bg 及近似 hover）。 */
   const surfaces={light:[],dark:[]};
-  for(const p of VexPalettes){
+  for(const p of MarkdorPalettes){
     for(const mode of ['light','dark']){
       const dark=mode==='dark';
       const paper=dark?p.darkPaper:p.paper,panel=dark?p.darkPanel:p.panel,bg=dark?p.darkBg:p.bg;
@@ -35,16 +35,16 @@
     TenderGreen:'日常记录 · 柔绿轻盈',WeChatFormat:'刊物文章 · 居中标题'
   };
   const keptTypes = ['Basic','Simple','InkBlack','GeekBlack','OrangeHeart','RedScarlet','ColorfulPurple','Yamabuki','TechnologyBlue','LanQing','TenderGreen','WeChatFormat'];
-  const originalRules=window.VexTypeRules;
+  const originalRules=window.MarkdorTypeRules;
   const typeTokens={};
   /* 用户自定义排版（数组，键 user-<id>）：用各自编写层双明暗值注册令牌，对比度校正照跑。 */
   let customTypes=[];
   try{
-    const raw=JSON.parse(VexStorage.getItem('vex-custom-typographics')||'[]');
+    const raw=JSON.parse(MarkdorStorage.getItem('markdor-custom-typographics')||'[]');
     if(Array.isArray(raw))customTypes=raw.filter(c=>c&&c.id&&c.light&&c.dark)
       .map(c=>({key:'user-'+c.id,label:c.name||'自定义',note:'我的排版 · 实时派生',light:c.light,dark:c.dark}));
   }catch(_){}
-  for(const t of VexTypes.concat(customTypes)){
+  for(const t of MarkdorTypes.concat(customTypes)){
     t.note=typeNotes[t.key]||t.note||t.label;if(t.key.indexOf('user-')!==0)t.recommended=recommendedTypes.includes(t.key);typeTokens[t.key]={};
     for(const mode of ['light','dark']){
       const decoration=t[mode],backgrounds=surfaces[mode];
@@ -53,20 +53,20 @@
       typeTokens[t.key][mode]={text,decoration,solid:decoration,on:onSolid(decoration)};
     }
   }
-  const typeByKey=new Map(VexTypes.map(t=>[t.key,t]));
-  window.VexTypes = keptTypes.map(key=>typeByKey.get(key)).filter(Boolean);
+  const typeByKey=new Map(MarkdorTypes.map(t=>[t.key,t]));
+  window.MarkdorTypes = keptTypes.map(key=>typeByKey.get(key)).filter(Boolean);
   function typeProperties(t,exporting){
     const a=typeTokens[t.key].light,b=typeTokens[t.key].dark;
     const value=key=>exporting?a[key]:'light-dark('+a[key]+','+b[key]+')';
     return '--typography-accent:'+value('text')+';--type-decoration:'+value('decoration')+';--type-solid:'+value('solid')+';--type-on-accent:'+value('on')+';--type-tint:color-mix(in srgb,var(--type-decoration) 10%,transparent)';
   }
   function rules(key,compact,exporting){
-    const t=VexTypes.find(t=>t.key===key)||VexTypes[0];
+    const t=MarkdorTypes.find(t=>t.key===key)||MarkdorTypes[0];
     return originalRules(t.key,compact)+'BODY{'+typeProperties(t,exporting)+';--type-size:'+Number(t.rules.match(/--type-size:(\d+)/)?.[1]||16)+'px;'+(compact?'font-size:calc(var(--writing-size,var(--type-size,16px)) * .93)':'')+'}'+
       'BODY a{color:var(--typography-accent);text-decoration:underline;text-underline-offset:.18em}BODY blockquote{color:var(--fg);background:color-mix(in srgb,var(--type-decoration) 6%,transparent)}';
   }
-  window.VexTypeRules=(key,compact)=>rules(key,compact,false);
-  window.VexTypeExport=(key,compact)=>rules(key,compact,true).replaceAll('BODY','body')+
+  window.MarkdorTypeRules=(key,compact)=>rules(key,compact,false);
+  window.MarkdorTypeExport=(key,compact)=>rules(key,compact,true).replaceAll('BODY','body')+
     '.md-table-scroll{max-width:100%;overflow-x:auto}table{table-layout:auto;width:max-content;max-width:100%}th,td{width:auto;overflow-wrap:anywhere}body{color-scheme:light;--document-bg:#fff;--fg:#30343b;--muted:#606770;--border:#dde1e5}';
-  window.VexDesign={contrast,mix,readable,typeTokens};
+  window.MarkdorDesign={contrast,mix,readable,typeTokens};
 })();

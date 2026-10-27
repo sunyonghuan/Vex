@@ -4,7 +4,7 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const safeURL = (value, image = false) => /^(https?:|mailto:|#)/i.test(value) || value === '../design/Third-Party-Licenses.html' || (image && (/^data:image\/(png|jpeg|gif|webp);base64,/i.test(value) || /^assets\/[\w./-]+$/i.test(value) && !value.split('/').includes('..'))) ? value : '#';
   function inline(value) {
-    if (window.VexRendering) return VexRendering.inline(value);
+    if (window.MarkdorRendering) return MarkdorRendering.inline(value);
     const tokens = [];
     const token = html => { tokens.push(html); return `\u0001${tokens.length - 1}\u0002`; };
     let s = esc(value);
@@ -82,7 +82,7 @@
       if (line.trim() === '$$') {
         i++; while (i < lines.length && lines[i].trim() !== '$$') i++;
         const formula = lines.slice(start + 1,i).join('\n'); if (i < lines.length) i++;
-        add('math',start,i,VexRendering.renderSpecial({kind:'math',text:formula,line:start + 1})); continue;
+        add('math',start,i,MarkdorRendering.renderSpecial({kind:'math',text:formula,line:start + 1})); continue;
       }
       if ((match = /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(line))) {
         const level = match[1].length, title = match[2];
@@ -97,12 +97,12 @@
         const closing = new RegExp('^ {0,3}' + marker[0] + '{' + marker.length + ',}\\s*$');
         while (i < lines.length && !closing.test(lines[i])) i++;
         const code = lines.slice(start + 1, i).join('\n'); if (i < lines.length) i++;
-        add('code', start, i, language.toLowerCase() === 'mermaid' && window.VexRendering ? VexRendering.renderSpecial({kind:'code',language,text:code,line:start+1}) : `<pre data-language="${esc(language)}"><code>${esc(code)}</code></pre>`, { language }); continue;
+        add('code', start, i, language.toLowerCase() === 'mermaid' && window.MarkdorRendering ? MarkdorRendering.renderSpecial({kind:'code',language,text:code,line:start+1}) : `<pre data-language="${esc(language)}"><code>${esc(code)}</code></pre>`, { language }); continue;
       }
       if (/^\s*(---+|\*\*\*+)\s*$/.test(line)) { add('hr', i, ++i, '<hr>'); continue; }
       if (i + 1 < lines.length && line.includes('|') && /^\s*\|?\s*:?-{3,}/.test(lines[i + 1])) {
         i += 2; while (i < lines.length && lines[i].trim() && lines[i].includes('|')) i++;
-        const value=VexDocumentOps.table(lines.slice(start,i).join('\n'));
+        const value=MarkdorDocumentOps.table(lines.slice(start,i).join('\n'));
         if(value){const row=(cells,tag)=>'<tr>'+cells.map((cell,index)=>`<${tag} data-align="${value.align[index]||'left'}" style="text-align:${value.align[index]||'left'}">${inline(cell.replace(/\\\|/g,'|'))}</${tag}>`).join('')+'</tr>';add('table',start,i,`<div class="md-table-scroll" tabindex="0" aria-label="表格"><table><thead>${row(value.rows[0],'th')}</thead><tbody>${value.rows.slice(1).map(cells=>row(cells,'td')).join('')}</tbody></table></div>`);continue;}
         i=start;
       }
@@ -116,7 +116,7 @@
       }
       if (/^ {0,3}\[\^([^\]\r\n]+)\]:/.test(line)) {
         const footnote = /^ {0,3}\[\^([^\]\r\n]+)\]:\s*(.*)$/.exec(line), label = footnote[1], body = footnote[2];
-        add('footnote', i, ++i, `<div class="md-footnote" id="vex-footnote-${encodeURIComponent(label)}"><sup>[${esc(label)}]</sup> ${inline(body)} <a href="#vex-footnote-ref-${encodeURIComponent(label)}" aria-label="返回正文">↩</a></div>`, { label });
+        add('footnote', i, ++i, `<div class="md-footnote" id="markdor-footnote-${encodeURIComponent(label)}"><sup>[${esc(label)}]</sup> ${inline(body)} <a href="#markdor-footnote-ref-${encodeURIComponent(label)}" aria-label="返回正文">↩</a></div>`, { label });
         continue;
       }
       if (/^>/.test(line)) {
@@ -131,7 +131,7 @@
       }
       i++;
       while (i < lines.length && lines[i].trim() && !special(lines[i]) && !(i + 1 < lines.length && lines[i].includes('|') && /^\s*\|?\s*:?-{3,}/.test(lines[i + 1]))) i++;
-      add('paragraph', start, i, `<p>${lines.slice(start, i).map(inline).join(window.VexPreferences?.values.softBreak === false ? ' ' : '<br>')}</p>`);
+      add('paragraph', start, i, `<p>${lines.slice(start, i).map(inline).join(window.MarkdorPreferences?.values.softBreak === false ? ' ' : '<br>')}</p>`);
     }
     return { blocks, headings };
   }
@@ -169,7 +169,7 @@
     if (tag === 'li') return listMarkdown(node.parentElement, 0);
     if (tag === 'input') return '';
     if (tag === 'table') {
-      return VexDocumentOps.fromDOM(node,toMarkdown) + '\n\n';
+      return MarkdorDocumentOps.fromDOM(node,toMarkdown) + '\n\n';
     }
     if (tag === 'p' || tag === 'div') return inner() + '\n\n';
     return inner();
@@ -182,15 +182,15 @@
       active = null;
     };
     const repaint = () => {
-      if (window.VexDiagramEditing?.busy(host)) return;
+      if (window.MarkdorDiagramEditing?.busy(host)) return;
       active = null; const text = options.getText(); host.innerHTML = render(text, true);
       parse(text).blocks.forEach((block,index) => {
         const el = host.querySelector(`[data-block="${index}"]`);
         if (block.type !== 'code') return;
-        if (block.language.toLowerCase() === 'mermaid' && window.VexPreferences?.values.mermaid !== false) {
+        if (block.language.toLowerCase() === 'mermaid' && window.MarkdorPreferences?.values.mermaid !== false) {
           const before = text.slice(0,block.start), after = text.slice(block.end);
-          VexDiagramEditing.mount(el,block,{begin:clearActive,change:raw => options.onChange(before + raw + after,true),finish:repaint});
-        } else el.append(VexCodeFence.footer(block.language || ''));
+          MarkdorDiagramEditing.mount(el,block,{begin:clearActive,change:raw => options.onChange(before + raw + after,true),finish:repaint});
+        } else el.append(MarkdorCodeFence.footer(block.language || ''));
       });
     };
     const begin = el => {
@@ -201,7 +201,7 @@
       active = { element: el, before: options.getText().slice(0, block.start), after: options.getText().slice(block.end), raw: block.raw, changed: false };
       el.classList.add('is-editing');
       if (block.type === 'code') {
-        active.fence = VexCodeFence.parse(block.raw);
+        active.fence = MarkdorCodeFence.parse(block.raw);
         el.querySelector('.md-code-language').value = active.fence?.language || block.language || '';
       }
     };

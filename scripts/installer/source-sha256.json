@@ -73,5 +73,5 @@
       "sha256": "18144b31461ecb6efe184eae734491ee36bbef92b1195a79847118d53150322e"
     }
   ],
-  "local_design": "README.md documents Vex local overrides; shared installer engines and bitmaps retain their source hashes."
+  "local_design": "README.md documents Markdor local overrides; shared installer engines and bitmaps retain their source hashes."
 }

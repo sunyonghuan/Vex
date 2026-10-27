@@ -2,16 +2,16 @@ using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Vex.Core.Models;
-using Vex.Core.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
-using Vex.Modules.Shell.Services;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
+using Netor.Markdor.Modules.Shell.Services;
 using System.Text;
 
 internal static class ProtectionVerification
 {
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         void Pump(Task? task = null)

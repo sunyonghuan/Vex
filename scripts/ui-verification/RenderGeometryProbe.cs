@@ -1,13 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
 
 /// <summary>临时探针：打印阅读窗格关键块与源码窗格首行的窗口坐标，供原型指标比对。</summary>
 internal static class RenderGeometryProbe
 {
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         void Render()
@@ -28,7 +28,7 @@ internal static class RenderGeometryProbe
         vm.Layout.IsOutlineVisible = false;
         const char nl = (char)10;
         CodeWF.Toolkit.EventBus.EventBus.Default.Publish(
-            new Vex.Core.Messaging.MarkdownTextChangedCommand(VisualParityCapture.SampleDocument, 1, 1,
+            new Markdor.Core.Messaging.MarkdownTextChangedCommand(VisualParityCapture.SampleDocument, 1, 1,
                 VisualParityCapture.SampleDocument.Count(c => c == nl) + 1));
         Render();
         Thread.Sleep(900);

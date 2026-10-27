@@ -15,26 +15,26 @@ using Prism.Ioc;
 using CodeWF.Avalonia.Controls.Themes;
 using SkiaSharp;
 using Markdig;
-using Vex.Core.Models;
-using Vex.Core.Services;
-using Vex.Modules.Shell.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Workspace.ViewModels;
-using Vex.Modules.Workspace.Services;
-using Vex.Core.Messaging;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Workspace.ViewModels;
+using Netor.Markdor.Modules.Workspace.Services;
+using Netor.Markdor.Core.Messaging;
 using CodeWF.Toolkit.Core.UpdateChecking;
 
-var mode = args.FirstOrDefault() ?? "vex";
-VerificationVexApp.ProbeFileTree = mode is "file-tree-probe" or "workspace-files";
-VerificationVexApp.ControlDocumentReads = mode == "current-file-protection";
-if (mode == "protection") VerificationVexApp.Exports = new VerificationExports();
-if (mode == "updates") VerificationVexApp.Updates = new VerificationUpdates();
+var mode = args.FirstOrDefault() ?? "markdor";
+VerificationMarkdorApp.ProbeFileTree = mode is "file-tree-probe" or "workspace-files";
+VerificationMarkdorApp.ControlDocumentReads = mode == "current-file-protection";
+if (mode == "protection") VerificationMarkdorApp.Exports = new VerificationExports();
+if (mode == "updates") VerificationMarkdorApp.Updates = new VerificationUpdates();
 Console.WriteLine("Markdown library " + typeof(CodeWF.Avalonia.Markdown.Controls.MarkdownViewer).Assembly.GetName().Version);
 var output = Path.GetFullPath(args.ElementAtOrDefault(1) ?? "artifacts/ui-verification");
 Directory.CreateDirectory(output);
 if (mode == "settings-real-ui")
 {
-    VerificationVexApp.UseRealSettings = true;
+    VerificationMarkdorApp.UseRealSettings = true;
     var config = Path.Combine(output, "settings.config");
     File.WriteAllText(config, "<configuration><appSettings /></configuration>");
     AppContext.SetData("APP_CONFIG_FILE", config);
@@ -46,10 +46,10 @@ if (mode == "parity-score")
 }
 if (mode is "popup-layout" or "elements" or "motion" or "desktop-parity" or "settings-ui" or "settings-real-ui" or "prototype-appearance" or "prototype-chrome" or "protection" or "visual" or "render-geometry")
 {
-    AppBuilder.Configure<VerificationVexApp>().UseSkia().With(VexFonts.Options).UseReactiveUI()
+    AppBuilder.Configure<VerificationMarkdorApp>().UseSkia().With(MarkdorFonts.Options).UseReactiveUI()
         .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
-    var app = (VerificationVexApp)Application.Current!;
-    var window = (Vex.Modules.Shell.Views.MainWindow)app.Shell!;
+    var app = (VerificationMarkdorApp)Application.Current!;
+    var window = (Markdor.Modules.Shell.Views.MainWindow)app.Shell!;
     window.Show();
     // 启动期的演示文档是异步装载的；不先等它落定，验证器写入的样例会随后被覆盖。
     var startupVm = (MainWindowViewModel)window.DataContext!;
@@ -75,9 +75,9 @@ if (mode is "popup-layout" or "elements" or "motion" or "desktop-parity" or "set
 }
 if (mode == "parity")
 {
-    AppBuilder.Configure<VerificationVexApp>().UseSkia().With(VexFonts.Options).UseReactiveUI()
+    AppBuilder.Configure<VerificationMarkdorApp>().UseSkia().With(MarkdorFonts.Options).UseReactiveUI()
         .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
-    var app = (VerificationVexApp)Application.Current!;
+    var app = (VerificationMarkdorApp)Application.Current!;
     var window = app.Shell!;
     var vm = (MainWindowViewModel)window.DataContext!;
     window.Show();
@@ -104,11 +104,11 @@ if (mode == "parity")
                 Pump();
                 PumpUntil(() => vm.Workbench.Root is not null);
                 SettleRendering();
-                var sourceView = window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
+                var sourceView = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
                 sourceView.Editor.CaretOffset = 0;
                 sourceView.Editor.ScrollToHome();
-                foreach (var scroll in window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!.GetVisualDescendants().OfType<ScrollViewer>()) scroll.Offset = default;
-                foreach (var scroll in window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.GetVisualDescendants().OfType<ScrollViewer>()) scroll.Offset = default;
+                foreach (var scroll in window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!.GetVisualDescendants().OfType<ScrollViewer>()) scroll.Offset = default;
+                foreach (var scroll in window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.GetVisualDescendants().OfType<ScrollViewer>()) scroll.Offset = default;
                 Pump();
                 Capture(window, $"{width}-{theme}-{view}");
             }
@@ -119,7 +119,7 @@ if (mode == "parity")
     vm.Workbench.ShowLayouts = false;
     vm.Workbench.ShowInstant(); vm.Workbench.ShowTypography = true; Pump(); SettleRendering(); Capture(window, "typography");
     vm.Workbench.ShowTypography = false;
-    var live = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
+    var live = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
     foreach (var scroll in live.GetVisualDescendants().OfType<ScrollViewer>()) scroll.Offset = new Vector(0, scroll.Extent.Height);
     Pump(); SettleRendering();
     var code = live.GetVisualDescendants().OfType<SelectableTextBlock>().First(text => text.Classes.Contains("MdCodeBlockText"));
@@ -128,9 +128,9 @@ if (mode == "parity")
     window.MouseDown(codeClick, MouseButton.Left); window.MouseUp(codeClick, MouseButton.Left); Pump(); Capture(window, "code-edit");
     window.FindControl<Button>("QuickStartButton")!.Focus(); Pump();
     var aboutTask = app.Resolve<IShellOverlayService>().ShowAboutAsync();
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Any());
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Any());
     Capture(window, "about");
-    ((ShellAboutViewModel)window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Single().DataContext!).Close(); Pump(aboutTask);
+    ((ShellAboutViewModel)window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Single().DataContext!).Close(); Pump(aboutTask);
     Pump(vm.OpenStartupDocumentAsync([BundledDocuments.GetPath("鸣谢.md")]));
     vm.Workbench.ShowRead(); Pump(); SettleRendering(); Capture(window, "thanks");
     vm.Workbench.ShowMindMap(); vm.Workbench.ShowMapSettings = true; Pump(); SettleRendering(); Capture(window, "map-settings");
@@ -139,17 +139,17 @@ if (mode == "parity")
     Console.WriteLine("Native parity captures: " + output);
     return;
 }
-if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "vex" or "preferences" or "locale" or "buttons" or "danger-buttons" or "path-identity" or "layout" or "editing-tools" or "workspace" or "workbench" or "performance" or "file-tree" or "file-icons" or "file-tree-probe" or "workspace-files" or "current-file-protection" or "pointer-regressions" or "stress" or "presentation" or "html-tables" or "media-layout")
+if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "markdor" or "preferences" or "locale" or "buttons" or "danger-buttons" or "path-identity" or "layout" or "editing-tools" or "workspace" or "workbench" or "performance" or "file-tree" or "file-icons" or "file-tree-probe" or "workspace-files" or "current-file-protection" or "pointer-regressions" or "stress" or "presentation" or "html-tables" or "media-layout")
 {
-    AppBuilder.Configure<VerificationVexApp>().UseSkia().With(VexFonts.Options).UseReactiveUI()
+    AppBuilder.Configure<VerificationMarkdorApp>().UseSkia().With(MarkdorFonts.Options).UseReactiveUI()
         .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
-    var app = (VerificationVexApp)Application.Current!;
+    var app = (VerificationMarkdorApp)Application.Current!;
     var window = app.Shell ?? throw new Exception("Prism shell was not initialized");
     var vm = (MainWindowViewModel)window.DataContext!;
     window.Show();
     // 启动期的演示文档/工作区恢复是异步的，等它尘埃落定再开始任何验证。
     PumpUntil(() => vm.DocumentInfo.CurrentFilePath is { Length: > 0 });
-    if (mode == "mermaid") { VerifyMermaidWorkspace((Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "mermaid") { VerifyMermaidWorkspace((Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
     if (mode == "documents") { VerifyDocumentWindows(app, window, vm); window.Close(); return; }
     if (mode == "document-open-child")
     {
@@ -162,18 +162,18 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
         window.Close(); return;
     }
     if (mode == "updates") { VerifyUpdates(app, window, vm); window.Close(); return; }
-    if (mode == "media-layout") { VerifyMediaLayout((Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
-    if (mode == "html-tables") { VerifyHtmlTables((Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
-    if (mode == "presentation") { VerifyPresentation(app, (Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "media-layout") { VerifyMediaLayout((Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "html-tables") { VerifyHtmlTables((Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "presentation") { VerifyPresentation(app, (Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
     if (mode == "pointer-regressions") { VerifyPointerRegressions(app, window, vm); window.Close(); return; }
-    if (mode == "stress") { VerifyStress((Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "stress") { VerifyStress((Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
     if (mode == "file-tree") { VerifyFileTreeLayout(window, app.Resolve<ShellFilesViewModel>(), output); window.Close(); return; }
     if (mode == "file-icons") { FileIconVerification.Run(app, window, output); window.Close(); return; }
     if (mode == "file-tree-probe") { FileTreeLoadingProbe.Run(app, window, output); window.Close(); return; }
     if (mode == "workspace-files") { WorkspaceFileVerification.Run(app, window, output); window.Close(); return; }
     if (mode == "current-file-protection") { CurrentFileProtectionVerification.Run(app, window, output); window.Close(); return; }
-    if (mode == "performance") { VerifyPerformance((Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
-    if (mode == "workspace") { VerifySingleDocumentWorkspace(app, (Vex.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "performance") { VerifyPerformance((Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
+    if (mode == "workspace") { VerifySingleDocumentWorkspace(app, (Markdor.Modules.Shell.Views.MainWindow)window, vm); window.Close(); return; }
     if (mode == "workbench") { VerifyWorkbench(app, window, vm); window.Close(); return; }
     if (mode is "buttons" or "danger-buttons")
     {
@@ -184,7 +184,7 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     if (mode == "editing-tools") { VerifyEditingTools(app, window, vm); window.Close(); return; }
     if (mode == "layout") { VerifyWorkspaceLayout(app, window, vm); window.Close(); return; }
     ControlLocaleVerification.Run(window, ["zh-CN", "en-US", "zh-Hant", "ja-JP"], app.Resolve<IAppLocalizer>().SetCulture);
-    var languageMenu = window.FindControl<Vex.Modules.Shell.Views.ShellAppearanceMenuView>("AppearanceMenu")!;
+    var languageMenu = window.FindControl<Markdor.Modules.Shell.Views.ShellAppearanceMenuView>("AppearanceMenu")!;
     foreach (var culture in new[] { "en-US", "zh-Hant", "ja-JP", "zh-CN" })
     {
         CodeWF.Toolkit.Lang.I18nManager.Instance.Culture = new System.Globalization.CultureInfo(culture);
@@ -222,15 +222,15 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
             "Markdown drop path supports the same file extension: " + extension);
     }
     Check(Math.Abs(window.FindControl<Border>("SidebarGuideTarget")!.Bounds.Width - 226) < 1,
-        "Vex sidebar initially occupies 226 px");
-    var titleMenu = window.FindControl<Vex.Modules.Shell.Views.ShellTitleMenuView>("TitleMenuView")!;
+        "Markdor sidebar initially occupies 226 px");
+    var titleMenu = window.FindControl<Markdor.Modules.Shell.Views.ShellTitleMenuView>("TitleMenuView")!;
     var viewMenu = titleMenu.FindControl<MenuItem>("ViewMenuItem")!;
     viewMenu.IsSubMenuOpen = true;
     Pump();
     var sidebarMenu = titleMenu.FindControl<MenuItem>("SidebarMenuItem")!;
-    Check(sidebarMenu.IsChecked, "Vex Sidebar menu is initially checked");
-    Check(sidebarMenu.Header?.ToString() == app.Resolve<IAppLocalizer>().Get(Vex.VexL.ToggleSidebar),
-        "Vex Sidebar menu label is localized");
+    Check(sidebarMenu.IsChecked, "Markdor Sidebar menu is initially checked");
+    Check(sidebarMenu.Header?.ToString() == app.Resolve<IAppLocalizer>().Get(Markdor.MarkdorL.ToggleSidebar),
+        "Markdor Sidebar menu label is localized");
     viewMenu.IsSubMenuOpen = false;
     viewMenu.IsSelected = false;
     Pump();
@@ -244,7 +244,7 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
         File.SetLastWriteTimeUtc(samplePath, DateTime.UtcNow.AddHours(-36));
     }
     var files = Directory.GetFiles(sampleFolder, "*.md").Order().Take(5).ToArray();
-    Check(files.Length == 5, "Vex regression uses five real sample files");
+    Check(files.Length == 5, "Markdor regression uses five real sample files");
     foreach (var file in files)
     {
         vm.ApplyDocumentFileOpenRequested(new DocumentFileOpenRequestedCommand(
@@ -255,17 +255,17 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     VerifyPathIdentity(app, window, vm, sampleFolder);
     if (mode == "path-identity") { window.Close(); return; }
     var editorVm = app.Resolve<MarkdownEditorViewModel>();
-    VerifySourceLineHeight(window, window.GetVisualDescendants().OfType<MarkdownEditorView>().Single(), 23, "Vex");
+    VerifySourceLineHeight(window, window.GetVisualDescendants().OfType<MarkdownEditorView>().Single(), 23, "Markdor");
     editorVm.InsertText(" regression edit");
     Pump();
-    Check(vm.DocumentInfo.IsModified, "Typing marks Vex document dirty");
+    Check(vm.DocumentInfo.IsModified, "Typing marks Markdor document dirty");
     vm.ApplyDocumentFileOpenRequested(new DocumentFileOpenRequestedCommand(
         new DocumentFile(files[0], Path.GetFileName(files[0]), sampleFolder, string.Empty, string.Empty), null));
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
-    var dialog = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>().Single();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
+    var dialog = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>().Single();
     Check(vm.DocumentInfo.CurrentFilePath == files[^1], "Dirty-file switch waits for save confirmation");
     Check(!titleMenu.IsEffectivelyEnabled, "Modal confirmation disables title menu commands");
-    Capture(window, "vex-unsaved-confirmation");
+    Capture(window, "markdor-unsaved-confirmation");
     ((ShellUnsavedDialogViewModel)dialog.DataContext!).Cancel();
     Pump();
     Check(vm.DocumentInfo.IsModified, "Cancel keeps the edited document dirty");
@@ -274,8 +274,8 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     var unchanged = File.ReadAllText(files[^1]);
     vm.ApplyDocumentFileOpenRequested(new DocumentFileOpenRequestedCommand(
         new DocumentFile(files[0], Path.GetFileName(files[0]), sampleFolder, string.Empty, string.Empty), null));
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
-    ((ShellUnsavedDialogViewModel)window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>()
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
+    ((ShellUnsavedDialogViewModel)window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>()
         .Single().DataContext!).Discard();
     PumpUntil(() => vm.DocumentInfo.CurrentFilePath == files[0]);
     Check(!vm.DocumentInfo.IsModified && File.ReadAllText(files[^1]) == unchanged,
@@ -285,8 +285,8 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     var expectedSaved = window.GetVisualDescendants().OfType<MarkdownEditorView>().Single().Text;
     vm.ApplyDocumentFileOpenRequested(new DocumentFileOpenRequestedCommand(
         new DocumentFile(files[1], Path.GetFileName(files[1]), sampleFolder, string.Empty, string.Empty), null));
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
-    ((ShellUnsavedDialogViewModel)window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>()
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
+    ((ShellUnsavedDialogViewModel)window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>()
         .Single().DataContext!).Save();
     PumpUntil(() => vm.DocumentInfo.CurrentFilePath == files[1]);
     Check(!vm.DocumentInfo.IsModified && File.ReadAllText(files[0]) == expectedSaved,
@@ -302,20 +302,20 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     Pump(vm.OpenPathAsync(files[0]));
     window.Width = 980; window.Height = 640; Pump();
     var aboutTask = app.Resolve<IShellOverlayService>().ShowAboutAsync();
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Any());
-    var about = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Single();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Any());
+    var about = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Single();
     Check(about.IsEffectivelyVisible && about.Bounds.Width > 0 && !titleMenu.IsEffectivelyEnabled
         && !window.FindControl<StackPanel>("TitleBarAppearance")!.IsEffectivelyEnabled,
         "About opens inside the real main window modal host");
     var aboutModel = (ShellAboutViewModel)about.DataContext!;
-    Check(aboutModel.VersionText == CodeWF.Toolkit.Core.UpdateChecking.UpdateVersion.Display(typeof(Vex.App).Assembly),
+    Check(aboutModel.VersionText == CodeWF.Toolkit.Core.UpdateChecking.UpdateVersion.Display(typeof(Markdor.App).Assembly),
         "About displays the actual application assembly version");
     Check(DateTime.TryParse(aboutModel.CompileTimeText, out _) && aboutModel.PlatformText.Contains("Avalonia"),
         "About metadata remains available in NativeAOT");
     foreach (var culture in new[] { "zh-CN", "en-US", "zh-Hant", "ja-JP" })
     {
         vm.Appearance.SelectLanguageByCulture(culture); Pump();
-        Check(CodeWF.Toolkit.Lang.I18nManager.Instance.Culture.Name == culture && about.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Text == app.Resolve<IAppLocalizer>().Get("Vex.VexL.AboutDialogTitle")),
+        Check(CodeWF.Toolkit.Lang.I18nManager.Instance.Culture.Name == culture && about.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Text == app.Resolve<IAppLocalizer>().Get("Markdor.MarkdorL.AboutDialogTitle")),
             "The open About dialog changes language: " + culture);
         var aboutScroll = about.GetVisualDescendants().OfType<ScrollViewer>().Single();
         VerifyInside(aboutScroll, window, "About viewport fits the minimum window: " + culture);
@@ -323,22 +323,22 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
         var releaseAction = about.GetVisualDescendants().OfType<Button>().Single(button => button.Command == aboutModel.ReleaseCommand);
         VerifyInside(releaseAction, aboutScroll, "About version link is reachable: " + culture);
         aboutScroll.ScrollToEnd(); Pump();
-        var closeAction = about.GetVisualDescendants().OfType<Button>().Single(button => button.Classes.Contains("vex-dismiss"));
+        var closeAction = about.GetVisualDescendants().OfType<Button>().Single(button => button.Classes.Contains("markdor-dismiss"));
         VerifyInside(closeAction, window, "About fixed close action is reachable after scrolling: " + culture);
-        Capture(window, "vex-about-" + culture);
+        Capture(window, "markdor-about-" + culture);
     }
     vm.Appearance.SelectLanguageByCulture("zh-CN"); Pump();
-    Capture(window, "vex-about");
+    Capture(window, "markdor-about");
     aboutModel.Close();
     Pump(aboutTask);
     // 产品可达的关于与设置均使用 Ursa 宿主浮层，不触发 Prism 默认 DialogWindow。
     var settingsTask = app.Resolve<IShellOverlayService>().ShowMcpSettingsAsync(app.Resolve<McpSettingsViewModel>());
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.McpSettingsOverlayView>().Any());
-    var settingsOverlay = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.McpSettingsOverlayView>().Single();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.McpSettingsOverlayView>().Any());
+    var settingsOverlay = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.McpSettingsOverlayView>().Single();
     Check(settingsOverlay.IsEffectivelyVisible && !titleMenu.IsEffectivelyEnabled,
         "Settings opens in the existing Ursa modal host without a Prism dialog window");
     ((McpSettingsViewModel)settingsOverlay.DataContext!).Cancel(); Pump(settingsTask);
-    Check(!window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.McpSettingsOverlayView>().Any(),
+    Check(!window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.McpSettingsOverlayView>().Any(),
         "Cancel closes the MCP settings modal through IDialogContext");
     VerifyDialogButtonStates(app, window, vm, "primary");
     VerifyDialogButtonStates(app, window, vm, "danger");
@@ -346,7 +346,7 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     window.Width = 1280; window.Height = 820; Pump();
     VerifyFileTreeLayout(window, app.Resolve<ShellFilesViewModel>(), sampleFolder);
     Check(vm.Appearance.PaletteOptions.Count == 9 && vm.Appearance.ThemeOptions.Count == 3,
-        "Vex exposes the nine registry palettes and three independent theme modes");
+        "Markdor exposes the nine registry palettes and three independent theme modes");
     vm.Layout.ShowOutline();
     foreach (var palette in vm.Appearance.PaletteOptions)
     foreach (var modeOption in vm.Appearance.ThemeOptions.Where(option => option.Mode != StudioThemeMode.System))
@@ -355,25 +355,25 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
         vm.Appearance.SelectedTheme = modeOption;
         var theme = Application.Current!.ActualThemeVariant;
         Check(theme == StudioTheme.GetVariant(palette.Key, modeOption.Mode == StudioThemeMode.Dark),
-            "Vex selected mode and palette reach the shared theme controller: " + theme);
+            "Markdor selected mode and palette reach the shared theme controller: " + theme);
         Check(app.Resolve<IAppSettingsStore>().Current is { } settings
             && settings.ThemeKey == modeOption.Key && settings.PaletteKey == palette.Key,
-            "Vex stores palette and mode independently: " + theme);
+            "Markdor stores palette and mode independently: " + theme);
         Pump();
         SettleRendering();
-        Application.Current.TryGetResource("VexAccentBrush", theme, out var appAccent);
+        Application.Current.TryGetResource("MarkdorAccentBrush", theme, out var appAccent);
         Application.Current.TryGetResource("StudioAccent", theme, out var sharedAccent);
         Check(SameBrush(appAccent as IBrush, sharedAccent as IBrush),
-            "Vex brushes follow the shared palette tokens: " + theme);
-        Capture(window, "vex-" + theme);
-        VerifyVexDetails(window, theme);
+            "Markdor brushes follow the shared palette tokens: " + theme);
+        Capture(window, "markdor-" + theme);
+        VerifyMarkdorDetails(window, theme);
         VerifyFileColors(window, theme);
         var preview = window.GetVisualDescendants().OfType<CodeWF.Avalonia.Markdown.Controls.MarkdownViewer>()
             .Single(viewer => viewer.Name == "PreviewMarkdownViewer");
         var previewScroll = preview.GetVisualAncestors().OfType<ScrollViewer>().First();
         previewScroll.Offset = new Vector(0, (previewScroll.Extent.Height - previewScroll.Viewport.Height) / 2);
         Pump();
-        Capture(window, "vex-" + theme + "-middle");
+        Capture(window, "markdor-" + theme + "-middle");
         previewScroll.Offset = default;
         Pump();
     }
@@ -383,15 +383,15 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     VerifyLocalizedGuide(window, vm);
     vm.Appearance.SelectThemeByKey("system");
     Check(vm.Appearance.SelectedTheme?.Mode == StudioThemeMode.System,
-        "Vex can return to system mode after explicit light and dark selections");
+        "Markdor can return to system mode after explicit light and dark selections");
     vm.Layout.IsSidebarVisible = false;
     Pump();
-    Check(window.FindControl<Border>("SidebarGuideTarget")!.Bounds.Width == 0, "Vex sidebar collapses");
+    Check(window.FindControl<Border>("SidebarGuideTarget")!.Bounds.Width == 0, "Markdor sidebar collapses");
     Check(!sidebarMenu.IsChecked && app.Resolve<IAppSettingsStore>().Current.IsSidebarVisible == false,
         "Sidebar check and persisted state follow collapse");
     vm.Layout.IsSidebarVisible = true;
     Pump();
-    Check(window.FindControl<Border>("SidebarGuideTarget")!.Bounds.Width == 226, "Vex sidebar reopens");
+    Check(window.FindControl<Border>("SidebarGuideTarget")!.Bounds.Width == 226, "Markdor sidebar reopens");
     Check(sidebarMenu.IsChecked && app.Resolve<IAppSettingsStore>().Current.IsSidebarVisible == true,
         "Sidebar check and persisted state follow reopening");
     window.Width = 980;
@@ -401,13 +401,13 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     foreach (var culture in new[] { "zh-CN", "zh-Hant", "en-US", "ja-JP" })
     {
         vm.Appearance.SelectLanguageByCulture(culture); Pump();
-        var statusBar = window.FindControl<Vex.Modules.Shell.Views.ShellStatusBarView>("StatusBarGuideTarget")!;
+        var statusBar = window.FindControl<Markdor.Modules.Shell.Views.ShellStatusBarView>("StatusBarGuideTarget")!;
         foreach (var action in statusBar.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible))
             VerifyInside(action, statusBar, "Workbench action fits minimum window: " + culture);
-        Capture(window, "vex-workbench-minimum-" + culture);
+        Capture(window, "markdor-workbench-minimum-" + culture);
     }
     vm.Appearance.SelectLanguageByCulture("zh-CN"); Pump();
-    Capture(window, "vex-980");
+    Capture(window, "markdor-980");
     void VerifyVisibleTable(string view)
     {
         var table = window.GetVisualDescendants().OfType<Grid>().SingleOrDefault(grid =>
@@ -422,14 +422,14 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
             var scroller = table.GetVisualAncestors().OfType<ScrollViewer>().FirstOrDefault();
             var offset = scroller?.Offset;
             table.BringIntoView(); Pump();
-            Capture(window, view.StartsWith("Instant", StringComparison.Ordinal) ? "vex-native-table-instant" : "vex-native-table-read");
+            Capture(window, view.StartsWith("Instant", StringComparison.Ordinal) ? "markdor-native-table-instant" : "markdor-native-table-read");
             if (scroller is not null && offset.HasValue) { scroller.Offset = offset.Value; Pump(); }
         }
     }
     vm.Workbench.ShowInstant(); Pump();
     VerifyVisibleTable("Instant editing");
-    Capture(window, "vex-native-instant-980");
-    vm.Workbench.ShowRead(); Pump(); Capture(window, "vex-native-read-980");
+    Capture(window, "markdor-native-instant-980");
+    vm.Workbench.ShowRead(); Pump(); Capture(window, "markdor-native-read-980");
     var ageFile = vm.DocumentFiles.Single(file => Path.GetFileName(file.Path) == Path.GetFileName(files[3]));
     var ageLabel = window.GetVisualDescendants().OfType<TextBlock>().Single(block =>
         block.Classes.Contains("file-title") && block.DataContext is DocumentFileNode node && ReferenceEquals(node.DocumentFile, ageFile));
@@ -458,9 +458,9 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
     }
     VerifyVisibleTable("Reading");
     vm.Workbench.ShowMindMap(); vm.Workbench.ShowMapSource = false; vm.Workbench.ShowMapSettings = false;
-    Pump(); Capture(window, "vex-native-mindmap-980");
-    ((Vex.Modules.Shell.Views.MainWindow)window).BeginOnboardingGuide(); Pump();
-    var narrowGuide = window.FindControl<Vex.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
+    Pump(); Capture(window, "markdor-native-mindmap-980");
+    ((Markdor.Modules.Shell.Views.MainWindow)window).BeginOnboardingGuide(); Pump();
+    var narrowGuide = window.FindControl<Markdor.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
     for (var step = 0; step < 6; step++)
     {
         narrowGuide.ShowStep(step); Pump();
@@ -469,12 +469,12 @@ if (mode is "mermaid" or "documents" or "document-open-child" or "updates" or "v
         Check(origin.X >= 0 && origin.Y >= 0 && origin.X + card.Bounds.Width <= window.Bounds.Width + 1
             && origin.Y + card.Bounds.Height <= window.Bounds.Height + 1,
             "Guide card stays inside a 980 x 640 window: step " + (step + 1));
-        Capture(window, "vex-native-guide-980-" + (step + 1));
+        Capture(window, "markdor-native-guide-980-" + (step + 1));
     }
     narrowGuide.Finish(); Pump();
     window.Close();
 }
-else throw new ArgumentException("Expected vex");
+else throw new ArgumentException("Expected markdor");
 Console.WriteLine("UI verification passed; images: " + output);
 
 void Check(bool condition, string message)
@@ -513,7 +513,7 @@ void Capture(Window window, string name)
     Pump();
     using var frame = window.CaptureRenderedFrame() ?? throw new Exception("No rendered frame");
     frame.Save(Path.Combine(output, name + ".png"), new Avalonia.Media.Imaging.PngBitmapEncoderOptions());
-    if (name is "vex-Light" or "vex-Dark")
+    if (name is "markdor-Light" or "markdor-Dark")
     {
         using var bitmap = SKBitmap.Decode(Path.Combine(output, name + ".png"));
         using var crop = new SKBitmap(bitmap.Width, Math.Min(120, bitmap.Height));
@@ -524,14 +524,14 @@ void Capture(Window window, string name)
     }
 }
 
-void VerifyPointerRegressions(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyPointerRegressions(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     string? openedWebsite = null;
     using (var about = new ShellAboutViewModel(app.Resolve<IAppLocalizer>(), url => openedWebsite = url))
     {
         about.WebsiteCommand.Execute().Subscribe();
-        Check(openedWebsite == "https://vex.codewf.com/" && openedWebsite == ProjectLinks.Website,
-            "About opens the configured Vex website");
+        Check(openedWebsite == "https://markdor.codewf.com/" && openedWebsite == ProjectLinks.Website,
+            "About opens the configured Markdor website");
     }
     window.Width = 1280; window.Height = 820;
     vm.Appearance.SelectThemeByKey("light");
@@ -541,7 +541,7 @@ void VerifyPointerRegressions(VerificationVexApp app, Window window, MainWindowV
     Pump(vm.OpenPathAsync(samplePath));
     vm.Workbench.SelectLayout("instant");
     Pump(); SettleRendering();
-    var live = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
+    var live = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
     PumpUntil(() => live.GetVisualDescendants().OfType<SelectableTextBlock>().Any(block => block.Classes.Contains("MdParagraph")));
     var paragraph = live.GetVisualDescendants().OfType<SelectableTextBlock>().First(block => block.Classes.Contains("MdParagraph"));
     var start = paragraph.TranslatePoint(new Point(2, 12), window)!.Value;
@@ -619,7 +619,7 @@ void VerifyPointerRegressions(VerificationVexApp app, Window window, MainWindowV
     vm.Markdown = sampleText;
     Pump(vm.OpenStartupDocumentAsync([BundledDocuments.GetPath("更新日志.md")]));
     vm.Workbench.ShowRead(); Pump(); SettleRendering();
-    var preview = window.GetVisualDescendants().OfType<Vex.Modules.Workspace.Views.MarkdownPreviewView>().Single();
+    var preview = window.GetVisualDescendants().OfType<Markdor.Modules.Workspace.Views.MarkdownPreviewView>().Single();
     var scroll = preview.FindControl<ScrollViewer>("PreviewScrollViewer")!;
     for (var pass = 0; pass < 3; pass++)
     {
@@ -648,7 +648,7 @@ void VerifyPointerRegressions(VerificationVexApp app, Window window, MainWindowV
     }
 }
 
-void VerifyDocumentWindows(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyDocumentWindows(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     var launcher = (VerificationDocumentWindows)app.Resolve<IDocumentWindowLauncher>();
     var initialMarkdown = vm.Markdown;
@@ -661,21 +661,21 @@ void VerifyDocumentWindows(VerificationVexApp app, Window window, MainWindowView
         Check(vm.GetCurrentDocumentSnapshot() == original && vm.DocumentInfo.IsModified, "Launching a document preserves the unsaved parent");
     }
     var aboutTask = app.Resolve<IShellOverlayService>().ShowAboutAsync();
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Any());
-    var about = (ShellAboutViewModel)window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Single().DataContext!;
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Any());
+    var about = (ShellAboutViewModel)window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Single().DataContext!;
     ((System.Windows.Input.ICommand)about.ChangelogCommand).Execute(null); Pump(aboutTask);
     Check(launcher.Paths.Count == 3 && launcher.Paths.Last() == BundledDocuments.GetPath("更新日志.md"), "About uses the same independent document launcher");
-    Check(!window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Any(), "About closes before launching the document");
+    Check(!window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Any(), "About closes before launching the document");
     var copyFolder = Path.Combine(output, "中文 空格文档"); Directory.CreateDirectory(copyFolder);
     var copyPath = Path.Combine(copyFolder, "更新日志 副本.md");
     File.Copy(BundledDocuments.GetPath("更新日志.md"), copyPath, true);
     var start = ShellProcessLauncher.CreateStartInfo(copyPath);
-    Check(!start.UseShellExecute && start.ArgumentList.Last() == copyPath, "Document launch targets Vex with a single unescaped path argument");
+    Check(!start.UseShellExecute && start.ArgumentList.Last() == copyPath, "Document launch targets Markdor with a single unescaped path argument");
     if (Path.GetFileNameWithoutExtension(Environment.ProcessPath).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-        Check(start.ArgumentList.First() == typeof(Vex.App).Assembly.Location, "Development launch invokes the Vex assembly");
+        Check(start.ArgumentList.First() == typeof(Markdor.App).Assembly.Location, "Development launch invokes the Markdor assembly");
     var child = new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
     if (Path.GetFileNameWithoutExtension(Environment.ProcessPath).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-        child.ArgumentList.Add(typeof(VerificationVexApp).Assembly.Location);
+        child.ArgumentList.Add(typeof(VerificationMarkdorApp).Assembly.Location);
     child.ArgumentList.Add("document-open-child"); child.ArgumentList.Add(copyFolder); child.ArgumentList.Add(copyPath);
     using var process = System.Diagnostics.Process.Start(child)!;
     var stdout = process.StandardOutput.ReadToEndAsync(); var stderr = process.StandardError.ReadToEndAsync();
@@ -729,33 +729,33 @@ void PumpUntil(Func<bool> completed)
 void VerifyFileColors(Window window, ThemeVariant theme)
 {
     var titles = window.GetLogicalDescendants().OfType<TextBlock>().Where(t => t.Classes.Contains("file-title") && t.IsEffectivelyVisible).ToArray();
-    Check(titles.Length > 0, "Vex file cards rendered under " + theme);
+    Check(titles.Length > 0, "Markdor file cards rendered under " + theme);
     Check(titles.All(t =>
     {
         var card = t.GetLogicalAncestors().OfType<Border>().First(b => b.Classes.Contains("file-card"));
         var background = (card.Background as ISolidColorBrush)?.Color ?? Colors.Transparent;
         if (background.A == 0)
         {
-            Application.Current!.TryGetResource("VexPanelBackgroundBrush", theme, out var resource);
+            Application.Current!.TryGetResource("MarkdorPanelBackgroundBrush", theme, out var resource);
             background = ((ISolidColorBrush)resource!).Color;
         }
         if (card.Classes.Contains("selected"))
         {
-            Application.Current!.TryGetResource("VexAccentBrush", theme, out var accent);
-            Application.Current!.TryGetResource("VexAccentSoftBrush", theme, out var selectedBackground);
+            Application.Current!.TryGetResource("MarkdorAccentBrush", theme, out var accent);
+            Application.Current!.TryGetResource("MarkdorAccentSoftBrush", theme, out var selectedBackground);
             return t.Foreground is ISolidColorBrush selectedForeground
                 && selectedForeground.Color == ((ISolidColorBrush)accent!).Color
                 && background == ((ISolidColorBrush)selectedBackground!).Color;
         }
         return t.Foreground is ISolidColorBrush foreground && Contrast(foreground.Color, background) >= 4.5;
-    }), "Vex ordinary file-title contrast >= 4.5; selected card follows prototype accent colors under " + theme);
+    }), "Markdor ordinary file-title contrast >= 4.5; selected card follows prototype accent colors under " + theme);
     foreach (var title in titles.Take(2)) Console.WriteLine($"COLOR {theme} {title.Foreground}");
 }
 
 void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFolder)
 {
     var productionFiles = vm;
-    var filesView = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellFilesView>().Single();
+    var filesView = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellFilesView>().Single();
     using var layoutFiles = new ShellFilesViewModel();
     filesView.DataContext = layoutFiles;
     vm = layoutFiles;
@@ -787,14 +787,14 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
     Check(Math.Abs(tree.Bounds.Width - searchBox.Bounds.Width) < 0.1,
         "File tree and search box right edges also align");
     var items = tree.GetVisualDescendants().OfType<TreeViewItem>().Where(i => i.IsEffectivelyVisible).ToArray();
-    Check(items.Length == 7, "Vex tree renders the workspace root, sibling and nested documents without dot folders");
+    Check(items.Length == 7, "Markdor tree renders the workspace root, sibling and nested documents without dot folders");
     // 悬停底色必须能从侧栏底色中分辨出来：面板色与 raised 色接近，实色 hover 会看不出来。
     void CheckRowHover(string name, string theme)
     {
         var item = items.First(i => ((DocumentFileNode)i.DataContext!).Name == name);
         var card = item.GetVisualDescendants().OfType<Border>().First(b => b.Classes.Contains("file-card"));
         window.MouseMove(card.TranslatePoint(new Point(30, 10), window)!.Value); Pump();
-        Application.Current!.TryGetResource("VexPanelBackgroundBrush", Application.Current.ActualThemeVariant, out var panelResource);
+        Application.Current!.TryGetResource("MarkdorPanelBackgroundBrush", Application.Current.ActualThemeVariant, out var panelResource);
         var panel = ((ISolidColorBrush)panelResource!).Color;
         var hoverRow = item.GetVisualDescendants().OfType<Border>().First(b => b.Name == "PART_LayoutRoot");
         var hover = CompositeOver((ISolidColorBrush)hoverRow.Background!, panel);
@@ -809,7 +809,7 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
         Check(Math.Abs(row.TranslatePoint(default, tree)!.Value.X) < 1
             && Math.Abs(row.Bounds.Width - tree.Bounds.Width) < 1,
             "Selected nested row background spans the entire file tree including indentation");
-        Application.Current!.TryGetResource("VexAccentSoftBrush", Application.Current.ActualThemeVariant, out var accent);
+        Application.Current!.TryGetResource("MarkdorAccentSoftBrush", Application.Current.ActualThemeVariant, out var accent);
         Check(SameBrush(row.Background, accent as IBrush), "Selected row uses the theme selection background");
     }
     foreach (var item in items)
@@ -822,10 +822,10 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
             .First(b => b.Name == "PART_ExpandCollapseChevron");
         var point = card.TranslatePoint(default, tree)!.Value;
         Check(Math.Abs(card.Bounds.Height - 24) < 0.1 && point.X + card.Bounds.Width <= tree.Bounds.Width + 1,
-            "Vex tree has compact rows within sidebar bounds: " + ((DocumentFileNode)item.DataContext!).Name);
+            "Markdor tree has compact rows within sidebar bounds: " + ((DocumentFileNode)item.DataContext!).Name);
         Check(Math.Abs(chevron.TranslatePoint(default, tree)!.Value.Y + chevron.Bounds.Height / 2
             - point.Y - card.Bounds.Height / 2) < 1,
-            "Vex tree chevron aligns with its own row");
+            "Markdor tree chevron aligns with its own row");
         var icon = card.GetVisualDescendants().OfType<Control>().First(control => control.IsEffectivelyVisible
             && control.Classes.Contains("tree-ico") && control is Image or Avalonia.Controls.Shapes.Path);
         var label = card.GetVisualDescendants().OfType<TextBlock>().First(t => t.IsEffectivelyVisible &&
@@ -838,7 +838,7 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
             "Tree expand arrows use compact 8 px icons");
         Check(Math.Abs(icon.TranslatePoint(default, card)!.Value.Y + icon.Bounds.Height / 2
             - label.TranslatePoint(default, card)!.Value.Y - label.Bounds.Height / 2) < 1,
-            $"Vex tree icon and title align vertically: {icon.Bounds}/{icon.TranslatePoint(default, card)}; label {label.Bounds}/{label.TranslatePoint(default, card)}");
+            $"Markdor tree icon and title align vertically: {icon.Bounds}/{icon.TranslatePoint(default, card)}; label {label.Bounds}/{label.TranslatePoint(default, card)}");
     }
     var cardPositions = items.Select(item => new
     {
@@ -848,12 +848,12 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
     }).ToArray();
     Check(cardPositions.GroupBy(p => p.Level).All(g => g.Max(p => p.X) - g.Min(p => p.X) < 1)
         && cardPositions.All(p => Math.Abs(p.X - cardPositions.Min(x => x.X) - p.Level * 16) < 1),
-        "Vex tree siblings align and each level indents by 16 px");
+        "Markdor tree siblings align and each level indents by 16 px");
     var rowPositions = items.Select(item => item.GetVisualDescendants().OfType<Border>()
         .First(border => border.Name == "PART_LayoutRoot").TranslatePoint(default, tree)!.Value.Y).Order().ToArray();
     Check(rowPositions.Zip(rowPositions.Skip(1), (previous, next) => next - previous).All(gap => Math.Abs(gap - 24) < 0.1),
         "Tree rows use a consistent 24 px pitch without extra vertical margins");
-    Capture(window, "vex-file-tree");
+    Capture(window, "markdor-file-tree");
     var folder = items.First(i => i.Level == 0 && ((DocumentFileNode)i.DataContext!).IsFolder);
     var toggle = folder.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.ToggleButton>()
         .First(b => b.Name == "PART_ExpandCollapseChevron");
@@ -861,11 +861,11 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
     window.MouseDown(click, MouseButton.Left);
     window.MouseUp(click, MouseButton.Left);
     Pump();
-    Check(!folder.IsExpanded, "Vex folder chevron collapses its subtree");
+    Check(!folder.IsExpanded, "Markdor folder chevron collapses its subtree");
     window.MouseDown(click, MouseButton.Left);
     window.MouseUp(click, MouseButton.Left);
     Pump();
-    Check(folder.IsExpanded, "Vex folder chevron expands its subtree");
+    Check(folder.IsExpanded, "Markdor folder chevron expands its subtree");
     var folderCard = folder.GetVisualDescendants().OfType<Border>().First(border => border.Classes.Contains("file-card"));
     var rowClick = folderCard.TranslatePoint(new Point(60, 16), window)!.Value;
     window.MouseDown(rowClick, MouseButton.Left); window.MouseUp(rowClick, MouseButton.Left); Pump();
@@ -889,17 +889,17 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
     {
         main.Appearance.SelectThemeByKey(theme); Pump();
         CheckRowHover("deep.md", theme);
-        Application.Current!.TryGetResource("VexAccentSoftBrush", Application.Current.ActualThemeVariant, out var accent);
+        Application.Current!.TryGetResource("MarkdorAccentSoftBrush", Application.Current.ActualThemeVariant, out var accent);
         Check(SameBrush(nestedRow.Background, accent as IBrush), "Full-row folder selection follows the theme: " + theme);
-        Capture(window, "vex-file-tree-folder-" + theme);
+        Capture(window, "markdor-file-tree-folder-" + theme);
     }
-    Capture(window, "vex-file-tree-folder-selected");
+    Capture(window, "markdor-file-tree-folder-selected");
     vm.FilterText = "deep";
     // 过滤会重建树容器，等待布局队列完成后再核对实际可见节点。
     PumpUntil(() => tree.GetVisualDescendants().OfType<TextBlock>()
         .Count(t => t.IsEffectivelyVisible && t.Classes.Contains("file-title")) == 1);
     Check(tree.GetVisualDescendants().OfType<TextBlock>().Count(t => t.IsEffectivelyVisible && t.Classes.Contains("file-title")) == 1,
-        "Vex file filter retains the matching document and its ancestors");
+        "Markdor file filter retains the matching document and its ancestors");
     vm.FilterText = string.Empty;
     Pump();
     filesView.DataContext = productionFiles;
@@ -914,7 +914,7 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, "# " + relative);
     }
-    var app = (VerificationVexApp)Application.Current!;
+    var app = (VerificationMarkdorApp)Application.Current!;
     var scan = app.Resolve<IDocumentService>().OpenFolderPathAsync(workspace); Pump(scan);
     Check(scan.Result.Count == 2 && scan.Result.Any(file => file.Name == ".note.md"),
         "Workspace scan reads direct documents while retaining ordinary dot files");
@@ -964,8 +964,8 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
     vm.SelectedDocumentFileNode = vm.DocumentFileNodes[0];
     main.Markdown += "\nUnsaved tree selection regression";
     vm.SelectedDocumentFileNode = vm.DocumentFileNodes[0].Children.First(node => node.Path == otherFile);
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
-    ((ShellUnsavedDialogViewModel)window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUnsavedDialogView>().Single().DataContext!).Cancel();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>().Any());
+    ((ShellUnsavedDialogViewModel)window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUnsavedDialogView>().Single().DataContext!).Cancel();
     Pump();
     Check(main.DocumentInfo.CurrentFilePath == directFile && vm.SelectedDocumentFileNode?.Path == directFile
         && main.DocumentInfo.IsModified, "Canceling a file switch after folder selection restores the actual document selection");
@@ -976,7 +976,7 @@ void VerifyFileTreeLayout(Window window, ShellFilesViewModel vm, string sampleFo
     Check(vm.DocumentFileNodes.Count == 1 && vm.DocumentFileNodes[0].Children.Count == 0
         && vm.SelectedDocumentFileNode?.Path == emptyFolder,
         "Empty workspace still displays and selects its root folder");
-    Capture(window, "vex-file-tree-empty-root");
+    Capture(window, "markdor-file-tree-empty-root");
 }
 
 void MaximizePerformanceWindow(Window window)
@@ -992,14 +992,14 @@ void MaximizePerformanceWindow(Window window)
         $"Performance window is maximized: {window.Bounds.Width} x {window.Bounds.Height}, scaling {window.RenderScaling}");
 }
 
-void VerifyMediaLayout(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifyMediaLayout(Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     var sample = Path.Combine(output, "adaptive.md");
     File.WriteAllText(Path.Combine(output, "diagram.svg"), """
         <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="450" viewBox="0 0 1200 450">
         <rect width="1200" height="450" fill="#f7f7f8"/><path d="M350 225H850" stroke="#5b54d6" stroke-width="5"/>
         <rect x="80" y="100" width="300" height="250" rx="16" fill="#e4e2fa"/><rect x="820" y="100" width="300" height="250" rx="16" fill="#e4e2fa"/>
-        <text x="155" y="235" font-size="36">Markdown</text><text x="920" y="235" font-size="36">Vex</text></svg>
+        <text x="155" y="235" font-size="36">Markdown</text><text x="920" y="235" font-size="36">Markdor</text></svg>
         """);
     using (var bitmap = new SKBitmap(240, 120))
     {
@@ -1022,8 +1022,8 @@ void VerifyMediaLayout(Vex.Modules.Shell.Views.MainWindow window, MainWindowView
         <table><tr><th>编号</th><th>功能说明</th><th>实现要点</th></tr><tr><td>1</td><td>显示操作信息</td><td>应用服务发布结构化操作消息，包含时间、用户、文档和结果。长说明在有限的正文宽度内自动换行，编号和功能名称保留适合内容的宽度，调整窗口后各列仍应保持完整可读。阅读、源码预览和即时编辑均使用一致的内容布局。</td></tr><tr><td>2</td><td>显示语法校验结果</td><td>保留错误规则、级别及定位信息。</td></tr><tr><td>3</td><td>显示异常信息</td><td>界面保持可继续操作。</td></tr></table>
         """;
     Pump(vm.OpenPathAsync(WriteSample(pipe)));
-    var preview = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
+    var preview = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
     window.WindowState = WindowState.Normal;
     foreach (var width in new[] { 1380, 980 })
     foreach (var theme in new[] { "light", "dark" })
@@ -1049,7 +1049,7 @@ void VerifyMediaLayout(Vex.Modules.Shell.Views.MainWindow window, MainWindowView
             Check(borderColor == Color.Parse(theme == "dark" ? "#41454E" : "#DFE2E5"), "Table uses neutral borders independent of accent color");
             Capture(window, $"{width}-{theme}-{layout}-{kind}");
         }
-        vm.Markdown = "| 编号 | 名称 |\n| --- | --- |\n| 1 | Vex |"; Pump(); SettleRendering();
+        vm.Markdown = "| 编号 | 名称 |\n| --- | --- |\n| 1 | Markdor |"; Pump(); SettleRendering();
         var compactTable = host.GetVisualDescendants().OfType<Grid>().Single(grid => grid.Classes.Contains("MdTable"));
         Check(compactTable.Bounds.Width > 0 && compactTable.Bounds.Width < DocumentWidth(compactTable) / 2,
             $"{width} {theme} {layout}: short tables keep their natural width as in the prototype");
@@ -1080,7 +1080,7 @@ void VerifyMediaLayout(Vex.Modules.Shell.Views.MainWindow window, MainWindowView
         .OfType<CodeWF.Avalonia.Controls.Controls.WindowedStackPanel>().First().Bounds.Width;
 }
 
-void VerifyHtmlTables(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifyHtmlTables(Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     var path = @"D:\github\company\shxskj\S-FlowC\docs\S-FlowC建模调试客户端_RELAP技术实现方案v1.3.md";
     var source = File.ReadAllText(path);
@@ -1090,8 +1090,8 @@ void VerifyHtmlTables(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewM
     var expected = new[] { "MOD-COMBO-01", "从模型库拖出形成新的图元", "属性分为三类", "编辑态：初始生成", "用户名和密码管理" };
     MaximizePerformanceWindow(window); vm.Appearance.SelectThemeByKey("light");
     Pump(vm.OpenPathAsync(path));
-    var preview = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
+    var preview = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
     foreach (var layout in new[] { "read", "instant" })
     {
         vm.Workbench.SelectLayout(layout); Pump(); SettleRendering();
@@ -1121,7 +1121,7 @@ void VerifyHtmlTables(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewM
         "HTML table navigation and presentation preserve the current document and original file");
 }
 
-void VerifyPresentation(VerificationVexApp app, Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifyPresentation(VerificationMarkdorApp app, Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     const string text = "---\ntitle: Slides\n---\n# **总览**\n\n开场。\n\n## 代码与公式\n\n```cs\n# not a heading\nvar n = 42;\n```\n\n$$\\sum_{n=1}^{10} n$$\n\n参考 [文档][doc] 和脚注[^note]。\n\n第三节\n====\n\n| a | b |\n| --- | --- |\n| 1 | 2 |\n\n[doc]: https://example.com/docs\n[^note]: 解释文字\n";
     var slides = new MarkdownPresentationDocument(text, "测试");
@@ -1138,9 +1138,9 @@ void VerifyPresentation(VerificationVexApp app, Vex.Modules.Shell.Views.MainWind
     MaximizePerformanceWindow(window);
     var settings = app.Resolve<IAppSettingsStore>().Current;
     var wb = vm.Workbench;
-    var preview = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!.FindControl<CodeWF.Avalonia.Markdown.Controls.MarkdownViewer>("PreviewMarkdownViewer")!;
-    var outline = window.FindControl<Vex.Modules.Shell.Views.ShellPresentationOutlineView>("PresentationOutline")!;
-    var mapHost = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
+    var preview = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!.FindControl<CodeWF.Avalonia.Markdown.Controls.MarkdownViewer>("PreviewMarkdownViewer")!;
+    var outline = window.FindControl<Markdor.Modules.Shell.Views.ShellPresentationOutlineView>("PresentationOutline")!;
+    var mapHost = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
     var map = mapHost.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
     var initialViewport = map.CaptureViewport();
     for (var round = 0; round < (args.Contains("--anchors-only") ? 0 : 6); round++)
@@ -1209,7 +1209,7 @@ void VerifyPresentation(VerificationVexApp app, Vex.Modules.Shell.Views.MainWind
     var readingText = "# 阅读位置\n\n" + string.Join("\n\n", Enumerable.Range(0, 100).Select(i => $"阅读段落 {i}，退出演示回到原处。"));
     File.WriteAllText(readingFile, readingText); Pump(vm.OpenPathAsync(readingFile)); wb.SelectLayout("read"); Pump(); SettleRendering();
     PumpUntil(() => preview.CurrentModel.Source == readingText);
-    var readingScroll = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!.FindControl<ScrollViewer>("PreviewScrollViewer")!;
+    var readingScroll = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!.FindControl<ScrollViewer>("PreviewScrollViewer")!;
     readingScroll.Offset = new Vector(0, 1200); Pump();
     var priorOffset = readingScroll.Offset.Y;
     var priorReading = preview.SaveReadingPosition();
@@ -1256,11 +1256,11 @@ void VerifyPresentation(VerificationVexApp app, Vex.Modules.Shell.Views.MainWind
     { yield return node; foreach (var child in node.Children) foreach (var descendant in Descendants(child)) yield return descendant; }
 }
 
-void VerifyStress(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifyStress(Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     var folder = args.ElementAtOrDefault(2) ?? @"D:\github\md\mds";
     var rounds = int.TryParse(args.ElementAtOrDefault(3), out var count) ? count : 2;
-    var paths = Directory.GetFiles(folder, "Vex-0*.md").Order().Append(@"D:\github\company\shxskj\S-FlowC\docs\S-FlowC建模调试客户端_RELAP技术实现方案v1.3.md").ToArray();
+    var paths = Directory.GetFiles(folder, "Markdor-0*.md").Order().Append(@"D:\github\company\shxskj\S-FlowC\docs\S-FlowC建模调试客户端_RELAP技术实现方案v1.3.md").ToArray();
     Check(paths.Length >= 6 && paths.All(File.Exists), "Stress suite includes five rich local samples and the original RELAP document");
     if (args.FirstOrDefault(arg => arg.StartsWith("--sample=")) is { } sample) paths = paths.Where(path => Path.GetFileName(path).StartsWith(sample[9..], StringComparison.OrdinalIgnoreCase)).ToArray();
     var contents = paths.ToDictionary(path => path, File.ReadAllText);
@@ -1269,11 +1269,11 @@ void VerifyStress(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel
     var presentations = new List<object>();
     var retained = new List<object>();
     MaximizePerformanceWindow(window);
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
-    var source = window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
-    var previewHost = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
+    var source = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
+    var previewHost = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
     var preview = previewHost.FindControl<CodeWF.Avalonia.Markdown.Controls.MarkdownViewer>("PreviewMarkdownViewer")!;
-    var map = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
+    var map = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
     var watch = System.Diagnostics.Stopwatch.StartNew();
     for (var round = 0; round < rounds; round++)
     {
@@ -1309,7 +1309,7 @@ void VerifyStress(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel
                 slideScroll.Offset = new Vector(0, slideScroll.Extent.Height); Pump(); slideScroll.Offset = default; Pump();
             }
             vm.Workbench.TogglePresentationOutline(); Pump(); SettleRendering();
-            Check(window.FindControl<Vex.Modules.Shell.Views.ShellPresentationOutlineView>("PresentationOutline")!.IsEffectivelyVisible, "Large document has a presentation outline");
+            Check(window.FindControl<Markdor.Modules.Shell.Views.ShellPresentationOutlineView>("PresentationOutline")!.IsEffectivelyVisible, "Large document has a presentation outline");
             TracePresentation("outline");
             var pageCount = vm.Workbench.PresentationSections.Count;
             for (var transition = 0; transition < 6; transition++)
@@ -1438,15 +1438,15 @@ void VerifyStress(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel
     }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 }
 
-void VerifyMermaidWorkspace(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifyMermaidWorkspace(Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     window.Width = 1280; window.Height = 820;
     var file = Path.Combine(BundledDocuments.SamplesFolder,"Mermaid 图表图鉴.md");
     var text = File.ReadAllText(file);
     var originalHash = System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(file));
-    var previewView = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+    var previewView = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
     var preview = previewView.FindControl<CodeWF.Avalonia.Markdown.Controls.MarkdownViewer>("PreviewMarkdownViewer")!;
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
     Border[] Diagrams(Control host) => host.GetVisualDescendants().OfType<Border>().Where(border => border.Classes.Contains("MdMermaid")).ToArray();
     bool Ready(Control host) => Diagrams(host).Any(border => border.Child is Image { Source: not null });
     vm.Workbench.SelectLayout("source"); Pump();
@@ -1513,7 +1513,7 @@ void VerifyMermaidWorkspace(Vex.Modules.Shell.Views.MainWindow window, MainWindo
     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(report));
 }
 
-void VerifyPerformance(Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifyPerformance(Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     MaximizePerformanceWindow(window);
     var path = args.ElementAtOrDefault(3) ?? @"D:\github\company\shxskj\S-FlowC\docs\S-FlowC建模调试客户端_RELAP技术实现方案v1.3.md";
@@ -1535,7 +1535,7 @@ void VerifyPerformance(Vex.Modules.Shell.Views.MainWindow window, MainWindowView
     Capture(window, layout);
 }
 
-void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
+void VerifySingleDocumentWorkspace(VerificationMarkdorApp app, Markdor.Modules.Shell.Views.MainWindow window, MainWindowViewModel vm)
 {
     var wb = vm.Workbench;
     Check(MarkdownTableInsertion.AtSelection("before\r\n\r\nafter", 10, 0, "| A |\n| --- |") == "| A |\r\n| --- |\r\n\r\n",
@@ -1545,12 +1545,12 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
     const string original = "# 写作计划\n\n点击文字，保留 **加粗**、*斜体* 和 [链接](https://codewf.com)。\n\n## 研究\n\n研究正文，不得丢失。\n\n### 资料\n\n```md\n# 围栏中的标题\n```\n\n## 方案\n\n方案正文。\n\n## 验证\n\n验证正文。\n";
     File.WriteAllText(first, original); File.WriteAllText(second, "# 第二篇\n\n这是替换后的文档。\n");
     Pump(vm.OpenPathAsync(first)); PumpUntil(() => wb.Root?.Title == "写作计划");
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
-    var source = window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
+    var source = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
     wb.SelectLayout("instant"); Pump(); SettleRendering();
     var initialScroll = instant.Editor.GetVisualDescendants().OfType<ScrollViewer>().First();
     Check(initialScroll.Offset.Y < 1, "Opening a document starts at the first block without anchor drift");
-    var mapHost = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
+    var mapHost = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
     var map = mapHost.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
     foreach (var option in WorkbenchLayoutOption.All)
     {
@@ -1618,7 +1618,7 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
     window.KeyTextInput("撤销验证"); Pump();
     var beforeFilterUndo = vm.Markdown;
     Check(beforeFilterUndo != original, "Source typing joins document history");
-    var fileFilter = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellFilesView>().Single()
+    var fileFilter = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellFilesView>().Single()
         .GetVisualDescendants().OfType<TextBox>().Single();
     fileFilter.Focus(); Pump(); window.KeyTextInput("临时筛选"); Pump();
     window.KeyPress(Key.Z, RawInputModifiers.Control, PhysicalKey.Z, "z");
@@ -1647,13 +1647,13 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
         var tableBefore = vm.Markdown;
         var tableSelection = editorLayout == "source" ? source.Selection : instant.Editor.Selection;
         vm.EditorActions.InsertAction(EditorActionKind.Table);
-        PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellInsertTableOverlayView>().Any(view => view.IsEffectivelyVisible));
-        var tableDialog = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellInsertTableOverlayView>().Single(view => view.IsEffectivelyVisible);
+        PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellInsertTableOverlayView>().Any(view => view.IsEffectivelyVisible));
+        var tableDialog = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellInsertTableOverlayView>().Single(view => view.IsEffectivelyVisible);
         var tableRows = tableDialog.FindControl<NumericUpDown>("TableRows")!;
         var tableColumns = tableDialog.FindControl<NumericUpDown>("TableColumns")!;
         Check(tableRows.Value == 3 && tableColumns.Value == 3 && vm.Markdown == tableBefore,
             $"{editorLayout} table command opens dimensions without modifying the document: rows={tableRows.Value}, columns={tableColumns.Value}, unchanged={vm.Markdown == tableBefore}");
-        var tableModel = (Vex.Modules.Shell.Views.ShellInsertTableModel)tableDialog.DataContext!;
+        var tableModel = (Markdor.Modules.Shell.Views.ShellInsertTableModel)tableDialog.DataContext!;
         tableModel.Rows = null; Pump();
         Check(!tableDialog.FindControl<Button>("ConfirmTable")!.IsEnabled, "Missing row count disables table insertion: " + editorLayout);
         tableModel.Rows = 3;
@@ -1661,8 +1661,8 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
         Check(vm.Markdown == tableBefore && (editorLayout == "source" ? source.Selection : instant.Editor.Selection) == tableSelection,
             editorLayout + " cancel preserves document and original selection");
         vm.EditorActions.InsertAction(EditorActionKind.Table);
-        PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellInsertTableOverlayView>().Any(view => view.IsEffectivelyVisible));
-        tableDialog = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellInsertTableOverlayView>().Single(view => view.IsEffectivelyVisible);
+        PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellInsertTableOverlayView>().Any(view => view.IsEffectivelyVisible));
+        tableDialog = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellInsertTableOverlayView>().Single(view => view.IsEffectivelyVisible);
         tableDialog.FindControl<NumericUpDown>("TableRows")!.Value = 4;
         tableDialog.FindControl<NumericUpDown>("TableColumns")!.Value = 3;
         Capture(window, "insert-table-" + editorLayout);
@@ -1733,7 +1733,7 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
     var floats = window.WorkspaceViews.FloatingWindows.ToDictionary(item => item.Key, item => item.Value);
     var history = wb.History.Capture(); var layout = wb.WorkspaceLayout;
     window.BeginOnboardingGuide(); Pump();
-    var guide = window.FindControl<Vex.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
+    var guide = window.FindControl<Markdor.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
     Check(window.WorkspaceViews.FloatingWindows.Count == 0 && floats.Values.All(floating => !floating.IsVisible), "Guide suspends detached windows without destroying them");
     for (var step = 0; step < 6; step++) { guide.ShowStep(step); Pump(); SettleRendering(); Capture(window, "guide-" + (step + 1)); }
     guide.Finish(); Pump();
@@ -1743,11 +1743,11 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
     Pump();
     VerifyChapterRanges();
     var aboutTask = app.Resolve<IShellOverlayService>().ShowAboutAsync();
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Any());
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Any());
     Capture(window, "about-light");
-    var about = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Single();
+    var about = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Single();
     var aboutModel = (ShellAboutViewModel)about.DataContext!;
-    Check(aboutModel.PlatformText == ".NET 10，Avalonia" && aboutModel.CopyrightText == "Copyright © 2026 CodeWF · 维刻 Vex"
+    Check(aboutModel.PlatformText == ".NET 10，Avalonia" && aboutModel.CopyrightText == "Copyright © 2026 CodeWF · 维刻 Markdor"
         && about.GetVisualDescendants().OfType<Button>().Count(button => button.Command == aboutModel.ReleaseCommand) == 1
         && about.GetVisualDescendants().OfType<Button>().Count(button => button.Command == aboutModel.WebsiteCommand || button.Command == aboutModel.RepositoryCommand) == 2,
         "About uses accepted metadata, one release badge and both product links");
@@ -1805,11 +1805,11 @@ void VerifySingleDocumentWorkspace(VerificationVexApp app, Vex.Modules.Shell.Vie
     }
 }
 
-void VerifyWorkbench(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyWorkbench(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     var original = vm.Markdown;
     vm.Workbench.ShowInstant(); Pump();
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
     Check(instant.IsEffectivelyVisible && instant.Bounds.Width > 500 && instant.Editor.Text == original, "Instant editor has a real viewport and shares the current document");
     instant.Editor.FocusBlock(0); instant.Editor.InsertText(" 实时编辑验证"); Pump();
     Check(vm.Markdown.Contains("实时编辑验证"), "Instant edits update the real Markdown document");
@@ -1819,40 +1819,40 @@ void VerifyWorkbench(VerificationVexApp app, Window window, MainWindowViewModel 
     Check(vm.Markdown == changed, "Read view does not route format actions to hidden editors");
     vm.Workbench.ShowMindMap(); Pump();
     PumpUntil(() => vm.Workbench.Root?.FullText.Contains("实时编辑验证") == true);
-    var map = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
+    var map = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
     Check(map.IsEffectivelyVisible && map.Bounds.Width > 500 && vm.Workbench.Root is not null, "Mind map has a real viewport and parses the shared Markdown");
     var node = vm.Workbench.Root!.Children.First();
     vm.Workbench.SelectedNode = node;
     map.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!.ToggleCollapse(node); Pump();
     Check(node.IsCollapsed && vm.Markdown == changed, "Folding never modifies the source");
     vm.Workbench.ShowMapSource = true; Pump();
-    Check(window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.IsEffectivelyVisible, "Map can display source comparison");
+    Check(window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.IsEffectivelyVisible, "Map can display source comparison");
     vm.Workbench.LocateSource(node); Pump();
     Check(vm.Workbench.IsSourceEditing && vm.Markdown == changed, "Mind map locates source without changing content");
     vm.Workbench.ShowMindMap(); vm.Workbench.ShowMapSettings = true; Pump();
     var previousRoot = vm.Workbench.Root;
     vm.Workbench.SummaryLength = 12; Pump();
     PumpUntil(() => !ReferenceEquals(vm.Workbench.Root, previousRoot));
-    Capture(window, "vex-native-mindmap");
-    vm.Workbench.ShowInstant(); Pump(); Capture(window, "vex-native-instant");
+    Capture(window, "markdor-native-mindmap");
+    vm.Workbench.ShowInstant(); Pump(); Capture(window, "markdor-native-instant");
     vm.Workbench.ShowTypography = true; Pump();
-    var typographyGallery = window.FindControl<Vex.Modules.Shell.Views.ShellTypographyGallery>("TypographyGallery")!;
-    Check(typographyGallery.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Text == app.Resolve<IAppLocalizer>().Get(Vex.VexL.TypographySimple)),
+    var typographyGallery = window.FindControl<Markdor.Modules.Shell.Views.ShellTypographyGallery>("TypographyGallery")!;
+    Check(typographyGallery.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Text == app.Resolve<IAppLocalizer>().Get(Markdor.MarkdorL.TypographySimple)),
         "Typography cards use the same localized names as the menu");
     vm.Workbench.ShowTypography = false;
     var preferences = app.Resolve<IAppSettingsStore>().Current;
     var sourceDocument = window.GetVisualDescendants().OfType<MarkdownEditorView>().Single().Editor.Document;
     var mapControl = map.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
     mapControl.SetZoom(.85);
-    ((Vex.Modules.Shell.Views.MainWindow)window).BeginOnboardingGuide(); Pump();
-    var guide = window.FindControl<Vex.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
+    ((Markdor.Modules.Shell.Views.MainWindow)window).BeginOnboardingGuide(); Pump();
+    var guide = window.FindControl<Markdor.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
     // 六幕演示引导：开场卡 →「继续」进入第一幕（打字机运行中）→ 跳幕到 Mermaid 幕（基线文档确定性铺设）→ 结束还原。
     Check(guide.IsVisible && guide.StepIndex == 0, "Interactive guide opens on the intro card");
     guide.NextStep(); Pump();
     Check(guide.IsVisible && guide.StepIndex == 0, "Continuing from the intro starts the first act");
     guide.ShowStep(3); Pump();
     PumpUntil(() => vm.Workbench.Root?.Title == "成都，慢慢走");
-    Capture(window, "vex-native-guide-mermaid-act");
+    Capture(window, "markdor-native-guide-mermaid-act");
     guide.Finish(); Pump();
     Check(!guide.IsVisible && vm.Markdown == changed, "Guide restores the original unsaved Markdown");
     Check(vm.Workbench.SummaryLength == 12 && vm.Workbench.IsInstantEditing, "Guide restores map and editor preferences");
@@ -1863,12 +1863,12 @@ void VerifyWorkbench(VerificationVexApp app, Window window, MainWindowViewModel 
     Check(vm.Markdown == original, "Guide preserves instant editor undo history");
     app.Resolve<MarkdownEditorViewModel>().Execute(EditorActionKind.Redo); Pump();
     Check(vm.Markdown == changed, "Instant editor redo restores the pre-guide changes");
-    ((Vex.Modules.Shell.Views.MainWindow)window).BeginOnboardingGuide(); Pump(); guide.ShowStep(3); Pump(); guide.Finish(); Pump();
+    ((Markdor.Modules.Shell.Views.MainWindow)window).BeginOnboardingGuide(); Pump(); guide.ShowStep(3); Pump(); guide.Finish(); Pump();
     Check(vm.Markdown == changed && vm.Workbench.IsInstantEditing, "Skipping the restarted guide restores state");
     vm.Workbench.ShowSource(); Pump();
 }
 
-void VerifyPathIdentity(VerificationVexApp app, Window window, MainWindowViewModel vm, string sampleFolder)
+void VerifyPathIdentity(VerificationMarkdorApp app, Window window, MainWindowViewModel vm, string sampleFolder)
 {
     var state = app.Resolve<IWorkspaceDocumentState>();
     var markdown = state.Markdown;
@@ -1884,7 +1884,7 @@ void VerifyPathIdentity(VerificationVexApp app, Window window, MainWindowViewMod
     File.WriteAllText(upperPath, markdown);
 
     vm.Workbench.ShowInstant(); Pump();
-    var live = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
+    var live = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
     state.UpdateDocument(markdown, lowerPath); Pump();
     var selection = live.Selection;
     state.UpdateDocument(markdown, upperPath); Pump();
@@ -1916,28 +1916,28 @@ void VerifyPathIdentity(VerificationVexApp app, Window window, MainWindowViewMod
     vm.Workbench.ShowSource(); Pump();
 }
 
-void VerifyPrototypeInteractions(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyPrototypeInteractions(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     var document = vm.Markdown;
-    var source = window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!;
-    var preview = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
-    var host = window.FindControl<Vex.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
+    var source = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!;
+    var preview = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
+    var host = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownMindMapHost>("MindMapGuideTarget")!;
     var map = host.FindControl<CodeWF.Avalonia.MindView.Controls.MarkdownMindMapView>("Map")!;
     var wb = vm.Workbench;
     wb.SelectLayout("instant"); Pump();
     Check(!source.IsEffectivelyVisible && !preview.IsEffectivelyVisible && instant.IsEffectivelyVisible, "Instant mode hides the source and read views");
     Check(instant.Editor.DocumentMaxWidth == 1280 && instant.Editor.EditorFontSize >= 15, "Instant document uses the prototype document width and base font");
-    Check(window.FindControl<Vex.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!.Bounds.Height == 42,
+    Check(window.FindControl<Markdor.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!.Bounds.Height == 42,
         "Editing context row is 42 px above the workspace");
     wb.ShowSource(); Pump();
     Check(source.IsEffectivelyVisible && !preview.IsEffectivelyVisible && Math.Abs(source.Bounds.Width - window.FindControl<Grid>("ViewSurface")!.Bounds.Width) < 2,
         $"The source layout fills the current workspace width: source={source.IsEffectivelyVisible}/{source.Bounds}, preview={preview.IsEffectivelyVisible}, surface={window.FindControl<Grid>("ViewSurface")!.Bounds}, layout={wb.WorkspaceLayout}");
-    Check(window.FindControl<Vex.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "TypographyTarget"),
+    Check(window.FindControl<Markdor.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!.GetVisualDescendants().OfType<Button>().Any(button => button.Name == "TypographyTarget"),
         "Editing options retain the prototype formatting and typography controls");
     wb.ShowRead(); Pump();
     Check(preview.IsEffectivelyVisible && preview.IsReadingMode && !source.IsEffectivelyVisible && !instant.IsEffectivelyVisible
-        && !window.FindControl<Vex.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!.IsEffectivelyVisible,
+        && !window.FindControl<Markdor.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!.IsEffectivelyVisible,
         "Read mode has one read only document without editing toolbar or duplicate preview header");
     app.Resolve<MarkdownEditorViewModel>().ApplySearch(new EditorSearchCommand(EditorSearchAction.Count, "Markdown")); Pump();
     Check(wb.IsReading && vm.Markdown == document, "Counting search matches keeps the reading view and document unchanged");
@@ -1985,13 +1985,13 @@ void VerifyPrototypeInteractions(VerificationVexApp app, Window window, MainWind
     Check(wb.IsInstantEditing && !source.IsEffectivelyVisible && vm.Markdown == document, "Outline navigation in instant mode scrolls without activating hidden source");
     // ShowStatisticsAsync 的任务在浮层关闭后才完成，这里只触发并泵渲染。
     _ = app.Resolve<ShellStatusBarViewModel>().ShowStatisticsAsync(); Pump();
-    Check(window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellStatisticsOverlayView>().Any(v => v.IsVisible),
+    Check(window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellStatisticsOverlayView>().Any(v => v.IsVisible),
         "Status bar character count opens the statistics overlay");
     window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null); Pump();
     vm.Layout.IsOutlineVisible = false; Pump();
-    var shell = (Vex.Modules.Shell.Views.MainWindow)window;
+    var shell = (Markdor.Modules.Shell.Views.MainWindow)window;
     shell.BeginOnboardingGuide(); Pump();
-    var guide = window.FindControl<Vex.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
+    var guide = window.FindControl<Markdor.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
     guide.ShowStep(1); Pump();
     Check(guide.SpotlightTargets.Count >= 1, "Guide acts highlight one focus target at a time");
     var key = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = source.FindControl<MarkdownEditorView>("MarkdownEditor")!.Editor.TextArea, Key = Key.Right };
@@ -2009,7 +2009,7 @@ void VerifyPrototypeInteractions(VerificationVexApp app, Window window, MainWind
         var panel = mode == "mindmap" ? host.FindControl<Border>("SettingsTarget")! : gallery;
         var position = panel.TranslatePoint(default, window)!.Value;
         Check(position.X >= 0 && position.Y >= 0 && position.X + panel.Bounds.Width <= 980 && position.Y + panel.Bounds.Height <= 640, "Settings panel stays within a 980 x 640 window: " + mode);
-        Capture(window, "vex-parity-narrow-" + mode);
+        Capture(window, "markdor-parity-narrow-" + mode);
         wb.ShowTypography = wb.ShowMapSettings = false;
     }
     window.Width = 1280; window.Height = 820; wb.ShowSource(); Pump();
@@ -2017,7 +2017,7 @@ void VerifyPrototypeInteractions(VerificationVexApp app, Window window, MainWind
     { yield return root; foreach (var child in root.Children) foreach (var node in Flatten(child)) yield return node; }
 }
 
-void VerifyEditingPreferences(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyEditingPreferences(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     var source = window.GetVisualDescendants().OfType<MarkdownEditorView>().Single();
     var sourceVm = app.Resolve<MarkdownEditorViewModel>();
@@ -2076,8 +2076,8 @@ void VerifyEditingPreferences(VerificationVexApp app, Window window, MainWindowV
 
 void VerifyLocalizedGuide(Window window, MainWindowViewModel vm)
 {
-    var shell = (Vex.Modules.Shell.Views.MainWindow)window;
-    var guide = window.FindControl<Vex.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
+    var shell = (Markdor.Modules.Shell.Views.MainWindow)window;
+    var guide = window.FindControl<Markdor.Modules.Shell.Views.WorkbenchGuideView>("WorkbenchGuide")!;
     var document = vm.Markdown;
     window.Width = 980; window.Height = 640; Pump();
     foreach (var culture in new[] { "zh-CN", "zh-Hant", "en-US", "ja-JP" })
@@ -2096,7 +2096,7 @@ void VerifyLocalizedGuide(Window window, MainWindowViewModel vm)
             var position = card.TranslatePoint(default, window)!.Value;
             Check(position.X >= 0 && position.Y >= 0 && position.X + card.Bounds.Width <= window.Bounds.Width + 1 && position.Y + card.Bounds.Height <= window.Bounds.Height + 1,
                 $"Localized guide card fits narrow window: {culture} step {step + 1}");
-            Capture(window, $"vex-guide-{culture}-{step + 1}");
+            Capture(window, $"markdor-guide-{culture}-{step + 1}");
         }
         guide.Finish(); Pump();
         Check(vm.Markdown == document, "Localized guide restores document: " + culture);
@@ -2111,7 +2111,7 @@ void VerifyAppearanceControls(Window window, MainWindowViewModel vm)
     var originalTheme = appearance.SelectedTheme;
     var originalPalette = appearance.SelectedPalette;
     var originalLanguage = appearance.SelectedLanguage;
-    var menu = window.FindControl<Vex.Modules.Shell.Views.ShellAppearanceMenuView>("AppearanceMenu")!;
+    var menu = window.FindControl<Markdor.Modules.Shell.Views.ShellAppearanceMenuView>("AppearanceMenu")!;
     foreach (var palette in appearance.PaletteOptions)
     {
         appearance.SelectedPalette = palette; appearance.ThemeMode = StudioThemeMode.System; Pump();
@@ -2123,7 +2123,7 @@ void VerifyAppearanceControls(Window window, MainWindowViewModel vm)
             modes[index].IsChecked = true;
             modes[index].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent)); Pump();
             Check(appearance.ThemeMode == expected && ReferenceEquals(appearance.SelectedPalette, palette), "Title bar cycles mode and preserves palette: " + palette.Key + "/" + expected);
-            var settings = ((VerificationVexApp)Application.Current!).Resolve<IAppSettingsStore>().Current;
+            var settings = ((VerificationMarkdorApp)Application.Current!).Resolve<IAppSettingsStore>().Current;
             Check(settings.ThemeKey == appearance.SelectedTheme!.Key && settings.PaletteKey == palette.Key, "Title bar persists the shared appearance state");
         }
     }
@@ -2145,7 +2145,7 @@ void VerifyAppearanceControls(Window window, MainWindowViewModel vm)
     window.Width = 1280; Pump();
 }
 
-void VerifyWorkspaceLayout(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyWorkspaceLayout(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     app.Resolve<IWorkspaceDocumentState>().UpdateDocument("""
         # Layout sample
@@ -2165,9 +2165,9 @@ void VerifyWorkspaceLayout(VerificationVexApp app, Window window, MainWindowView
     var sidebar = window.FindControl<Border>("SidebarGuideTarget")!;
     var columns = window.FindControl<Grid>("WorkspaceColumns")!;
     var splitter = window.FindControl<GridSplitter>("SidebarSplitter")!;
-    var instant = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
-    var preview = window.FindControl<Vex.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
-    var titleMenu = window.FindControl<Vex.Modules.Shell.Views.ShellTitleMenuView>("TitleMenuView")!;
+    var instant = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!;
+    var preview = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownPreviewView>("PreviewGuideTarget")!;
+    var titleMenu = window.FindControl<Markdor.Modules.Shell.Views.ShellTitleMenuView>("TitleMenuView")!;
     var insert = titleMenu.FindControl<MenuItem>("InsertMenuItem")!;
     Check(insert.GetLogicalDescendants().OfType<MenuItem>().Count(item => item.CommandParameter is string key && key is not "footnote") == 22,
         "All 22 Mermaid templates remain available in grouped insertion menus");
@@ -2228,7 +2228,7 @@ void VerifyWorkspaceLayout(VerificationVexApp app, Window window, MainWindowView
         var frame = code.GetVisualAncestors().OfType<Border>().First(border => border.Classes.Contains("MdCodeBlock"));
         Check(frame.Background is ISolidColorBrush, "Code background resolves for " + palette.Key + "/" + theme);
         var brush = (ISolidColorBrush)frame.Background!;
-        Application.Current!.TryGetResource("VexPreviewBackgroundBrush", window.ActualThemeVariant, out var pageBackground);
+        Application.Current!.TryGetResource("MarkdorPreviewBackgroundBrush", window.ActualThemeVariant, out var pageBackground);
         var canvas = ((ISolidColorBrush)pageBackground!).Color;
         var alpha = brush.Color.A / 255d * brush.Opacity;
         byte Blend(byte front, byte back) => (byte)Math.Round(front * alpha + back * (1 - alpha));
@@ -2256,17 +2256,17 @@ void VerifyTitleLayout(Window window)
     var contentY = content.TranslatePoint(default, window)!.Value.Y;
     Check(divider.BorderThickness == default && Math.Abs(dividerY - titleBottom) < 0.01
         && Math.Abs(spacer.Bounds.Height - shell.TitleBarHeight) < 0.01,
-        $"Vex content starts immediately after the {shell.TitleBarHeight} px title bar: y={dividerY}");
+        $"Markdor content starts immediately after the {shell.TitleBarHeight} px title bar: y={dividerY}");
     Check(Math.Abs(contentY - dividerY) < 0.01
         && Math.Abs(sidebar.TranslatePoint(default, window)!.Value.Y - contentY) < 0.01,
-        $"Vex sidebar and workspace start immediately below the title bar: y={contentY}");
+        $"Markdor sidebar and workspace start immediately below the title bar: y={contentY}");
 }
 
-void VerifyVexDetails(Window window, ThemeVariant theme)
+void VerifyMarkdorDetails(Window window, ThemeVariant theme)
 {
     VerifyTitleLayout(window);
     var divider = window.FindControl<Border>("ShellTitleDivider")!;
-    using (var bitmap = SKBitmap.Decode(Path.Combine(output, "vex-" + theme + ".png")))
+    using (var bitmap = SKBitmap.Decode(Path.Combine(output, "markdor-" + theme + ".png")))
     {
         var y = (int)divider.TranslatePoint(default, window)!.Value.Y;
         var above = bitmap.GetPixel(1000, Math.Max(0, y - 1));
@@ -2274,21 +2274,21 @@ void VerifyVexDetails(Window window, ThemeVariant theme)
         var borderColor = ((ISolidColorBrush)divider.BorderBrush!).Color;
         Check(pixel.Red != borderColor.R || pixel.Green != borderColor.G || pixel.Blue != borderColor.B
             || (pixel.Red == above.Red && pixel.Green == above.Green && pixel.Blue == above.Blue),
-            "Vex screenshot has no title separator under " + theme);
+            "Markdor screenshot has no title separator under " + theme);
     }
-    var files = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellFilesView>().Single();
-    var outline = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellOutlineView>().Single();
+    var files = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellFilesView>().Single();
+    var outline = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellOutlineView>().Single();
     Check(files.IsEffectivelyVisible && outline.IsEffectivelyVisible,
-        "Vex independent Files and Outline panels remain visible under " + theme);
+        "Markdor independent Files and Outline panels remain visible under " + theme);
     Check(outline.TranslatePoint(default, window)!.Value.X > files.TranslatePoint(default, window)!.Value.X + files.Bounds.Width,
-        "Vex Outline remains to the right of the document under " + theme);
+        "Markdor Outline remains to the right of the document under " + theme);
     var heading = window.GetVisualDescendants().OfType<Border>().First(b => b.Classes.Contains("MdH1Border"));
     var type = CodeWF.Avalonia.Markdown.Themes.ArticleTypographyCatalog.Find(((MainWindowViewModel)window.DataContext!).Appearance.SelectedTypography?.Key)!;
     Check(heading.BorderThickness == Thickness.Parse(type.Headings[0].Border),
-        "Vex H1 follows the selected article decoration under " + theme);
+        "Markdor H1 follows the selected article decoration under " + theme);
     var quote = window.GetVisualDescendants().OfType<Border>().First(b => b.Classes.Contains("MdQuote"));
     Check(quote.BorderThickness == Thickness.Parse(type.Quote.Border),
-        "Vex quote follows the selected article border under " + theme);
+        "Markdor quote follows the selected article border under " + theme);
 }
 
 bool SameBrush(IBrush? first, IBrush? second) => first is ISolidColorBrush a && second is ISolidColorBrush b && a.Color == b.Color;
@@ -2321,13 +2321,13 @@ void VerifySourceLineHeight(Window window, MarkdownEditorView source, double exp
     source.Editor.CaretOffset = 0;
 }
 
-void VerifyEditingTools(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyEditingTools(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     var wb = vm.Workbench;
-    var options = window.FindControl<Vex.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!;
+    var options = window.FindControl<Markdor.Modules.Shell.Views.ShellEditorOptionsView>("EditorOptions")!;
     var toolbar = options.FindControl<Ursa.Controls.ToolBar>("FormattingToolbar")!;
-    var source = window.FindControl<Vex.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
-    var live = window.FindControl<Vex.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
+    var source = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownEditorView>("EditorGuideTarget")!.FindControl<MarkdownEditorView>("MarkdownEditor")!;
+    var live = window.FindControl<Markdor.Modules.Workspace.Views.MarkdownInstantView>("InstantGuideTarget")!.Editor;
     var doc = app.Resolve<IWorkspaceDocumentState>();
     window.Width = 1280; window.Height = 820; wb.ShowSource(); Pump();
     doc.UpdateDocument("alpha beta", null); Pump();
@@ -2377,7 +2377,7 @@ void VerifyEditingTools(VerificationVexApp app, Window window, MainWindowViewMod
     foreach (var culture in new[] { "zh-CN", "zh-Hant", "en-US", "ja-JP" })
     {
         app.Resolve<IAppLocalizer>().SetCulture(culture); wb.ShowSource(); Pump();
-        Check((string?)ToolTip.GetTip(options.FindControl<Button>("FormatBold")!) == CodeWF.Toolkit.Lang.I18nManager.Instance.GetResource(Vex.VexL.Bold), "Formatting tooltip follows language: " + culture);
+        Check((string?)ToolTip.GetTip(options.FindControl<Button>("FormatBold")!) == CodeWF.Toolkit.Lang.I18nManager.Instance.GetResource(Markdor.MarkdorL.Bold), "Formatting tooltip follows language: " + culture);
     }
     void Click(Button button)
     {
@@ -2386,7 +2386,7 @@ void VerifyEditingTools(VerificationVexApp app, Window window, MainWindowViewMod
     }
 }
 
-void VerifyDialogButtonStates(VerificationVexApp app, Window window, MainWindowViewModel vm, string kind, bool auditOnly = false)
+void VerifyDialogButtonStates(VerificationMarkdorApp app, Window window, MainWindowViewModel vm, string kind, bool auditOnly = false)
 {
     Task dialogTask;
     Control dialog;
@@ -2394,16 +2394,16 @@ void VerifyDialogButtonStates(VerificationVexApp app, Window window, MainWindowV
     if (kind == "primary")
     {
         dialogTask = app.Resolve<IShellOverlayService>().ShowInsertTableAsync();
-        PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellInsertTableOverlayView>().Any());
-        dialog = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellInsertTableOverlayView>().Single();
-        close = ((Vex.Modules.Shell.Views.ShellInsertTableModel)dialog.DataContext!).Close;
+        PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellInsertTableOverlayView>().Any());
+        dialog = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellInsertTableOverlayView>().Single();
+        close = ((Markdor.Modules.Shell.Views.ShellInsertTableModel)dialog.DataContext!).Close;
     }
     else
     {
         dialogTask = app.Resolve<IShellOverlayService>().ConfirmDeleteAsync("Delete verification", "Verification only", Path.Combine(output, "not-a-real-file.md"));
-        PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellDeleteConfirmationOverlayView>().Any());
-        dialog = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellDeleteConfirmationOverlayView>().Single();
-        close = ((Vex.Modules.Shell.Views.ShellDeleteConfirmationModel)dialog.DataContext!).Close;
+        PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellDeleteConfirmationOverlayView>().Any());
+        dialog = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellDeleteConfirmationOverlayView>().Single();
+        close = ((Markdor.Modules.Shell.Views.ShellDeleteConfirmationModel)dialog.DataContext!).Close;
     }
     var button = dialog.GetVisualDescendants().OfType<Button>().Single(control => control.Classes.Contains(kind));
     var originalCommand = button.Command;
@@ -2453,7 +2453,7 @@ void VerifyDialogButtonStates(VerificationVexApp app, Window window, MainWindowV
                 var description = $"{kind} button {palette.Key}/{theme.Key}/{state}: {foreground} on {background}, contrast {ratio:F2}";
                 Console.WriteLine("AUDIT " + description);
                 if (ratio < 4.5) issues.Add(description);
-                if (auditOnly || state == "hover") Capture(window, $"vex-{kind}-{palette.Key}-{theme.Key}-{state}");
+                if (auditOnly || state == "hover") Capture(window, $"markdor-{kind}-{palette.Key}-{theme.Key}-{state}");
                 if (!auditOnly) Check(ratio >= 4.5, description);
             }
         }
@@ -2488,17 +2488,17 @@ double Contrast(Color first, Color second)
     return (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05);
 }
 
-void VerifyUpdates(VerificationVexApp app, Window window, MainWindowViewModel vm)
+void VerifyUpdates(VerificationMarkdorApp app, Window window, MainWindowViewModel vm)
 {
     window.Width = 980; window.Height = 640; Pump();
-    var service = (VerificationUpdates)VerificationVexApp.Updates!;
+    var service = (VerificationUpdates)VerificationMarkdorApp.Updates!;
     var overlay = app.Resolve<IShellOverlayService>();
-    var menu = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellTitleMenuView>().Single();
+    var menu = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellTitleMenuView>().Single();
     var menuItem = menu.FindControl<MenuItem>("CheckUpdatesMenuItem")!;
     Check(menuItem.CommandParameter?.ToString() == "update", "Help menu routes to the shared update action");
     var menuTask = vm.Help.OpenHelpTopic("update");
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUpdateOverlayView>().Any());
-    var view = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUpdateOverlayView>().Single();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUpdateOverlayView>().Any());
+    var view = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUpdateOverlayView>().Single();
     var model = (ShellUpdateViewModel)view.DataContext!;
     Check(service.Checks == 1 && model.State == UpdateState.Available, "Menu opens one update view and starts one check");
     SettleRendering();
@@ -2513,22 +2513,22 @@ void VerifyUpdates(VerificationVexApp app, Window window, MainWindowViewModel vm
     model.Close(); Pump(menuTask);
     Check(model.IsDownloading, "Closing the view keeps the download active");
     var aboutTask = overlay.ShowAboutAsync();
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Any());
-    var about = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellAboutOverlayView>().Single();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Any());
+    var about = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellAboutOverlayView>().Single();
     ((ShellAboutViewModel)about.DataContext!).UpdateCommand.Execute().Subscribe(); Pump();
-    PumpUntil(() => window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUpdateOverlayView>().Any());
-    view = window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUpdateOverlayView>().Single();
+    PumpUntil(() => window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUpdateOverlayView>().Any());
+    view = window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUpdateOverlayView>().Single();
     Check(ReferenceEquals(model, view.DataContext) && model.IsDownloading && service.Checks == 1 && service.Downloads == 1,
         "About reopens the same update session and download");
     var duplicate = overlay.ShowUpdatesAsync();
-    Check(ReferenceEquals(duplicate, overlay.ShowUpdatesAsync()) && window.GetVisualDescendants().OfType<Vex.Modules.Shell.Views.ShellUpdateOverlayView>().Count() == 1,
+    Check(ReferenceEquals(duplicate, overlay.ShowUpdatesAsync()) && window.GetVisualDescendants().OfType<Markdor.Modules.Shell.Views.ShellUpdateOverlayView>().Count() == 1,
         "Repeated entry requests reuse one visible dialog");
     service.CompleteDownload(); Pump(download);
     Check(model.State == UpdateState.Downloaded && model.HasDownload, "Reopened view receives the completed download");
     Check(view.FindControl<Expander>("UpdateNotes")!.IsExpanded, "Downloaded update expands the release notes");
     Capture(window, "updates-downloaded");
     Pump(model.AdvanceAsync());
-    Check(model.State == UpdateState.Failed && model.HasDownload && !aboutTask.IsCompleted, "Failed installation keeps Vex and the update view open");
+    Check(model.State == UpdateState.Failed && model.HasDownload && !aboutTask.IsCompleted, "Failed installation keeps Markdor and the update view open");
     foreach (var culture in new[] { "zh-CN", "en-US", "zh-Hant", "ja-JP" })
     foreach (var theme in new[] { "light", "dark" })
     {
@@ -2536,7 +2536,7 @@ void VerifyUpdates(VerificationVexApp app, Window window, MainWindowViewModel vm
         var scroll = view.GetVisualDescendants().OfType<ScrollViewer>().Single(); scroll.ScrollToEnd(); Pump();
         VerifyInside(scroll, window, "Update viewport fits: " + culture + "/" + theme);
         VerifyInside(view.FindControl<Button>("UpdateAction")!, scroll, "Install retry remains reachable: " + culture + "/" + theme);
-        Check(!model.StatusText.StartsWith("Vex.VexL."), "Update text is localized: " + culture);
+        Check(!model.StatusText.StartsWith("Markdor.MarkdorL."), "Update text is localized: " + culture);
         Capture(window, "updates-" + culture + "-" + theme);
     }
     model.Close(); Pump(aboutTask); Pump(duplicate);
@@ -2545,7 +2545,7 @@ void VerifyUpdates(VerificationVexApp app, Window window, MainWindowViewModel vm
     model.Close(); Pump(reopen);
 }
 
-public sealed class VerificationVexApp : Vex.App
+public sealed class VerificationMarkdorApp : Markdor.App
 {
     public static bool ProbeFileTree { get; set; }
     public static bool ControlDocumentReads { get; set; }

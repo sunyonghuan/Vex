@@ -1,15 +1,15 @@
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Vex.Core.Models;
-using Vex.Core.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Workspace.Services;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Workspace.Services;
 
 /// <summary>以真实工作区和磁盘事件验证按层加载、缓存和监控的读取范围。</summary>
 internal static class FileTreeLoadingProbe
 {
-    public static void Run(VerificationVexApp app, Window window, string output)
+    public static void Run(VerificationMarkdorApp app, Window window, string output)
     {
         void Pump(Task? task = null)
         {

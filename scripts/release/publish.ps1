@@ -79,7 +79,7 @@ $platforms = [ordered]@{
 $displayVersion = if ($Version) { $Version } else { [string] $props.Project.PropertyGroup.Version }
 $target = $Platform.Trim().ToLowerInvariant()
 if ($target -eq 'list') {
-    Write-Output "Vex $displayVersion - available release platforms:"
+    Write-Output "Markdor $displayVersion - available release platforms:"
     foreach ($name in $platforms.Keys) {
         Write-Output ('  {0,-7} {1}' -f $name, ($platforms[$name] -join ', '))
     }
@@ -132,7 +132,7 @@ if ($hostPlatform -eq 'win') {
 }
 
 # Publish and package the same RID; retain the existing native packaging recipes.
-if (-not $WorkRoot) { $WorkRoot = Join-Path $PSScriptRoot '../../../temp_files/vex-release' }
+if (-not $WorkRoot) { $WorkRoot = Join-Path $PSScriptRoot '../../../temp_files/markdor-release' }
 $artifactsRoot = Join-Path ([IO.Path]::GetFullPath($WorkRoot)) $runtimeIdentifier
 & (Join-Path $PSScriptRoot '../build/publish.ps1') -RuntimeIdentifier $runtimeIdentifier -Version $Version -ArtifactsRoot $artifactsRoot
 if ($hostPlatform -eq 'linux') {

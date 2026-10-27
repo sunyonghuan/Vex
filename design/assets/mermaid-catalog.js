@@ -15,7 +15,7 @@
     {key:'requirement',label:'需求图',group:'结构与关系',source:'requirementDiagram\n  requirement local_files {\n    id: 1\n    text: Local Markdown files\n    risk: low\n    verifymethod: test\n  }\n  element editor {\n    type: application\n  }\n  editor - satisfies -> local_files'},
     {key:'mindmap',label:'思维导图',group:'结构与关系',source:'mindmap\n  root((写作))\n    构思\n      观察\n      灵感\n    整理\n      提纲\n      论据\n    表达\n      初稿\n      校对'},
     {key:'block',label:'块图',group:'结构与关系',source:'block-beta\n  columns 3\n  a["编辑器"] space b["预览"]\n  a --> b\n  c["本地 Markdown 文件"]:3'},
-    {key:'c4',label:'C4 架构图',group:'结构与关系',source:'C4Context\n  title 本地写作空间\n  Person(writer, "写作者", "记录与整理想法")\n  System(vex, "维刻 Vex", "Markdown 工作区")\n  System_Ext(files, "本地文件", "Markdown 文档")\n  Rel(writer, vex, "写作")\n  Rel(vex, files, "读写")'},
+    {key:'c4',label:'C4 架构图',group:'结构与关系',source:'C4Context\n  title 本地写作空间\n  Person(writer, "写作者", "记录与整理想法")\n  System(markdor, "维刻 Markdor", "Markdown 工作区")\n  System_Ext(files, "本地文件", "Markdown 文档")\n  Rel(writer, markdor, "写作")\n  Rel(markdor, files, "读写")'},
     {key:'architecture',label:'架构图',group:'结构与关系',source:'architecture-beta\n  group app(cloud)[Workspace]\n  service editor(server)[Editor] in app\n  service files(disk)[Files] in app\n  editor:R -- L:files'},
     {key:'packet',label:'数据包图',group:'结构与关系',source:'packet-beta\n  title 文档消息头\n  0-7: "Version"\n  8-15: "Type"\n  16-31: "Length"\n  32-63: "Document ID"'},
     {key:'pie',label:'饼图',group:'数据与比较',source:'pie showData\n  title 写作时间分配\n  "构思" : 25\n  "写作" : 50\n  "校对" : 25'},
@@ -31,5 +31,5 @@
     const item = items.find(item => header.startsWith(item.source.split(/\s/)[0])) || (/^(graph)\b/.test(header) ? items[0] : null) || (/^C4/.test(header) ? items.find(item => item.key === 'c4') : null);
     return item?.label || 'Mermaid 图表';
   };
-  window.VexMermaid = {items,snippet,label};
+  window.MarkdorMermaid = {items,snippet,label};
 })();

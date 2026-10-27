@@ -13,9 +13,9 @@ body { font-family:var(--font); font-size:var(--fs-body,14px); }
 /* A shared 32px control row keeps icons on the window-button centreline. */
 .titlebar > .studio-title-controls { align-self:center; height:32px; }
 .titlebar .studio-title-controls > details { display:flex; align-items:center; height:32px; }
-.titlebar #vex-appearance-menu > summary,
-.titlebar #vex-language-menu > summary { height:32px; padding-block:0; display:flex; align-items:center; justify-content:center; line-height:1; }
-.titlebar #vex-language-menu > summary span { align-self:center; padding:0; }
+.titlebar #markdor-appearance-menu > summary,
+.titlebar #markdor-language-menu > summary { height:32px; padding-block:0; display:flex; align-items:center; justify-content:center; line-height:1; }
+.titlebar #markdor-language-menu > summary span { align-self:center; padding:0; }
 .titlebar .appearance-choices { max-height:calc(100dvh - 90px); overflow-y:auto; overscroll-behavior:contain; }
 .mini-titlebar, .about-updated .mini-titlebar { height:var(--dialog-titlebar-height); min-height:var(--dialog-titlebar-height); padding:0 0 0 16px; flex:none; font-size:var(--fs-body,14px); font-weight:600; }
 .mini-titlebar > .caption-btns { position:static; margin-left:auto; height:100%; }

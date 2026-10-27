@@ -58,7 +58,7 @@
 
   function documentName() {
     var title = document.querySelector('.document-title');
-    return (title && title.textContent ? title.textContent.trim() : 'vex') || 'vex';
+    return (title && title.textContent ? title.textContent.trim() : 'markdor') || 'markdor';
   }
 
   function downloadCsv(rows, index) {
@@ -71,10 +71,10 @@
   }
 
   function openPreview(scroll) {
-    var stale = document.getElementById('vex-table-preview');
+    var stale = document.getElementById('markdor-table-preview');
     if (stale) stale.remove();
     var overlay = document.createElement('div');
-    overlay.id = 'vex-table-preview';
+    overlay.id = 'markdor-table-preview';
     var label = documentName() + ' · 表格预览';
     overlay.innerHTML = '<div class="table-preview-card" role="dialog" aria-modal="true" aria-label="' + label + '">'
       + '<div class="table-preview-head"><strong>' + label + '</strong>'
@@ -94,7 +94,7 @@
   }
 
   function enhance(scroll) {
-    if (!scroll || scroll.closest('#vex-table-preview') || scroll.closest('.type-swatch')) return;
+    if (!scroll || scroll.closest('#markdor-table-preview') || scroll.closest('.type-swatch')) return;
     var previous = scroll.previousElementSibling;
     if (previous && previous.classList && previous.classList.contains('md-table-toolbar')) return;
     var rows = tableData(scroll);

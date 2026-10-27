@@ -21,7 +21,7 @@
   function open(options) {
     if (active) return;
     options.finish?.();
-    var pages = buildDeck(options.text(), options.title()), page = 0, scale = VexOverlay.width() <= 699 ? 1.1 : 1.5, mapMode = !!options.mapMode?.();
+    var pages = buildDeck(options.text(), options.title()), page = 0, scale = MarkdorOverlay.width() <= 699 ? 1.1 : 1.5, mapMode = !!options.mapMode?.();
     var mapX = 0, mapY = 0, mapScale = 1, pan = null;
     var mapNodes = pages.map(function (slide, index) { return { index: index, title: slide.title, level: slide.level, children: [] }; });
     var parents = [mapNodes[0]];
@@ -31,15 +31,15 @@
     }
     var measure = document.createElement('canvas').getContext('2d');
     measure.font = '16px ' + getComputedStyle(document.body).fontFamily;
-    var geometry = VexMapLayout.layout(mapNodes[0], { mode: options.mapLayout?.(), measure: function (node) {
+    var geometry = MarkdorMapLayout.layout(mapNodes[0], { mode: options.mapLayout?.(), measure: function (node) {
       node.width = 176; var rows = 1, used = 0;
       Array.from(node.title).forEach(function (char) { var width = measure.measureText(char).width; if (used + width > 146) { rows++; used = 0; } used += width; });
       node.height = Math.max(66,Math.ceil(rows * 21.6 + 18));
     }});
-    var narrow = VexOverlay.width() <= 699, outline = !narrow;
+    var narrow = MarkdorOverlay.width() <= 699, outline = !narrow;
     var root = document.createElement('section'), releaseOverlay;
     var priorFullscreen = document.fullscreenElement, requestedFullscreen = false;
-    root.className = 'vex-deck'; root.tabIndex = -1; root.setAttribute('role', 'dialog');
+    root.className = 'markdor-deck'; root.tabIndex = -1; root.setAttribute('role', 'dialog');
     root.setAttribute('aria-modal', 'true');
     root.innerHTML = '<header><button type="button" data-deck="outline">☷</button><strong></strong><button type="button" data-deck="markdown"></button><button type="button" data-deck="map"></button><button type="button" data-deck="exit">×</button></header>' +
       '<div class="deck-stage"><nav></nav><div class="deck-scroll"><article class="md-body markdown-body"></article></div><div class="deck-map"><div class="deck-map-scene"></div></div></div>' +
@@ -47,10 +47,10 @@
       '<span class="deck-pages"><button type="button" data-deck="previous">←</button><output aria-live="polite"></output><button type="button" data-deck="next">→</button></span></div></footer><progress max="1"></progress>';
     var nav = root.querySelector('nav'), body = root.querySelector('article'), scroll = root.querySelector('.deck-scroll');
     /* 水印开启即全场景显示（含演示），见 watermark.js。 */
-    if (window.VexWatermark && VexWatermark.active) body.classList.toggle('vex-watermarked', VexWatermark.active());
+    if (window.MarkdorWatermark && MarkdorWatermark.active) body.classList.toggle('markdor-watermarked', MarkdorWatermark.active());
     var map = root.querySelector('.deck-map'), scene = root.querySelector('.deck-map-scene');
     var mapWidth = geometry.width, mapHeight = geometry.height;
-    scene.dataset.layout = VexMapLayout.valid(options.mapLayout?.()) ? options.mapLayout() : 'right';
+    scene.dataset.layout = MarkdorMapLayout.valid(options.mapLayout?.()) ? options.mapLayout() : 'right';
     scene.innerHTML = '<svg width="' + mapWidth + '" height="' + mapHeight + '" aria-hidden="true">' + geometry.links.map(function (link) {
       return '<path d="' + link.path + '"/>';
     }).join('') + '</svg>' + mapNodes.map(function (node) {
@@ -62,7 +62,7 @@
     function zoomMap(factor) { var next = Math.max(Math.min(.15, fitScale()), Math.min(3, mapScale * factor)), ratio = next / mapScale; mapX = map.clientWidth / 2 + (mapX - map.clientWidth / 2) * ratio; mapY = map.clientHeight / 2 + (mapY - map.clientHeight / 2) * ratio; mapScale = next; transformMap(); }
     function labels() {
       var language = options.language?.() || 'zh-CN';
-      return VexPresentationLabels[language] || VexPresentationLabels['en-US'];
+      return MarkdorPresentationLabels[language] || MarkdorPresentationLabels['en-US'];
     }
     function render(reset) {
       var l = labels();
@@ -109,7 +109,7 @@
         nav.appendChild(button);
       });
       nav.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
-      if (reset) { body.innerHTML = pages[page].html; scroll.scrollTop = 0; VexRendering.diagrams(); }
+      if (reset) { body.innerHTML = pages[page].html; scroll.scrollTop = 0; MarkdorRendering.diagrams(); }
       scene.querySelectorAll('[data-map-page]').forEach(function (node) { node.classList.toggle('selected', +node.dataset.mapPage === page); });
       root.querySelector('[data-deck="previous"]').innerHTML = narrow ? controlIcon('arrow') : '←';
       root.querySelector('[data-deck="next"]').innerHTML = narrow ? controlIcon('arrow') : '→';
@@ -131,7 +131,7 @@
       releaseOverlay();
     }
     function fullscreenChanged() { if (requestedFullscreen && !document.fullscreenElement) close(); }
-    function resized() { var next = VexOverlay.width() <= 699; if (next !== narrow) outline = !next; narrow = next; render(false); }
+    function resized() { var next = MarkdorOverlay.width() <= 699; if (next !== narrow) outline = !next; narrow = next; render(false); }
     function keys(event) {
       if (event.isComposing) return;
       var handled = true;
@@ -174,8 +174,8 @@
     map.addEventListener('pointerdown', function (event) { if (event.target.closest('button')) return; pan = { x: event.clientX, y: event.clientY, mapX: mapX, mapY: mapY }; map.setPointerCapture(event.pointerId); });
     map.addEventListener('pointermove', function (event) { if (pan) { mapX = pan.mapX + event.clientX - pan.x; mapY = pan.mapY + event.clientY - pan.y; transformMap(); } });
     ['pointerup','pointercancel'].forEach(function (name) { map.addEventListener(name, function () { pan = null; }); });
-    var scope = VexOverlay.mount(root);
-    releaseOverlay = VexOverlay.lock(root);
+    var scope = MarkdorOverlay.mount(root);
+    releaseOverlay = MarkdorOverlay.lock(root);
     active = { close: close }; render(true); root.focus();
     document.addEventListener('keydown', keys, true);
     document.addEventListener('fullscreenchange', fullscreenChanged);
@@ -187,5 +187,5 @@
       }).catch(function () {});
     }
   }
-  window.VexPresentation = { open: open, buildDeck: buildDeck, get active() { return !!active; } };
+  window.MarkdorPresentation = { open: open, buildDeck: buildDeck, get active() { return !!active; } };
 })();

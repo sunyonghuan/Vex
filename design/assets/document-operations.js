@@ -76,5 +76,5 @@
   function fromDOM(node, inline) {
     return serialize({rows:[...node.rows].map(row=>[...row.cells].map(cell=>inline(cell).trim().replace(/\n/g,' ').replace(/(?<!\\)\|/g,'\\|'))),align:[...node.rows[0].cells].map(cell=>cell.dataset.align||cell.style.textAlign||'')});
   }
-  window.VexDocumentOps = {cells,table,serialize,canTable,changeTable,wrap,convert,inlineTokens,fromDOM};
+  window.MarkdorDocumentOps = {cells,table,serialize,canTable,changeTable,wrap,convert,inlineTokens,fromDOM};
 })();

@@ -15,7 +15,7 @@
   function escapeHtml(text) { return text.replace(/[&<>"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[ch])); }
 
   function releaseIndex() {
-    const text = (window.VexDocuments && VexDocuments.changelog && VexDocuments.changelog.text) || '';
+    const text = (window.MarkdorDocuments && MarkdorDocuments.changelog && MarkdorDocuments.changelog.text) || '';
     const sections = [];
     const pattern = /^## V(\d+(?:\.\d+)+)（([^）\n]+)）\n([\s\S]*?)(?=\n## V\d+(?:\.\d+)+（|$)/gm;
     let match;
@@ -27,7 +27,7 @@
     for (let i = 0; i < 3; i++) if ((left[i] || 0) !== (right[i] || 0)) return (left[i] || 0) - (right[i] || 0);
     return 0;
   }
-  function currentVersion() { return (window.VexProject ? VexProject.version : '').split('+')[0]; }
+  function currentVersion() { return (window.MarkdorProject ? MarkdorProject.version : '').split('+')[0]; }
   function releaseDate(version) {
     const found = releaseIndex().find(item => item.version === version);
     return found ? found.date : '';
@@ -119,7 +119,7 @@
         setProgress(null); showChanges(true);
         break;
       case 'installing':
-        setHero('正在启动安装程序…', '更新包已下载并校验完成。启动后 Vex 将退出，安装将在独立安装程序中继续。', 'refresh', true);
+        setHero('正在启动安装程序…', '更新包已下载并校验完成。启动后 Markdor 将退出，安装将在独立安装程序中继续。', 'refresh', true);
         setActions([]);
         break;
       case 'installed':
@@ -145,7 +145,7 @@
   // 更新交接后继续在当前标签页演示对应平台的安装流程。
   function showInstallerHandoff() {
     const query = new URLSearchParams(location.search);
-    const installers = { windows:'Vex-Installer-Windows.html', macos:'Vex-Installer-macOS.html', linux:'Vex-Installer-Linux.html' };
+    const installers = { windows:'Markdor-Installer-Windows.html', macos:'Markdor-Installer-macOS.html', linux:'Markdor-Installer-Linux.html' };
     const target = new URL(installers[query.get('platform')] || installers.windows, location.href);
     ['theme','palette','lang'].forEach(key => { const value = query.get(key); if (value) target.searchParams.set(key, value); });
     location.assign(target.href);
@@ -167,7 +167,7 @@
         state = 'current'; render();
         return;
       }
-      if (scenario === 'missing') { state = 'manual'; render(); window.open('https://github.com/dotnet9/Vex/releases/latest', '_blank', 'noopener,noreferrer'); return; }
+      if (scenario === 'missing') { state = 'manual'; render(); window.open('https://github.com/sunyonghuan/Vex/releases/latest', '_blank', 'noopener,noreferrer'); return; }
       const current = currentVersion();
       newer.length = 0;
       releaseIndex().forEach(item => { if (compareVersion(item.version, current) > 0) newer.push(item); });
@@ -235,9 +235,9 @@
     if ($('layer-update').hidden) { generation++; clearTimeout(timer); clearInterval(progressTimer); }
     else { newer.length = 0; check(); }
   }).observe($('layer-update'), {attributes:true,attributeFilter:['hidden']});
-  window.addEventListener('vex-language-changed', render);
+  window.addEventListener('markdor-language-changed', render);
   // 自动化验证可选择失败场景；演示开关不进入产品界面。
-  window.VexUpdate = { setScenario(value) {
+  window.MarkdorUpdate = { setScenario(value) {
     if (!['available','current','missing','check-failed','download-failed','checksum-failed','install-failed'].includes(value)) return;
     generation++; clearTimeout(timer); clearInterval(progressTimer);
     scenario = value; state = 'idle'; failures.clear(); newer.length = 0;

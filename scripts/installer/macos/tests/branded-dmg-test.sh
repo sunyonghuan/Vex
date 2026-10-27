@@ -122,9 +122,9 @@ reset_fixture() {
 }
 for language in bilingual en zh; do
   grep -Fq 'width="740" height="406"' "$asset_root/background-$language.svg"
-  grep -Fq '>Vex · CodeWF</text>' "$asset_root/background-$language.svg"
+  grep -Fq '>Markdor · CodeWF</text>' "$asset_root/background-$language.svg"
   if [[ "$language" == en ]]; then
-    grep -Fq 'Move Vex into your applications.' "$asset_root/background-$language.svg"
+    grep -Fq 'Move Markdor into your applications.' "$asset_root/background-$language.svg"
     grep -Fq 'Drag the icon on the left to Applications.' "$asset_root/background-$language.svg"
   else
     grep -Fq '把维刻，放进你的应用程序。' "$asset_root/background-$language.svg"
@@ -195,4 +195,4 @@ if FAIL_PHASE=detach bash "$asset_root/create-branded-dmg.sh" "$fixture/stage" '
 [[ ! -e "$fixture/failure-detach.dmg" ]]
 ! grep -q '^convert$' "$TEST_TRACE"
 if CODEWF_DMG_LANGUAGE=invalid bash "$asset_root/create-branded-dmg.sh" "$fixture/stage" 'Test App' "$fixture/invalid.dmg" >"$fixture/invalid.log" 2>&1; then exit 1; fi
-echo 'PASS: three Vex language backgrounds, stable device detach, partial volume unmount, already-detached proof, conservative unknown state, bounded busy retries, EXIT cleanup and failure propagation.'
+echo 'PASS: three Markdor language backgrounds, stable device detach, partial volume unmount, already-detached proof, conservative unknown state, bounded busy retries, EXIT cleanup and failure propagation.'

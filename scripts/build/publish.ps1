@@ -106,7 +106,7 @@ function Publish-ReleaseRuntime {
         $ilcArgs += "-p:ILCompilerTargetsPath=$compilerTargets"
     }
     # 限制工程级并发，避免本地多仓联调时 MSBuild 子进程争用内存。
-    dotnet publish (Join-Path $repositoryRoot 'src/Vex/Vex.csproj') -c Release -f $tfm -r $Rid -m:1 @ilcArgs /p:PublishProfile=FolderProfile__$Rid -p:Version=$ReleaseVersion
+    dotnet publish (Join-Path $repositoryRoot 'src/Netor.Markdor/Netor.Markdor.csproj') -c Release -f $tfm -r $Rid -m:1 @ilcArgs /p:PublishProfile=FolderProfile__$Rid -p:Version=$ReleaseVersion
     if ($LASTEXITCODE -ne 0) { throw "publish failed for $Rid" }
     Remove-PublishSidecars -Rid $Rid -RidPublishRoot $RidPublishRoot
 }
@@ -117,7 +117,7 @@ function Remove-PublishSidecars {
         [string] $RidPublishRoot = ''
     )
 
-    $payload = if ($RidPublishRoot) { [IO.Path]::GetFullPath($RidPublishRoot) } else { Join-Path $repositoryRoot "artifacts/publish/$Rid/Vex" }
+    $payload = if ($RidPublishRoot) { [IO.Path]::GetFullPath($RidPublishRoot) } else { Join-Path $repositoryRoot "artifacts/publish/$Rid/Markdor" }
     if (-not (Test-Path -LiteralPath $payload -PathType Container)) { return }
     $sidecarExtensions = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     foreach ($extension in @('.pdb', '.xml', '.ps1', '.py')) { [void]$sidecarExtensions.Add($extension) }
@@ -136,9 +136,9 @@ function Write-ReleaseArchive {
         [Parameter(Mandatory)] [string] $ReleaseRoot
     )
 
-    $payload = if ($PublishRoot) { [IO.Path]::GetFullPath($PublishRoot) } else { Join-Path $repositoryRoot "artifacts/publish/$Rid/Vex" }
+    $payload = if ($PublishRoot) { [IO.Path]::GetFullPath($PublishRoot) } else { Join-Path $repositoryRoot "artifacts/publish/$Rid/Markdor" }
     if (-not (Test-Path -LiteralPath $payload -PathType Container)) { throw "Publish output is missing: $payload" }
-    $archiveName = "Vex-v$ReleaseVersion-$Rid.zip"
+    $archiveName = "Markdor-v$ReleaseVersion-$Rid.zip"
     $archivePath = Join-Path $ReleaseRoot $archiveName
     if (Test-Path -LiteralPath $archivePath) { Remove-Item -LiteralPath $archivePath -Force }
     $files = @(Get-ChildItem -LiteralPath $payload -Recurse -File | Where-Object Extension -ne '.pdb')
@@ -167,7 +167,7 @@ function Write-ReleaseArchive {
 $requested = $RuntimeIdentifier.Trim().ToLowerInvariant()
 $releaseVersion = Get-ReleaseVersion
 if ($requested -eq 'list') {
-    Write-Output "Vex $releaseVersion - available release platforms:"
+    Write-Output "Markdor $releaseVersion - available release platforms:"
     foreach ($name in $releasePlatforms.Keys) {
         Write-Output ('  {0,-7} {1}' -f $name, ($releasePlatforms[$name] -join ', '))
     }
@@ -184,7 +184,7 @@ if ($requested -eq 'all') {
     if ($PublishRoot) { throw '-PublishRoot selects one output directory and cannot be combined with all.' }
     $releaseRoot = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path $repositoryRoot 'artifacts/release' }
     [IO.Directory]::CreateDirectory($releaseRoot) | Out-Null
-    $workBase = if ($ArtifactsRoot) { [IO.Path]::GetFullPath($ArtifactsRoot) } else { Join-Path $repositoryRoot '../../temp_files/vex-release' }
+    $workBase = if ($ArtifactsRoot) { [IO.Path]::GetFullPath($ArtifactsRoot) } else { Join-Path $repositoryRoot '../../temp_files/markdor-release' }
     $manifest = [Collections.Generic.List[object]]::new()
     foreach ($group in $releasePlatforms.Values) {
         foreach ($rid in $group) {
@@ -192,10 +192,10 @@ if ($requested -eq 'all') {
             $manifest.Add((Write-ReleaseArchive -Rid $rid -ReleaseVersion $releaseVersion -ReleaseRoot $releaseRoot))
         }
     }
-    $manifestPath = Join-Path $releaseRoot "Vex-v$releaseVersion-release-manifest.json"
-    [ordered]@{ product = 'Vex'; version = $releaseVersion; packages = $manifest } |
+    $manifestPath = Join-Path $releaseRoot "Markdor-v$releaseVersion-release-manifest.json"
+    [ordered]@{ product = 'Markdor'; version = $releaseVersion; packages = $manifest } |
         ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
-    Write-Host ("Published {0} platform archive(s) for Vex {1}." -f $manifest.Count, $releaseVersion)
+    Write-Host ("Published {0} platform archive(s) for Markdor {1}." -f $manifest.Count, $releaseVersion)
     Write-Host "Release manifest: $manifestPath"
     return
 }

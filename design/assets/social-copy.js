@@ -28,7 +28,7 @@
       safe.content.querySelectorAll('script,style,iframe,object,embed,link,button,textarea,input,.code-tools,.mermaid-tools').forEach(function(node){node.remove();});
       safe.content.querySelectorAll('*').forEach(function(node){Array.from(node.attributes).forEach(function(attribute){if(/^on/i.test(attribute.name)||['href','src'].includes(attribute.name)&&/^\s*(?:javascript|vbscript):/i.test(attribute.value))node.removeAttribute(attribute.name);});});
       var base='body{margin:0;padding:0;font:16px/1.9 system-ui;color:#30343b;background:#fff}img{max-width:100%}pre{white-space:pre-wrap;background:#f5f6f7;padding:16px}code{font-family:Consolas,monospace}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d9dfe3;padding:8px 12px}a{color:#24766b}';
-      var css=options.platform==='wechat'?VexTypeExport(options.typography,options.compact):VexTypeExport('Basic',false);
+      var css=options.platform==='wechat'?MarkdorTypeExport(options.typography,options.compact):MarkdorTypeExport('Basic',false);
       frame.srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:"><style>'+base+css+'</style></head><body>'+safe.innerHTML+'</body></html>';
       timer=setTimeout(function(){clean();reject(new Error('Copy preparation timed out'));},5000);document.body.appendChild(frame);
     });
@@ -52,5 +52,5 @@
       options.toast(platform.key==='juejin'?'Markdown 已复制，可粘贴到稀土掘金':'富文本已复制，可粘贴到'+platform.label);return true;
     }catch(error){options.toast('未能访问剪贴板，请允许复制后重试');return false;}
   }
-  window.VexSocialCopy={platforms:platforms,copy:copy,article:article};
+  window.MarkdorSocialCopy={platforms:platforms,copy:copy,article:article};
 })();

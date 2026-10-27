@@ -1,0 +1,90 @@
+<UserControl
+    x:Class="Netor.Markdor.Modules.Shell.Views.McpAuditOverlayView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Netor.Markdor"
+    xmlns:mcp="using:Netor.Markdor.Modules.Mcp.Models">
+    <Border Classes="dialog-card" Width="720" MaxHeight="640">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock
+                    x:Name="TitleText"
+                    VerticalAlignment="Center"
+                    FontSize="15.5"
+                    FontWeight="SemiBold" />
+                <Button
+                    x:Name="RefreshButton"
+                    Grid.Column="1"
+                    Click="Refresh_OnClick"
+                    MinWidth="86" />
+            </Grid>
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Spacing="4">
+                    <TextBlock
+                        x:Name="EmptyTextBlock"
+                        Classes="muted"
+                        Margin="0,24,0,0"
+                        HorizontalAlignment="Center"
+                        TextWrapping="Wrap" />
+                    <ItemsControl x:Name="RecordsItemsControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="mcp:McpOperationRecord">
+                                <Border
+                                    Margin="0,2"
+                                    Padding="10,6"
+                                    Background="{DynamicResource MarkdorStatusBadgeBackgroundBrush}"
+                                    CornerRadius="6">
+                                    <StackPanel Spacing="2">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock
+                                                Classes="muted"
+                                                FontSize="11"
+                                                Text="{Binding Timestamp}" />
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Text="{Binding ToolName}" />
+                                            <TextBlock
+                                                Classes="muted"
+                                                FontSize="12"
+                                                Text="{Binding OperationType}" />
+                                            <TextBlock
+                                                IsVisible="{Binding Succeeded}"
+                                                Foreground="{DynamicResource MarkdorSuccessBrush}"
+                                                Text="✓" />
+                                            <TextBlock
+                                                Foreground="{DynamicResource MarkdorDangerBrush}"
+                                                IsVisible="{Binding !Succeeded}"
+                                                Text="✗" />
+                                        </StackPanel>
+                                        <TextBlock
+                                            Classes="muted"
+                                            FontSize="11"
+                                            Text="{Binding Target}"
+                                            TextTrimming="CharacterEllipsis" />
+                                        <TextBlock
+                                            FontSize="11"
+                                            Foreground="{DynamicResource MarkdorDangerBrush}"
+                                            IsVisible="{Binding HasError}"
+                                            Text="{Binding Error}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+            <StackPanel
+                Grid.Row="2"
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    Click="Close_OnClick"
+                    Content="{i18n:I18n {x:Static l:MarkdorL.Close}}"
+                    MinWidth="86" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

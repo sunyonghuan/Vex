@@ -1,0 +1,53 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:markdor="https://codewf.com">
+    <Design.PreviewWith>
+        <StackPanel Width="220" Spacing="8">
+            <markdor:MarkdorStatusBadge Label="Words" Value="128" />
+            <markdor:MarkdorStatusBadge Label="Encoding" Value="UTF-8" />
+            <markdor:MarkdorStatusBadge Label="State" Value="Modified" IsAccent="True" />
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <!-- 尺寸对齐 Markdor 原型 .badge：字号 11.5、内边距 1 8、圆角 6 -->
+    <ControlTheme x:Key="{x:Type markdor:MarkdorStatusBadge}" TargetType="markdor:MarkdorStatusBadge">
+        <Setter Property="MinHeight" Value="20" />
+        <Setter Property="Padding" Value="8 1" />
+        <Setter Property="Background" Value="{DynamicResource MarkdorStatusBadgeBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MarkdorStatusBadgeBorderBrush}" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type markdor:MarkdorStatusBadge}">
+                <Border
+                    Name="RootBorder"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="{TemplateBinding Padding}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock
+                            FontSize="11.5"
+                            Foreground="{DynamicResource MarkdorStatusBadgeLabelBrush}"
+                            Text="{TemplateBinding Label}" />
+                        <TextBlock
+                            Name="ValueText"
+                            FontSize="11.5"
+                            FontWeight="SemiBold"
+                            Foreground="{DynamicResource MarkdorStatusBadgeValueBrush}"
+                            MaxWidth="96"
+                            Text="{TemplateBinding Value}"
+                            TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <!-- 强调变体：值与描边使用主题色（未保存状态等） -->
+        <Style Selector="^[IsAccent=True] /template/ Border#RootBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource MarkdorAccentBrush}" />
+        </Style>
+        <Style Selector="^[IsAccent=True] /template/ TextBlock#ValueText">
+            <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,6 +1,6 @@
 # Scripts 目录结构说明
 
-本目录包含 Vex 项目的所有脚本和工具。为便于维护，已按功能分类整理。
+本目录包含 Markdor 项目的所有脚本和工具。为便于维护，已按功能分类整理。
 
 ## 📁 目录结构
 
@@ -29,8 +29,8 @@
 - **package_windows.ps1** - 打包 Windows 版本
 - **package_linux_deb.ps1** - 打包 Linux DEB 安装包
 - **package_macos.sh** - 打包 macOS 应用
-- **package_vex_msix.ps1** - 打包 Windows MSIX 格式
-- **Vex.iss** - Inno Setup 安装脚本
+- **package_markdor_msix.ps1** - 打包 Windows MSIX 格式
+- **Markdor.iss** - Inno Setup 安装脚本
 - **verify_release_installers.ps1** - 验证安装包完整性
 
 **常用命令：**
@@ -75,12 +75,12 @@ node tools/sync_native_locales.cjs
 ### 🧪 testing/ - 测试相关脚本
 性能和功能测试工具。
 
-- **stress_vex_markdown_services.ps1** - Markdown 服务压力测试
+- **stress_markdor_markdown_services.ps1** - Markdown 服务压力测试
 
 **常用命令：**
 ```powershell
 # 运行压力测试
-.\testing\stress_vex_markdown_services.ps1
+.\testing\stress_markdor_markdown_services.ps1
 ```
 
 ---
@@ -88,16 +88,16 @@ node tools/sync_native_locales.cjs
 ### ⚙️ system/ - 系统集成脚本
 操作系统级别的集成功能。
 
-- **register_vex_context_menu.ps1** - 注册右键菜单（"用 Vex 打开"）
-- **unregister_vex_context_menu.ps1** - 注销右键菜单
+- **register_markdor_context_menu.ps1** - 注册右键菜单（"用 Markdor 打开"）
+- **unregister_markdor_context_menu.ps1** - 注销右键菜单
 
 **常用命令：**
 ```powershell
 # 注册右键菜单（需管理员权限）
-.\system\register_vex_context_menu.ps1
+.\system\register_markdor_context_menu.ps1
 
 # 注销右键菜单
-.\system\unregister_vex_context_menu.ps1
+.\system\unregister_markdor_context_menu.ps1
 ```
 
 ---

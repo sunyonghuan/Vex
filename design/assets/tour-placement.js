@@ -25,12 +25,12 @@
     card.style.maxHeight = Math.max(160,bounds.height-24) + 'px';
     const result = place(target,bounds,card.getBoundingClientRect(),preferred,avoid);
     card.style.left = result.x + 'px'; card.style.top = result.y + 'px';
-    card.style.setProperty('--vex-tour-left',result.x + 'px');
+    card.style.setProperty('--markdor-tour-left',result.x + 'px');
     pointer.dataset.side = result.side;
     const horizontal = result.side === 'top' || result.side === 'bottom';
     pointer.style.left = (horizontal ? result.x + result.offset - 6 : result.side === 'right' ? result.x - 6 : result.x + card.offsetWidth - 6) + 'px';
     pointer.style.top = (horizontal ? result.side === 'bottom' ? result.y - 6 : result.y + card.offsetHeight - 6 : result.y + result.offset - 6) + 'px';
     return result;
   }
-  window.VexTourPlacement = {place,attach};
+  window.MarkdorTourPlacement = {place,attach};
 })();

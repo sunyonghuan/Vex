@@ -19,7 +19,7 @@ def save(name, text):
     print(f"{len(data):>9} bytes  {hashlib.sha256(data).hexdigest()}  {path}")
 
 
-intro = """\n本文件由 Vex 的测试样本生成脚本生成，用于检查渲染、编辑、文档切换、滚动与导图同步。
+intro = """\n本文件由 Markdor 的测试样本生成脚本生成，用于检查渲染、编辑、文档切换、滚动与导图同步。
 每份文档具有不同的主标题和结束标记；浏览、切换视图和选择文字不应修改文件。
 """
 formulas = [
@@ -78,7 +78,7 @@ $$
 """
 
 
-overview = "# VEX-A 综合语法与交互样本\n" + intro
+overview = "# MARKDOR-A 综合语法与交互样本\n" + intro
 overview += """
 ## 文字与结构
 
@@ -94,10 +94,10 @@ overview += """
 
 ### 本地图像
 
-![本地测试示意图](Vex-测试资源/通道示意.svg)
+![本地测试示意图](Markdor-测试资源/通道示意.svg)
 
 ```json
-{"name": "维刻 Vex", "enabled": true, "values": [1, 2, 3], "text": "<tag> & quote"}
+{"name": "维刻 Markdor", "enabled": true, "values": [1, 2, 3], "text": "<tag> & quote"}
 ```
 
 ```python
@@ -116,38 +116,38 @@ flowchart LR
 [^note]: 脚注需要保留内容与定位关系。
 """
 overview += "".join(section(i) for i in range(1, 9))
-overview += "\n## 验收标记\n\nVEX-A-END：综合样本结束。\n"
-save("Vex-01-综合语法与交互.md", overview)
+overview += "\n## 验收标记\n\nMARKDOR-A-END：综合样本结束。\n"
+save("Markdor-01-综合语法与交互.md", overview)
 
-mixed = "# VEX-B 大型混合技术文档\n" + intro + "".join(section(i) for i in range(1, 321))
-save("Vex-02-大型混合技术文档.md", mixed + "\n## 验收标记\n\nVEX-B-END：大型混合样本结束。\n")
+mixed = "# MARKDOR-B 大型混合技术文档\n" + intro + "".join(section(i) for i in range(1, 321))
+save("Markdor-02-大型混合技术文档.md", mixed + "\n## 验收标记\n\nMARKDOR-B-END：大型混合样本结束。\n")
 
-codes = "# VEX-C 长代码与横向滚动\n" + intro
+codes = "# MARKDOR-C 长代码与横向滚动\n" + intro
 for i in range(1, 65):
     lines = "\n".join(f'    Process({i}, {j}, "记录-{i:03}-{j:03}"); // 验证高亮与选区，第 {j} 行' for j in range(1, 121))
     codes += f"\n## 代码模块 {i:03}\n\n行内 `module_{i}` 与普通文字。\n\n```csharp\nvoid Module{i}()\n{{\n{lines}\n}}\n```\n"
     if i % 8 == 0:
         codes += '\n```text\n' + ('long_identifier_' * 180) + '\n```\n'
-save("Vex-03-长代码与横向滚动.md", codes + "\n## 验收标记\n\nVEX-C-END：长代码样本结束。\n")
+save("Markdor-03-长代码与横向滚动.md", codes + "\n## 验收标记\n\nMARKDOR-C-END：长代码样本结束。\n")
 
-math = "# VEX-D 公式与数学符号密集文档\n" + intro
+math = "# MARKDOR-D 公式与数学符号密集文档\n" + intro
 for i in range(1, 161):
     math += f"\n## 公式组 {i:03}\n\n变量 $x_{i}$，希腊字母 $\\alpha, \\beta, \\Gamma$，Unicode 数学符号 ∀ ∃ ∈ ∉ ⊂ ⊆ ∪ ∩ ∅ ℝ ℂ。\n"
     for j in range(4):
         math += "\n$$\n" + formulas[(i + j) % len(formulas)] + "\n$$\n"
     math += f"\n### 推导结论 {i:03}\n\n独立标记 MATH-{i:04}，检查公式尺寸、基线、字体回退与滚动稳定性。\n"
-save("Vex-04-公式与数学符号密集.md", math + "\n## 验收标记\n\nVEX-D-END：数学样本结束。\n")
+save("Markdor-04-公式与数学符号密集.md", math + "\n## 验收标记\n\nMARKDOR-D-END：数学样本结束。\n")
 
-edges = "# VEX-E 边界与容错样本\n" + intro
+edges = "# MARKDOR-E 边界与容错样本\n" + intro
 for i in range(1, 61):
     edges += f"\n## 边界组 {i:03}\n\n### 同名标题\n\n重复正文。\n\n#### 同名标题\n\n重复正文。\n\n##### 五级标题\n\n###### 六级标题\n\n"
     edges += "| A | B | C |\n| --- | --- | --- |\n| 很长的单元格 " + ("内容与 `code`、$x^2$ " * 20) + "| 2 | 3 |\n"
     edges += '\n```unknown-language\n<raw>&value="中文"\n```\n\n---\n'
-edges += "\n## 验收标记\n\nVEX-E-END：容错样本正常内容结束。\n\n下方故意包含不完整数学表达式与未闭合围栏，用于检查回退。\n\n$$\n\\frac{1}{\n$$\n\n```text\n# 这不是导图章节\n末尾代码围栏故意不闭合\n"
-save("Vex-05-边界与容错.md", edges)
+edges += "\n## 验收标记\n\nMARKDOR-E-END：容错样本正常内容结束。\n\n下方故意包含不完整数学表达式与未闭合围栏，用于检查回退。\n\n$$\n\\frac{1}{\n$$\n\n```text\n# 这不是导图章节\n末尾代码围栏故意不闭合\n"
+save("Markdor-05-边界与容错.md", edges)
 
-save("Vex-测试资源/通道示意.svg", '''<svg xmlns="http://www.w3.org/2000/svg" width="720" height="160" viewBox="0 0 720 160"><rect width="720" height="160" rx="16" fill="#f4f4ff"/><g fill="#6454dc"><rect x="30" y="50" width="160" height="60" rx="8"/><rect x="280" y="50" width="160" height="60" rx="8"/><rect x="530" y="50" width="160" height="60" rx="8"/></g><path d="M190 80H280M440 80H530" stroke="#6454dc" stroke-width="4"/><g fill="white" font-family="sans-serif" font-size="20" text-anchor="middle"><text x="110" y="87">Input</text><text x="360" y="87">Compute</text><text x="610" y="87">Verify</text></g></svg>''')
-save("Vex-测试说明.md", """# Vex 性能与功能测试样本
+save("Markdor-测试资源/通道示意.svg", '''<svg xmlns="http://www.w3.org/2000/svg" width="720" height="160" viewBox="0 0 720 160"><rect width="720" height="160" rx="16" fill="#f4f4ff"/><g fill="#6454dc"><rect x="30" y="50" width="160" height="60" rx="8"/><rect x="280" y="50" width="160" height="60" rx="8"/><rect x="530" y="50" width="160" height="60" rx="8"/></g><path d="M190 80H280M440 80H530" stroke="#6454dc" stroke-width="4"/><g fill="white" font-family="sans-serif" font-size="20" text-anchor="middle"><text x="110" y="87">Input</text><text x="360" y="87">Compute</text><text x="610" y="87">Verify</text></g></svg>''')
+save("Markdor-测试说明.md", """# Markdor 性能与功能测试样本
 
 01 综合语法：文字选择、点击与输入、表格、图片、多语言代码、Mermaid、公式与六级章节。
 02 大型混合：320 章，含代码、表格、引用、列表与公式。
@@ -159,5 +159,5 @@ save("Vex-测试说明.md", """# Vex 性能与功能测试样本
 校验当前文件名、正文、章节树及渲染对应；检查无内容串写、无崩溃、无无意修改。
 记录每轮的文档切换、布局切换、滚动耗时和内存；区分离屏测试与实际桌面结果。
 
-样本由 Vex 仓库 scripts/generate_stress_documents.py 生成，UTF-8、LF，仅使用本地图片。
+样本由 Markdor 仓库 scripts/generate_stress_documents.py 生成，UTF-8、LF，仅使用本地图片。
 """)

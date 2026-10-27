@@ -12,8 +12,8 @@
       adapter.beforeOpen?.();documents=adapter.documents();
       if(!documents.length){adapter.close();return;}
       var doc=documents[0];
-      host.innerHTML='<section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exit-dialog-title"><header class="exit-dialog-titlebar"><span class="exit-dialog-ico" aria-hidden="true">!</span><span id="exit-dialog-title">有未保存的更改</span><button class="vex-icon-button" data-exit="cancel" aria-label="继续编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="exit-dialog-body"><h2>'+esc(doc.name)+'</h2><p id="exit-dialog-description">退出后，尚未保存的修改将会丢失。</p></div><footer class="exit-dialog-actions"><button class="exit-continue" data-exit="cancel">继续编辑</button><button class="exit-discard danger-outline" data-exit="discard">放弃修改并退出</button></footer></section>';
-      host.hidden=false;release=VexOverlay.lock(host);
+      host.innerHTML='<section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exit-dialog-title"><header class="exit-dialog-titlebar"><span class="exit-dialog-ico" aria-hidden="true">!</span><span id="exit-dialog-title">有未保存的更改</span><button class="markdor-icon-button" data-exit="cancel" aria-label="继续编辑"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="exit-dialog-body"><h2>'+esc(doc.name)+'</h2><p id="exit-dialog-description">退出后，尚未保存的修改将会丢失。</p></div><footer class="exit-dialog-actions"><button class="exit-continue" data-exit="cancel">继续编辑</button><button class="exit-discard danger-outline" data-exit="discard">放弃修改并退出</button></footer></section>';
+      host.hidden=false;release=MarkdorOverlay.lock(host);
       requestAnimationFrame(function(){host.querySelector('[data-exit=save]').focus({preventScroll:true});});
     }
     host.onclick=async function(event){
@@ -44,5 +44,5 @@
     });
     return {open:open,cancel:cancel,get visible(){return !host.hidden;}};
   }
-  window.VexExitDialog={create:create};
+  window.MarkdorExitDialog={create:create};
 })();

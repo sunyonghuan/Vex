@@ -120,7 +120,7 @@ function New-GitHubRelease {
 
     $publishRoot = Join-Path $repositoryRoot 'publish'
     $packagesDir = Join-Path $publishRoot 'packages'
-    $zipFile = Join-Path $packagesDir "Vex-$ReleaseVersion-win-x64.zip"
+    $zipFile = Join-Path $packagesDir "Markdor-$ReleaseVersion-win-x64.zip"
 
     if (-not (Test-Path -LiteralPath $zipFile -PathType Leaf)) {
         throw "找不到发布包: $zipFile"
@@ -131,8 +131,8 @@ function New-GitHubRelease {
     $ghArgs = @(
         'release', 'create', $Tag,
         $zipFile,
-        '--title', "Vex $ReleaseVersion",
-        '--repo', 'sunyonghuan/Vex'
+        '--title', "Markdor $ReleaseVersion",
+        '--repo', 'sunyonghuan/Markdor'
     )
 
     if ($Notes) {

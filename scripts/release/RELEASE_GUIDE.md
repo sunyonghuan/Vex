@@ -35,7 +35,7 @@ scripts\release\release_to_github.bat
 - 构建 `win-x64` 平台的 Native AOT 发布包
 - 创建标签 `v1.10.5`
 - 推送到 GitHub
-- 创建 Release 并上传 `Vex-1.10.5-win-x64.zip`
+- 创建 Release 并上传 `Markdor-1.10.5-win-x64.zip`
 
 ### 2. 指定版本号发布
 
@@ -186,8 +186,8 @@ scripts\release\release_to_github.bat -Version 1.11.0 -Draft -ReleaseNotes "测�
 
 ## 输出位置
 
-- **构建产物**: `publish/artifacts/win-x64/Vex/`
-- **发布包**: `publish/packages/Vex-<版本>-win-x64.zip`
+- **构建产物**: `publish/artifacts/win-x64/Markdor/`
+- **发布包**: `publish/packages/Markdor-<版本>-win-x64.zip`
 - **GitHub Release**: https://github.com/sunyonghuan/Vex/releases
 
 ## 故障排除
@@ -251,5 +251,5 @@ git tag -a v1.10.4 -m "Release 1.10.4"
 git push origin v1.10.4
 
 # 4. 创建 Release
-gh release create v1.10.4 publish/packages/Vex-1.10.4-win-x64.zip --title "Vex 1.10.4" --generate-notes
+gh release create v1.10.4 publish/packages/Markdor-1.10.4-win-x64.zip --title "Markdor 1.10.4" --generate-notes
 ```

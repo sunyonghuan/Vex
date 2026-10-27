@@ -4,7 +4,7 @@
   const scope = () => document.getElementById('app') || document.body;
   function mount(host) {
     const parent = scope();
-    host.classList.toggle('vex-contained-overlay',parent !== document.body);
+    host.classList.toggle('markdor-contained-overlay',parent !== document.body);
     parent.append(host);
     return parent;
   }
@@ -20,5 +20,5 @@
       if (focus?.isConnected && !focus.closest('[inert]')) focus.focus({preventScroll:true});
     };
   }
-  window.VexOverlay = {scope,mount,lock,width:() => scope().clientWidth};
+  window.MarkdorOverlay = {scope,mount,lock,width:() => scope().clientWidth};
 })();

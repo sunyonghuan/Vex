@@ -1,0 +1,476 @@
+using System.Runtime.CompilerServices;
+using Avalonia.Controls;
+using ReactiveUI;
+using Netor.Markdor.Core.Messaging;
+using Netor.Markdor.Core.Motion;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+
+namespace Netor.Markdor.Modules.Shell.ViewModels;
+
+// 管理 Shell 窗口布局状态，避免主 ViewModel 继续混入纯窗口显示逻辑。
+public sealed class ShellWindowLayoutViewModel : ReactiveObject
+{
+    private readonly IAppSettingsStore _settingsStore;
+    private readonly IShellStatusPublisher _statusPublisher;
+    private bool _isSidebarVisible = true;
+    private bool _isStatusBarVisible = true;
+    private bool _isPreviewVisible = true;
+    private bool _isAlwaysOnTop;
+    private WindowState _windowState;
+    private WindowState _windowStateBeforeFullScreen;
+    private bool _isPresentationMode;
+    private bool _isSourceMode = true;
+    private bool _enableMotion = true;
+    private bool _isFocusMode;
+    private bool _isTypewriterMode;
+    private double _sidebarWidth = DefaultSidebarWidth;
+    private bool _isSidebarResizing;
+    private bool _isOutlineVisible;
+    private double _outlineWidth = 240;
+    private double _workspaceWidth = 1280;
+    private bool _outlineNarrowOverride;
+    private bool _isOutlineResizing;
+
+    /// <summary>侧栏默认宽度，与 design/index.html 主区栅格一致。</summary>
+    public const double DefaultSidebarWidth = 226d;
+
+    private const double MinSidebarWidth = 200d;
+
+    private const double MaxSidebarWidth = 560d;
+
+    public ShellWindowLayoutViewModel(
+        IAppSettingsStore settingsStore,
+        IShellStatusPublisher statusPublisher)
+    {
+        _settingsStore = settingsStore;
+        _statusPublisher = statusPublisher;
+        var settings = _settingsStore.Current;
+        _isSidebarVisible = settings.IsSidebarVisible ?? true;
+        _isStatusBarVisible = settings.IsStatusBarVisible ?? true;
+        _isPreviewVisible = settings.IsPreviewVisible ?? true;
+        _isSourceMode = settings.IsSourceMode ?? true;
+        _isAlwaysOnTop = settings.IsAlwaysOnTop ?? false;
+        _enableMotion = settings.EnableMotion ?? true;
+        _isTypewriterMode = settings.IsTypewriterMode ?? false;
+        _isFocusMode = settings.IsFocusMode ?? false;
+        _sidebarWidth = Math.Clamp(settings.SidebarWidth ?? DefaultSidebarWidth, MinSidebarWidth, MaxSidebarWidth);
+        _isOutlineVisible = settings.IsOutlineVisible ?? false;
+        _outlineWidth = Math.Clamp(settings.OutlineWidth ?? 240, 180, 480);
+        MotionResources.Apply(_enableMotion);
+    }
+
+    public bool IsSidebarVisible
+    {
+        get => _isSidebarVisible;
+        set
+        {
+            if (SetProperty(ref _isSidebarVisible, value))
+            {
+                OnPropertyChanged(nameof(ShowSidebar));
+                OnPropertyChanged(nameof(ShowSidebarExpandButton));
+                OnPropertyChanged(nameof(SidebarColumnWidth));
+                OnPropertyChanged(nameof(VisibleSidebarWidth));
+                OnPropertyChanged(nameof(SidebarSplitterWidth));
+                OnPropertyChanged(nameof(MinimumVisibleSidebarWidth));
+                OnPropertyChanged(nameof(MaximumVisibleSidebarWidth));
+                NotifyOutlineLayout();
+                PersistLayoutSettings();
+            }
+        }
+    }
+
+    public bool IsStatusBarVisible
+    {
+        get => _isStatusBarVisible;
+        set
+        {
+            if (SetProperty(ref _isStatusBarVisible, value))
+            {
+                OnPropertyChanged(nameof(ShowStatusBar));
+                PersistLayoutSettings();
+            }
+        }
+    }
+
+    public bool IsPreviewVisible
+    {
+        get => _isPreviewVisible;
+        set
+        {
+            if (SetProperty(ref _isPreviewVisible, value))
+            {
+                OnPropertyChanged(nameof(PreviewColumnWidth));
+                OnPropertyChanged(nameof(PreviewSplitterWidth));
+                PersistLayoutSettings();
+            }
+        }
+    }
+
+    /// <summary>侧栏当前宽度（px）：可拖分隔条调整并记忆。</summary>
+    public double SidebarWidth
+    {
+        get => _sidebarWidth;
+        set
+        {
+            var clamped = Math.Clamp(value, MinSidebarWidth, MaxSidebarWidth);
+            if (!SetProperty(ref _sidebarWidth, clamped))
+            {
+                return;
+            }
+
+            OnPropertyChanged(nameof(SidebarColumnWidth));
+            OnPropertyChanged(nameof(VisibleSidebarWidth));
+            NotifyOutlineLayout();
+            if (!_isSidebarResizing) PersistLayoutSettings();
+        }
+    }
+
+    /// <summary>拖动期间即时更新内存布局，结束时统一保存，避免每个像素同步写入配置。</summary>
+    public void BeginSidebarResize() => _isSidebarResizing = true;
+
+    public void CompleteSidebarResize()
+    {
+        _isSidebarResizing = false;
+        if (_settingsStore.Current.SidebarWidth != SidebarWidth) PersistLayoutSettings();
+    }
+
+    public GridLength SidebarColumnWidth
+    {
+        get => new(VisibleSidebarWidth);
+        set
+        {
+            if (ShowSidebar && value.IsAbsolute && double.IsFinite(value.Value)) SidebarWidth = value.Value;
+        }
+    }
+
+    public double MinimumVisibleSidebarWidth => ShowSidebar ? MinSidebarWidth : 0;
+    public double MaximumVisibleSidebarWidth => ShowSidebar ? MaxSidebarWidth : 0;
+    public bool ShowSidebar => IsSidebarVisible && !IsPresentationMode && !IsFocusMode;
+    public bool ShowSidebarExpandButton => !IsSidebarVisible && !IsPresentationMode && !IsFocusMode;
+    public bool ShowStatusBar => IsStatusBarVisible && !IsPresentationMode && !IsFocusMode;
+    public bool IsOutlineVisible
+    {
+        get => _isOutlineVisible;
+        set
+        {
+            _outlineNarrowOverride = value && IsOutlineNarrow;
+            SetProperty(ref _isOutlineVisible, value);
+            NotifyOutlineLayout();
+            PersistLayoutSettings();
+        }
+    }
+
+    public bool ShowOutlineSidebar => IsOutlineVisible && !IsPresentationMode && !IsFocusMode
+        && (!IsOutlineNarrow || _outlineNarrowOverride);
+    public bool ShowOutlineExpandButton => !IsPresentationMode && !IsFocusMode
+        && (!IsOutlineVisible || IsOutlineNarrow && !_outlineNarrowOverride);
+    private bool IsOutlineNarrow => _workspaceWidth - VisibleSidebarWidth - OutlineWidth < 440;
+    public double WorkspaceWidth
+    {
+        get => _workspaceWidth;
+        set
+        {
+            _workspaceWidth = value;
+            if (!IsOutlineNarrow) _outlineNarrowOverride = false;
+            NotifyOutlineLayout();
+        }
+    }
+
+    public double OutlineWidth
+    {
+        get => _outlineWidth;
+        set
+        {
+            if (!double.IsFinite(value) || !SetProperty(ref _outlineWidth, Math.Clamp(value, 180, 480))) return;
+            NotifyOutlineLayout();
+            if (!_isOutlineResizing) PersistLayoutSettings();
+        }
+    }
+    public GridLength OutlineColumnWidth
+    {
+        get => new(ShowOutlineSidebar ? OutlineWidth : 0);
+        set { if (ShowOutlineSidebar && value.IsAbsolute) OutlineWidth = value.Value; }
+    }
+    public double MinimumOutlineWidth => ShowOutlineSidebar ? 180 : 0;
+    public double MaximumOutlineWidth => ShowOutlineSidebar ? 480 : 0;
+    public GridLength OutlineSplitterWidth => new(ShowOutlineSidebar ? 5 : 0);
+    public void BeginOutlineResize() => _isOutlineResizing = true;
+    public void CompleteOutlineResize() { _isOutlineResizing = false; PersistLayoutSettings(); }
+    public void ToggleOutline()
+    {
+        if (ShowOutlineSidebar) CollapseOutline();
+        else ExpandOutline();
+    }
+    private void NotifyOutlineLayout()
+    {
+        foreach (var name in new[] { nameof(ShowOutlineSidebar), nameof(ShowOutlineExpandButton), nameof(OutlineColumnWidth), nameof(OutlineSplitterWidth), nameof(MinimumOutlineWidth), nameof(MaximumOutlineWidth) })
+            OnPropertyChanged(name);
+    }
+    /// <summary>演示只临时隐藏界面，不改写用户布局偏好。</summary>
+    public bool IsPresentationMode
+    {
+        get => _isPresentationMode;
+        set
+        {
+            if (!SetProperty(ref _isPresentationMode, value)) return;
+            NotifyOutlineLayout();
+            foreach (var name in new[] { nameof(ShowSidebar), nameof(ShowSidebarExpandButton), nameof(ShowStatusBar), nameof(SidebarColumnWidth), nameof(VisibleSidebarWidth), nameof(SidebarSplitterWidth), nameof(MinimumVisibleSidebarWidth), nameof(MaximumVisibleSidebarWidth) }) OnPropertyChanged(name);
+        }
+    }
+
+    private bool _isCompactWindow;
+    public bool IsCompactWindow
+    {
+        get => _isCompactWindow;
+        set
+        {
+            if (!SetProperty(ref _isCompactWindow, value)) return;
+            OnPropertyChanged(nameof(VisibleSidebarWidth));
+            OnPropertyChanged(nameof(SidebarColumnWidth));
+            NotifyOutlineLayout();
+        }
+    }
+    public double VisibleSidebarWidth => ShowSidebar ? IsCompactWindow && Math.Abs(SidebarWidth - DefaultSidebarWidth) < .01 ? 200 : SidebarWidth : 0;
+
+    public GridLength SidebarSplitterWidth => ShowSidebar ? new GridLength(5) : new GridLength(0);
+
+    public GridLength SourceColumnWidth => IsSourceMode ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+
+    public GridLength PreviewColumnWidth => IsPreviewVisible ? new GridLength(1.06, GridUnitType.Star) : new GridLength(0);
+
+    public GridLength PreviewSplitterWidth => IsSourceMode && IsPreviewVisible ? new GridLength(1) : new GridLength(0);
+
+    /// <summary>
+    /// 界面动效总开关：关闭时三档动效时长归零，已有过渡立即到达终态。
+    /// </summary>
+    public bool EnableMotion
+    {
+        get => _enableMotion;
+        set
+        {
+            if (SetProperty(ref _enableMotion, value))
+            {
+                MotionResources.Apply(value);
+                _statusPublisher.PublishResource(value ? MarkdorL.StatusMotionEnabled : MarkdorL.StatusMotionDisabled);
+                PersistLayoutSettings();
+            }
+        }
+    }
+
+    /// <summary>专注模式只临时隐藏侧栏和状态栏，不覆盖用户的可见偏好。</summary>
+    public bool IsFocusMode
+    {
+        get => _isFocusMode;
+        set
+        {
+            if (!SetProperty(ref _isFocusMode, value))
+            {
+                return;
+            }
+
+            OnPropertyChanged(nameof(ShowSidebar));
+            OnPropertyChanged(nameof(ShowSidebarExpandButton));
+            OnPropertyChanged(nameof(ShowStatusBar));
+            NotifyOutlineLayout();
+            OnPropertyChanged(nameof(SidebarColumnWidth));
+            OnPropertyChanged(nameof(SidebarSplitterWidth));
+            OnPropertyChanged(nameof(VisibleSidebarWidth));
+            OnPropertyChanged(nameof(MinimumVisibleSidebarWidth));
+            OnPropertyChanged(nameof(MaximumVisibleSidebarWidth));
+            _statusPublisher.PublishResource(value
+                ? MarkdorL.StatusFocusModeEnabled
+                : MarkdorL.StatusFocusModeDisabled);
+            PersistLayoutSettings();
+
+            if (!value)
+            {
+                FocusEditor();
+            }
+        }
+    }
+
+    /// <summary>打字机模式：编辑器把光标行保持在视口垂直居中。</summary>
+    public bool IsTypewriterMode
+    {
+        get => _isTypewriterMode;
+        set
+        {
+            if (SetProperty(ref _isTypewriterMode, value))
+            {
+                _statusPublisher.PublishResource(value
+                    ? MarkdorL.StatusTypewriterEnabled
+                    : MarkdorL.StatusTypewriterDisabled);
+                PersistLayoutSettings();
+                FocusEditor();
+            }
+        }
+    }
+
+    public bool IsAlwaysOnTop
+    {
+        get => _isAlwaysOnTop;
+        set
+        {
+            if (SetProperty(ref _isAlwaysOnTop, value))
+            {
+                PersistLayoutSettings();
+            }
+        }
+    }
+
+    public bool IsFullScreen
+    {
+        get => CurrentWindowState == WindowState.FullScreen;
+        set => CurrentWindowState = value ? WindowState.FullScreen : _windowStateBeforeFullScreen;
+    }
+
+    public WindowState CurrentWindowState
+    {
+        get => _windowState;
+        set
+        {
+            if (_windowState == value) return;
+            if (_windowState != WindowState.FullScreen) _windowStateBeforeFullScreen = _windowState;
+            this.RaiseAndSetIfChanged(ref _windowState, value);
+            OnPropertyChanged(nameof(IsFullScreen));
+        }
+    }
+
+    public bool IsSourceMode
+    {
+        get => _isSourceMode;
+        set
+        {
+            if (SetProperty(ref _isSourceMode, value))
+            {
+                OnPropertyChanged(nameof(SourceColumnWidth));
+                OnPropertyChanged(nameof(PreviewSplitterWidth));
+                PersistLayoutSettings();
+            }
+        }
+    }
+
+    public void ToggleSidebar()
+    {
+        IsSidebarVisible = !IsSidebarVisible;
+    }
+
+    public void CollapseSidebar() => IsSidebarVisible = false;
+
+    public void ExpandSidebar() => IsSidebarVisible = true;
+
+    public void ToggleMotion()
+    {
+        EnableMotion = !EnableMotion;
+    }
+
+    public void ToggleFocusMode()
+    {
+        IsFocusMode = !IsFocusMode;
+    }
+
+    public void ToggleTypewriterMode()
+    {
+        IsTypewriterMode = !IsTypewriterMode;
+    }
+
+    public void ShowOutline()
+    {
+        IsOutlineVisible = true;
+    }
+
+    public void CollapseOutline() => IsOutlineVisible = false;
+
+    public void ExpandOutline()
+    {
+        if (IsOutlineNarrow) _outlineNarrowOverride = true;
+        IsOutlineVisible = true;
+        NotifyOutlineLayout();
+    }
+
+    public void ShowFiles()
+    {
+        IsSidebarVisible = true;
+        SelectSidebarTab(0);
+    }
+
+    public void TogglePreview()
+    {
+        IsPreviewVisible = !IsPreviewVisible;
+    }
+
+    public void ToggleStatusBar()
+    {
+        IsStatusBarVisible = !IsStatusBarVisible;
+    }
+
+    public void ToggleSourceMode()
+    {
+        // 源代码模式现在只控制源码编辑面板，不再联动侧边栏或预览面板。
+        IsSourceMode = !IsSourceMode;
+        _statusPublisher.PublishResource(IsSourceMode ? MarkdorL.StatusSourceModeEnabled : MarkdorL.StatusSourceModeDisabled);
+        if (IsSourceMode)
+        {
+            FocusEditor();
+        }
+    }
+
+    public void ToggleAlwaysOnTop()
+    {
+        IsAlwaysOnTop = !IsAlwaysOnTop;
+    }
+
+    public void ToggleFullScreen()
+    {
+        IsFullScreen = !IsFullScreen;
+    }
+
+    public void ToggleMaximize() => CurrentWindowState = CurrentWindowState == WindowState.Maximized
+        ? WindowState.Normal : WindowState.Maximized;
+
+    private void FocusEditor()
+    {
+        CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new EditorActionCommand(EditorActionKind.FocusEditor));
+    }
+
+    private void SelectSidebarTab(int selectedIndex)
+    {
+        CodeWF.Toolkit.EventBus.EventBus.Default.Publish(new ShellSidebarTabSelectedCommand(selectedIndex));
+    }
+
+    private void PersistLayoutSettings()
+    {
+        if (IsPresentationMode) return;
+        _settingsStore.Update(settings => settings with
+        {
+            IsSidebarVisible = IsSidebarVisible,
+            IsStatusBarVisible = IsStatusBarVisible,
+            IsPreviewVisible = IsPreviewVisible,
+            IsSourceMode = IsSourceMode,
+            IsAlwaysOnTop = IsAlwaysOnTop,
+            SidebarWidth = SidebarWidth,
+            IsOutlineVisible = IsOutlineVisible,
+            OutlineWidth = OutlineWidth,
+            EnableMotion = EnableMotion,
+            IsFocusMode = IsFocusMode,
+            IsTypewriterMode = IsTypewriterMode
+        });
+    }
+
+    private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(storage, value))
+        {
+            return false;
+        }
+
+        this.RaiseAndSetIfChanged(ref storage, value, propertyName);
+        return true;
+    }
+
+    private void OnPropertyChanged(string propertyName)
+    {
+        this.RaisePropertyChanged(propertyName);
+    }
+}

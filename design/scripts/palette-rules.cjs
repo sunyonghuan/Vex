@@ -1,7 +1,7 @@
 /* 从 CodeWF.Avalonia《配色与排版令牌规则.md》附录 A 生成原型配色与密度令牌。
  * 单一事实源：规则文档。本脚本产出（均带版本戳，禁止手写，见规则 §14）：
  *   assets/palettes.css                          9 套配色 × 明暗 + 默认回退块
- *   assets/palettes.js                           VexPalettes 数据与旧 Key 别名
+ *   assets/palettes.js                           MarkdorPalettes 数据与旧 Key 别名
  *   assets/density.css                           密度三档显式值表（§6）
  *   assets/generated/palette-rules-data.js       供浏览器自定义配色编辑器使用
  * 用法：node scripts/palette-rules.cjs [--rules <规则文档路径>] [--check]（--check 只校验不落盘） */
@@ -12,7 +12,7 @@ const Rules = require('../assets/palette-rules.js');
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const flag = name => args.indexOf(name);
-/* 规则文档是三仓（Vex / CodeWF.Avalonia / CodeWF.Toolkit）共识的外部事实源，不在本仓内。
+/* 规则文档是三仓（Markdor / CodeWF.Avalonia / CodeWF.Toolkit）共识的外部事实源，不在本仓内。
  * 依次尝试：显式参数 → 环境变量 → 本仓同级 Libs → 旧机器路径，避免每个仓手填绝对路径。 */
 function rulesDoc(explicit, envName, candidates) {
   const tries = [explicit, process.env[envName]].filter(Boolean).concat(candidates);
@@ -20,7 +20,7 @@ function rulesDoc(explicit, envName, candidates) {
   if (!found) throw new Error('未找到《配色与排版令牌规则.md》，请用 --rules 指定：\n  ' + tries.join('\n  '));
   return found;
 }
-const rulesPath = rulesDoc(flag('--rules') >= 0 ? args[flag('--rules') + 1] : null, 'VEX_RULES_DOC', [
+const rulesPath = rulesDoc(flag('--rules') >= 0 ? args[flag('--rules') + 1] : null, 'MARKDOR_RULES_DOC', [
   path.resolve(root, '../../../Libs/CodeWF.Avalonia/docs/配色与排版令牌规则.md'),
   'D:/github/libs/CodeWF.Avalonia/docs/配色与排版令牌规则.md'
 ]);
@@ -130,11 +130,11 @@ const palettesCss = '/* ' + stamp + ' */\n'
   + fallbackCss.join('\n') + '\n' + paletteCss.join('\n') + '\n';
 
 const palettesJs = '// ' + stamp + '\n'
-  + 'window.VexPalettes = ' + JSON.stringify(paletteEntries, null, 2) + ';\n'
-  + 'window.VexPaletteKey = key => (' + JSON.stringify(legacyAliases) + ')[key] || key;\n';
+  + 'window.MarkdorPalettes = ' + JSON.stringify(paletteEntries, null, 2) + ';\n'
+  + 'window.MarkdorPaletteKey = key => (' + JSON.stringify(legacyAliases) + ')[key] || key;\n';
 
 const rulesDataJs = '// ' + stamp + '\n'
-  + 'window.VexPaletteRulesData = ' + JSON.stringify({
+  + 'window.MarkdorPaletteRulesData = ' + JSON.stringify({
     ruleVersion: data.ruleVersion, source: 'CodeWF.Avalonia ' + version,
     derivation: data.derivation, statusDefaults: data.statusDefaults,
     density: data.density, markdownSizeTiers: data.markdownSizeTiers,

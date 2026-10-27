@@ -1,0 +1,156 @@
+<UserControl
+    x:Class="Netor.Markdor.Modules.Shell.Views.McpSettingsOverlayView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:l="clr-namespace:Netor.Markdor"
+    xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels"
+    x:DataType="vm:McpSettingsViewModel">
+    <Border Classes="dialog-card" Width="640" MaxHeight="720">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="16">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Border Classes="dlg-ico info">
+                    <Path Classes="stroke-ico" Data="M4 17l6-6-6-6 M12 19h8" />
+                </Border>
+                <StackPanel VerticalAlignment="Center" Spacing="2">
+                    <TextBlock FontSize="16" FontWeight="SemiBold" Text="{i18n:I18n {x:Static l:MarkdorL.McpSettingsTitle}}" />
+                    <TextBlock
+                        Classes="muted"
+                        FontSize="11.5"
+                        Text="{i18n:I18n {x:Static l:MarkdorL.McpSettingsDescription}}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Spacing="14">
+                    <!-- 启用开关卡片：底色随启用状态染色（对应原型升级点） -->
+                    <Border Classes="mcp-enable" Classes.tinted="{Binding IsEnabled}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel VerticalAlignment="Center" Spacing="1">
+                                <TextBlock FontWeight="SemiBold" Text="{i18n:I18n {x:Static l:MarkdorL.McpServerEnabled}}" />
+                                <TextBlock
+                                    Classes="muted"
+                                    FontSize="11.5"
+                                    Text="{i18n:I18n Markdor.MarkdorL.McpServerEnabledNote}"
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <ToggleSwitch
+                                Grid.Column="1"
+                                Classes="Small"
+                                IsChecked="{Binding IsEnabled}"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Spacing="14" Classes.form-disabled="{Binding !IsEnabled}">
+                        <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="12">
+                            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Classes="muted" Text="{i18n:I18n {x:Static l:MarkdorL.McpServerAddress}}" />
+                            <TextBox Grid.Column="1" Text="{Binding Host}" />
+
+                            <TextBlock Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Classes="muted" Text="{i18n:I18n {x:Static l:MarkdorL.McpServerPort}}" />
+                            <NumericUpDown
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Minimum="1"
+                                Maximum="65535"
+                                Value="{Binding Port}" />
+
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Classes="muted" Text="{i18n:I18n {x:Static l:MarkdorL.McpAuthorizationToken}}" />
+                            <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                <TextBox Text="{Binding Token}" PasswordChar="●" />
+                                <Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.McpGenerateToken}}" Command="{Binding GenerateToken}" />
+                                <Button Grid.Column="2" Content="{i18n:I18n {x:Static l:MarkdorL.McpCopyToken}}" Command="{Binding CopyTokenAsync}" />
+                            </Grid>
+
+                            <TextBlock Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Classes="muted" Text="{i18n:I18n {x:Static l:MarkdorL.McpEndpoint}}" />
+                            <Grid Grid.Row="3" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Border Classes="dlg-path" Padding="10 5 6 5">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <SelectableTextBlock
+                                            VerticalAlignment="Center"
+                                            Text="{Binding Endpoint}"
+                                            TextWrapping="NoWrap"
+                                            TextTrimming="CharacterEllipsis" />
+                                        <Button
+                                            Grid.Column="1"
+                                            Padding="8 2"
+                                            Content="{i18n:I18n {x:Static l:MarkdorL.McpCopyEndpoint}}"
+                                            Command="{Binding CopyEndpointAsync}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+
+                        <Border
+                            BorderBrush="{DynamicResource MarkdorPanelBorderBrush}"
+                            BorderThickness="1"
+                            Padding="14"
+                            CornerRadius="8">
+                            <StackPanel Spacing="10">
+                                <TextBlock FontWeight="SemiBold" Text="{i18n:I18n {x:Static l:MarkdorL.McpAllowedWorkspace}}" />
+                                <RadioButton
+                                    Content="{i18n:I18n {x:Static l:MarkdorL.McpScopeCurrentDocument}}"
+                                    GroupName="McpAccessScope"
+                                    IsChecked="{Binding IsCurrentDocumentScope}" />
+                                <RadioButton
+                                    Content="{i18n:I18n {x:Static l:MarkdorL.McpScopeCurrentFolder}}"
+                                    GroupName="McpAccessScope"
+                                    IsChecked="{Binding IsCurrentFolderScope}" />
+                                <RadioButton
+                                    Content="{i18n:I18n {x:Static l:MarkdorL.McpScopeCustomFolder}}"
+                                    GroupName="McpAccessScope"
+                                    IsChecked="{Binding IsCustomFolderScope}" />
+                                <!-- 原型语义：仅「指定目录」时出现授权目录行，输入框旁带「…」目录选择。 -->
+                                <Grid
+                                    ColumnDefinitions="*,Auto"
+                                    ColumnSpacing="8"
+                                    IsVisible="{Binding IsCustomFolderScope}">
+                                    <TextBox Text="{Binding AllowedWorkspacePath}" PlaceholderText="{i18n:I18n {x:Static l:MarkdorL.McpCustomFolderWatermark}}" />
+                                    <Button
+                                        Grid.Column="1"
+                                        Width="34"
+                                        Height="34"
+                                        Padding="0"
+                                        Content="…"
+                                        FontSize="14"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Click="OnBrowseAllowedFolderClick" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <CheckBox
+                            Content="{i18n:I18n {x:Static l:MarkdorL.McpRequireConfirmation}}"
+                            IsChecked="{Binding RequireConfirmation}" />
+                    </StackPanel>
+
+                    <!-- 运行状态指示灯：绿点 = 启用 -->
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <Ellipse
+                            Width="8"
+                            Height="8"
+                            VerticalAlignment="Center"
+                            Classes="status-dot"
+                            Classes.on="{Binding IsEnabled}" />
+                        <TextBlock
+                            Classes="muted"
+                            Text="{Binding StatusText}"
+                            TextWrapping="Wrap"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel
+                Grid.Row="2"
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="10">
+                <Button Content="{i18n:I18n {x:Static l:MarkdorL.McpCancel}}" Command="{Binding Cancel}" />
+                <Button Classes="primary" Content="{i18n:I18n {x:Static l:MarkdorL.McpSave}}" Command="{Binding SaveAsync}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

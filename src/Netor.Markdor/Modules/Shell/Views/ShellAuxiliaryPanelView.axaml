@@ -1,0 +1,7 @@
+<UserControl x:Class="Netor.Markdor.Modules.Shell.Views.ShellAuxiliaryPanelView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:regions="using:Netor.Markdor.Core.Regions">
+ <!-- 大纲面板直接显示大纲列表，搜索框置顶，无头部标题和折叠按钮。 -->
+ <ContentControl regions:RegionManagerExtensions.RegionName="{x:Static regions:RegionNames.ShellOutlineRegion}"/>
+</UserControl>

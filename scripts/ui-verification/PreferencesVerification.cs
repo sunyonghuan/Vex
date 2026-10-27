@@ -5,17 +5,17 @@ using Avalonia.Headless;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CodeWF.Avalonia.Markdown.Editor.Controls;
-using Vex.Core.Messaging;
-using Vex.Core.Models;
-using Vex.Core.Services;
-using Vex.Modules.Shell.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
-using Vex.Modules.Workspace.ViewModels;
+using Netor.Markdor.Core.Messaging;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
+using Netor.Markdor.Modules.Workspace.ViewModels;
 
 internal static class PreferencesVerification
 {
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         var preferences = app.Resolve<EditorPreferences>();
@@ -97,7 +97,7 @@ internal static class PreferencesVerification
         Check(!view.GetVisualDescendants().OfType<TabControl>().Any(), "MCP page uses segmented tabs instead of a classic TabControl");
         Control<Button>("McpTabClients").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Render();
         using (var config = System.Text.Json.JsonDocument.Parse(Control<TextBox>("McpClientConfiguration").Text!))
-            Check(config.RootElement.GetProperty("mcpServers").GetProperty("vex").GetProperty("url").GetString() == "http://127.0.0.1:17891/mcp/", "MCP client configuration is valid JSON using saved endpoint");
+            Check(config.RootElement.GetProperty("mcpServers").GetProperty("markdor").GetProperty("url").GetString() == "http://127.0.0.1:17891/mcp/", "MCP client configuration is valid JSON using saved endpoint");
         window.CaptureRenderedFrame()?.Save(Path.Combine(output, "settings-mcp-clients.png"));
         Control<Button>("McpTabAudit").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Render();
         window.CaptureRenderedFrame()?.Save(Path.Combine(output, "settings-mcp-audit.png"));
@@ -128,7 +128,7 @@ internal static class PreferencesVerification
         preferences.ImageFolder = "assets";
 
         vm.Workbench.ShowInstant(); preferences.WatermarkPreview = true; preferences.WatermarkText = "Private 维刻"; Render();
-        Check(window.GetVisualDescendants().OfType<Vex.Modules.Workspace.Views.WatermarkOverlay>().Any(x => x.IsEffectivelyVisible && x.Text == preferences.WatermarkText), "Instant document shows configured watermark without changing text");
+        Check(window.GetVisualDescendants().OfType<Markdor.Modules.Workspace.Views.WatermarkOverlay>().Any(x => x.IsEffectivelyVisible && x.Text == preferences.WatermarkText), "Instant document shows configured watermark without changing text");
         window.CaptureRenderedFrame()?.Save(Path.Combine(output, "settings-watermark.png"));
         Check(vm.Workbench.LiveEditor!.CodeFontSize == preferences.CodeFontSize, "Instant code font uses independent code preference");
         preferences.WatermarkPreview = false;

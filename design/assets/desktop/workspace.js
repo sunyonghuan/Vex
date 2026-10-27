@@ -1,7 +1,7 @@
-/* Vex 工作区的单窗口变体：固定视图组合，所有面板共用当前文档。 */
+/* Markdor 工作区的单窗口变体：固定视图组合，所有面板共用当前文档。 */
 (function () {
   'use strict';
-  var W = window.VexWorkbench, $ = function (id) { return document.getElementById(id); };
+  var W = window.MarkdorWorkbench, $ = function (id) { return document.getElementById(id); };
   var query = new URLSearchParams(location.search), current = 'instant', editorMode = W.state.editMode, tree, changing = false, guideActive = false;
   var panels = {}, area = document.querySelector('.content-area');
   var labels = { editor: '编辑', render: '阅读', map: '思维导图' }, icons = { editor: 'edit', render: 'eye', map: 'map' };
@@ -18,7 +18,7 @@
   function icon(name) { return '<svg class="ico" aria-hidden="true"><use href="#i-' + name + '"/></svg>'; }
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
   function leaves(node) { return typeof node === 'string' ? [node] : leaves(node[1]).concat(leaves(node[2])); }
-  function saveLayout() { if (!guideActive && !W.state.guideRestoring) VexStorage.setItem('vex-design-layout', JSON.stringify({ current: current, mode: editorMode })); }
+  function saveLayout() { if (!guideActive && !W.state.guideRestoring) MarkdorStorage.setItem('markdor-design-layout', JSON.stringify({ current: current, mode: editorMode })); }
   function makePanel(id, sections) {
     var panel = document.createElement('section'); panel.className = 'view-panel'; panel.dataset.document = id; panel.setAttribute('aria-label', labels[id]);
     var head = document.createElement('div'); head.className = 'view-heading';
@@ -30,7 +30,7 @@
   makePanel('editor', ['source-pane', 'instant-pane']); makePanel('render', ['reading-pane']); makePanel('map', ['map-pane']);
   /* 悬浮工具条钉住开关：每条独立持久化（源码/阅读/导图），默认全部钉住为普通工具行。 */
   var pinKeys = { editor: 'pinEditor', render: 'pinReading', map: 'pinMap' };
-  function barPinned(id) { return VexPreferences.values[pinKeys[id]] !== false; }
+  function barPinned(id) { return MarkdorPreferences.values[pinKeys[id]] !== false; }
   function applyToolbarPin() {
     Object.keys(pinKeys).forEach(function (id) {
       var pinned = barPinned(id);
@@ -42,7 +42,7 @@
       }
     });
   }
-  window.addEventListener('vex-preference-changed', function (event) {
+  window.addEventListener('markdor-preference-changed', function (event) {
     if (event.detail && event.detail.key && Object.keys(pinKeys).some(function (id) { return pinKeys[id] === event.detail.key; })) applyToolbarPin();
   });
   var PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="pin-on"><path class="pin-head" d="M8 3h8l-1 8H9l-1-8z"/><path d="M12 11v9"/></g><g class="pin-off"><g transform="rotate(45 12 11)"><path d="M8 3h8l-1 8H9l-1-8z"/><path d="M12 11v9"/></g></g></svg>';
@@ -51,7 +51,7 @@
     pin.title = '钉住工具条（取消后悬浮自动隐藏）';
     pin.innerHTML = PIN_SVG;
     pin.setAttribute('aria-pressed', String(barPinned(id)));
-    pin.onclick = function () { VexPreferences.set(pinKeys[id], VexPreferences.values[pinKeys[id]] === false); applyToolbarPin(); };
+    pin.onclick = function () { MarkdorPreferences.set(pinKeys[id], MarkdorPreferences.values[pinKeys[id]] === false); applyToolbarPin(); };
     bar.appendChild(pin);
     return pin;
   }
@@ -78,7 +78,7 @@
   ];
   pinBars.forEach(function (entry) { entry.push(buildPinButton(entry[1], entry[0])); });
   applyToolbarPin();
-  var mapAppearance=VexMapAppearance.create({parent:document.querySelector('.window-body'),scene:$('map-scene'),getLayout:function(){return $('map-layout').value;},setLayout:function(key){$('map-layout').value=key;$('map-layout').dispatchEvent(new Event('change'));},isTemporary:function(){return guideActive;},beforeOpen:function(){VexTypography.close();closeMenus();$('map-settings').hidden=true;}});
+  var mapAppearance=MarkdorMapAppearance.create({parent:document.querySelector('.window-body'),scene:$('map-scene'),getLayout:function(){return $('map-layout').value;},setLayout:function(key){$('map-layout').value=key;$('map-layout').dispatchEvent(new Event('change'));},isTemporary:function(){return guideActive;},beforeOpen:function(){MarkdorTypography.close();closeMenus();$('map-settings').hidden=true;}});
   /* 状态栏正中：源码 / 阅读 / 导图 三段直选 + "更多"打开完整布局菜单（即时编辑与组合视图都在里面）。 */
   var viewSwitch = document.createElement('div'); viewSwitch.className = 'workspace-viewswitch'; viewSwitch.setAttribute('role', 'group'); viewSwitch.setAttribute('aria-label', '视图切换');
   [['source', '源码'], ['read', '阅读'], ['map', '导图']].forEach(function (segment) {
@@ -92,7 +92,7 @@
   layoutButton.setAttribute('aria-haspopup', 'dialog'); layoutButton.setAttribute('aria-expanded', 'false');
   layoutButton.setAttribute('aria-controls', 'workspace-layout-menu');
   layoutButton.innerHTML = '更多' + icon('chevron-down');
-  layoutButton.lastElementChild.classList.add('vex-expand-icon','layout-chevron');
+  layoutButton.lastElementChild.classList.add('markdor-expand-icon','layout-chevron');
   viewSwitch.appendChild(layoutButton);
   statusbar.insertBefore(viewSwitch, wordCount);
   var layoutMenu = document.createElement('section'); layoutMenu.className = 'workspace-layout-menu'; layoutMenu.id = 'workspace-layout-menu'; layoutMenu.hidden = true;
@@ -128,7 +128,7 @@
     (displayed.length === 1 && displayed[0] === 'editor' ? $('edit-options') : panels.editor.querySelector('.view-heading')).appendChild(typeButton);
     readingTypeButton.hidden=!displayed.includes('render');
     mapButton.hidden=!displayed.includes('map');
-    if(typeButton.hidden&&readingTypeButton.hidden)VexTypography.close();
+    if(typeButton.hidden&&readingTypeButton.hidden)MarkdorTypography.close();
     if(mapButton.hidden)mapAppearance.close();
     W.state.source = displayed.includes('editor') && source; $('map-source-toggle').setAttribute('aria-pressed', String(W.state.source)); $('map-source-toggle').classList.toggle('on', W.state.source);
     document.querySelector('.workspace').classList.toggle('source-only', source && displayed.length === 1); area.dataset.paneCount = displayed.length;
@@ -153,7 +153,7 @@
     Object.values(panels).forEach(function (panel) { panel.classList.remove('active-view'); });
     panels[displayed.includes('editor') ? 'editor' : displayed[0]].classList.add('active-view');
     layoutMenu.querySelectorAll('[data-layout]').forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.layout === current)); });
-    document.dispatchEvent(new CustomEvent('vex-layout-rendered'));
+    document.dispatchEvent(new CustomEvent('markdor-layout-rendered'));
     // Newly opened panes inherit the current chapter position instead of starting at the top.
     requestAnimationFrame(function () { if (W.syncViewsToLine) W.syncViewsToLine(); });
   }
@@ -166,8 +166,8 @@
     if (wanted.includes('editor')) W.setEditMode(editorMode); else W.setView(wanted.includes('map') ? 'mindmap' : 'read');
     changing = false; renderLayout(); saveLayout();
     if (id === 'three' && innerWidth < 1250 && W.state.sidebar) {
-      VexProto.handleAction('toggle-sidebar');
-      VexProto.toast('已收起文件导航，为三视图留出空间。点击底栏“文件”可展开。');
+      MarkdorProto.handleAction('toggle-sidebar');
+      MarkdorProto.toast('已收起文件导航，为三视图留出空间。点击底栏“文件”可展开。');
     }
     if (wanted.includes('map') && (!hadMap || id === 'three')) requestAnimationFrame(function () { requestAnimationFrame(function () { W.fit(id !== 'three'); }); });
   }
@@ -176,7 +176,7 @@
   function locateEditor(line) { editorMode = 'source'; changing = true; W.setEditMode('source'); changing = false; openPanel('editor'); renderLayout(); saveLayout(); W.focusLine(line); }
   function navigate(line) { if (leaves(tree).includes('editor')) W.focusLine(line); W.syncViewsToLine(line); }
   function handleAction(action) {
-    if (window.VexAuxiliary && VexAuxiliary.handleAction(action)) return true;
+    if (window.MarkdorAuxiliary && MarkdorAuxiliary.handleAction(action)) return true;
     if(action==='map-appearance'){if(!leaves(tree).includes('map'))openPanel('map');mapAppearance.toggle(mapButton);return true;}
     if(action==='typography'){mapAppearance.close();if(typeButton.hidden&&readingTypeButton.hidden)return true;}
     if (action === 'undo' || action === 'redo') { W.history(action); return true; }
@@ -185,14 +185,14 @@
     if (action === 'map-settings' && !$('map-pane').hidden) { var open = !$('map-settings').hidden; $('map-settings').hidden = open; $('map-settings-button').setAttribute('aria-expanded', String(!open)); $('node-inspector').hidden = true; return true; }
     return false;
   }
-  window.VexWorkspace = { setLayout: setLayout, openPanel: openPanel, handleAction: handleAction, locateEditor: locateEditor, navigate: navigate, closeAppearance:function(){mapAppearance.close();}, get current() { return current; }, get tree() { return clone(tree); }, get editorMode() { return editorMode; } };
-  window.addEventListener('vex-view-changed', function (event) { if (changing) return; var view = event.detail.view, mode = event.detail.editMode; if (view === 'edit' && mode !== editorMode && leaves(tree).includes('editor')) switchEditorMode(mode); else setLayout(view === 'edit' ? mode : view === 'read' ? 'read' : 'map'); });
+  window.MarkdorWorkspace = { setLayout: setLayout, openPanel: openPanel, handleAction: handleAction, locateEditor: locateEditor, navigate: navigate, closeAppearance:function(){mapAppearance.close();}, get current() { return current; }, get tree() { return clone(tree); }, get editorMode() { return editorMode; } };
+  window.addEventListener('markdor-view-changed', function (event) { if (changing) return; var view = event.detail.view, mode = event.detail.editMode; if (view === 'edit' && mode !== editorMode && leaves(tree).includes('editor')) switchEditorMode(mode); else setLayout(view === 'edit' ? mode : view === 'read' ? 'read' : 'map'); });
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeMenus(true); if (event.isComposing || !(event.ctrlKey || event.metaKey) || !['z', 'y'].includes(event.key.toLowerCase())) return; var field = event.target.closest('input, textarea, [contenteditable="true"]'); if (field && field.id !== 'markdown-input' && !field.classList.contains('instant-block')) return; event.preventDefault(); W.finish(); handleAction(event.key.toLowerCase() === 'y' || event.shiftKey ? 'redo' : 'undo'); });
   document.addEventListener('pointerdown', function (event) { if (!layoutMenu.contains(event.target) && !layoutButton.contains(event.target) && !event.target.closest('.tour-card')) closeMenus(); });
-  var beginGuide = VexProto.beginGuideSession, endGuide = VexProto.endGuideSession;
-  VexProto.beginGuideSession = function () { var layout = { current: current, tree: clone(tree), mode: editorMode, mapStyle: mapAppearance.style }; guideActive = true; var result = beginGuide(); result.workspace = layout; return result; };
-  VexProto.endGuideSession = function (snapshot) { endGuide(snapshot); if (snapshot?.workspace) { editorMode = snapshot.workspace.mode; tree = snapshot.workspace.tree; current = snapshot.workspace.current; mapAppearance.choose(snapshot.workspace.mapStyle); renderLayout(); } guideActive = false; requestAnimationFrame(function () { requestAnimationFrame(saveLayout); }); };
-  var savedLayout; try { savedLayout = JSON.parse(VexStorage.getItem('vex-design-layout') || 'null'); } catch (_) {}
+  var beginGuide = MarkdorProto.beginGuideSession, endGuide = MarkdorProto.endGuideSession;
+  MarkdorProto.beginGuideSession = function () { var layout = { current: current, tree: clone(tree), mode: editorMode, mapStyle: mapAppearance.style }; guideActive = true; var result = beginGuide(); result.workspace = layout; return result; };
+  MarkdorProto.endGuideSession = function (snapshot) { endGuide(snapshot); if (snapshot?.workspace) { editorMode = snapshot.workspace.mode; tree = snapshot.workspace.tree; current = snapshot.workspace.current; mapAppearance.choose(snapshot.workspace.mapStyle); renderLayout(); } guideActive = false; requestAnimationFrame(function () { requestAnimationFrame(saveLayout); }); };
+  var savedLayout; try { savedLayout = JSON.parse(MarkdorStorage.getItem('markdor-design-layout') || 'null'); } catch (_) {}
   var requested = query.get('layout'); if (requested === 'source-read') requested = 'source-render';
   if (requested && presets.some(function (preset) { return preset.id === requested; })) setLayout(requested);
   else if (query.has('view') || query.has('edit')) setLayout(W.state.view === 'mindmap' ? 'map' : W.state.view === 'read' ? 'read' : W.state.editMode);

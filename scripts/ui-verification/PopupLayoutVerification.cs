@@ -8,16 +8,16 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
-using Vex.Core.Services;
-using Vex.Modules.Shell.Services;
-using Vex.Controls;
-using Vex.Modules.Workspace.Views;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+using Netor.Markdor.Controls;
+using Netor.Markdor.Modules.Workspace.Views;
 
 internal static class PopupLayoutVerification
 {
-    public static void Run(VerificationVexApp app, MainWindow window, string output)
+    public static void Run(VerificationMarkdorApp app, MainWindow window, string output)
     {
         var vm = (MainWindowViewModel)window.DataContext!;
         window.Width = 1280; window.Height = 820;
@@ -47,11 +47,11 @@ internal static class PopupLayoutVerification
         Console.WriteLine($"MENU COUNTS file={file.Items.Count}");
         // 菜单树有意偏离原型 interact.js 的 MENUS：无「保存全部」，配色/排版入口在外观弹层而非菜单，
         // 段落与格式并入「工具」（原型仍是七个扁平菜单）。
-        var localizer = app.Resolve<Vex.Core.Services.IAppLocalizer>();
+        var localizer = app.Resolve<Markdor.Core.Services.IAppLocalizer>();
         string HeaderText(object? header) => header?.ToString() ?? string.Empty;
         var fileHeaders = file.Items.OfType<MenuItem>().Select(row => HeaderText(row.Header)).ToArray();
-        Check(fileHeaders.Contains(localizer.Get(Vex.VexL.Save)) && !fileHeaders.Contains(localizer.Get(Vex.VexL.MenuSaveAll))
-            && fileHeaders.Contains(localizer.Get(Vex.VexL.MenuImport)),
+        Check(fileHeaders.Contains(localizer.Get(Markdor.MarkdorL.Save)) && !fileHeaders.Contains(localizer.Get(Markdor.MarkdorL.MenuSaveAll))
+            && fileHeaders.Contains(localizer.Get(Markdor.MarkdorL.MenuImport)),
             "File menu matches the prototype groups: save without Save All, import submenu present");
         Check(title.FindControl<MenuItem>("ThemeMenuItem") is null && title.FindControl<MenuItem>("TypographyMenuItem") is null,
             "Palette and typography entries stay in the appearance flyout, not the title menu");
@@ -86,13 +86,13 @@ internal static class PopupLayoutVerification
             "工具菜单恢复原有条目，不再包含段落与格式");
         var helpIconKeys = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            [localizer.Get(Vex.VexL.OnboardingGuide)] = "book-open",
-            [localizer.Get(Vex.VexL.Changelog)] = "history",
-            [localizer.Get(Vex.VexL.Thanks)] = "heart",
-            [localizer.Get(Vex.VexL.Website)] = "external",
-            [localizer.Get(Vex.VexL.Feedback)] = "message-circle",
-            [localizer.Get(Vex.VexL.AboutCheckUpdate)] = "refresh",
-            [localizer.Get(Vex.VexL.About)] = "info",
+            [localizer.Get(Markdor.MarkdorL.OnboardingGuide)] = "book-open",
+            [localizer.Get(Markdor.MarkdorL.Changelog)] = "history",
+            [localizer.Get(Markdor.MarkdorL.Thanks)] = "heart",
+            [localizer.Get(Markdor.MarkdorL.Website)] = "external",
+            [localizer.Get(Markdor.MarkdorL.Feedback)] = "message-circle",
+            [localizer.Get(Markdor.MarkdorL.AboutCheckUpdate)] = "refresh",
+            [localizer.Get(Markdor.MarkdorL.About)] = "info",
         };
         foreach (var item in help.Items.OfType<MenuItem>())
         {
@@ -103,10 +103,10 @@ internal static class PopupLayoutVerification
         var paragraph = title.FindControl<MenuItem>("InsertMenuItem")!;
         var paragraphIconKeys = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            [localizer.Get(Vex.VexL.UnorderedList)] = "list",
-            [localizer.Get(Vex.VexL.OrderedList)] = "list-ordered",
-            [localizer.Get(Vex.VexL.TaskList)] = "list-check",
-            [localizer.Get(Vex.VexL.Quote)] = "quote",
+            [localizer.Get(Markdor.MarkdorL.UnorderedList)] = "list",
+            [localizer.Get(Markdor.MarkdorL.OrderedList)] = "list-ordered",
+            [localizer.Get(Markdor.MarkdorL.TaskList)] = "list-check",
+            [localizer.Get(Markdor.MarkdorL.Quote)] = "quote",
         };
         foreach (var item in paragraph.Items.OfType<MenuItem>())
         {
@@ -177,12 +177,12 @@ internal static class PopupLayoutVerification
         Check(MenuItems(instant.Editor.ContextMenu!.Items).Where(item => item.ToggleType == MenuItemToggleType.None).All(item => item.Icon is Viewbox { Width: 14, Height: 14 } host && host.Child is Avalonia.Controls.Shapes.Path { Width: 24, Height: 24 }),
             "即时编辑器动态右键菜单使用共享 Lucide 映射");
         var instantHeaders = MenuItems(instant.Editor.ContextMenu.Items).Select(item => HeaderText(item.Header)).ToArray();
-        Check(instantHeaders.Length > 0 && instantHeaders.All(header => !header.StartsWith("Vex.VexL.", StringComparison.Ordinal)),
+        Check(instantHeaders.Length > 0 && instantHeaders.All(header => !header.StartsWith("Markdor.MarkdorL.", StringComparison.Ordinal)),
             "即时编辑器右键菜单及子菜单不显示本地化资源键");
         var elementActionKeys = new[]
         {
-            Vex.VexL.InsertParagraphAbove, Vex.VexL.InsertParagraphBelow, Vex.VexL.ToggleTask,
-            Vex.VexL.CopyBlock, Vex.VexL.DeleteBlock,
+            Markdor.MarkdorL.InsertParagraphAbove, Markdor.MarkdorL.InsertParagraphBelow, Markdor.MarkdorL.ToggleTask,
+            Markdor.MarkdorL.CopyBlock, Markdor.MarkdorL.DeleteBlock,
         };
         Check(elementActionKeys.All(key => localizer.Get(key) != key && instantHeaders.Contains(localizer.Get(key))),
             "插入段落、切换任务、复制块和删除块显示当前语言的菜单名称");

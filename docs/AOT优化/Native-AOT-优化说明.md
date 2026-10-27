@@ -63,15 +63,15 @@
 ### Native AOT 发布（推荐）
 ```bash
 # Windows x64
-dotnet publish src/Vex/Vex.csproj -c Release -r win-x64 -p:PublishAot=true
+dotnet publish src/Netor.Markdor/Netor.Markdor.csproj -c Release -r win-x64 -p:PublishAot=true
 
 # 或使用发布配置文件（已预配置 PublishAot=true）
-dotnet publish src/Vex/Vex.csproj /p:PublishProfile=FolderProfile__win-x64
+dotnet publish src/Netor.Markdor/Netor.Markdor.csproj /p:PublishProfile=FolderProfile__win-x64
 ```
 
 ### 单文件发布（不使用 Native AOT）
 ```bash
-dotnet publish src/Vex/Vex.csproj -c Release -r win-x64 -p:PublishAot=false
+dotnet publish src/Netor.Markdor/Netor.Markdor.csproj -c Release -r win-x64 -p:PublishAot=false
 ```
 
 ### 测试脚本
@@ -130,8 +130,8 @@ Native AOT 对反射有限制，可能需要在 `TrimmerRoots.xml` 中保留某�
 
 ```bash
 # 查看文件大小
-ls -lh artifacts/publish/win-x64/Vex.exe
-ls -lh artifacts/publish/win-x64-aot/Vex.exe
+ls -lh artifacts/publish/win-x64/Markdor.exe
+ls -lh artifacts/publish/win-x64-aot/Markdor.exe
 
 # 查看目录总大小
 du -sh artifacts/publish/win-x64

@@ -1,0 +1,471 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using Avalonia.Threading;
+using CodeWF.Avalonia.Markdown.Themes;
+using CodeWF.Avalonia.Controls.Themes;
+using ReactiveUI;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Core.Services;
+using Netor.Markdor.Modules.Shell.Services;
+
+namespace Netor.Markdor.Modules.Shell.ViewModels;
+
+public sealed class ShellAppearanceViewModel : ReactiveObject
+{
+    private static string[] TypographyKeys() => CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.All.Select(item => item.Key!).ToArray();
+
+    private readonly IAppLocalizer _localizer;
+    private readonly IEditorAppearanceState _editorAppearanceState;
+    private readonly IAppSettingsStore _settingsStore;
+    private readonly IThemeService _themeService;
+    private readonly IShellStatusPublisher _statusPublisher;
+    private bool _isCompactLayout;
+    private bool _isInitializing = true;
+    private ThemeOption? _selectedTheme;
+    private PaletteOption? _selectedPalette;
+    private TypographyOption? _selectedTypography;
+    private LanguageOption? _selectedLanguage;
+    private string _selectedDensity;
+    private string _markdownDensity;
+
+    public ShellAppearanceViewModel(
+        IAppLocalizer localizer,
+        IEditorAppearanceState editorAppearanceState,
+        IAppSettingsStore settingsStore,
+        IThemeService themeService,
+        IShellStatusPublisher statusPublisher)
+    {
+        _localizer = localizer;
+        _editorAppearanceState = editorAppearanceState;
+        _settingsStore = settingsStore;
+        _themeService = themeService;
+        _statusPublisher = statusPublisher;
+
+        ThemeOptions = new ObservableCollection<ThemeOption>(_themeService.GetThemeOptions());
+        PaletteOptions = new ObservableCollection<PaletteOption>(_themeService.GetPaletteOptions());
+        TypographyOptions = new ObservableCollection<TypographyOption>(
+            TypographyKeys().Select(theme => new TypographyOption(theme, theme)));
+        LanguageOptions = new ObservableCollection<LanguageOption>
+        {
+            new("zh-CN", _localizer.Get(MarkdorL.LanguageSimplifiedChinese), _localizer.Get(MarkdorL.LanguageSimplifiedChinese)),
+            new("zh-Hant", _localizer.Get(MarkdorL.LanguageTraditionalChinese), _localizer.Get(MarkdorL.LanguageTraditionalChinese)),
+            new("en-US", _localizer.Get(MarkdorL.LanguageEnglish), _localizer.Get(MarkdorL.LanguageEnglish)),
+            new("ja-JP", _localizer.Get(MarkdorL.LanguageJapanese), _localizer.Get(MarkdorL.LanguageJapanese))
+        };
+
+        var settings = _settingsStore.Current;
+        _selectedTheme = FindTheme(settings.ThemeKey)
+                         ?? FindTheme("system")
+                         ?? ThemeOptions.FirstOrDefault();
+        // 旧设置里可能残留已下线的配色键；此时与 App.ApplyInitialTheme 一致回落到默认靛蓝，
+        // 而不是列表首项（石墨），否则启动期会先渲染靛蓝再被覆盖成石墨。
+        _selectedPalette = PaletteOptions.FirstOrDefault(item =>
+            item.Key.Equals(settings.PaletteKey ?? settings.ThemeKey, StringComparison.OrdinalIgnoreCase))
+            ?? PaletteOptions.FirstOrDefault(item => item.Key.Equals("indigo", StringComparison.OrdinalIgnoreCase))
+            ?? PaletteOptions[0];
+        _selectedTypography = FindTypography(settings.TypographyKey)
+                              ?? FindTypography(MarkdownTypographyThemes.Simple)
+                              ?? TypographyOptions.FirstOrDefault();
+        _isCompactLayout = settings.IsCompactLayout ?? false;
+        _selectedDensity = settings.UiDensity is "compact" or "relaxed" ? settings.UiDensity : "normal";
+        // 未落盘的旧设置用 IsCompactLayout 迁移出初始档，保持升级前后正文大小一致。
+        _markdownDensity = settings.MdSize is "compact" or "normal" or "relaxed"
+            ? settings.MdSize
+            : (settings.IsCompactLayout == true ? "compact" : "normal");
+        _selectedLanguage = FindLanguage(GetInitialCulture(settings.CultureName));
+        if (_selectedTheme is not null)
+        {
+            _themeService.ApplyTheme(_selectedTheme, _selectedPalette);
+        }
+
+        if (_selectedLanguage is not null)
+        {
+            _localizer.SetCulture(_selectedLanguage.CultureName);
+        }
+
+        PublishTypographyState();
+        _isInitializing = false;
+        PersistAppearanceSettings();
+        _localizer.CultureChanged += OnCultureChanged;
+    }
+
+    public ObservableCollection<ThemeOption> ThemeOptions { get; }
+
+    public ObservableCollection<PaletteOption> PaletteOptions { get; }
+
+    public ObservableCollection<TypographyOption> TypographyOptions { get; }
+
+    public ObservableCollection<LanguageOption> LanguageOptions { get; }
+
+    public bool IsCompactLayout
+    {
+        get => _isCompactLayout;
+        set
+        {
+            if (SetProperty(ref _isCompactLayout, value))
+            {
+                OnPropertyChanged(nameof(CurrentTypographySize));
+                PublishTypographyState();
+                PersistAppearanceSettings();
+            }
+        }
+    }
+
+    public ThemeOption? SelectedTheme
+    {
+        get => _selectedTheme;
+        set
+        {
+            if (SetProperty(ref _selectedTheme, value) && value is not null)
+            {
+                OnPropertyChanged(nameof(ThemeMode));
+                _themeService.ApplyTheme(value, SelectedPalette!);
+                PersistAppearanceSettings();
+            }
+        }
+    }
+
+    /// <summary>标题栏三态按钮与视图菜单共用同一份主题设置。</summary>
+    public StudioThemeMode ThemeMode
+    {
+        get => SelectedTheme?.Mode ?? StudioThemeMode.System;
+        set => SelectedTheme = ThemeOptions.First(option => option.Mode == value);
+    }
+
+    public PaletteOption? SelectedPalette
+    {
+        get => _selectedPalette;
+        set
+        {
+            if (SetProperty(ref _selectedPalette, value) && value is not null)
+            {
+                _themeService.ApplyTheme(SelectedTheme!, value);
+                PersistAppearanceSettings();
+            }
+        }
+    }
+
+    /// <summary>界面密度三档（对应原型 data-density）；当前仅持久化选择，控件令牌全面接入见验收文档缺口。</summary>
+    public string SelectedDensity
+    {
+        get => _selectedDensity;
+        set
+        {
+            if (value is not ("compact" or "normal" or "relaxed")) return;
+            if (SetProperty(ref _selectedDensity, value))
+            {
+                PersistAppearanceSettings();
+            }
+        }
+    }
+
+    /// <summary>Markdown 渲染密度三档（对应原型 data-mdsize，基准正文 13/15/17）。</summary>
+    public string MarkdownDensity
+    {
+        get => _markdownDensity;
+        set
+        {
+            if (value is not ("compact" or "normal" or "relaxed")) return;
+            if (SetProperty(ref _markdownDensity, value))
+            {
+                OnPropertyChanged(nameof(CurrentTypographySize));
+                PublishTypographyState();
+                PersistAppearanceSettings();
+            }
+        }
+    }
+
+    /// <summary>新增（key 为空）或编辑用户排版：注册后刷新目录并选中，随设置持久化。</summary>
+    public string RegisterCustomTypography(string key, string name, string accentLight, string accentDark,
+        string decorationLight, string decorationDark, string font, double leading)
+    {
+        key = string.IsNullOrWhiteSpace(key) ? "user:" + Guid.NewGuid().ToString("N")[..8] : key;
+        var typography = CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.CreateCustom(
+            key, name, accentLight, accentDark, decorationLight, decorationDark, font, leading);
+        CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.Register(typography);
+        ReloadTypographyOptions(key);
+        PersistCustomTypographies();
+        return key;
+    }
+
+    public bool RemoveCustomTypography(string key)
+    {
+        if (!CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.Remove(key)) return false;
+        ReloadTypographyOptions("Simple");
+        PersistCustomTypographies();
+        return true;
+    }
+
+    private void ReloadTypographyOptions(string preferredKey)
+    {
+        var current = SelectedTypography?.Key;
+        TypographyOptions.Clear();
+        foreach (var option in CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.All
+                     .Select(item => new TypographyOption(item.Key!, item.Key!)))
+        {
+            TypographyOptions.Add(option);
+        }
+        SelectedTypography = TypographyOptions.FirstOrDefault(item => item.Key == current)
+            ?? TypographyOptions.FirstOrDefault(item => item.Key == preferredKey)
+            ?? TypographyOptions.FirstOrDefault();
+        OnPropertyChanged(nameof(TypographyOptions));
+    }
+
+    private void PersistCustomTypographies()
+    {
+        var records = CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.All
+            .Where(item => item.Key != null && item.Key.StartsWith("user:", StringComparison.Ordinal))
+            .Select(item => string.Join('|', item.Key, item.Name,
+                item.LightText, item.DarkText, item.LightDecoration, item.DarkDecoration, item.Font, item.Leading.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        _settingsStore.Update(settings => settings with { CustomTypographies = string.Join(';', records) });
+    }
+
+    /// <summary>启动时恢复用户排版。</summary>
+    public void LoadCustomTypographies(string? persisted)
+    {
+        if (string.IsNullOrWhiteSpace(persisted)) return;
+        foreach (var record in persisted.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var fields = record.Split('|');
+            if (fields.Length != 8 || !fields[0].StartsWith("user:", StringComparison.Ordinal)) continue;
+            try
+            {
+                var typography = CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.CreateCustom(
+                    fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6],
+                    double.Parse(fields[7], System.Globalization.CultureInfo.InvariantCulture));
+                CodeWF.Avalonia.Markdown.Themes.ArticleTypographyResolver.Register(typography);
+            }
+            catch { /* 单条损坏不阻塞其余排版 */ }
+        }
+        ReloadTypographyOptions(SelectedTypography?.Key ?? "Simple");
+    }
+
+    public void SelectPaletteByKey(string? key)
+    {
+        if (PaletteOptions.FirstOrDefault(item => item.Key.Equals(key, StringComparison.OrdinalIgnoreCase)) is { } option)
+            SelectedPalette = option;
+    }
+
+    /// <summary>新增（key 为空）或编辑用户配色：注册后刷新目录并选中。</summary>
+    public string RegisterCustomPalette(string key, string name, string note,
+        string lightPaper, string lightSurface, string lightInk, string lightAccent,
+        string darkPaper, string darkSurface, string darkInk, string darkAccent)
+    {
+        var saved = _themeService.RegisterCustomPalette(key, name, note,
+            lightPaper, lightSurface, lightInk, lightAccent, darkPaper, darkSurface, darkInk, darkAccent);
+        ReloadPaletteOptions();
+        SelectPaletteByKey(saved);
+        return saved;
+    }
+
+    /// <summary>删除用户配色；删除当前选中项时回退默认配色。</summary>
+    public bool RemoveCustomPalette(string key)
+    {
+        if (!_themeService.RemoveCustomPalette(key)) return false;
+        ReloadPaletteOptions();
+        if (SelectedPalette?.Key == key) SelectPaletteByKey("indigo");
+        return true;
+    }
+
+    private void ReloadPaletteOptions()
+    {
+        _themeService.InvalidatePaletteOptions();
+        var current = SelectedPalette?.Key;
+        PaletteOptions.Clear();
+        foreach (var option in _themeService.GetPaletteOptions()) PaletteOptions.Add(option);
+        SelectedPalette = PaletteOptions.FirstOrDefault(item => item.Key == current)
+            ?? PaletteOptions.FirstOrDefault(item => item.Key == "indigo")
+            ?? PaletteOptions.FirstOrDefault();
+        OnPropertyChanged(nameof(PaletteOptions));
+    }
+
+    public TypographyOption? SelectedTypography
+    {
+        get => _selectedTypography;
+        set
+        {
+            if (SetProperty(ref _selectedTypography, value))
+            {
+                OnPropertyChanged(nameof(CurrentTypographyTheme));
+                PublishTypographyState();
+                PersistAppearanceSettings();
+            }
+        }
+    }
+
+    public string? CurrentTypographyTheme => SelectedTypography?.Key;
+
+    public string CurrentTypographySize => MarkdownDensity switch
+    {
+        "compact" => MarkdownTypographySizes.Compact,
+        "relaxed" => MarkdownTypographySizes.Relaxed,
+        _ => MarkdownTypographySizes.Normal,
+    };
+
+    public LanguageOption? SelectedLanguage
+    {
+        get => _selectedLanguage;
+        set
+        {
+            if (SetProperty(ref _selectedLanguage, value) && value is not null)
+            {
+                _localizer.SetCulture(value.CultureName);
+                PersistAppearanceSettings();
+                _statusPublisher.PublishResourceFormat(MarkdorL.StatusLanguageSwitched, value.DisplayName);
+            }
+        }
+    }
+
+    /// <summary>全局切语时同步语言选择，避免同项重选无法切回。</summary>
+    private void OnCultureChanged(object? sender, EventArgs args)
+    {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(() => OnCultureChanged(sender, args));
+            return;
+        }
+
+        // 直接同步选中项，避免进入业务设置器再次切语或写入偏好。
+        SetProperty(ref _selectedLanguage, FindLanguage(_localizer.Culture.Name), nameof(SelectedLanguage));
+    }
+
+    public void ToggleCompactLayout()
+    {
+        IsCompactLayout = !IsCompactLayout;
+    }
+
+    public void SelectTheme(ThemeOption? theme)
+    {
+        if (theme is not null)
+        {
+            SelectedTheme = theme;
+        }
+    }
+
+    public void SelectThemeByKey(string? key)
+    {
+        var theme = ThemeOptions.FirstOrDefault(item => item.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+        SelectTheme(theme);
+    }
+
+    public void SelectTypography(TypographyOption? typography)
+    {
+        if (typography is not null)
+        {
+            SelectedTypography = typography;
+        }
+    }
+
+    public void SelectTypographyByKey(string? key)
+    {
+        var typography = TypographyOptions.FirstOrDefault(item => item.Key?.Equals(key, StringComparison.OrdinalIgnoreCase) == true);
+        SelectTypography(typography);
+    }
+
+    public void SelectLanguage(LanguageOption? language)
+    {
+        if (language is not null)
+        {
+            SelectedLanguage = language;
+        }
+    }
+
+    public void SelectLanguageByCulture(string? cultureName)
+    {
+        var language = LanguageOptions.FirstOrDefault(item => item.CultureName.Equals(cultureName, StringComparison.OrdinalIgnoreCase));
+        SelectLanguage(language);
+    }
+
+    private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(storage, value))
+        {
+            return false;
+        }
+
+        this.RaiseAndSetIfChanged(ref storage, value, propertyName);
+        return true;
+    }
+
+    private void PublishTypographyState()
+    {
+        _editorAppearanceState.UpdateTypography(CurrentTypographyTheme, CurrentTypographySize);
+    }
+
+    private void PersistAppearanceSettings()
+    {
+        if (_isInitializing)
+        {
+            return;
+        }
+
+        _settingsStore.Update(settings => settings with
+        {
+            ThemeKey = SelectedTheme?.Key,
+            PaletteKey = SelectedPalette?.Key,
+            TypographyKey = SelectedTypography?.Key,
+            UiDensity = SelectedDensity,
+            MdSize = MarkdownDensity,
+            IsCompactLayout = IsCompactLayout,
+            CultureName = SelectedLanguage?.CultureName
+        });
+    }
+
+    private ThemeOption? FindTheme(string? key)
+    {
+        return string.IsNullOrWhiteSpace(key)
+            ? null
+            : ThemeOptions.FirstOrDefault(item => item.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private TypographyOption? FindTypography(string? key)
+    {
+        return string.IsNullOrWhiteSpace(key)
+            ? null
+            : TypographyOptions.FirstOrDefault(item => item.Key?.Equals(key, StringComparison.OrdinalIgnoreCase) == true);
+    }
+
+    private LanguageOption? FindLanguage(string? cultureName)
+    {
+        return string.IsNullOrWhiteSpace(cultureName)
+            ? null
+            : LanguageOptions.FirstOrDefault(item => item.CultureName.Equals(cultureName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private string GetInitialCulture(string? savedCultureName)
+    {
+        if (FindLanguage(savedCultureName) is { } savedLanguage)
+        {
+            return savedLanguage.CultureName;
+        }
+
+        var osCulture = CultureInfo.CurrentUICulture;
+        if (FindLanguage(osCulture.Name) is { } exactLanguage)
+        {
+            return exactLanguage.CultureName;
+        }
+
+        if (osCulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase))
+        {
+            return IsTraditionalChineseCulture(osCulture.Name) ? "zh-Hant" : "zh-CN";
+        }
+
+        return osCulture.TwoLetterISOLanguageName.Equals("ja", StringComparison.OrdinalIgnoreCase)
+            ? "ja-JP"
+            : "en-US";
+    }
+
+    private static bool IsTraditionalChineseCulture(string cultureName)
+    {
+        return cultureName.Contains("Hant", StringComparison.OrdinalIgnoreCase)
+               || cultureName.EndsWith("-TW", StringComparison.OrdinalIgnoreCase)
+               || cultureName.EndsWith("-HK", StringComparison.OrdinalIgnoreCase)
+               || cultureName.EndsWith("-MO", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void OnPropertyChanged(string propertyName)
+    {
+        this.RaisePropertyChanged(propertyName);
+    }
+}

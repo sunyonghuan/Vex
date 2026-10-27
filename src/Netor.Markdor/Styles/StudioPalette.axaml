@@ -1,0 +1,88 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 与 StudioTheme 共用动态颜色令牌，不复制 Semi 的整套主题字典。 -->
+    <SolidColorBrush x:Key="MarkdorShellBackgroundBrush" Color="{DynamicResource StudioBackgroundColor}" />
+    <SolidColorBrush x:Key="MarkdorPanelBackgroundBrush" Color="{DynamicResource StudioSurfaceColor}" />
+    <SolidColorBrush x:Key="MarkdorPanelBorderBrush" Color="{DynamicResource StudioBorderColor}" />
+    <!-- 原型 .view-heading 底边：border 65% 透明度。 -->
+    <SolidColorBrush x:Key="MarkdorPaneHeadBorderBrush" Color="{DynamicResource StudioBorderColor}" Opacity="0.65" />
+    <SolidColorBrush x:Key="MarkdorEditorCurrentLineBorderBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="MarkdorStatusBarBorderBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="MarkdorStatusBadgeBorderBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="MarkdorStatusBarBackgroundBrush" Color="{DynamicResource StudioSurfaceColor}" />
+    <SolidColorBrush x:Key="MarkdorStatusBadgeBackgroundBrush" Color="{DynamicResource StudioSurfaceColor}" />
+    <SolidColorBrush x:Key="MarkdorSplitterBrush" Color="{DynamicResource StudioRaisedColor}" />
+    <SolidColorBrush x:Key="MarkdorEditorCurrentLineBackgroundBrush" Color="{DynamicResource StudioRaisedColor}" />
+    <!-- 悬停用前景色低透明度叠层：面板底色与 raised 色几乎相同，实色悬停会看不出来。 -->
+    <SolidColorBrush x:Key="MarkdorHoverBrush" Color="{DynamicResource StudioTextColor}" Opacity="0.05" />
+    <SolidColorBrush x:Key="MarkdorPressedBrush" Color="{DynamicResource StudioPressedColor}" />
+    <SolidColorBrush x:Key="MarkdorAccentSoftBrush" Color="{DynamicResource StudioSelectedColor}" />
+    <SolidColorBrush x:Key="MarkdorEditorForegroundBrush" Color="{DynamicResource StudioTextColor}" />
+    <SolidColorBrush x:Key="MarkdorStatusBadgeValueBrush" Color="{DynamicResource StudioTextColor}" />
+    <SolidColorBrush x:Key="MarkdorValueBrush" Color="{DynamicResource StudioTextColor}" />
+    <SolidColorBrush x:Key="MarkdorStatusBadgeLabelBrush" Color="{DynamicResource StudioMutedColor}" />
+    <SolidColorBrush x:Key="MarkdorMutedBrush" Color="{DynamicResource StudioMutedColor}" />
+    <SolidColorBrush x:Key="MarkdorDisabledBrush" Color="{DynamicResource StudioDisabledColor}" />
+    <SolidColorBrush x:Key="MarkdorQuoteBrush" Color="{DynamicResource StudioMutedColor}" />
+    <SolidColorBrush x:Key="MarkdorMarkerBrush" Color="{DynamicResource StudioMutedColor}" />
+    <SolidColorBrush x:Key="MarkdorAccentBrush" Color="{DynamicResource StudioAccentColor}" />
+    <SolidColorBrush x:Key="MarkdorLinkBrush" Color="{DynamicResource StudioAccentColor}" />
+    <SolidColorBrush x:Key="MarkdorImageBrush" Color="{DynamicResource StudioAccentColor}" />
+    <SolidColorBrush x:Key="MarkdorCodeFgBrush" Color="{DynamicResource StudioAccentColor}" />
+    <SolidColorBrush x:Key="MarkdorQuoteBackgroundBrush" Color="{DynamicResource StudioAccentColor}" Opacity="0.06" />
+    <LinearGradientBrush x:Key="MarkdorTitleGradBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+        <GradientStop Color="{DynamicResource StudioGradientStartColor}" Offset="0" />
+        <GradientStop Color="{DynamicResource StudioSecondaryColor}" Offset="1" />
+    </LinearGradientBrush>
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidForeground" Color="#302C3C" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidAccent" Color="#8B7CF6" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidDefault" Color="#8B7CF6" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidLine" Color="#777382" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidBorder" Color="#B8A7DF" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidSurface" Color="#EEEAFD" />
+            <x:String x:Key="CodeWFMarkdownMermaidDataPalette">#8B7CF6,#D9AD53,#70A98B,#C583B5,#62A5C2,#D58585,#7E9ECB,#A9B568</x:String>
+            <x:String x:Key="CodeWFMarkdownMermaidFillPalette">#EEEAFD,#FFF4D6,#E5F2E5,#F5E4F1,#E0F0F7,#FAE6E3,#E7EEF9,#EFF2D9</x:String>
+            <SolidColorBrush x:Key="MarkdorDocumentPaperBrush" Color="#FFFFFF" />
+            <!-- 原型 elevated 令牌：弹层/对话框浮起底色（surface 88% + panel 12%）。 -->
+            <SolidColorBrush x:Key="MarkdorElevatedBackgroundBrush" Color="#FCFCFC" />
+            <SolidColorBrush x:Key="MarkdorEditorBackgroundBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="MarkdorPreviewBackgroundBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="MarkdorTableHeaderBrush" Color="#F7F7F8" />
+            <SolidColorBrush x:Key="MarkdorTableStripeBrush" Color="#F7F7F8" />
+            <SolidColorBrush x:Key="MarkdorTableBorderBrush" Color="#DFE2E5" />
+            <SolidColorBrush x:Key="MarkdorDangerBrush" Color="#B42318" />
+            <SolidColorBrush x:Key="MarkdorDangerSoftBrush" Color="#FEECEB" />
+            <SolidColorBrush x:Key="MarkdorSuccessBrush" Color="#067647" />
+            <SolidColorBrush x:Key="MarkdorSuccessSoftBrush" Color="#1A067647" />
+            <SolidColorBrush x:Key="MarkdorWarningBrush" Color="#B54708" />
+            <SolidColorBrush x:Key="MarkdorWarningSoftBrush" Color="#FDEBD7" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidBackground" Color="#202124" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidForeground" Color="#EDE8F5" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidAccent" Color="#B6A6FF" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidDefault" Color="#B6A6FF" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidLine" Color="#B5ADBF" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidBorder" Color="#8C7DA9" />
+            <SolidColorBrush x:Key="CodeWFMarkdownMermaidSurface" Color="#38304E" />
+            <x:String x:Key="CodeWFMarkdownMermaidDataPalette">#B6A6FF,#E8C778,#93CFAC,#DFA2D0,#8AC8E0,#E8AAA3,#A7BFE7,#C4CE8E</x:String>
+            <x:String x:Key="CodeWFMarkdownMermaidFillPalette">#71628F,#897444,#547C65,#855A79,#4D778A,#8B5D5D,#5C7194,#737D50</x:String>
+            <SolidColorBrush x:Key="MarkdorDocumentPaperBrush" Color="#202124" />
+            <SolidColorBrush x:Key="MarkdorElevatedBackgroundBrush" Color="#1F2021" />
+            <SolidColorBrush x:Key="MarkdorEditorBackgroundBrush" Color="#202124" />
+            <SolidColorBrush x:Key="MarkdorPreviewBackgroundBrush" Color="#202124" />
+            <SolidColorBrush x:Key="MarkdorTableHeaderBrush" Color="#292C32" />
+            <SolidColorBrush x:Key="MarkdorTableStripeBrush" Color="#24272D" />
+            <SolidColorBrush x:Key="MarkdorTableBorderBrush" Color="#41454E" />
+            <SolidColorBrush x:Key="MarkdorDangerBrush" Color="#FF828F" />
+            <SolidColorBrush x:Key="MarkdorDangerSoftBrush" Color="#3D2328" />
+            <SolidColorBrush x:Key="MarkdorSuccessBrush" Color="#63DCB0" />
+            <SolidColorBrush x:Key="MarkdorSuccessSoftBrush" Color="#1A63DCB0" />
+            <SolidColorBrush x:Key="MarkdorWarningBrush" Color="#EFBA6B" />
+            <SolidColorBrush x:Key="MarkdorWarningSoftBrush" Color="#3D2F1E" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

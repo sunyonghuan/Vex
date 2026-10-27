@@ -1,4 +1,4 @@
-/* Vex design polish: coherent theme surfaces, quiet depth, and readable Markdown samples. */
+/* Markdor design polish: coherent theme surfaces, quiet depth, and readable Markdown samples. */
 :root[data-theme][data-palette] {
   --document-bg: var(--paper);
   --document-fg: var(--fg);
@@ -98,7 +98,7 @@ body > .submenu.flyout {
   background: var(--menu-bg);
   color: var(--fg);
   box-shadow: var(--menu-shadow);
-  animation: vex-menu-fade var(--vex-fast) ease-out;
+  animation: markdor-menu-fade var(--markdor-fast) ease-out;
 }
 body > .submenu.flyout {
   position: fixed;
@@ -159,15 +159,15 @@ body > .submenu.flyout[hidden] { display: none; }
 body > .submenu.menu-compact { padding: 4px; }
 .menu-compact > .menu-item { min-height: 28px; padding: 3px 10px; }
 .menu-compact > .menu-sep { margin-block: 3px; }
-@keyframes vex-menu-fade { from { opacity: 0; } to { opacity: 1; } }
-.vex-element-layer:not(.vex-element-sheet) > .vex-element-menu {
+@keyframes markdor-menu-fade { from { opacity: 0; } to { opacity: 1; } }
+.markdor-element-layer:not(.markdor-element-sheet) > .markdor-element-menu {
   max-height: none;
   overflow: visible;
   scrollbar-gutter: auto;
 }
-.vex-element-layer:not(.vex-element-sheet) .vex-element-row { min-height: 32px; padding-block: 5px; line-height: 22px; }
-.vex-element-layer:not(.vex-element-sheet) .vex-element-compact .vex-element-row { min-height: 28px; padding-block: 3px; }
-.vex-element-compact .vex-element-rule { margin-block: 3px; }
+.markdor-element-layer:not(.markdor-element-sheet) .markdor-element-row { min-height: 32px; padding-block: 5px; line-height: 22px; }
+.markdor-element-layer:not(.markdor-element-sheet) .markdor-element-compact .markdor-element-row { min-height: 28px; padding-block: 3px; }
+.markdor-element-compact .markdor-element-rule { margin-block: 3px; }
 .workspace-layout-menu { max-height: none; overflow: visible; scrollbar-gutter: auto; }
 @media (max-height: 620px) {
   body { padding: 12px; }

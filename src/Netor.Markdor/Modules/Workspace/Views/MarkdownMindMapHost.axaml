@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:i18n="https://codewf.com" xmlns:l="clr-namespace:Netor.Markdor"
+             xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels" xmlns:mind="https://codewf.com"
+             x:DataType="vm:MainWindowViewModel" x:Class="Netor.Markdor.Modules.Workspace.Views.MarkdownMindMapHost">
+  <UserControl.Styles>
+    <Style Selector="Button.map-tool, ToggleButton.map-tool"><Setter Property="FontSize" Value="10.5"/><Setter Property="Padding" Value="7,4"/><Setter Property="MinHeight" Value="26"/></Style>
+  </UserControl.Styles>
+  <Grid RowDefinitions="Auto,*">
+    <Border x:Name="MapEditingToolbar" Classes="map-topbar" IsVisible="{Binding !Workbench.IsPresenting}" MinHeight="36" Padding="10,4" Background="{DynamicResource MarkdorPanelBackgroundBrush}" BorderBrush="{DynamicResource MarkdorPanelBorderBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+        <StackPanel x:Name="MapTitle" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center"><Path Classes="wb-icon" Data="{StaticResource WBMapIcon}"/><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.DocumentStructure}}" Classes="wb-muted"/><TextBlock Text="{Binding Workbench.MapCountLabel}" Classes="wb-muted"/></StackPanel>
+        <Grid x:Name="MapToolbarGrid" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="2">
+          <Button Classes="wb-quiet map-tool" Tag="child" Click="ChapterClick"><StackPanel Orientation="Horizontal" Spacing="4"><TextBlock Text="+"/><TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSChild}"/></StackPanel></Button>
+          <Button Classes="wb-quiet map-tool" Tag="sibling" Click="ChapterClick"><StackPanel Orientation="Horizontal" Spacing="4"><TextBlock Text="+"/><TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSSibling}"/></StackPanel></Button>
+          <ToggleButton x:Name="HeadingsOnlyButton" Classes="wb-quiet map-tool" Content="{i18n:I18n Markdor.MarkdorL.WSHeadingsOnly}" Click="HeadingsOnlyClick"/>
+        </StackPanel>
+        <StackPanel x:Name="MapToolsRight" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="2">
+          <!-- 原型：⚙图标 + 当前显示模式标签（仅标题 / 摘要 N 字）。 -->
+          <ToggleButton x:Name="SummarySettingsButton" Classes="wb-quiet map-tool" IsChecked="{Binding Workbench.ShowMapSettings, Mode=OneWay}" Command="{Binding Workbench.ToggleMapSettings}">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <Path Classes="wb-icon" Width="11" Height="11" Data="{StaticResource WBGearIcon}" VerticalAlignment="Center" />
+              <TextBlock Text="{Binding Workbench.MapSummaryLabel}" VerticalAlignment="Center" />
+            </StackPanel>
+          </ToggleButton>
+          <Button x:Name="CollapseBranchesButton" Classes="wb-quiet map-tool" Content="{i18n:I18n {x:Static l:MarkdorL.WBCollapse}}" Click="CollapseClick"/>
+          <ToggleButton x:Name="MapSourceButton" Classes="wb-quiet map-tool" IsChecked="{Binding Workbench.ShowMapSource, Mode=OneWay}" Command="{Binding Workbench.ToggleMapSource}"><StackPanel Orientation="Horizontal" Spacing="5"><Path Classes="wb-icon" Width="11" Height="11" Data="{StaticResource WBColumnsIcon}"/><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.WBMapSource}}"/></StackPanel></ToggleButton>
+          <ToggleButton x:Name="PinMap" Classes="toolbar-pin" Margin="4,0,0,0" IsChecked="{Binding Workbench.Preferences.PinMapToolbar}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBPinToolbar}}">
+            <Panel Width="14" Height="14">
+              <Viewbox Classes="pin-on"><Path Data="{StaticResource WBPinIcon}"/></Viewbox>
+              <Viewbox Classes="pin-off"><Path Data="{StaticResource WBPinOffIcon}"/></Viewbox>
+            </Panel>
+          </ToggleButton>
+        </StackPanel>
+        </Grid>
+      </Grid>
+    </Border>
+    <Grid Grid.Row="1">
+      <mind:MarkdownMindMapView x:Name="Map" IsChapterEditingEnabled="True" PreserveViewportOnRootChange="True" Root="{Binding Workbench.Root}" EnableMotion="{Binding Layout.EnableMotion}"
+          LayoutKind="{Binding Workbench.MapLayoutKind}" StyleKind="{Binding Workbench.MapStyleKind}"
+          CanvasBrush="{DynamicResource MarkdorPreviewBackgroundBrush}" CardBrush="{DynamicResource MarkdorPanelBackgroundBrush}" TextBrush="{DynamicResource MarkdorValueBrush}"
+          LineBrush="{DynamicResource MarkdorPanelBorderBrush}" DotBrush="{DynamicResource MarkdorPanelBorderBrush}"/>
+      <StackPanel Orientation="Horizontal" Spacing="15" Margin="16,13" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False">
+        <StackPanel Orientation="Horizontal" Spacing="5"><Border Width="7" Height="7" CornerRadius="2" BorderThickness="1" BorderBrush="{DynamicResource MarkdorAccentBrush}"/><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.WBHeadingNode}}" Classes="wb-muted"/></StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="5"><Border Width="7" Height="7" CornerRadius="2" BorderThickness="1" BorderBrush="{DynamicResource MarkdorMutedBrush}"/><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.WBContentNode}}" Classes="wb-muted"/></StackPanel>
+      </StackPanel>
+      <TextBlock x:Name="MapHint" Text="{i18n:I18n Markdor.MarkdorL.WSMapGesture}" Classes="wb-muted" FontSize="10" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16,14,14,46" IsHitTestVisible="False"/>
+      <Border x:Name="SettingsTarget" Width="300" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="18,12,18,18" Classes="wb-popover" Padding="18" IsVisible="{Binding Workbench.ShowMapSettings}">
+        <ScrollViewer MaxHeight="420"><StackPanel Spacing="12">
+          <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{i18n:I18n Markdor.MarkdorL.WBMapDisplay}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Grid.Column="1" Classes="markdor-dismiss" Command="{Binding Workbench.ToggleMapSettings}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.Close}}" AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.Close}}"/></Grid>
+          <Grid ColumnDefinitions="*,64" ColumnSpacing="7">
+            <TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.WBSummary}}" FontSize="11" VerticalAlignment="Center"/>
+            <NumericUpDown Grid.Column="1" x:Name="SummaryLengthInput" Minimum="1" Maximum="120" Increment="1" Value="{Binding Workbench.SummaryLength, Mode=TwoWay}"/>
+          </Grid>
+          <TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.WBSummaryHint}}" TextWrapping="Wrap" Classes="wb-muted"/>
+          <StackPanel Spacing="4">
+            <CheckBox Content="{i18n:I18n {x:Static l:MarkdorL.WBParagraphs}}" IsChecked="{Binding Workbench.ShowParagraphs, Mode=TwoWay}" FontSize="11"/>
+            <CheckBox Content="{i18n:I18n {x:Static l:MarkdorL.WBLists}}" IsChecked="{Binding Workbench.ShowLists, Mode=TwoWay}" FontSize="11"/>
+            <CheckBox Content="{i18n:I18n {x:Static l:MarkdorL.WBRichBlocks}}" IsChecked="{Binding Workbench.ShowRichBlocks, Mode=TwoWay}" FontSize="11"/>
+          </StackPanel>
+          <Border Background="{DynamicResource MarkdorAccentSoftBrush}" Padding="12" CornerRadius="6"><StackPanel Spacing="7"><TextBlock Text="{i18n:I18n {x:Static l:MarkdorL.WBSummaryPreview}}" Classes="wb-muted"/><TextBlock Text="{Binding Workbench.SummaryPreview}" TextWrapping="Wrap" FontSize="11" LineHeight="20"/></StackPanel></Border>
+          <Button x:Name="ResetMapSettingsButton" Content="{i18n:I18n {x:Static l:MarkdorL.WBReset}}" Classes="wb-quiet" Command="{Binding Workbench.ResetMapSettings}" HorizontalAlignment="Right"/>
+        </StackPanel></ScrollViewer>
+      </Border>
+      <Border x:Name="NodeInspector" Width="282" MaxHeight="480" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,9,10,60" Classes="wb-popover" IsVisible="{Binding Workbench.HasSelectedNode}">
+        <Grid RowDefinitions="36,*,36">
+          <Border Padding="14,0,6,0" BorderBrush="{DynamicResource MarkdorPanelBorderBrush}" BorderThickness="0,0,0,1"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Workbench.SelectedKindLabel}" Classes="wb-muted" VerticalAlignment="Center"/><Button x:Name="CloseInspectorButton" Grid.Column="1" Classes="markdor-dismiss" Command="{Binding Workbench.CloseInspector}" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.Close}}" AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.Close}}"/></Grid></Border>
+          <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Padding="16,12">
+            <StackPanel Spacing="10">
+              <StackPanel Spacing="8" IsVisible="{Binding Workbench.IsChapterSelected}">
+                <TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSTitle}" Classes="wb-muted"/>
+                <TextBox x:Name="ChapterTitleInput" Text="{Binding Workbench.ChapterTitle, Mode=OneWay}" LostFocus="TitleLostFocus" KeyDown="TitleKeyDown"/>
+                <WrapPanel Orientation="Horizontal">
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSSibling}" Tag="sibling" Click="ChapterClick"/>
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSChild}" Tag="child" Click="ChapterClick"/>
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSPromote}" Tag="promote" Click="ChapterClick"/>
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSDemote}" Tag="demote" Click="ChapterClick"/>
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSUp}" Tag="up" Click="ChapterClick"/>
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSDown}" Tag="down" Click="ChapterClick"/>
+                  <Button Classes="wb-quiet" Content="{i18n:I18n Markdor.MarkdorL.WSDeleteChapter}" Tag="delete" Click="ChapterClick"/>
+                </WrapPanel>
+                <TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSBody}" Classes="wb-muted"/>
+                <TextBox x:Name="ChapterBodyInput" Text="{Binding Workbench.ChapterBody, Mode=OneWay}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100" MaxHeight="180" LostFocus="BodyLostFocus"/>
+                <TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSBodyHint}" Classes="wb-muted" TextWrapping="Wrap"/>
+              </StackPanel>
+              <SelectableTextBlock Text="{Binding Workbench.SelectedFullText}" IsVisible="{Binding !Workbench.IsChapterSelected}" TextWrapping="Wrap" FontSize="12" LineHeight="21"/>
+              <TextBlock Text="{Binding Workbench.ChapterError}" Classes="wb-muted" TextWrapping="Wrap"/>
+            </StackPanel>
+          </ScrollViewer>
+          <Border Grid.Row="2" Padding="14,0" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource MarkdorPanelBorderBrush}"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Workbench.SelectedSourceLabel}" Classes="wb-muted" VerticalAlignment="Center"/><Button Grid.Column="1" Content="{i18n:I18n {x:Static l:MarkdorL.WBLocate}}" Command="{Binding Workbench.LocateSelectedSource}" Classes="wb-quiet"/></Grid></Border>
+        </Grid>
+      </Border>
+      <Canvas x:Name="RenameLayer" IsVisible="False"><TextBox x:Name="InlineChapterTitle" MinHeight="30" Padding="8,3" KeyDown="InlineTitleKeyDown" LostFocus="InlineTitleLostFocus"/></Canvas>
+      <Border x:Name="ChapterDeleteLayer" IsVisible="False" Background="#44000000">
+        <Border Classes="wb-popover" Width="360" MaxWidth="500" Padding="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <StackPanel Spacing="14">
+            <TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSDeleteChapter}" FontWeight="SemiBold" FontSize="17"/>
+            <TextBlock x:Name="DeleteChapterName" FontSize="13" TextWrapping="Wrap"/>
+            <TextBlock Text="{i18n:I18n Markdor.MarkdorL.WSDeleteHint}" Classes="wb-muted" TextWrapping="Wrap"/>
+            <CheckBox x:Name="KeepChapterContent" Content="{i18n:I18n Markdor.MarkdorL.WSKeepContent}" FontSize="12"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+              <Button x:Name="CancelDeleteChapter" Content="{i18n:I18n Markdor.MarkdorL.Cancel}" Click="CancelDeleteClick"/>
+              <Button x:Name="ConfirmDeleteChapter" Content="{i18n:I18n Markdor.MarkdorL.WSDeleteChapter}" Classes="danger" Click="ConfirmDeleteClick"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Border>
+      <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12,12,12,46" Classes="wb-popover" Padding="3">
+        <StackPanel Orientation="Horizontal" Spacing="1">
+          <Button Classes="wb-quiet" Content="−" Click="ZoomOutClick" Padding="9,4"/>
+          <Button x:Name="ZoomLabel" Classes="wb-quiet" Content="100%" Click="ResetZoomClick" Padding="6,4"/>
+          <Button Classes="wb-quiet" Content="+" Click="ZoomInClick" Padding="9,4"/>
+          <Button Classes="wb-quiet" Click="FitClick" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBFit}}" Padding="8,4"><Path Classes="wb-icon" Data="{StaticResource WBFitIcon}"/></Button>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

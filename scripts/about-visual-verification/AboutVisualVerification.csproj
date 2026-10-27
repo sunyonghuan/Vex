@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Vex/Vex.csproj" />
+    <ProjectReference Include="../../src/Netor.Markdor/Netor.Markdor.csproj" />
     <PackageReference Include="Avalonia.Headless" />
   </ItemGroup>
 </Project>

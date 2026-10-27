@@ -1,10 +1,10 @@
 # 发布脚本
 
-本目录包含 Vex 的普通桌面发布与 Native AOT 发布入口。查询平台列表不会构建程序，也不会创建发布目录。
+本目录包含 Markdor 的普通桌面发布与 Native AOT 发布入口。查询平台列表不会构建程序，也不会创建发布目录。
 
 ## Native AOT 发布
 
-使用 `publish_aot.bat` 生成 Native AOT 可执行载荷和带版本号的 ZIP。脚本会自动递增版本号（可选），通过 `publish_native.ps1` 执行 AOT 编译，使用链接器按实际引用裁剪，并启用元数据裁剪；该发布入口不会套用 `TrimmerRoots.xml` 中面向保守反射构建的整程序集 `preserve="all"` 根规则。单文件、原生库、符号清理和发布文档排除选项仍按原流程执行。其他未传入 `VexAotTrimForRelease=true` 的构建继续使用原有宽松根规则。
+使用 `publish_aot.bat` 生成 Native AOT 可执行载荷和带版本号的 ZIP。脚本会自动递增版本号（可选），通过 `publish_native.ps1` 执行 AOT 编译，使用链接器按实际引用裁剪，并启用元数据裁剪；该发布入口不会套用 `TrimmerRoots.xml` 中面向保守反射构建的整程序集 `preserve="all"` 根规则。单文件、原生库、符号清理和发布文档排除选项仍按原流程执行。其他未传入 `MarkdorAotTrimForRelease=true` 的构建继续使用原有宽松根规则。
 
 ### 版本号管理
 
@@ -77,7 +77,7 @@ scripts\release\publish_aot.bat all -Version 1.11.0
 scripts\release\publish_aot.bat all -SkipVersionUpdate
 
 # 指定归档版本和发布根目录
-scripts\release\publish_aot.bat all -Version 1.10.4 -PublishRoot E:\VexRelease
+scripts\release\publish_aot.bat all -Version 1.10.4 -PublishRoot E:\MarkdorRelease
 ```
 
 Native AOT 需要匹配的操作系统、架构、.NET 10 SDK、Native AOT 工具链，以及脚本使用的 PowerShell 7。跨操作系统或跨架构 RID 会被拒绝。`all` 只选择当前主机对应的 RID，例如 Windows x64 主机只发布 `win-x64`，不会在本机代编 Linux/macOS AOT。
@@ -92,14 +92,14 @@ Native AOT 需要匹配的操作系统、架构、.NET 10 SDK、Native AOT 工�
 publish/
 ├── artifacts/
 │   └── <RID>/
-│       └── Vex/
-│           ├── Vex.exe 或 Vex
+│       └── Markdor/
+│           ├── Markdor.exe 或 Markdor
 │           └── AOT 运行所需的原生附属文件（如有）
 └── packages/
-    └── Vex-<版本>-<RID>.zip
+    └── Markdor-<版本>-<RID>.zip
 ```
 
-`artifacts/` 保存 Native AOT 发布后的可执行文件和运行所需的原生附属库；`packages/` 保存带版本号的 ZIP。ZIP 内保留 `<RID>/Vex/` 目录结构。`-PublishRoot` 可将这两个用途目录整体改到指定目录。仅实际发布时才创建目录；列表命令不会创建 `artifacts/` 或 `packages/`。
+`artifacts/` 保存 Native AOT 发布后的可执行文件和运行所需的原生附属库；`packages/` 保存带版本号的 ZIP。ZIP 内保留 `<RID>/Markdor/` 目录结构。`-PublishRoot` 可将这两个用途目录整体改到指定目录。仅实际发布时才创建目录；列表命令不会创建 `artifacts/` 或 `packages/`。
 
 ## 现有发布入口
 

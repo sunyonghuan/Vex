@@ -1,0 +1,212 @@
+<UserControl
+    x:Class="Netor.Markdor.Modules.Shell.Views.ShellTitleMenuView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="using:Netor.Markdor.Core.Messaging"
+    xmlns:i18n="https://codewf.com"
+    xmlns:icons="using:Netor.Markdor.Controls"
+    xmlns:l="clr-namespace:Netor.Markdor"
+    xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellTitleMenuViewModel">
+    <Menu x:Name="TitleMenuBar" Classes="title-menu" VerticalAlignment="Center">
+        <!-- 顶级菜单为 文件/编辑/工具/视图/帮助 五项；段落与格式按语义并入「编辑」成为二级子菜单，
+             其条目下移为三级，表格与 Mermaid 分组下移为四级。原型 interact.js 的 MENUS 仍是七个
+             扁平菜单，此处为有意分叉（原型未同步调整）。 -->
+        <MenuItem x:Name="FileMenuItem" icons:MenuIconCatalog.Key="file" Header="{i18n:I18n {x:Static l:MarkdorL.MenuFile}}">
+            <MenuItem icons:MenuIconCatalog.Key="file-plus" Header="{i18n:I18n {x:Static l:MarkdorL.NewDocument}}" Command="{Binding NewDocument}" InputGesture="Ctrl+N" />
+            <MenuItem icons:MenuIconCatalog.Key="external" Header="{i18n:I18n {x:Static l:MarkdorL.NewWindow}}" Command="{Binding NewWindow}" InputGesture="Ctrl+Shift+N" />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="file" Header="{i18n:I18n {x:Static l:MarkdorL.OpenFile}}" Command="{Binding OpenAsync}" InputGesture="Ctrl+O" />
+            <MenuItem icons:MenuIconCatalog.Key="folder-open" x:Name="OpenFolderMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.OpenFolder}}" Command="{Binding OpenFolderAsync}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MenuSamples}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="samples" />
+            <MenuItem icons:MenuIconCatalog.Key="search" Header="{i18n:I18n {x:Static l:MarkdorL.QuickOpen}}" Command="{Binding QuickOpenAsync}" InputGesture="Ctrl+P" />
+            <MenuItem icons:MenuIconCatalog.Key="history" Header="{i18n:I18n {x:Static l:MarkdorL.OpenRecent}}" IsEnabled="{Binding Recent.HasRecentDocuments}">
+                <MenuItem icons:MenuIconCatalog.Key="file" Header="{Binding Recent.RecentDocument1Text}" Command="{Binding OpenRecentDocument1Async}" IsVisible="{Binding Recent.HasRecentDocument1}" ToolTip.Tip="{Binding Recent.RecentDocument1ToolTip}" />
+                <MenuItem icons:MenuIconCatalog.Key="file" Header="{Binding Recent.RecentDocument2Text}" Command="{Binding OpenRecentDocument2Async}" IsVisible="{Binding Recent.HasRecentDocument2}" ToolTip.Tip="{Binding Recent.RecentDocument2ToolTip}" />
+                <MenuItem icons:MenuIconCatalog.Key="file" Header="{Binding Recent.RecentDocument3Text}" Command="{Binding OpenRecentDocument3Async}" IsVisible="{Binding Recent.HasRecentDocument3}" ToolTip.Tip="{Binding Recent.RecentDocument3ToolTip}" />
+                <MenuItem icons:MenuIconCatalog.Key="file" Header="{Binding Recent.RecentDocument4Text}" Command="{Binding OpenRecentDocument4Async}" IsVisible="{Binding Recent.HasRecentDocument4}" ToolTip.Tip="{Binding Recent.RecentDocument4ToolTip}" />
+                <MenuItem icons:MenuIconCatalog.Key="file" Header="{Binding Recent.RecentDocument5Text}" Command="{Binding OpenRecentDocument5Async}" IsVisible="{Binding Recent.HasRecentDocument5}" ToolTip.Tip="{Binding Recent.RecentDocument5ToolTip}" />
+                <Separator />
+                <MenuItem icons:MenuIconCatalog.Key="trash" Header="{i18n:I18n {x:Static l:MarkdorL.ClearRecent}}" Command="{Binding Recent.ClearRecentDocuments}" />
+            </MenuItem>
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="save" Header="{i18n:I18n {x:Static l:MarkdorL.Save}}" Command="{Binding SaveAsync}" InputGesture="Ctrl+S" />
+            <MenuItem icons:MenuIconCatalog.Key="save" Header="{i18n:I18n {x:Static l:MarkdorL.SaveAs}}" Command="{Binding SaveAsAsync}" InputGesture="Ctrl+Shift+S" />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="download" x:Name="ExportMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.Export}}">
+                <MenuItem Header="{i18n:I18n Markdor.MarkdorL.DialogExportHtmlTitle}" Command="{Binding Export}" CommandParameter="HTML" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.ExportPdf}}" Command="{Binding Export}" CommandParameter="PDF" />
+                <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuExportPng}" Command="{Binding Export}" CommandParameter="PNG" />
+                <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuExportWord}" Command="{Binding Export}" CommandParameter="Word" />
+            </MenuItem>
+            <MenuItem icons:MenuIconCatalog.Key="upload" Header="{i18n:I18n {x:Static l:MarkdorL.MenuImport}}">
+                <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuImportHtml}" Command="{Binding ImportFrom}" CommandParameter="HTML" />
+                <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuImportPdf}" Command="{Binding ImportFrom}" CommandParameter="PDF" />
+                <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuImportWord}" Command="{Binding ImportFrom}" CommandParameter="Word" />
+            </MenuItem>
+            <MenuItem icons:MenuIconCatalog.Key="printer" Header="{i18n:I18n {x:Static l:MarkdorL.Print}}" Command="{Binding Print}" InputGesture="Ctrl+Shift+P" />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="info" Header="{i18n:I18n Markdor.MarkdorL.MenuProperties}" Command="{Binding ShowProperties}" InputGesture="Alt+Enter" />
+            <MenuItem icons:MenuIconCatalog.Key="map-pin" Header="{i18n:I18n {x:Static l:MarkdorL.OpenFileLocation}}" Command="{Binding OpenFileLocationAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
+            <MenuItem icons:MenuIconCatalog.Key="binary" Header="{i18n:I18n {x:Static l:MarkdorL.ReopenWithEncoding}}">
+                <MenuItem Header="UTF-8" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="utf-8" />
+                <MenuItem Header="UTF-8 BOM" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="utf-8-bom" />
+                <MenuItem Header="GB18030" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="GB18030" />
+                <MenuItem Header="Big5" Command="{Binding ReopenWithEncodingAsync}" CommandParameter="Big5" />
+            </MenuItem>
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="trash" Classes="danger" Header="{i18n:I18n Markdor.MarkdorL.MenuDeleteDocument}" Command="{Binding DeleteAsync}" IsEnabled="{Binding DocumentInfo.HasCurrentFile}" />
+            <MenuItem icons:MenuIconCatalog.Key="close" Header="{i18n:I18n Markdor.MarkdorL.MenuCloseDocument}" Command="{Binding CloseDocument}" InputGesture="Ctrl+W" />
+        </MenuItem>
+
+        <MenuItem icons:MenuIconCatalog.Key="pencil" x:Name="EditMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.MenuEdit}}">
+            <MenuItem x:Name="InsertMenuItem" icons:MenuIconCatalog.Key="pilcrow" Header="{i18n:I18n {x:Static l:MarkdorL.MenuParagraph}}">
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Paragraph}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Paragraph}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Heading1}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading1}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Heading2}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading2}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Heading3}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading3}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Heading4}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading4}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Heading5}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading5}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Heading6}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Heading6}" />
+                <Separator />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.UnorderedList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.UnorderedList}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.OrderedList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.OrderedList}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.TaskList}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.TaskList}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Quote}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Quote}" />
+                <Separator />
+                <!-- 表格：插入 + 结构操作子菜单，与原型 element-menu 的 tableItems 同一语义 -->
+                <MenuItem icons:MenuIconCatalog.Key="table" x:Name="TableMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.Table}}">
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.InsertTable}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Table}" />
+                    <Separator />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableRowAbove}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.RowAbove}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableRowBelow}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.RowBelow}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnBefore}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.ColBefore}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnAfter}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.ColAfter}" />
+                    <Separator />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableRowUp}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.RowUp}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableRowDown}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.RowDown}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnLeft}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.ColLeft}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnRight}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.ColRight}" />
+                    <Separator />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnAlignLeft}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.AlignLeft}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnAlignCenter}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.AlignCenter}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnAlignRight}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.AlignRight}" />
+                    <Separator />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableRowDelete}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.RowDelete}" />
+                    <MenuItem Header="{i18n:I18n Markdor.MarkdorL.TableColumnDelete}" Command="{Binding ElementTable}" CommandParameter="{x:Static core:MarkdownTableAction.ColDelete}" />
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="copy" Header="{i18n:I18n Markdor.MarkdorL.TableCopy}" Command="{Binding ElementCopyBlock}" />
+                    <MenuItem icons:MenuIconCatalog.Key="table" Header="{i18n:I18n Markdor.MarkdorL.TableFormat}" Command="{Binding ElementFormatTable}" />
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="trash" Header="{i18n:I18n Markdor.MarkdorL.TableDelete}" Command="{Binding ElementDeleteBlock}" />
+                </MenuItem>
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.CodeBlock}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.CodeFence}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MathBlock}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.MathBlock}" />
+                <Separator />
+                <MenuItem x:Name="MermaidMenuItem" icons:MenuIconCatalog.Key="workflow" Header="{i18n:I18n Markdor.MarkdorL.MenuMermaid}">
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidFlowchart}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="flowchart" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidSequence}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="sequence" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidState}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="state" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidJourney}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="journey" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidGantt}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="gantt" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidTimeline}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="timeline" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidGit}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="git" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidKanban}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="kanban" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidClass}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="class" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidEr}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="er" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidRequirement}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="requirement" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidMindmap}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="mindmap" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidBlock}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="block" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidC4}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="c4" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidArchitecture}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="architecture" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidPacket}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="packet" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidPie}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="pie" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidQuadrant}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="quadrant" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidXy}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="xy" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidSankey}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="sankey" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidRadar}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="radar" />
+                    <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MermaidTreemap}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="treemap" />
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.HorizontalRule}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.HorizontalRule}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Footnote}}" Command="{Binding EditorActions.InsertSnippet}" CommandParameter="footnote" />
+            </MenuItem>
+            <MenuItem icons:MenuIconCatalog.Key="bold" x:Name="FormatMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.MenuFormat}}">
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Bold}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Bold}" InputGesture="Ctrl+B" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Italic}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Italic}" InputGesture="Ctrl+I" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Strikethrough}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Strikethrough}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Highlight}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Highlight}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Superscript}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Superscript}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Subscript}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Subscript}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.InlineCode}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.InlineCode}" />
+                <Separator />
+                <MenuItem x:Name="LinkMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.Link}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Link}" />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Image}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.Image}" />
+                <Separator />
+                <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.ClearFormatting}}" Command="{Binding EditorActions.InsertAction}" CommandParameter="{x:Static core:EditorActionKind.ClearFormatting}" />
+            </MenuItem>
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="undo" Header="{i18n:I18n {x:Static l:MarkdorL.Undo}}" Command="{Binding EditorActions.Undo}" InputGesture="Ctrl+Z" />
+            <MenuItem icons:MenuIconCatalog.Key="redo" Header="{i18n:I18n {x:Static l:MarkdorL.Redo}}" Command="{Binding EditorActions.Redo}" InputGesture="Ctrl+Y" />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="cut" Header="{i18n:I18n {x:Static l:MarkdorL.Cut}}" Command="{Binding EditorActions.Cut}" InputGesture="Ctrl+X" />
+            <MenuItem icons:MenuIconCatalog.Key="copy" Header="{i18n:I18n {x:Static l:MarkdorL.Copy}}" Command="{Binding EditorActions.Copy}" InputGesture="Ctrl+C" />
+            <MenuItem icons:MenuIconCatalog.Key="clipboard" Header="{i18n:I18n {x:Static l:MarkdorL.Paste}}" Command="{Binding EditorActions.Paste}" InputGesture="Ctrl+V" />
+            <MenuItem icons:MenuIconCatalog.Key="square-dashed" Header="{i18n:I18n {x:Static l:MarkdorL.SelectAll}}" Command="{Binding EditorActions.SelectAll}" InputGesture="Ctrl+A" />
+            <MenuItem icons:MenuIconCatalog.Key="copy" Header="{i18n:I18n {x:Static l:MarkdorL.CopyPlainText}}" Command="{Binding EditorActions.CopyPlainText}" InputGesture="Ctrl+Shift+C" />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="search" Header="{i18n:I18n {x:Static l:MarkdorL.Find}}" Command="{Binding ShowFindPanel}" InputGesture="Ctrl+F" />
+            <MenuItem icons:MenuIconCatalog.Key="replace" Header="{i18n:I18n {x:Static l:MarkdorL.Replace}}" Command="{Binding ShowReplacePanel}" InputGesture="Ctrl+H" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MenuAutoPair}}" Command="{Binding EditorDisplay.ToggleAutoPair}" IsChecked="{Binding EditorDisplay.EnableAutoPair}" ToggleType="CheckBox" />
+        </MenuItem>
+
+        <MenuItem icons:MenuIconCatalog.Key="wrench" x:Name="ToolsMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.WBTools}}">
+            <MenuItem x:Name="PreferencesMenuItem" icons:MenuIconCatalog.Key="settings" Header="{i18n:I18n {x:Static l:MarkdorL.Preferences}}" Command="{Binding ShowPreferences}" InputGesture="Ctrl+," />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="scan-text" Header="{i18n:I18n {x:Static l:MarkdorL.WordCount}}" Command="{Binding WordCount}" />
+            <MenuItem icons:MenuIconCatalog.Key="refresh" Header="{i18n:I18n {x:Static l:MarkdorL.RefreshPreview}}" Command="{Binding RefreshPreview}" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.CopyToWechat}}" Command="{Binding CopyHtml}" CommandParameter="wechat" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.CopyToZhihu}}" Command="{Binding CopyHtml}" CommandParameter="zhihu" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.CopyToJuejin}}" Command="{Binding CopyHtml}" CommandParameter="juejin" />
+            <Separator />
+            <MenuItem icons:MenuIconCatalog.Key="plug" Header="{i18n:I18n {x:Static l:MarkdorL.McpSettings}}" Command="{Binding ShowMcpSettings}" />
+            <MenuItem icons:MenuIconCatalog.Key="scroll-text" Header="{i18n:I18n {x:Static l:MarkdorL.McpAudit}}" Command="{Binding ShowMcpAudit}" />
+        </MenuItem>
+
+        <MenuItem icons:MenuIconCatalog.Key="eye" x:Name="ViewMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.MenuView}}">
+            <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuEditView}" Command="{Binding Workbench.ShowEdit}" IsChecked="{Binding Workbench.IsEditing, Mode=OneWay}" ToggleType="Radio"/>
+            <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuReadView}" Command="{Binding Workbench.ShowRead}" IsChecked="{Binding Workbench.IsReading, Mode=OneWay}" ToggleType="Radio"/>
+            <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuMindMap}" Command="{Binding Workbench.ShowMindMap}" IsChecked="{Binding Workbench.IsMindMap, Mode=OneWay}" ToggleType="Radio"/>
+            <Separator/>
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.WBInstant}}" Command="{Binding Workbench.ShowInstant}" IsChecked="{Binding Workbench.IsInstantEditing, Mode=OneWay}" ToggleType="Radio" />
+            <MenuItem x:Name="SourceModeMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.WBSource}}" Command="{Binding Workbench.ShowSource}" IsChecked="{Binding Workbench.IsSourceEditing, Mode=OneWay}" ToggleType="Radio" />
+            <MenuItem x:Name="SidebarMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.ToggleSidebar}}" Command="{Binding Layout.ToggleSidebar}" IsChecked="{Binding Layout.IsSidebarVisible, Mode=OneWay}" ToggleType="CheckBox" />
+            <MenuItem icons:MenuIconCatalog.Key="panel" Header="{i18n:I18n {x:Static l:MarkdorL.DocumentList}}" Command="{Binding Layout.ShowFiles}" />
+            <MenuItem x:Name="OutlineMenuItem" icons:MenuIconCatalog.Key="list-tree" Header="{i18n:I18n {x:Static l:MarkdorL.Outline}}" Command="{Binding Layout.ShowOutline}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.ShowLineNumbers}}" Command="{Binding EditorDisplay.ToggleLineNumbers}" IsChecked="{Binding EditorDisplay.ShowLineNumbers}" ToggleType="CheckBox" />
+            <MenuItem Header="{i18n:I18n Markdor.MarkdorL.PrefWordCount}" Command="{Binding ToggleWordCount}" IsChecked="{Binding Preferences.WordCountVisible, Mode=OneWay}" ToggleType="CheckBox" />
+            <MenuItem Header="{i18n:I18n Markdor.MarkdorL.MenuWatermark}" Command="{Binding ToggleWatermark}" IsChecked="{Binding Preferences.WatermarkPreview, Mode=OneWay}" ToggleType="CheckBox" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MenuMotion}}" Command="{Binding Layout.ToggleMotion}" IsChecked="{Binding Layout.EnableMotion, Mode=OneWay}" ToggleType="CheckBox" />
+            <Separator />
+            <MenuItem x:Name="PresentationMenuItem" icons:MenuIconCatalog.Key="presentation" Header="{i18n:I18n {x:Static l:MarkdorL.WBPresentation}}" Command="{Binding Workbench.StartPresentation}" InputGesture="F5"/>
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MenuFocusMode}}" Command="{Binding Layout.ToggleFocusMode}" InputGesture="F8" IsChecked="{Binding Layout.IsFocusMode}" ToggleType="CheckBox" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.MenuTypewriterMode}}" Command="{Binding Layout.ToggleTypewriterMode}" IsChecked="{Binding Layout.IsTypewriterMode}" ToggleType="CheckBox" />
+            <Separator />
+            <MenuItem x:Name="FullScreenMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.ToggleFullScreen}}" Command="{Binding Layout.ToggleFullScreen}" InputGesture="F11" ToggleType="CheckBox" IsChecked="{Binding Layout.IsFullScreen, Mode=OneWay}" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.AlwaysOnTop}}" Command="{Binding Layout.ToggleAlwaysOnTop}" IsChecked="{Binding Layout.IsAlwaysOnTop}" ToggleType="CheckBox" />
+        </MenuItem>
+
+        <MenuItem icons:MenuIconCatalog.Key="help" x:Name="HelpMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.MenuHelp}}">
+            <MenuItem icons:MenuIconCatalog.Key="book-open" x:Name="BeginGuideMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.OnboardingGuide}}" Click="BeginGuideMenuItem_OnClick" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Changelog}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="changelog" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Thanks}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="thanks" />
+            <Separator />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Website}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="website" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.Feedback}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="feedback" />
+            <MenuItem x:Name="CheckUpdatesMenuItem" Header="{i18n:I18n {x:Static l:MarkdorL.AboutCheckUpdate}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="update" />
+            <MenuItem Header="{i18n:I18n {x:Static l:MarkdorL.About}}" Command="{Binding Help.OpenHelpTopic}" CommandParameter="about" />
+        </MenuItem>
+    </Menu>
+</UserControl>

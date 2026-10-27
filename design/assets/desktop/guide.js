@@ -8,18 +8,18 @@
   var focusTargets = [], focusKind = 'control', focusPreferred = 'bottom';
   var resultTargets = [], resultKind = 'control', resultPreferred = 'bottom';
   var layer = document.createElement('div');
-  layer.id = 'vex-guide'; layer.className = 'tour-layer story-tour'; layer.hidden = true;
+  layer.id = 'markdor-guide'; layer.className = 'tour-layer story-tour'; layer.hidden = true;
   layer.innerHTML = '<svg class="tour-mask" aria-hidden="true"><defs><mask id="tour-cutouts" maskUnits="userSpaceOnUse"><rect width="100%" height="100%" fill="white"></rect><g class="tour-cutouts" fill="black"></g></mask></defs><rect class="tour-scrim" width="100%" height="100%" mask="url(#tour-cutouts)"></rect></svg><div class="tour-rings"></div><div class="tour-cursor" aria-hidden="true">↗</div><div class="tour-light-tip" role="status" aria-live="polite" aria-hidden="true" hidden></div><section class="tour-card story-card" role="dialog" aria-modal="false" aria-labelledby="tour-title" aria-describedby="tour-description"></section>';
   document.body.appendChild(layer);
   var card = $('.story-card'), cutouts = $('.tour-cutouts'), rings = $('.tour-rings'), cursor = $('.tour-cursor'), lightTip = $('.tour-light-tip');
   var app = function () { return $('.app-window'); };
-  var guideSeenKey = 'vex-design-guide-seen';
+  var guideSeenKey = 'markdor-design-guide-seen';
 
-  // 引导文案统一进 VEX_DATA（Guide* 键，四语言），zh 兜底，保证离线可跑。
+  // 引导文案统一进 MARKDOR_DATA（Guide* 键，四语言），zh 兜底，保证离线可跑。
   function g(key, zh) {
     try {
-      var culture = window.VexL && window.VexL.culture ? window.VexL.culture : 'zh-CN';
-      var value = window.VEX_DATA.languages[culture]['Guide' + key];
+      var culture = window.MarkdorL && window.MarkdorL.culture ? window.MarkdorL.culture : 'zh-CN';
+      var value = window.MARKDOR_DATA.languages[culture]['Guide' + key];
       if (typeof value === 'string' && value) return value;
     } catch (error) { /* 字典缺失时退回中文 */ }
     return zh;
@@ -41,7 +41,7 @@
       summaryKey: 'Act1Summary', summaryFallback: '同一篇游记，两种方式都能继续写。',
       prepare: function () {
         setLayout('instant');
-        withAutomation(function () { VexWorkbench.applyText('', { history: false }); });
+        withAutomation(function () { MarkdorWorkbench.applyText('', { history: false }); });
         focusTargets = ['#instant-pane']; focusKind = 'area'; focusPreferred = 'top';
       },
       run: function (done) {
@@ -108,12 +108,12 @@
         waitForClick(['[data-action="typography"]:not([hidden])'], g('GateTypography', '点「排版」，给文字选一套样式'), function () {
           later(300, function () {
             cycleTypography(['Simple', 'InkBlack', 'GeekBlack', 'WeChatFormat'], function () {
-              VexTypography.close();
+              MarkdorTypography.close();
               /* 外观必须真的展开一次：只高亮折起的摘要，用户看不到里面的控件。 */
-              waitForClick(['#vex-appearance-menu > summary'], g('GateAppearance', '点标题栏的「外观」，展开配色与界面密度'), function () {
+              waitForClick(['#markdor-appearance-menu > summary'], g('GateAppearance', '点标题栏的「外观」，展开配色与界面密度'), function () {
                 later(320, function () {
-                  pauseForContinue(g('Act3Appearance', '这里调整界面密度、配色。'), ['#vex-appearance-menu .appearance-choices'], 'control', function () {
-                    withAutomation(function () { var menu = document.getElementById('vex-appearance-menu'); if (menu) menu.open = false; });
+                  pauseForContinue(g('Act3Appearance', '这里调整界面密度、配色。'), ['#markdor-appearance-menu .appearance-choices'], 'control', function () {
+                    withAutomation(function () { var menu = document.getElementById('markdor-appearance-menu'); if (menu) menu.open = false; });
                     done();
                   });
                 });
@@ -132,7 +132,7 @@
         pauseForContinue(g('Act4Step1', '接下来的图表，完全用文字写成。'), ['#markdown-input'], 'text', function () {
           typeText(stage1WithEnding + '\n## 成都慢游路线\n\n', 8, function () {
             // 不完整的围栏不进演示：图表只在 Markdown 块完整后出现，与桌面端一致。
-            withAutomation(function () { VexWorkbench.applyText(stage2, { history: false }); });
+            withAutomation(function () { MarkdorWorkbench.applyText(stage2, { history: false }); });
             setLayout('source-render');
             $('.source-scroll').scrollTop = $('.source-scroll').scrollHeight;
             $('.reading-scroll').scrollTop = $('.reading-scroll').scrollHeight;
@@ -161,17 +161,17 @@
       run: function (done) {
         ensureText(routeEdited); setLayout('read');
         pauseForContinue(g('Act5Step1', '这篇游记，也可以直接拿来讲。'), ['#markdown-preview'], 'area', function () {
-          withAutomation(function () { VexProto.handleAction('presentation'); });
+          withAutomation(function () { MarkdorProto.handleAction('presentation'); });
           /* 同一目标的连续讲解合并为一次停顿，中间步骤用轻提示自动推进（不再连弹卡片）。 */
-          cue(g('Act5Step2', '沿着章节，一段一段展开。'), ['.vex-deck'], 'area');
+          cue(g('Act5Step2', '沿着章节，一段一段展开。'), ['.markdor-deck'], 'area');
           later(1800, function () {
-            click('.vex-deck [data-deck="next"]');
-            cue(g('Act5Step3', '想先讲全局，也可以从导图开始。'), ['.vex-deck [data-deck="map"]'], 'control');
+            click('.markdor-deck [data-deck="next"]');
+            cue(g('Act5Step3', '想先讲全局，也可以从导图开始。'), ['.markdor-deck [data-deck="map"]'], 'control');
             later(1800, function () {
-              click('.vex-deck [data-deck="map"]');
-              cue(g('Act5Summary', '讲完以后，回到游记继续完善。'), ['.vex-deck'], 'area');
+              click('.markdor-deck [data-deck="map"]');
+              cue(g('Act5Summary', '讲完以后，回到游记继续完善。'), ['.markdor-deck'], 'area');
               later(1700, function () {
-                click('.vex-deck [data-deck="exit"]');
+                click('.markdor-deck [data-deck="exit"]');
                 later(420, done);
               });
             });
@@ -207,22 +207,22 @@
   var totalGuideSteps = acts.length + 1;
 
   function visible(node) { return !!node && !node.closest('[hidden]') && node.getBoundingClientRect().width > 0 && node.getBoundingClientRect().height > 0; }
-  function setLayout(id) { if (window.VexWorkspace) VexWorkspace.setLayout(id); }
+  function setLayout(id) { if (window.MarkdorWorkspace) MarkdorWorkspace.setLayout(id); }
   function chooseLayout(id) { if ($('#workspace-layout-menu').hidden) click('#workspace-layout'); click('#workspace-layout-menu [data-layout="' + id + '"]'); }
-  function closeMenu() { if (window.VexProto) VexProto.closeMenu(); }
+  function closeMenu() { if (window.MarkdorProto) MarkdorProto.closeMenu(); }
   function openMenu(menu) { var key = menu.replace(/\(.*/, ''); click('.tb-menuitem[data-menu^="' + key + '"]'); }
   /* 大纲面板确保展开：不依赖用户点开关（大纲本已展开时点开关反而会收起，导致步骤断连）。 */
   function ensureOutline() {
     var list = $('#outline-body');
     if (list && !visible(list)) withAutomation(function () { var toggle = $('#outline-toggle'); if (toggle) toggle.click(); });
   }
-  function closeLayers() { closeMenu(); if (window.VexTypography) VexTypography.close(); if (window.VexWorkspace) VexWorkspace.closeAppearance(); document.querySelectorAll('.win-layer').forEach(function (node) { node.hidden = true; }); $('#map-settings').hidden = true; $('#map-settings-button').setAttribute('aria-expanded', 'false'); $('#node-inspector').hidden = true; }
+  function closeLayers() { closeMenu(); if (window.MarkdorTypography) MarkdorTypography.close(); if (window.MarkdorWorkspace) MarkdorWorkspace.closeAppearance(); document.querySelectorAll('.win-layer').forEach(function (node) { node.hidden = true; }); $('#map-settings').hidden = true; $('#map-settings-button').setAttribute('aria-expanded', 'false'); $('#node-inspector').hidden = true; }
   function withAutomation(fn) { automating = true; try { fn(); } finally { automating = false; } }
   function click(selector) { withAutomation(function () { var node = $(selector); if (node) node.click(); }); }
   function clickOutline(title) { withAutomation(function () { var node = Array.from(document.querySelectorAll('.outline-item')).find(function (item) { return item.textContent.trim() === title; }); if (node) node.click(); }); }
-  function chapterNode(title) { return window.VexWorkbench && VexWorkbench.state && VexWorkbench.state.nodes ? VexWorkbench.state.nodes.find(function (node) { return node.kind === 'heading' && node.text === title; }) : null; }
+  function chapterNode(title) { return window.MarkdorWorkbench && MarkdorWorkbench.state && MarkdorWorkbench.state.nodes ? MarkdorWorkbench.state.nodes.find(function (node) { return node.kind === 'heading' && node.text === title; }) : null; }
   function chapterSelector(title) { var node = chapterNode(title); return node ? '.map-node[data-line="' + node.line + '"]' : '#map-viewport'; }
-  function ensureText(text) { withAutomation(function () { if (VexWorkbench.text !== text) VexWorkbench.applyText(text, { history: false }); }); }
+  function ensureText(text) { withAutomation(function () { if (MarkdorWorkbench.text !== text) MarkdorWorkbench.applyText(text, { history: false }); }); }
   function commonPrefix(a, b) { var i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; }
   function later(delay, fn) {
     var token = runToken, timer = setTimeout(function () { timers = timers.filter(function (item) { return item !== timer; }); if (open && token === runToken) fn(); }, delay);
@@ -230,12 +230,12 @@
   }
   function cancelTimers() { runToken++; timers.splice(0).forEach(clearTimeout); }
   function typeText(target, speed, done) {
-    var current = VexWorkbench.text, token = runToken, prefix = commonPrefix(current, target), i = prefix;
-    if (current.length > prefix) { withAutomation(function () { VexWorkbench.applyText(current.slice(0, prefix), { history: false }); }); }
+    var current = MarkdorWorkbench.text, token = runToken, prefix = commonPrefix(current, target), i = prefix;
+    if (current.length > prefix) { withAutomation(function () { MarkdorWorkbench.applyText(current.slice(0, prefix), { history: false }); }); }
     function next() {
       if (!open || token !== runToken) return;
       if (i >= target.length) { if (done) done(); return; }
-      i += 1; withAutomation(function () { VexWorkbench.applyText(target.slice(0, i), { history: false }); });
+      i += 1; withAutomation(function () { MarkdorWorkbench.applyText(target.slice(0, i), { history: false }); });
       later(speed, next);
     }
     next();
@@ -248,7 +248,7 @@
     function next() {
       if (!open || token !== runToken) return;
       if (i > middle.length) { if (done) done(); return; }
-      withAutomation(function () { VexWorkbench.applyText(to.slice(0, prefix) + middle.slice(0, i) + to.slice(toSuffix), { history: false }); });
+      withAutomation(function () { MarkdorWorkbench.applyText(to.slice(0, prefix) + middle.slice(0, i) + to.slice(toSuffix), { history: false }); });
       i += 1; later(speed, next);
     }
     next();
@@ -442,33 +442,33 @@
   function skipAct() {
     if (!running) return;
     if (acts[stepIndex].final) { finishAct(true); return; }
-    cancelTimers(); running = false; paused = false; pendingContinue = null; gate = null; withAutomation(function () { VexWorkbench.applyText(baselineFor(stepIndex), { history: false }); }); closeLayers(); if (acts[stepIndex].final) renderResult(true); else startAct(stepIndex + 1);
+    cancelTimers(); running = false; paused = false; pendingContinue = null; gate = null; withAutomation(function () { MarkdorWorkbench.applyText(baselineFor(stepIndex), { history: false }); }); closeLayers(); if (acts[stepIndex].final) renderResult(true); else startAct(stepIndex + 1);
   }
   function startStory() {
     if (!open || session) return;
-    previousFocus = document.activeElement; session = VexProto.beginGuideSession(); running = true; startAct(0);
+    previousFocus = document.activeElement; session = MarkdorProto.beginGuideSession(); running = true; startAct(0);
   }
   function close() {
     if (!open) return;
     cancelTimers(); running = false; paused = false; pendingContinue = null; gate = null; open = false; hideLightTip(); layer.classList.remove('demo-running'); card.classList.remove('demo-hidden'); card.removeAttribute('aria-hidden'); layer.hidden = true; cursor.hidden = true; pointer.hidden = true; if (app()) delete app().dataset.guideStep; closeLayers();
-    var snapshot = session; session = null; if (snapshot) VexProto.endGuideSession(snapshot);
+    var snapshot = session; session = null; if (snapshot) MarkdorProto.endGuideSession(snapshot);
     var target = previousFocus && previousFocus.isConnected && visible(previousFocus) ? previousFocus : $('#workspace-layout');
     if (target) target.focus({ preventScroll: true });
   }
   function start(options) {
     options = options || {};
     if (open) return;
-    if (options.automatic && window.VexStorage && VexStorage.getItem(guideSeenKey) === '1') return;
-    if (window.VexStorage) VexStorage.setItem(guideSeenKey, '1');
+    if (options.automatic && window.MarkdorStorage && MarkdorStorage.getItem(guideSeenKey) === '1') return;
+    if (window.MarkdorStorage) MarkdorStorage.setItem(guideSeenKey, '1');
     open = true; previousFocus = document.activeElement; layer.hidden = false; renderIntro(); schedule();
     /* 引导期间钉住三条悬浮工具条：排版/导图样式等高亮目标不会是空的。 */
-    ['pinEditor', 'pinReading', 'pinMap'].forEach(function (key) { VexPreferences.set(key, true); });
+    ['pinEditor', 'pinReading', 'pinMap'].forEach(function (key) { MarkdorPreferences.set(key, true); });
   }
 
   // Overlay geometry intentionally follows the real controls. The same mask
   // is used for menus, editors, the map and result cards, so the pointer never
   // drifts when the workbench reflows.
-  var pointer = document.createElement('div'); pointer.className = 'vex-tour-pointer'; pointer.setAttribute('aria-hidden', 'true'); layer.appendChild(pointer);
+  var pointer = document.createElement('div'); pointer.className = 'markdor-tour-pointer'; pointer.setAttribute('aria-hidden', 'true'); layer.appendChild(pointer);
   function rects() {
     var bounds = app().getBoundingClientRect(), found = [];
     focusTargets.forEach(function (selector) {
@@ -504,7 +504,7 @@
     if (mode === 'result') {
       hideLightTip();
       if (!found.length) { centerCard(); return; }
-      var result = found[0]; VexTourPlacement.attach(card, pointer, result, bounds, resultPreferred, found.slice(1)); pointer.hidden = true; return;
+      var result = found[0]; MarkdorTourPlacement.attach(card, pointer, result, bounds, resultPreferred, found.slice(1)); pointer.hidden = true; return;
     }
     if (!found.length) { if (!card.classList.contains('demo-hidden')) centerCard(); return; }
     if (card.classList.contains('demo-hidden')) {
@@ -513,7 +513,7 @@
       return;
     }
     hideLightTip();
-    var target = found[0]; VexTourPlacement.attach(card, pointer, target, bounds, focusPreferred, found.slice(1)); pointer.hidden = false;
+    var target = found[0]; MarkdorTourPlacement.attach(card, pointer, target, bounds, focusPreferred, found.slice(1)); pointer.hidden = false;
   }
   function schedule() { if (!open) return; requestAnimationFrame(function () { layout(); if (open) schedule(); }); }
 
@@ -553,7 +553,7 @@
   }, true);
   window.addEventListener('resize', layout);
   new MutationObserver(layout).observe(app(), { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden', 'style', 'class', 'data-active'] });
-  window.VexGuide = { start: start, close: close, allows: function (target) { return !open || automating || card.contains(target); }, get active() { return open; } };
+  window.MarkdorGuide = { start: start, close: close, allows: function (target) { return !open || automating || card.contains(target); }, get active() { return open; } };
   // 写作不被自动弹窗打断；只有评审场景自动打开，平时由常驻入口重看。
   if (new URLSearchParams(location.search).get('scenario') === 'guide') setTimeout(function () { start({ automatic: true }); }, 300);
 })();

@@ -10,7 +10,7 @@
   }
   function math(source, display) {
     var raw = (display ? '$$\n' : '$') + source + (display ? '\n$$' : '$');
-    if (window.VexPreferences && (!VexPreferences.values.math || (!VexPreferences.values.chemistry && /\\ce\{|\\pu\{/.test(source)))) return '<code>' + escape(raw) + '</code>';
+    if (window.MarkdorPreferences && (!MarkdorPreferences.values.math || (!MarkdorPreferences.values.chemistry && /\\ce\{|\\pu\{/.test(source)))) return '<code>' + escape(raw) + '</code>';
     try {
       return '<span class="md-math" contenteditable="false" data-markdown="' + escape(raw) + '">' + katex.renderToString(source, { displayMode: display, throwOnError: true, trust: false, output: 'htmlAndMathml' }) + '</span>';
     } catch (_) {
@@ -20,7 +20,7 @@
   function inline(value) {
     var tokens = [];
     var source = String(value).replace(/\[\^([^\]\n]+)\]/g, function (raw, label) {
-      tokens.push('<a class="md-footnote-ref" id="vex-footnote-ref-' + encodeURIComponent(label) + '" href="#vex-footnote-' + encodeURIComponent(label) + '"><sup>[' + escape(label) + ']</sup></a>');
+      tokens.push('<a class="md-footnote-ref" id="markdor-footnote-ref-' + encodeURIComponent(label) + '" href="#markdor-footnote-' + encodeURIComponent(label) + '"><sup>[' + escape(label) + ']</sup></a>');
       return '\u0001' + (tokens.length - 1) + '\u0002';
     }).replace(/`([^`]+)`|\$([^$\n]+)\$|(!?)\[([^\]]*)\]\(([^\s)]+)\)/g, function (raw, code, formula, image, label, url) {
       var html;
@@ -33,8 +33,8 @@
       tokens.push(html); return '\u0001' + (tokens.length - 1) + '\u0002';
     });
     var html = escape(source).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/~~([^~]+)~~/g, '<del>$1</del>');
-    if (window.VexPreferences?.values.highlight !== false) html = html.replace(/==([^=]+)==/g,'<mark>$1</mark>');
-    if (window.VexPreferences?.values.subscript !== false) html = html.replace(/\^([^\s^]+)\^/g,'<sup>$1</sup>').replace(/(?<!~)~([^\s~]+)~(?!~)/g,'<sub>$1</sub>');
+    if (window.MarkdorPreferences?.values.highlight !== false) html = html.replace(/==([^=]+)==/g,'<mark>$1</mark>');
+    if (window.MarkdorPreferences?.values.subscript !== false) html = html.replace(/\^([^\s^]+)\^/g,'<sup>$1</sup>').replace(/(?<!~)~([^\s~]+)~(?!~)/g,'<sub>$1</sub>');
     return html
       .replace(/\u0001(\d+)\u0002/g, function (_, index) { return tokens[index]; });
   }
@@ -42,14 +42,14 @@
   function diagrams() {
     document.querySelectorAll('.md-diagram:not([data-rendered])').forEach(function (element) {
       element.dataset.rendered = 'queued';
-      VexDiagramRendering.schedule(element, async function () {
+      MarkdorDiagramRendering.schedule(element, async function () {
         if (!element.isConnected) return;
         element.dataset.rendered = 'pending';
         try {
-          var svgText = await VexDiagramRendering.render('vex-diagram-' + (++serial), element.dataset.source);
+          var svgText = await MarkdorDiagramRendering.render('markdor-diagram-' + (++serial), element.dataset.source);
           if (!element.isConnected) return;
           element.innerHTML = svgText; element.dataset.rendered = 'true';
-          VexDiagramRendering.mount(element, element.dataset.source, element.dataset.label);
+          MarkdorDiagramRendering.mount(element, element.dataset.source, element.dataset.label);
         } catch (_) {
           if (element.isConnected) { element.dataset.rendered = 'error'; element.innerHTML = '<p class="md-render-error">图表语法有误，请切换源码检查。</p><pre><code>' + escape(element.dataset.source) + '</code></pre>'; }
         }
@@ -60,8 +60,8 @@
   function renderSpecial(block) {
     var attr = ' data-line="' + block.line + '"';
     if (block.kind === 'math') return '<div class="md-math-block"' + attr + '>' + math(block.text, true) + '</div>';
-    if (window.VexPreferences?.values.mermaid === false) return '<pre' + attr + '><code>' + escape(block.raw || block.text) + '</code></pre>';
-    return '<div class="md-diagram"' + attr + ' data-source="' + escape(block.text) + '" data-label="' + escape(VexMermaid.label(block.text)) + '"><pre><code>' + escape(block.text) + '</code></pre></div>';
+    if (window.MarkdorPreferences?.values.mermaid === false) return '<pre' + attr + '><code>' + escape(block.raw || block.text) + '</code></pre>';
+    return '<div class="md-diagram"' + attr + ' data-source="' + escape(block.text) + '" data-label="' + escape(MarkdorMermaid.label(block.text)) + '"><pre><code>' + escape(block.text) + '</code></pre></div>';
   }
-  window.VexRendering = { inline: inline, special: special, renderSpecial: renderSpecial, diagrams: diagrams };
+  window.MarkdorRendering = { inline: inline, special: special, renderSpecial: renderSpecial, diagrams: diagrams };
 })();

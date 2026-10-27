@@ -1,0 +1,16 @@
+namespace Netor.Markdor.Core.Services;
+
+public interface IHelpService
+{
+    Task OpenWebsiteAsync();
+
+    Task OpenFeedbackAsync();
+
+    Task OpenDocumentAsync(string fileName);
+
+    Task OpenSamplesAsync();
+
+    Task ShowAboutWindowAsync();
+
+    Task ShowUpdatesAsync();
+}

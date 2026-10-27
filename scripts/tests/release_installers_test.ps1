@@ -8,7 +8,7 @@ function Assert-Rejected([scriptblock] $Action) {
     try { & $Action } catch { $rejected = $true }
     if (-not $rejected) { throw '错误的发布产物未被拒绝。' }
 }
-function New-ControlledPackages([string] $Directory, [string] $Product = 'Vex', [string] $Version = '1.2.3') {
+function New-ControlledPackages([string] $Directory, [string] $Product = 'Markdor', [string] $Version = '1.2.3') {
     New-Item -ItemType Directory -Path $Directory -Force | Out-Null
     foreach ($name in @(
         "$Product-v$Version-win-x64-setup.exe",
@@ -36,7 +36,7 @@ try {
     New-ControlledPackages $wrongProduct -Product 'AnotherApp'
     Assert-Rejected { & $verify -Version '1.2.3' -PackageDirectory $wrongProduct }
 
-    $extra = Join-Path $valid 'Vex-portable.zip'
+    $extra = Join-Path $valid 'Markdor-portable.zip'
     Set-Content -LiteralPath $extra -Value '禁止的便携压缩包'
     Assert-Rejected { & $verify -Version '1.2.3' -PackageDirectory $valid }
     Remove-Item -LiteralPath $extra -Force
@@ -47,7 +47,7 @@ try {
     Assert-Rejected { & $verify -Version '1.2.3' -PackageDirectory $valid }
 
     New-ControlledPackages $valid
-    $installer = Join-Path $valid 'Vex-v1.2.3-win-x64-setup.exe'
+    $installer = Join-Path $valid 'Markdor-v1.2.3-win-x64-setup.exe'
     Remove-Item -LiteralPath $installer -Force
     Assert-Rejected { & $verify -Version '1.2.3' -PackageDirectory $valid }
     [IO.File]::WriteAllBytes($installer, [byte[]]::new(0))

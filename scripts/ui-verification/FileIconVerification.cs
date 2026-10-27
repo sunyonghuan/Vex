@@ -5,15 +5,15 @@ using Avalonia.Headless;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Vex.Core.Messaging;
-using Vex.Core.Models;
-using Vex.Modules.Shell.Services;
-using Vex.Modules.Shell.ViewModels;
-using Vex.Modules.Shell.Views;
+using Netor.Markdor.Core.Messaging;
+using Netor.Markdor.Core.Models;
+using Netor.Markdor.Modules.Shell.Services;
+using Netor.Markdor.Modules.Shell.ViewModels;
+using Netor.Markdor.Modules.Shell.Views;
 
 internal static class FileIconVerification
 {
-    public static void Run(VerificationVexApp app, Window window, string output)
+    public static void Run(VerificationMarkdorApp app, Window window, string output)
     {
         static void Check(bool value, string message)
         {
@@ -44,7 +44,7 @@ internal static class FileIconVerification
         {
             Check(Path.GetFileName(catalog.ResolveIconFilePath(name, false)) == expected, "Filename/extension mapping: " + name);
         }
-        Check(catalog.Resolve("note.unknown-vex-extension", false) is null, "Unknown extension uses vector fallback");
+        Check(catalog.Resolve("note.unknown-markdor-extension", false) is null, "Unknown extension uses vector fallback");
         Check(!ReferenceEquals(catalog.Resolve("a.md", false), catalog.Resolve("a.txt", false)), "Markdown and text use distinct images");
         Check(ReferenceEquals(catalog.Resolve("a.md", false), catalog.Resolve("b.md", false)), "Files share the decoded bitmap cache");
         Check(Path.GetFileName(catalog.ResolveIconFilePath("docs", true)) == "folder-docs.png"
@@ -59,7 +59,7 @@ internal static class FileIconVerification
         var productionFiles = filesView.DataContext;
         using var files = new ShellFilesViewModel();
         filesView.DataContext = files;
-        var samples = new[] { "note.md", "README.md", "plain.txt", "snippet.axaml.cs", "settings.toml", "unknown.vex-unmapped" }
+        var samples = new[] { "note.md", "README.md", "plain.txt", "snippet.axaml.cs", "settings.toml", "unknown.markdor-unmapped" }
             .Select(name => new DocumentFile(Path.Combine(output, "docs", name), name, "docs", "", "Icon verification")).ToArray();
         files.ApplyDocumentFilesChanged(new DocumentFilesChangedCommand(samples, samples[0], output));
         files.DocumentFileNodes[0].IsExpanded = true;
@@ -70,8 +70,8 @@ internal static class FileIconVerification
             .First(item => item.DataContext is DocumentFileNode node && node.Name == name)
             .GetVisualDescendants().OfType<Image>().First(image => image.Name == "FileTypeIcon");
         Check(Icon("note.md").Source is Bitmap && Icon("plain.txt").Source is Bitmap, "Tree template binds decoded document images");
-        Check(Icon("unknown.vex-unmapped").Source is null && tree.GetVisualDescendants().OfType<TreeViewItem>()
-            .First(item => item.DataContext is DocumentFileNode { Name: "unknown.vex-unmapped" })
+        Check(Icon("unknown.markdor-unmapped").Source is null && tree.GetVisualDescendants().OfType<TreeViewItem>()
+            .First(item => item.DataContext is DocumentFileNode { Name: "unknown.markdor-unmapped" })
             .GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>().Any(path => path.Classes.Contains("tree-ico") && path.IsEffectivelyVisible),
             "Unknown tree item displays its original vector icon");
         var folder = files.DocumentFileNodes[0].Children.Single(node => node.IsFolder);

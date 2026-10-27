@@ -1,6 +1,6 @@
-# Vex 仓库学习文档
+# Markdor 仓库学习文档
 
-本文是仓库文档的统一入口，基于 **Vex 1.7.3 / .NET 10 / Avalonia 12.1.4**，整理日期为 2026-10-27。需求描述产品应有的行为，设计说明当前源码如何实现，验收记录说明已经验证到哪里；三者不能互相替代。
+本文是仓库文档的统一入口，基于 **Markdor 1.7.3 / .NET 10 / Avalonia 12.1.4**，整理日期为 2026-10-27。需求描述产品应有的行为，设计说明当前源码如何实现，验收记录说明已经验证到哪里；三者不能互相替代。
 
 ## 文档目录结构
 
@@ -37,10 +37,10 @@ docs/
 
 ## 从源码开始
 
-1. 先读 [Program.cs](../src/Vex/Program.cs) 与 [App.axaml.cs](../src/Vex/App.axaml.cs)，了解启动、容器和模块组合。
-2. 沿 [MainWindowViewModel.cs](../src/Vex/Modules/Shell/ViewModels/MainWindowViewModel.cs) 跟踪打开、编辑、保存一次文档。
-3. 对照 [WorkspaceDocumentState.cs](../src/Vex/Modules/Workspace/Services/WorkspaceDocumentState.cs) 和 [WorkspaceEditHistory.cs](../src/Vex/Modules/Workspace/Services/WorkspaceEditHistory.cs)，理解共享原文和撤销历史。
-4. 从 [AppSettings.cs](../src/Vex/Core/Models/AppSettings.cs)、[AppSettingsStore.cs](../src/Vex/Core/Services/AppSettingsStore.cs) 学习偏好、文件折叠和大纲折叠的持久化。
+1. 先读 [Program.cs](../src/Netor.Markdor/Program.cs) 与 [App.axaml.cs](../src/Netor.Markdor/App.axaml.cs)，了解启动、容器和模块组合。
+2. 沿 [MainWindowViewModel.cs](../src/Netor.Markdor/Modules/Shell/ViewModels/MainWindowViewModel.cs) 跟踪打开、编辑、保存一次文档。
+3. 对照 [WorkspaceDocumentState.cs](../src/Netor.Markdor/Modules/Workspace/Services/WorkspaceDocumentState.cs) 和 [WorkspaceEditHistory.cs](../src/Netor.Markdor/Modules/Workspace/Services/WorkspaceEditHistory.cs)，理解共享原文和撤销历史。
+4. 从 [AppSettings.cs](../src/Netor.Markdor/Core/Models/AppSettings.cs)、[AppSettingsStore.cs](../src/Netor.Markdor/Core/Services/AppSettingsStore.cs) 学习偏好、文件折叠和大纲折叠的持久化。
 5. 按改动范围选择验证器，再阅读发布脚本；不要先把所有测试、安装和发布流程一起运行。
 
 ## 核心文档索引
@@ -90,13 +90,13 @@ docs/
 
 | 目录 / 文件 | 内容 |
 | --- | --- |
-| [src/Vex](../src/Vex) | 桌面主程序、视图模型、文件服务、国际化、MCP |
-| [src/Vex.Controls](../src/Vex.Controls) | 应用控件、主题资源和统一样式入口 |
+| [src/Netor.Markdor](../src/Netor.Markdor) | 桌面主程序、视图模型、文件服务、国际化、MCP |
+| [src/Netor.Markdor.Controls](../src/Netor.Markdor.Controls) | 应用控件、主题资源和统一样式入口 |
 | [design](../design/index.html) | 可离线预览的桌面、Windows / Linux / macOS 安装原型 |
 | [演示文档](演示文档) | 随程序发布的六份可编辑样例与本地插图，也是原型的样例来源 |
 | [scripts](../scripts) | 验证器、共享库打包联调、发布与安装器源码 |
 | [.github/workflows](../.github/workflows) | 检查、NuGet 发布和五 RID 原生安装包发布 |
-| [Vex.slnx](../Vex.slnx) | 两个生产项目的解决方案入口 |
+| [Netor.Markdor.slnx](../Netor.Markdor.slnx) | 两个生产项目的解决方案入口 |
 | [Directory.Build.props](../Directory.Build.props) / [Directory.Packages.props](../Directory.Packages.props) | 产品版本与构建属性 / 中央 NuGet 版本 |
 
 ## 文档维护规则

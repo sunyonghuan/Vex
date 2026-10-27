@@ -1,4 +1,4 @@
-/* Vex 工作台原型：功能与主题令牌分离，不依赖 Avalonia 的当前布局。 */
+/* Markdor 工作台原型：功能与主题令牌分离，不依赖 Avalonia 的当前布局。 */
 html, body { height: 100%; }
 /* The surrounding preview canvas stays neutral when the app theme changes. */
 body { padding: 24px; display: grid; place-items: center; overflow: hidden; background: #EAECEA; }
@@ -93,9 +93,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .pane-head { height: 44px; padding: 0 20px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 11px; flex: none; }
 .pane-head .ph-right { margin-left: auto; font-size: 10px; display: flex; align-items: center; gap: 5px; }
 .source-scroll { position: relative; flex: 1; overflow: auto; }
-.source-scroll textarea { width: 100%; min-height: 100%; border: none; outline: none; resize: none; padding: 22px 24px 60px 54px; color: var(--editor-fg); background: transparent; font: var(--vex-writing-size,var(--writing-size,16px))/1.75 "Cascadia Code", Consolas, "Microsoft YaHei UI", monospace; tab-size: 2; white-space: pre; overflow: hidden; }
+.source-scroll textarea { width: 100%; min-height: 100%; border: none; outline: none; resize: none; padding: 22px 24px 60px 54px; color: var(--editor-fg); background: transparent; font: var(--markdor-writing-size,var(--writing-size,16px))/1.75 "Cascadia Code", Consolas, "Microsoft YaHei UI", monospace; tab-size: 2; white-space: pre; overflow: hidden; }
 /* 行号行高与正文同源计算（字号档 × 1.75），任意渲染密度下都与内容逐行对齐。 */
-.line-numbers { position: absolute; top: 22px; left: 0; width: 40px; text-align: right; font-family: Consolas, monospace; font-size: 12px; line-height: calc(var(--vex-writing-size,var(--writing-size,15px)) * 1.75); color: var(--md-marker); user-select: none; pointer-events: none; }
+.line-numbers { position: absolute; top: 22px; left: 0; width: 40px; text-align: right; font-family: Consolas, monospace; font-size: 12px; line-height: calc(var(--markdor-writing-size,var(--writing-size,15px)) * 1.75); color: var(--md-marker); user-select: none; pointer-events: none; }
 .source-scroll.no-lines textarea { padding-left: 24px; }
 .source-scroll.no-lines .line-numbers { display: none; }
 .reading-pane { min-width: 0; display: flex; flex-direction: column; flex: 1; background: var(--bg); }
@@ -162,8 +162,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .settings-reset { margin-top: 8px; min-height: 36px; font-size: 13px; font-weight: 600; padding: 6px 8px; border: none; border-radius:4px; background: none; color: var(--fg); cursor:pointer; }
 .settings-reset:hover,.settings-reset:focus-visible { color:var(--accent); background:var(--accent-soft); }
 .about-version { align-items:center; }
-.about-version #vex-update { min-height:30px; font-size:12px; }
-.about-version #vex-update-status { flex-basis:100%; font-size:12px; color:var(--muted); }
+.about-version #markdor-update { min-height:30px; font-size:12px; }
+.about-version #markdor-update-status { flex-basis:100%; font-size:12px; color:var(--muted); }
 .node-inspector { position: absolute; z-index: 4; right: 18px; top: 60px; width: 284px; max-height: calc(100% - 135px); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-pop); overflow: auto; animation: inspector-in .22s ease; }
 .inspector-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 10.5px; color: var(--muted); }
 .inspector-head .icon-button { margin-left: auto; width: 24px; height: 24px; }
@@ -188,8 +188,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .win-layer { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: var(--scrim); backdrop-filter: blur(3px); animation: pop-in .18s ease; }
 .win-layer .mini-window { max-height: 92%; overflow: auto; }
 .win-layer > * { animation: inspector-in .2s ease; }
-#vex-theme-fab { width: 18px !important; height: 18px !important; right: 3px !important; bottom: 3px !important; opacity: .8; }
-#vex-theme-panel { right: 16px; bottom: 46px; }
+#markdor-theme-fab { width: 18px !important; height: 18px !important; right: 3px !important; bottom: 3px !important; opacity: .8; }
+#markdor-theme-panel { right: 16px; bottom: 46px; }
 .app-window.expanded { position:fixed; inset:0; width:100vw; height:100vh; border-radius:0; }
 #prototype-window-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
 #restore-window { padding:8px 18px; background:var(--panel); color:var(--text); border:1px solid var(--border); border-radius:6px; }

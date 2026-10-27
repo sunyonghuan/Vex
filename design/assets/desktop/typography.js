@@ -1,15 +1,15 @@
 /* Shared document typography; compact spacing is independent. */
 (function () {
   'use strict';
-  var items = VexTypes;
+  var items = MarkdorTypes;
   var state = { key: 'Simple', compact: false };
   /* 用户自定义排版（规则 §8/§13）：支持多个，存储为数组；卡上编辑/删除，"+"块新增，均走对话框。 */
-  var customStore = 'vex-custom-typographics';
+  var customStore = 'markdor-custom-typographics';
   var customs = [];
   function readCustoms() {
-    try { var raw = JSON.parse(VexStorage.getItem(customStore) || '[]'); if (Array.isArray(raw)) customs = raw.filter(function (c) { return c && c.id && c.light && c.dark; }); } catch (_) {}
+    try { var raw = JSON.parse(MarkdorStorage.getItem(customStore) || '[]'); if (Array.isArray(raw)) customs = raw.filter(function (c) { return c && c.id && c.light && c.dark; }); } catch (_) {}
   }
-  function saveCustoms() { try { VexStorage.setItem(customStore, JSON.stringify(customs)); } catch (_) {} }
+  function saveCustoms() { try { MarkdorStorage.setItem(customStore, JSON.stringify(customs)); } catch (_) {} }
   function themeOf(c) {
     var deco = 'light-dark(' + c.deco + ',' + c.decoDark + ')';
     return {
@@ -44,7 +44,7 @@
 
   var state = state; /* 占位保持下方 saved 恢复逻辑可读 */
   try {
-    var saved = JSON.parse(VexStorage.getItem('vex-design-typography') || '{}');
+    var saved = JSON.parse(MarkdorStorage.getItem('markdor-design-typography') || '{}');
     if (typeof saved.compact === 'boolean') state.compact = saved.compact;
     if (typeof saved.key === 'string') state.key = saved.key; /* 合法性在 sync 后校验 */
   } catch (_) {}
@@ -60,9 +60,9 @@
     /* 卡片直接渲染该排版的真实效果（名称/说明/示例引用），角标标注"推荐"与"✓ 当前"。 */
     var badge = '<span class="palette-badge" data-card-badge hidden></span>';
     if (item.custom) {
-      return '<div class="typography-card" data-custom-card="' + item.key + '"><button type="button" class="typography-card-apply" data-typography-key="' + item.key + '" aria-label="' + item.label + '，应用此正文排版">' + badge + VexTypeCardPreview(item.key, item) + '</button><span class="typography-card-tools"><button type="button" data-edit-type="' + item.key + '" title="编辑此排版" aria-label="编辑' + item.label + '">✎</button><button type="button" data-delete-type="' + item.key + '" title="删除此排版" aria-label="删除' + item.label + '">×</button></span></div>';
+      return '<div class="typography-card" data-custom-card="' + item.key + '"><button type="button" class="typography-card-apply" data-typography-key="' + item.key + '" aria-label="' + item.label + '，应用此正文排版">' + badge + MarkdorTypeCardPreview(item.key, item) + '</button><span class="typography-card-tools"><button type="button" data-edit-type="' + item.key + '" title="编辑此排版" aria-label="编辑' + item.label + '">✎</button><button type="button" data-delete-type="' + item.key + '" title="删除此排版" aria-label="删除' + item.label + '">×</button></span></div>';
     }
-    return '<button type="button" class="typography-card" data-typography-key="' + item.key + '" aria-label="' + item.label + '，应用此正文排版">' + badge + VexTypeCardPreview(item.key, item) + '</button>';
+    return '<button type="button" class="typography-card" data-typography-key="' + item.key + '" aria-label="' + item.label + '，应用此正文排版">' + badge + MarkdorTypeCardPreview(item.key, item) + '</button>';
   }
   function renderGrid() {
     panel.querySelector('.typography-grid').innerHTML = items.map(cardHtml).join('')
@@ -136,17 +136,17 @@
       card.classList.toggle('current', card.dataset.customCard === state.key);
     });
     /* 渲染密度行：作用于 Markdown 渲染（正文字号档，§11），与外观菜单的界面密度独立。 */
-    var currentMdSize = window.VexTheme ? VexTheme.state.mdsize : 'normal';
+    var currentMdSize = window.MarkdorTheme ? MarkdorTheme.state.mdsize : 'normal';
     panel.querySelectorAll('[data-tp-mdsize]').forEach(function (button) {
       button.classList.toggle('on', button.dataset.tpMdsize === currentMdSize);
     });
-    try { VexStorage.setItem('vex-design-typography', JSON.stringify(state)); } catch (_) {}
+    try { MarkdorStorage.setItem('markdor-design-typography', JSON.stringify(state)); } catch (_) {}
     /* 偏好启动回放会重放 typography（workbench configure→apply），这里同步写入避免覆盖（与自定义配色同模式）。 */
-    if (window.VexPreferences && VexPreferences.values.typography !== state.key) VexPreferences.set('typography', state.key);
+    if (window.MarkdorPreferences && MarkdorPreferences.values.typography !== state.key) MarkdorPreferences.set('typography', state.key);
   }
   panel.querySelector('.typography-density').onclick = function (event) {
     var size = event.target.closest('[data-tp-mdsize]');
-    if (size) { if (window.VexTheme) VexTheme.setMdSize(size.dataset.tpMdsize); apply(); }
+    if (size) { if (window.MarkdorTheme) MarkdorTheme.setMdSize(size.dataset.tpMdsize); apply(); }
   };
   panel.querySelector('.typography-grid').onclick = function (event) {
     var edit = event.target.closest('[data-edit-type]');
@@ -186,13 +186,13 @@
   window.addEventListener('resize',position);
   function close(restoreFocus) { var wasOpen = !panel.hidden; panel.hidden = true; if (!dialog.hidden) closeDialog(); document.querySelectorAll('[data-action="typography"]').forEach(function (button) { button.setAttribute('aria-expanded', 'false'); }); if (restoreFocus && wasOpen && trigger) trigger.focus({preventScroll:true}); }
   document.getElementById('typography-close').onclick = function () { close(true); };
-  function choose(key) { key=VexTypeKey(key);if (items.some(function (item) { return item.key === key; })) { state.key = key; apply(); } }
+  function choose(key) { key=MarkdorTypeKey(key);if (items.some(function (item) { return item.key === key; })) { state.key = key; apply(); } }
   document.addEventListener('click', function (event) {
     if (!panel.contains(event.target) && !event.target.closest('#typography-dialog') && !event.target.closest('[data-action="typography"]') && !event.target.closest('.menu-flyout')) close();
   });
   document.addEventListener('keydown', function (event) { if (event.key === 'Escape') close(true); });
-  document.addEventListener('vex-layout-rendered', function () { if (!document.querySelector('[data-action="typography"]:not([hidden])')) close(); });
-  window.VexTypography = {
+  document.addEventListener('markdor-layout-rendered', function () { if (!document.querySelector('[data-action="typography"]:not([hidden])')) close(); });
+  window.MarkdorTypography = {
     items: items, state: state, apply: apply, choose: choose,
     toggleCompact: function () { state.compact = !state.compact; apply(); },
     close: close,
@@ -203,7 +203,7 @@
       position();
       document.querySelectorAll('[data-action="typography"]').forEach(function (button) { button.setAttribute('aria-expanded', 'true'); });
     },
-    exportStyles: function () { return VexTypeExport(state.key,state.compact); }
+    exportStyles: function () { return MarkdorTypeExport(state.key,state.compact); }
   };
   injectCustomStyles();
   apply();

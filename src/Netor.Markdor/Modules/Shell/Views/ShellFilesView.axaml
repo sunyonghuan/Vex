@@ -1,0 +1,265 @@
+<UserControl
+    x:Class="Netor.Markdor.Modules.Shell.Views.ShellFilesView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i18n="https://codewf.com"
+    xmlns:icons="using:Netor.Markdor.Controls"
+    xmlns:l="clr-namespace:Netor.Markdor"
+    xmlns:models="using:Netor.Markdor.Core.Models"
+    xmlns:converters="using:Netor.Markdor.Modules.Shell.Views"
+    xmlns:avaloniaConverters="using:Avalonia.Data.Converters"
+    xmlns:regions="using:Netor.Markdor.Core.Regions"
+    xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels"
+    x:DataType="vm:ShellFilesViewModel"
+    regions:RegionTab.HeaderKey="{x:Static l:MarkdorL.SidebarFiles}"
+    regions:RegionTab.IconData="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6">
+
+    <UserControl.Resources>
+        <converters:FileIconConverter x:Key="FileIconConverter" />
+    </UserControl.Resources>
+
+    <UserControl.DataTemplates>
+        <TreeDataTemplate DataType="models:DocumentFileNode" ItemsSource="{Binding Children}">
+            <!-- 文件树保持单行布局，悬停提示仅显示完整名称。 -->
+            <Border Classes="file-card" Classes.selected="{Binding $parent[TreeViewItem].IsSelected}"
+                    DoubleTapped="OnFileRowDoubleTapped"
+                    Classes.folder="{Binding IsFolder}"
+                    ToolTip.IsEnabled="{Binding !IsPlaceholder}"
+                    ToolTip.Tip="{Binding Name}">
+                <Grid Classes="file-row" ColumnDefinitions="13,*,Auto" ColumnSpacing="6">
+                    <Panel Width="13" Height="13" VerticalAlignment="Center">
+                        <Image x:Name="FileTypeIcon" Classes="tree-ico" Width="13" Height="13" Stretch="Uniform"
+                               IsVisible="{Binding #FileTypeIcon.Source, Converter={x:Static avaloniaConverters:ObjectConverters.IsNotNull}}">
+                            <Image.Source>
+                                <MultiBinding Converter="{StaticResource FileIconConverter}">
+                                    <Binding Path="Name" />
+                                    <Binding Path="IsFolder" />
+                                    <Binding Path="IsExpanded" />
+                                    <Binding Path="$parent[UserControl].ActualThemeVariant" />
+                                    <Binding Path="$parent[TreeViewItem].Level" />
+                                </MultiBinding>
+                            </Image.Source>
+                        </Image>
+                        <Panel IsVisible="{Binding #FileTypeIcon.Source, Converter={x:Static avaloniaConverters:ObjectConverters.IsNull}}">
+                            <Path Classes="tree-ico" IsVisible="{Binding IsFolder}"
+                                  Data="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                            <Path Classes="tree-ico" IsVisible="{Binding IsDocument}"
+                                  Data="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6" />
+                        </Panel>
+                    </Panel>
+                    <TextBlock Grid.Column="1" Classes="file-heading" IsVisible="{Binding IsFolder}"
+                               VerticalAlignment="Center" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Grid.Column="1" Classes="file-title" IsVisible="{Binding IsDocument}"
+                               VerticalAlignment="Center" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Grid.ColumnSpan="3" Classes="muted" FontSize="11" IsVisible="{Binding IsLoadingPlaceholder}"
+                               Text="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesLoading}}" />
+                    <Button Grid.ColumnSpan="3" IsVisible="{Binding IsErrorPlaceholder}" Click="RetryDirectoryClicked"
+                            Height="24" MinHeight="0" Padding="0" Background="Transparent" BorderThickness="0"
+                            Content="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesRetry}}"
+                            ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesLoadFailed}}" />
+                </Grid>
+            </Border>
+        </TreeDataTemplate>
+    </UserControl.DataTemplates>
+
+    <UserControl.Styles>
+        <Style Selector="TreeView.side-tree TreeViewItem" x:DataType="models:DocumentFileNode">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+        </Style>
+        <!-- 对应原型 .files-toolbar button：26×26、5px 圆角、按下为 accent-soft。 -->
+        <Style Selector="Button.files-tool">
+            <Setter Property="Width" Value="26" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource MarkdorMutedBrush}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.files-tool:pointerover:not(:disabled)">
+            <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+        </Style>
+        <Style Selector="Button.files-tool:pointerover:not(:disabled) /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource MarkdorAccentSoftBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource MarkdorAccentBrush}" />
+        </Style>
+        <Style Selector="Button.files-tool:pointerover:not(:disabled) Path">
+            <Setter Property="Stroke" Value="{DynamicResource MarkdorAccentBrush}" />
+        </Style>
+        <Style Selector="Button.files-tool:pressed:not(:disabled) /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource MarkdorPressedBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- 搜索框仅在有内容时显示清除按钮，图标按 24px 坐标等比缩放。 -->
+        <Border
+            x:Name="FileSearchBox"
+            Classes="sidebar-search"
+            Grid.Row="0"
+            Height="32"
+            Padding="8,0"
+            Margin="5,14,5,8">
+            <Grid ColumnDefinitions="13,*,20" ColumnSpacing="7" VerticalAlignment="Center">
+                <Path Classes="stroke-ico" Width="13" Height="13" StrokeThickness="1.6"
+                      VerticalAlignment="Center"
+                      Data="M17 10A7 7 0 1 1 3 10A7 7 0 1 1 17 10 M15 15L22 22" />
+                <TextBox
+                    Grid.Column="1"
+                    Classes="sidebar-search-input"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    MinHeight="0"
+                    FontSize="12"
+                    VerticalContentAlignment="Center"
+                    Foreground="{DynamicResource MarkdorValueBrush}"
+                    PlaceholderForeground="{DynamicResource MarkdorMutedBrush}"
+                    PlaceholderText="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesFilterPlaceholder}}"
+                    Text="{Binding FilterText, Mode=TwoWay}"
+                    TextWrapping="NoWrap"
+                    AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesFilterPlaceholder}}" />
+                <Button Grid.Column="2" Classes="sidebar-search-clear"
+                        IsVisible="{Binding FilterText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                        Command="{Binding ClearFilter}"
+                        ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.ClearSearch}}"
+                        AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.ClearSearch}}">
+                    <Viewbox Width="14" Height="14">
+                        <Path Classes="stroke-ico" Width="24" Height="24" Stretch="None"
+                              StrokeThickness="1.6" Data="M6 6L18 18 M18 6L6 18" />
+                    </Viewbox>
+                </Button>
+            </Grid>
+        </Border>
+
+        <TreeView
+            x:Name="FileTree"
+            Grid.Row="1"
+            Classes="side-tree"
+            Margin="5,0"
+            IsVisible="{Binding IsTreeView}"
+            ItemsSource="{Binding FilteredDocumentFileNodes}"
+            PointerPressed="SelectItemOnPointerPressed"
+            SelectedItem="{Binding SelectedDocumentFileNode, Mode=TwoWay}">
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem icons:MenuIconCatalog.Key="file"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.OpenFile}}"
+                        Command="{Binding OpenSelectedFile}"
+                        IsEnabled="{Binding HasDocumentFileCommandTarget}" />
+                    <MenuItem icons:MenuIconCatalog.Key="external" Header="{i18n:I18n {x:Static l:MarkdorL.OpenInNewWindow}}" Command="{Binding OpenInNewWindow}" IsEnabled="{Binding HasPathCommandTarget}"/>
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="pencil"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.Rename}}"
+                        Command="{Binding RenameSelectedFile}"
+                        IsEnabled="{Binding HasDocumentFileCommandTarget}" />
+                    <MenuItem icons:MenuIconCatalog.Key="map-pin"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.OpenFileLocation}}"
+                        Command="{Binding OpenSelectedFileLocation}"
+                        IsEnabled="{Binding HasPathCommandTarget}"/>
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="file-plus" Header="{i18n:I18n {x:Static l:MarkdorL.NewDocument}}" Command="{Binding NewDocument}"/>
+                    <MenuItem icons:MenuIconCatalog.Key="folder-open" Header="{i18n:I18n {x:Static l:MarkdorL.OpenFolder}}" Command="{Binding OpenFolderAsync}"/>
+                    <MenuItem icons:MenuIconCatalog.Key="refresh" Header="{i18n:I18n Markdor.MarkdorL.RefreshFiles}" Command="{Binding RefreshFiles}"/>
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="trash"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.Delete}}"
+                        Command="{Binding DeleteSelectedFile}"
+                        IsEnabled="{Binding HasDocumentFileCommandTarget}" />
+                </ContextMenu>
+            </TreeView.ContextMenu>
+        </TreeView>
+        <ListBox x:Name="FileList" Grid.Row="1" Classes="side-list" IsVisible="{Binding IsListView}"
+                 ItemsSource="{Binding FlatDocumentFileNodes}" SelectedItem="{Binding SelectedListDocumentFileNode, Mode=TwoWay}" PointerPressed="SelectItemOnPointerPressed">
+            <ListBox.ItemTemplate><DataTemplate x:DataType="models:DocumentFileNode">
+                <Grid RowDefinitions="Auto,Auto" Margin="4,5" ToolTip.Tip="{Binding Path}">
+                    <TextBlock Text="{Binding Name}" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Row="1" Text="{Binding Preview}" FontSize="11" Classes="muted" MaxHeight="32" TextWrapping="Wrap"/>
+                </Grid>
+            </DataTemplate></ListBox.ItemTemplate>
+            <ListBox.ContextMenu><ContextMenu>
+                    <MenuItem icons:MenuIconCatalog.Key="file"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.OpenFile}}"
+                        Command="{Binding OpenSelectedFile}"
+                        IsEnabled="{Binding HasDocumentFileCommandTarget}" />
+                    <MenuItem icons:MenuIconCatalog.Key="external" Header="{i18n:I18n {x:Static l:MarkdorL.OpenInNewWindow}}" Command="{Binding OpenInNewWindow}" IsEnabled="{Binding HasPathCommandTarget}"/>
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="pencil"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.Rename}}"
+                        Command="{Binding RenameSelectedFile}"
+                        IsEnabled="{Binding HasDocumentFileCommandTarget}" />
+                    <MenuItem icons:MenuIconCatalog.Key="map-pin"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.OpenFileLocation}}"
+                        Command="{Binding OpenSelectedFileLocation}"
+                        IsEnabled="{Binding HasPathCommandTarget}"/>
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="file-plus" Header="{i18n:I18n {x:Static l:MarkdorL.NewDocument}}" Command="{Binding NewDocument}"/>
+                    <MenuItem icons:MenuIconCatalog.Key="folder-open" Header="{i18n:I18n {x:Static l:MarkdorL.OpenFolder}}" Command="{Binding OpenFolderAsync}" ToolTip.Tip="{Binding WorkspaceName}"/>
+                    <MenuItem icons:MenuIconCatalog.Key="refresh" Header="{i18n:I18n Markdor.MarkdorL.RefreshFiles}" Command="{Binding RefreshFiles}"/>
+                    <Separator />
+                    <MenuItem icons:MenuIconCatalog.Key="trash"
+                        Header="{i18n:I18n {x:Static l:MarkdorL.Delete}}"
+                        Command="{Binding DeleteSelectedFile}"
+                        IsEnabled="{Binding HasDocumentFileCommandTarget}" />
+                </ContextMenu></ListBox.ContextMenu>
+        </ListBox>
+        <Border
+            Grid.Row="1"
+            IsVisible="{Binding IsDocumentFilesEmpty}"
+            Padding="18"
+            VerticalAlignment="Top">
+            <TextBlock
+                Classes="muted"
+                FontSize="12"
+                Text="{i18n:I18n {x:Static l:MarkdorL.EmptyNoFiles}}"
+                TextAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Row="1" Margin="18,12" Spacing="4" VerticalAlignment="Top" IsHitTestVisible="False"
+                    IsVisible="{Binding IsIndexLoading}">
+            <TextBlock Classes="muted" FontSize="12" Text="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesLoading}}" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Margin="18,12" Spacing="4" VerticalAlignment="Top" IsVisible="{Binding HasIndexError}">
+            <TextBlock Classes="muted" FontSize="12" Text="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesLoadFailed}}" />
+            <Button Command="{Binding RetryIndex}" Content="{i18n:I18n {x:Static l:MarkdorL.SidebarFilesRetry}}" />
+        </StackPanel>
+
+        <!-- 对应原型 .files-toolbar-bottom：34px 高、三个 26×26 图标按钮。 -->
+        <Border Grid.Row="2" Height="34" BorderThickness="0" Padding="14,0">
+            <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                <Button x:Name="FilesModeButton" Classes="files-tool"
+                        Command="{Binding ToggleListView}"
+                        ToolTip.Tip="{i18n:I18n {Binding DisplayModeHintKey}}"
+                        AutomationProperties.Name="{i18n:I18n {Binding DisplayModeHintKey}}">
+                    <Grid>
+                        <Viewbox Width="15" Height="15" IsVisible="{Binding IsTreeView}">
+                            <Path x:Name="FilesModeIcon" Classes="stroke-ico" Width="24" Height="24" Stretch="Uniform" />
+                        </Viewbox>
+                        <Viewbox Width="15" Height="15" IsVisible="{Binding IsListView}">
+                            <Path x:Name="FilesListModeIcon" Classes="stroke-ico" Width="24" Height="24" Stretch="Uniform" />
+                        </Viewbox>
+                    </Grid>
+                </Button>
+                <Button x:Name="FilesSortButton" Classes="files-tool" Command="{Binding ToggleSort}"
+                        ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.SortFiles}}"
+                        AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.SortFiles}}">
+                    <Viewbox Width="15" Height="15">
+                        <Path x:Name="FilesSortIcon" Classes="stroke-ico" Width="24" Height="24" Stretch="Uniform" />
+                    </Viewbox>
+                </Button>
+                <Button x:Name="FilesFoldButton" Classes="files-tool" Command="{Binding CollapseAll}"
+                        IsEnabled="{Binding CanCollapseAll}"
+                        ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.CollapseAllFiles}}"
+                        AutomationProperties.Name="{i18n:I18n {x:Static l:MarkdorL.CollapseAllFiles}}">
+                    <Viewbox Width="15" Height="15">
+                        <Path x:Name="FilesFoldIcon" Classes="stroke-ico" Width="24" Height="24" Stretch="Uniform" />
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

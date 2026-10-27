@@ -6,7 +6,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const {chromium} = require('playwright');
-const base = process.env.VEX_PREVIEW_URL || 'http://127.0.0.1:4317/design/';
+const base = process.env.MARKDOR_PREVIEW_URL || 'http://127.0.0.1:4317/design/';
 const output = path.resolve(process.argv[2] || 'artifacts/prototype-parity');
 fs.mkdirSync(output, {recursive:true});
 
@@ -23,13 +23,13 @@ const SAMPLE = [
 ].join('\n');
 
 (async () => {
-  const browser = await chromium.launch({headless:true, ...(process.env.VEX_BROWSER_CHANNEL ? {channel:process.env.VEX_BROWSER_CHANNEL} : {})});
+  const browser = await chromium.launch({headless:true, ...(process.env.MARKDOR_BROWSER_CHANNEL ? {channel:process.env.MARKDOR_BROWSER_CHANNEL} : {})});
   const page = await browser.newPage({viewport:{width:1488, height:948}, deviceScaleFactor:1});
-  await page.goto(base + 'Vex.html?preview=1&lang=zh-CN&theme=light&palette=indigo&typography=Simple', {waitUntil:'domcontentloaded'});
-  await page.waitForFunction(() => window.VexAuxiliary && window.VexChapters);
+  await page.goto(base + 'Markdor.html?preview=1&lang=zh-CN&theme=light&palette=indigo&typography=Simple', {waitUntil:'domcontentloaded'});
+  await page.waitForFunction(() => window.MarkdorAuxiliary && window.MarkdorChapters);
   await page.waitForTimeout(400);
   // 与原生截图器对齐：注入同一段样例文档。
-  await page.evaluate(text => { if (window.VexWorkbench && VexWorkbench.applyText) VexWorkbench.applyText(text); }, SAMPLE);
+  await page.evaluate(text => { if (window.MarkdorWorkbench && MarkdorWorkbench.applyText) MarkdorWorkbench.applyText(text); }, SAMPLE);
   // 数据形态不在对比范围（原生列真实磁盘目录）：拍平原型分组树并按名称排序后再截图。
   await page.evaluate(() => {
     const tree = document.querySelector('#file-tree, .file-tree, [class*=file-list]') || document.querySelector('.sidebar .file-list, nav');
@@ -73,15 +73,15 @@ const SAMPLE = [
   await layoutMenu('three');          await shot('06-three');
   // 07 外观弹出层（回到即时编辑再开）
   await layoutMenu('instant');
-  await page.evaluate(() => document.querySelector('#vex-appearance-menu > summary').click());
+  await page.evaluate(() => document.querySelector('#markdor-appearance-menu > summary').click());
   await shot('07-appearance-menu');
   // 08 偏好设置：工具菜单 → 偏好设置… → 外观分类
-  await page.evaluate(() => document.querySelector('#vex-appearance-menu > summary').click());
+  await page.evaluate(() => document.querySelector('#markdor-appearance-menu > summary').click());
   await page.getByText('工具(T)').first().click();
   await page.waitForTimeout(300);
   await page.getByText('偏好设置…').first().click();
   await page.waitForTimeout(600);
-  await page.evaluate(() => { const nav = document.querySelector('.vex-settings-host [data-vex-section="appearance"]'); if (nav) nav.click(); });
+  await page.evaluate(() => { const nav = document.querySelector('.markdor-settings-host [data-markdor-section="appearance"]'); if (nav) nav.click(); });
   await shot('08-preferences');
   // 09 排版画廊：Esc 关偏好，点排版入口
   await page.keyboard.press('Escape');

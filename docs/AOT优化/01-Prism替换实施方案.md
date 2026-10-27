@@ -26,45 +26,45 @@
 ### 具体文件清单
 
 #### 1. 核心启动文件（1个）
-- `src/Vex/App.axaml.cs` ⭐⭐⭐⭐⭐
+- `src/Netor.Markdor/App.axaml.cs` ⭐⭐⭐⭐⭐
   - 继承 `PrismApplication` → 改为 `Application`
   - 注册 58 个服务
   - 初始化 4 个模块
   - 配置区域适配器
 
 #### 2. 模块定义文件（4个）
-- `src/Vex/Modules/Shell/ShellModule.cs`
-- `src/Vex/Modules/Workspace/WorkspaceModule.cs`
-- `src/Vex/Modules/Appearance/AppearanceModule.cs`
-- `src/Vex/Modules/Help/HelpModule.cs`
+- `src/Netor.Markdor/Modules/Shell/ShellModule.cs`
+- `src/Netor.Markdor/Modules/Workspace/WorkspaceModule.cs`
+- `src/Netor.Markdor/Modules/Appearance/AppearanceModule.cs`
+- `src/Netor.Markdor/Modules/Help/HelpModule.cs`
 
 每个模块包含：
 - `RegisterTypes(IContainerRegistry)` - 服务注册
 - `OnInitialized(IContainerProvider)` - 初始化逻辑
 
 #### 3. 区域管理文件（3个）
-- `src/Vex/Core/Regions/TabControlRegionAdapter.cs` ⭐⭐⭐
+- `src/Netor.Markdor/Core/Regions/TabControlRegionAdapter.cs` ⭐⭐⭐
   - 依赖 `IRegionBehaviorFactory`
   - 实现 `RegionAdapterBase<TabControl>`
-- `src/Vex/Core/Regions/IRegionTabItem.cs`
+- `src/Netor.Markdor/Core/Regions/IRegionTabItem.cs`
   - 标记接口
-- `src/Vex/Core/Regions/RegionNames.cs`
+- `src/Netor.Markdor/Core/Regions/RegionNames.cs`
   - 常量定义（无需修改）
 
 #### 4. XAML 视图文件（2个）
-- `src/Vex/Modules/Shell/Views/MainWindow.axaml`
+- `src/Netor.Markdor/Modules/Shell/Views/MainWindow.axaml`
   ```xml
   <ContentControl prism:RegionManager.RegionName="{x:Static regions:RegionNames.ShellSidebarRegion}" />
   ```
-- `src/Vex/Modules/Shell/Views/ShellAuxiliaryPanelView.axaml`
+- `src/Netor.Markdor/Modules/Shell/Views/ShellAuxiliaryPanelView.axaml`
   ```xml
   <ContentControl prism:RegionManager.RegionName="{x:Static regions:RegionNames.ShellOutlineRegion}" />
   ```
 
 #### 5. ViewModel 文件（2个）
-- `src/Vex/Modules/Shell/ViewModels/ShellFilesViewModel.cs`
+- `src/Netor.Markdor/Modules/Shell/ViewModels/ShellFilesViewModel.cs`
   - 实现 `IRegionTabItem`
-- `src/Vex/Modules/Shell/ViewModels/ShellOutlineViewModel.cs`
+- `src/Netor.Markdor/Modules/Shell/ViewModels/ShellOutlineViewModel.cs`
   - 实现 `IRegionTabItem`
 
 ---
@@ -79,7 +79,7 @@ public partial class App : PrismApplication
 {
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
-        containerRegistry.RegisterSingleton<IUpdateService, VexUpdateService>();
+        containerRegistry.RegisterSingleton<IUpdateService, MarkdorUpdateService>();
         containerRegistry.RegisterSingleton<IAppSettingsStore, AppSettingsStore>();
         // ... 58 个服务注册
     }
@@ -103,7 +103,7 @@ public partial class App : Application
         var services = new ServiceCollection();
         
         // 注册服务
-        services.AddSingleton<IUpdateService, VexUpdateService>();
+        services.AddSingleton<IUpdateService, MarkdorUpdateService>();
         services.AddSingleton<IAppSettingsStore, AppSettingsStore>();
         // ... 58 个服务
         
@@ -131,8 +131,8 @@ public partial class App : Application
 
 #### 新接口定义
 ```csharp
-// 新文件：src/Vex/Core/Modularity/IAppModule.cs
-namespace Vex.Core.Modularity;
+// 新文件：src/Netor.Markdor/Core/Modularity/IAppModule.cs
+namespace Netor.Markdor.Core.Modularity;
 
 public interface IAppModule
 {
@@ -146,8 +146,8 @@ public interface IAppModule
 
 #### 模块初始化器
 ```csharp
-// 新文件：src/Vex/Core/Modularity/ModuleInitializer.cs
-namespace Vex.Core.Modularity;
+// 新文件：src/Netor.Markdor/Core/Modularity/ModuleInitializer.cs
+namespace Netor.Markdor.Core.Modularity;
 
 public static class ModuleInitializer
 {
@@ -218,8 +218,8 @@ public sealed class ShellModule : IAppModule
 
 ##### IRegionManager
 ```csharp
-// 新文件：src/Vex/Core/Regions/IRegionManager.cs
-namespace Vex.Core.Regions;
+// 新文件：src/Netor.Markdor/Core/Regions/IRegionManager.cs
+namespace Netor.Markdor.Core.Regions;
 
 public interface IRegionManager
 {
@@ -233,8 +233,8 @@ public interface IRegionManager
 
 ##### IRegion
 ```csharp
-// 新文件：src/Vex/Core/Regions/IRegion.cs
-namespace Vex.Core.Regions;
+// 新文件：src/Netor.Markdor/Core/Regions/IRegion.cs
+namespace Netor.Markdor.Core.Regions;
 
 public interface IRegion
 {
@@ -251,8 +251,8 @@ public interface IRegion
 
 ##### RegionManager
 ```csharp
-// 新文件：src/Vex/Core/Regions/RegionManager.cs
-namespace Vex.Core.Regions;
+// 新文件：src/Netor.Markdor/Core/Regions/RegionManager.cs
+namespace Netor.Markdor.Core.Regions;
 
 public class RegionManager : IRegionManager
 {
@@ -309,8 +309,8 @@ public class RegionManager : IRegionManager
 
 ##### Region
 ```csharp
-// 新文件：src/Vex/Core/Regions/Region.cs
-namespace Vex.Core.Regions;
+// 新文件：src/Netor.Markdor/Core/Regions/Region.cs
+namespace Netor.Markdor.Core.Regions;
 
 public class Region : IRegion
 {
@@ -349,8 +349,8 @@ public class Region : IRegion
 #### 附加属性（XAML 绑定）
 
 ```csharp
-// 新文件：src/Vex/Core/Regions/RegionManagerExtensions.cs
-namespace Vex.Core.Regions;
+// 新文件：src/Netor.Markdor/Core/Regions/RegionManagerExtensions.cs
+namespace Netor.Markdor.Core.Regions;
 
 public static class RegionManagerExtensions
 {

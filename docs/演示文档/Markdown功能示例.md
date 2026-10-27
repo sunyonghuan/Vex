@@ -67,7 +67,7 @@ flowchart LR
 
 ## Mermaid 图表图鉴
 
-Markdown 的普通语法不定义图表。Vex 原型使用本地 Mermaid 11.12.0，将标记为 `mermaid` 的围栏代码块渲染成图。插入菜单提供下列 22 种模板；左侧“Mermaid 图表图鉴.md”可集中查看、切换源码并修改。
+Markdown 的普通语法不定义图表。Markdor 原型使用本地 Mermaid 11.12.0，将标记为 `mermaid` 的围栏代码块渲染成图。插入菜单提供下列 22 种模板；左侧“Mermaid 图表图鉴.md”可集中查看、切换源码并修改。
 
 ### 选哪种图
 

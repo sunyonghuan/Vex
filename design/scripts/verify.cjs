@@ -24,38 +24,38 @@ for (const file of fs.readdirSync(root).filter(file => file.endsWith('.html'))) 
     assert.ok(fs.existsSync(path.resolve(root, match[1])), `${file}: ${match[1]}`);
   }
 }
-const logo = fs.readFileSync(path.join(root, 'assets/vex-logo.svg'), 'utf8');
+const logo = fs.readFileSync(path.join(root, 'assets/markdor-logo.svg'), 'utf8');
 assert.ok(logo.includes('#24766B'));
 assert.ok(logo.includes('M64 62 L128 198 L192 62'));
 const preferences = fs.readFileSync(path.join(root, 'assets/preferences.js'), 'utf8');
 assert.ok(preferences.includes('autoSave:false'));
 const sandbox = {window:{}};
 vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/generated/palette-rules-data.js'), 'utf8'), sandbox);
-assert.ok(Number.isInteger(sandbox.window.VexPaletteRulesData.ruleVersion), 'Palette data carries a ruleVersion stamp');
+assert.ok(Number.isInteger(sandbox.window.MarkdorPaletteRulesData.ruleVersion), 'Palette data carries a ruleVersion stamp');
 const paletteStamp = /\(ruleVersion (\d+)\)/.exec(fs.readFileSync(path.join(root, 'assets/palettes.css'), 'utf8'));
 assert.ok(paletteStamp, 'palettes.css is generated with a ruleVersion stamp');
 for (const generated of ['assets/palettes.css','assets/palettes.js','assets/density.css','assets/generated/palette-rules-data.js']) {
   const header = fs.readFileSync(path.join(root, generated), 'utf8').split('\n', 1)[0];
-  assert.match(header, new RegExp(`ruleVersion ${sandbox.window.VexPaletteRulesData.ruleVersion}`), `${generated} matches the generated ruleVersion`);
+  assert.match(header, new RegExp(`ruleVersion ${sandbox.window.MarkdorPaletteRulesData.ruleVersion}`), `${generated} matches the generated ruleVersion`);
 }
-assert.equal(Object.keys(sandbox.window.VexPaletteRulesData.palettes).length, 9, 'Nine palettes come from rule appendix A');
-const prototype = {VexStorage:{getItem:()=>null}};
+assert.equal(Object.keys(sandbox.window.MarkdorPaletteRulesData.palettes).length, 9, 'Nine palettes come from rule appendix A');
+const prototype = {MarkdorStorage:{getItem:()=>null}};
 prototype.window = prototype;
 vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/typography-catalog.js'), 'utf8'), prototype);
-assert.equal(prototype.VexTypes.length, 5, 'Base typography catalog keeps the five independent native styles');
+assert.equal(prototype.MarkdorTypes.length, 5, 'Base typography catalog keeps the five independent native styles');
 for (const asset of ['palettes.js','desktop-resources.js','design-system.js']) {
   vm.runInNewContext(fs.readFileSync(path.join(root, 'assets', asset), 'utf8'), prototype);
 }
-assert.equal(prototype.VexTypes.length, 12, 'Prototype exposes the twelve finalized typographies');
-assert.equal(prototype.VexPalettes.length, 9, 'Prototype exposes the nine finalized palettes');
+assert.equal(prototype.MarkdorTypes.length, 12, 'Prototype exposes the twelve finalized typographies');
+assert.equal(prototype.MarkdorPalettes.length, 9, 'Prototype exposes the nine finalized palettes');
 vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/generated/documents-data.js'), 'utf8'), sandbox);
 for (const [key, file] of [['thanks','docs/鸣谢.md'], ['changelog','docs/更新日志.md']]) {
-  assert.equal(sandbox.window.VexDocuments[key].text, fs.readFileSync(path.join(root, '..', file), 'utf8').replace(/^\uFEFF/, '').replace(/\r\n/g, '\n'));
+  assert.equal(sandbox.window.MarkdorDocuments[key].text, fs.readFileSync(path.join(root, '..', file), 'utf8').replace(/^\uFEFF/, '').replace(/\r\n/g, '\n'));
 }
-const changelog = sandbox.window.VexDocuments.changelog.text;
+const changelog = sandbox.window.MarkdorDocuments.changelog.text;
 vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/desktop/samples.js'), 'utf8'), sandbox);
-assert.equal(sandbox.window.VexSamples.length, 6, 'Six samples are shared with the installed app');
-for (const sample of sandbox.window.VexSamples) {
+assert.equal(sandbox.window.MarkdorSamples.length, 6, 'Six samples are shared with the installed app');
+for (const sample of sandbox.window.MarkdorSamples) {
   const file = path.resolve(root, sample.path);
   const text = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n').replaceAll('(图片/', '(../docs/演示文档/图片/');
   assert.equal(sample.text, text, 'Prototype and packaged sample stay in sync: '+sample.name);

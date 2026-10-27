@@ -17,7 +17,7 @@ $scriptRoot = (Resolve-Path -LiteralPath $PSScriptRoot).Path
 $repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $scriptRoot "..")).Path
 
 if ([string]::IsNullOrWhiteSpace($SourceDirectory)) {
-    $SourceDirectory = Join-Path $repositoryRoot "artifacts/publish/$RuntimeIdentifier/Vex"
+    $SourceDirectory = Join-Path $repositoryRoot "artifacts/publish/$RuntimeIdentifier/Markdor"
 }
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
     $OutputDirectory = Join-Path $repositoryRoot "artifacts/release"
@@ -31,10 +31,10 @@ if ($cleanVersion -notmatch '^\d+(\.\d+){1,3}$') {
 }
 
 $architecture = if ($RuntimeIdentifier -eq "linux-arm64") { "arm64" } else { "amd64" }
-$packageName = "Vex-v$cleanVersion-$RuntimeIdentifier.deb"
+$packageName = "Markdor-v$cleanVersion-$RuntimeIdentifier.deb"
 $packagePath = Join-Path $outputPath $packageName
-$stageRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("Vex-deb-" + [Guid]::NewGuid().ToString("N"))
-$appPath = Join-Path $stageRoot "usr/lib/vex"
+$stageRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("Markdor-deb-" + [Guid]::NewGuid().ToString("N"))
+$appPath = Join-Path $stageRoot "usr/lib/markdor"
 $binPath = Join-Path $stageRoot "usr/bin"
 $desktopPath = Join-Path $stageRoot "usr/share/applications"
 $iconPath = Join-Path $stageRoot "usr/share/icons/hicolor/256x256/apps"
@@ -47,7 +47,7 @@ New-Item -ItemType Directory -Path $outputPath -Force | Out-Null
 New-Item -ItemType Directory -Path $appPath, $binPath, $desktopPath, $iconPath, $controlPath -Force | Out-Null
 
 try {
-    Copy-Item -LiteralPath (Join-Path $repositoryRoot "assets\logo.png") -Destination (Join-Path $iconPath "vex.png")
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot "assets\logo.png") -Destination (Join-Path $iconPath "markdor.png")
     # 调试符号不进入安装器，保留宿主语言资源和运行依赖。
     Get-ChildItem -LiteralPath $sourcePath -Recurse -File -Force | ForEach-Object {
         $relative = [IO.Path]::GetRelativePath($sourcePath, $_.FullName)
@@ -57,7 +57,7 @@ try {
         Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
     }
 
-    $executable = Join-Path $appPath "Vex"
+    $executable = Join-Path $appPath "Markdor"
     if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
         throw "Published executable was not produced: $executable"
     }
@@ -66,27 +66,27 @@ try {
         if ($LASTEXITCODE -ne 0) { throw '无法设置程序启动权限。' }
     }
 
-    [IO.File]::WriteAllText((Join-Path $binPath 'vex'), "#!/bin/sh`n" + 'exec /usr/lib/vex/Vex "$@"' + "`n")
+    [IO.File]::WriteAllText((Join-Path $binPath 'markdor'), "#!/bin/sh`n" + 'exec /usr/lib/markdor/Markdor "$@"' + "`n")
     if ($IsLinux) {
-        & chmod 755 (Join-Path $binPath 'vex')
+        & chmod 755 (Join-Path $binPath 'markdor')
         if ($LASTEXITCODE -ne 0) { throw '无法设置启动入口权限。' }
     }
 
     @(
         "[Desktop Entry]",
         "Type=Application",
-        "Name=Vex",
-        "Comment=Vex Markdown editor",
-        "Exec=vex %f",
-        "Icon=vex",
+        "Name=Markdor",
+        "Comment=Markdor Markdown editor",
+        "Exec=markdor %f",
+        "Icon=markdor",
         "MimeType=text/markdown;text/x-markdown;",
         "Terminal=false",
         "Categories=Office;TextEditor;"
-    ) | Set-Content -LiteralPath (Join-Path $desktopPath "vex.desktop") -Encoding ascii
+    ) | Set-Content -LiteralPath (Join-Path $desktopPath "markdor.desktop") -Encoding ascii
 
     $installedSize = [Math]::Ceiling(((Get-ChildItem -LiteralPath (Join-Path $stageRoot 'usr') -Recurse -File | Measure-Object Length -Sum).Sum) / 1KB)
     @(
-        "Package: vex",
+        "Package: markdor",
         "Version: $cleanVersion",
         "Section: text",
         "Priority: optional",
@@ -94,7 +94,7 @@ try {
         "Installed-Size: $installedSize",
         "Maintainer: Dotnet9 <1012434131@qq.com>",
         "Depends: libc6, libx11-6, libxrandr2, libxrender1, libxi6, libfontconfig1, libfreetype6, libglib2.0-0",
-        "Description: Vex Markdown editor",
+        "Description: Markdor Markdown editor",
         " A cross-platform Markdown editor desktop application built with Avalonia."
     ) | Set-Content -LiteralPath (Join-Path $controlPath "control") -Encoding ascii
 

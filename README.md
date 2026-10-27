@@ -1,16 +1,16 @@
-# Vex · 维刻
+# Markdor · 维刻
 
 一款面向本地文件的跨平台 Markdown 编辑器。
 
-Vex 基于 [.NET 10](https://dotnet.microsoft.com/) 与 [Avalonia](https://avaloniaui.net/) 构建，支持 Windows、Linux 和 macOS。它将即时编辑、Markdown 源码、阅读预览、章节导图和文档导出集中在一个工作区中，并可通过本机 MCP 服务与 AI 客户端协作。
+Markdor 基于 [.NET 10](https://dotnet.microsoft.com/) 与 [Avalonia](https://avaloniaui.net/) 构建，支持 Windows、Linux 和 macOS。它将即时编辑、Markdown 源码、阅读预览、章节导图和文档导出集中在一个工作区中，并可通过本机 MCP 服务与 AI 客户端协作。
 
-> 本仓库是基于 [dotnet9/Vex](https://github.com/dotnet9/Vex) 的二次开发版本。上游项目采用 MIT License；本仓库在遵守原许可证和保留版权、许可声明的前提下进行功能、界面和工程实现的持续调整。具体来源和依赖许可见[鸣谢](docs/项目管理/鸣谢.md)。
+> 本仓库是基于 [dotnet9/Markdor](https://github.com/sunyonghuan/Vex) 的二次开发版本。上游项目采用 MIT License；本仓库在遵守原许可证和保留版权、许可声明的前提下进行功能、界面和工程实现的持续调整。具体来源和依赖许可见[鸣谢](docs/项目管理/鸣谢.md)。
 
-![Vex 主界面](docs/图片/主界面.png)
+![Markdor 主界面](docs/图片/主界面.png)
 
 ## 项目定位
 
-Vex 适合需要在本地管理 Markdown 文档、持续写作并将内容发布到不同渠道的用户。项目关注以下体验：
+Markdor 适合需要在本地管理 Markdown 文档、持续写作并将内容发布到不同渠道的用户。项目关注以下体验：
 
 - **本地优先**：文档和附件保存在用户自己的目录，不依赖在线账户或云端服务。
 - **多视图协作**：即时编辑、源码、阅读和章节导图共享同一份当前文档，可组合布局或拆分到独立窗口。
@@ -24,9 +24,9 @@ Vex 适合需要在本地管理 Markdown 文档、持续写作并将内容发布
 
 | 平台 | 安装包 | 说明 |
 | --- | --- | --- |
-| Windows x64 | `Vex-v<版本>-win-x64-setup.exe` | 当前用户安装，可选文件关联和桌面快捷方式 |
-| Linux x64 / arm64 | `Vex-v<版本>-linux-x64.deb` / `Vex-v<版本>-linux-arm64.deb` | 适用于 Debian 系发行版 |
-| macOS Intel / Apple Silicon | `Vex-<版本>-osx-x64.dmg` / `Vex-<版本>-osx-arm64.dmg` | 将 `Vex.app` 拖入 `Applications` |
+| Windows x64 | `Markdor-v<版本>-win-x64-setup.exe` | 当前用户安装，可选文件关联和桌面快捷方式 |
+| Linux x64 / arm64 | `Markdor-v<版本>-linux-x64.deb` / `Markdor-v<版本>-linux-arm64.deb` | 适用于 Debian 系发行版 |
+| macOS Intel / Apple Silicon | `Markdor-<版本>-osx-x64.dmg` / `Markdor-<版本>-osx-arm64.dmg` | 将 `Markdor.app` 拖入 `Applications` |
 
 安装、升级、文件关联、数据位置和备份方法请阅读[快速开始](docs/开发文档/快速开始.md)。
 
@@ -81,10 +81,10 @@ pwsh ./scripts/start.ps1
 ### 手动构建与运行
 
 ```powershell
-$artifacts = 'E:/temp/vex-build'
-dotnet restore Vex.slnx "-p:ArtifactsPath=$artifacts"
-dotnet build Vex.slnx --no-restore -v:minimal "-p:ArtifactsPath=$artifacts"
-dotnet run --project src/Vex/Vex.csproj -f net10.0 --no-restore "-p:ArtifactsPath=$artifacts"
+$artifacts = 'E:/temp/markdor-build'
+dotnet restore Netor.Markdor.slnx "-p:ArtifactsPath=$artifacts"
+dotnet build Netor.Markdor.slnx --no-restore -v:minimal "-p:ArtifactsPath=$artifacts"
+dotnet run --project src/Netor.Markdor/Netor.Markdor.csproj -f net10.0 --no-restore "-p:ArtifactsPath=$artifacts"
 ```
 
 默认构建产物写入仓库外的临时目录，避免与其他构建结果混用；也可以通过 `ArtifactsPath` 指定自己的目录。版本号、仓库地址和基础构建属性集中在 `Directory.Build.props`，NuGet 版本集中在 `Directory.Packages.props`。
@@ -92,15 +92,15 @@ dotnet run --project src/Vex/Vex.csproj -f net10.0 --no-restore "-p:ArtifactsPat
 ## 项目结构
 
 ```text
-Vex/
+Markdor/
 ├── assets/                  # 应用图标和品牌资源
 ├── design/                  # 可离线预览的界面原型及其资源
 ├── docs/                    # 需求、设计、开发、发布和验收文档
 ├── scripts/                 # 启动、验证、打包和发布脚本
 ├── src/
-│   ├── Vex/                 # 桌面应用、编辑器、文件服务、国际化和 MCP
-│   └── Vex.Controls/        # 可复用控件和主题资源
-├── Vex.slnx                 # 生产项目解决方案
+│   ├── Markdor/                 # 桌面应用、编辑器、文件服务、国际化和 MCP
+│   └── Netor.Markdor.Controls/        # 可复用控件和主题资源
+├── Netor.Markdor.slnx                 # 生产项目解决方案
 ├── Directory.Build.props    # 版本、构建和发布属性
 └── Directory.Packages.props # NuGet 中央包版本管理
 ```
@@ -143,9 +143,9 @@ pwsh ./scripts/release/publish.ps1 osx
 
 ### 上游项目
 
-- 上游项目：[dotnet9/Vex](https://github.com/dotnet9/Vex)
-- 本仓库：[sunyonghuan/Vex](https://github.com/sunyonghuan/Vex)
-- 上游许可证：[MIT License](https://github.com/dotnet9/Vex/blob/main/LICENSE)
+- 上游项目：[dotnet9/Markdor](https://github.com/sunyonghuan/Vex)
+- 本仓库：[sunyonghuan/Markdor](https://github.com/sunyonghuan/Vex)
+- 上游许可证：[MIT License](https://github.com/sunyonghuan/Vex/blob/main/LICENSE)
 
 本项目及其自行维护的代码使用 MIT License。MIT 允许在保留版权声明和许可证文本的前提下使用、复制、修改、合并、发布、再许可和销售软件。软件按“现状”提供，作者不对使用软件产生的损失承担保证或责任。完整条款请见 [`LICENSE`](LICENSE)。
 
@@ -159,7 +159,7 @@ pwsh ./scripts/release/publish.ps1 osx
 
 ## 相关链接
 
-- [项目官网](https://vex.codewf.com/)
+- [项目官网](https://markdor.codewf.com/)
 - [更新日志](docs/项目管理/更新日志.md)
 - [快速开始](docs/开发文档/快速开始.md)
 - [MCP 接口说明](docs/技术文档/MCP接口.md)

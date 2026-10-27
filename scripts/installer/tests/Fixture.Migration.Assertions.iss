@@ -18,7 +18,7 @@ var Entry: TCWMRegistration; Count: Integer;
 begin
   ForceDirectories(Folder);
   SaveStringToFile(Folder+'\unins000.exe','fixture only; never executed',False);
-  SaveStringToFile(Folder+'\Vex.dll.config','original settings',False);
+  SaveStringToFile(Folder+'\Markdor.dll.config','original settings',False);
   Entry.RootKey:=RootKey; Entry.ScopeName:='fixture all users'; Entry.AppPath:=Folder;
   Entry.Uninstaller:=Folder+'\unins000.exe'; Entry.UninstallCommand:='"'+Entry.Uninstaller+'"';
   Count:=GetArrayLength(VTestEntries); SetArrayLength(VTestEntries,Count+1); VTestEntries[Count]:=Entry;
@@ -30,16 +30,16 @@ begin
   Result:=False;
   try
     MRoot:='{#TestRoot}'; Target:=MRoot+'\current user'; Source:=MRoot+'\old app';
-    MCheck(VPathsOverlap('C:\Vex','c:\vex\child'),'overlap is case insensitive');
-    MCheck(VPathsOverlap('C:\Vex\child','C:\Vex'),'overlap detects ancestor');
-    MCheck(not VPathsOverlap('C:\Vex','C:\Vex-old'),'sibling prefix is separate');
-    MCheck(not VPathsOverlap('','C:\Vex'),'unknown path cannot match');
-    MCheck(VPathsOverlap('C:\A\..\Vex','C:\Vex'),'canonical overlap');
+    MCheck(VPathsOverlap('C:\Markdor','c:\markdor\child'),'overlap is case insensitive');
+    MCheck(VPathsOverlap('C:\Markdor\child','C:\Markdor'),'overlap detects ancestor');
+    MCheck(not VPathsOverlap('C:\Markdor','C:\Markdor-old'),'sibling prefix is separate');
+    MCheck(not VPathsOverlap('','C:\Markdor'),'unknown path cannot match');
+    MCheck(VPathsOverlap('C:\A\..\Markdor','C:\Markdor'),'canonical overlap');
     MReset;
     MCheck(VRunMigration(Target,False)='','fresh installation proceeds');
     MCheck(VTestLaunches=0,'fresh installation launches nothing');
-    MCheck(VRunMigration(ExpandConstant('{commonpf}\Vex'),False)<>'','system program folder blocked');
-    MCheck(VRunMigration(ExpandConstant('{win}\Vex'),False)<>'','Windows folder blocked');
+    MCheck(VRunMigration(ExpandConstant('{commonpf}\Markdor'),False)<>'','system program folder blocked');
+    MCheck(VRunMigration(ExpandConstant('{win}\Markdor'),False)<>'','Windows folder blocked');
     MEntry(Source,HKLM64);
     MCheck(VRunMigration(Source,False)<>'','identical migration target blocked');
     MCheck(VRunMigration(Source+'\child',False)<>'','nested migration target blocked');
@@ -62,7 +62,7 @@ begin
       if I=4 then VTestKeepRegistration:=True;
       MCheck(VRunMigration(Target,False)<>'','start, cancel, UAC, failure or remaining registration blocks: '+IntToStr(I));
       MCheck(GetArrayLength(VTestEntries)=1,'failed migration preserves registration: '+IntToStr(I));
-      MCheck(FileExists(VMigrationBackup+'\0\Vex.dll.config'),'backup retained on failure: '+IntToStr(I));
+      MCheck(FileExists(VMigrationBackup+'\0\Markdor.dll.config'),'backup retained on failure: '+IntToStr(I));
     end;
     MReset; MEntry(Source,HKLM64); VTestChangeRegistration:=True;
     MCheck(VRunMigration(Target,False)<>'','changed registration blocks migration');
@@ -76,12 +76,12 @@ begin
     MCheck(not VMigrationRegistrationMatches(A,B),'changed registration scope rejected');
     MCheck(VRunMigration(Target,False)='','successful migration permits installation');
     MCheck((VTestLaunches=1) and (GetArrayLength(VTestEntries)=0),'success removes the old registration once');
-    MCheck(FileExists(Target+'\Vex.dll.config'),'settings staged before a possible cancelled payload copy');
+    MCheck(FileExists(Target+'\Markdor.dll.config'),'settings staged before a possible cancelled payload copy');
     VRestoreSettingsTo(Target);
-    LoadStringFromFile(Target+'\Vex.dll.config',Text);
+    LoadStringFromFile(Target+'\Markdor.dll.config',Text);
     MCheck(Text='original settings','settings restored before payload copy');
-    SaveStringToFile(Target+'\Vex.dll.config','newer user settings',False);
-    VRestoreSettingsTo(Target); LoadStringFromFile(Target+'\Vex.dll.config',Text);
+    SaveStringToFile(Target+'\Markdor.dll.config','newer user settings',False);
+    VRestoreSettingsTo(Target); LoadStringFromFile(Target+'\Markdor.dll.config',Text);
     MCheck(Text='newer user settings','current-user preferences win over old machine settings');
     VMigrationBackup:='';
     MCheck(VRunMigration(Target,False)='','retry after completed migration retains staged settings');
@@ -91,7 +91,7 @@ begin
     MReset; MEntry(Source,HKLM64); MEntry(MRoot+'\other old app',HKLM32);
     MCheck(VRunMigration(Target,False)='','two different registered machine paths migrate');
     MCheck(VTestLaunches=2,'each distinct old installation is removed');
-    LoadStringFromFile(Source+'\Vex.dll.config',Text);
+    LoadStringFromFile(Source+'\Markdor.dll.config',Text);
     MCheck(Text='original settings','fixture leaves the original files untouched');
     SaveStringToFile('{#TestReport}','PASS '+IntToStr(MTestCount)+#13#10+MTestReport,False);
   except
