@@ -74,6 +74,8 @@ public interface IShellDocumentWorkflowText
 
     void PublishExternalFileReloaded(string fileName);
 
+    void PublishExternalFileChangedWithUnsavedEdits();
+
     void PublishPropertiesSummary(
         string title,
         string state,

@@ -1,4 +1,5 @@
 using Avalonia.Threading;
+using Netor.Markdor.Core.Models;
 
 namespace Netor.Markdor.Modules.Shell.ViewModels;
 
@@ -134,7 +135,9 @@ public sealed partial class MainWindowViewModel
                              || !Core.Services.MarkdownTextComparer.EqualsNormalizedLineEndings(previous.Markdown, incoming.Markdown))
                     {
                         ++_externalCandidateRevision;
-                        Protection.External = incoming;
+                        // 自动保存开启时磁盘为唯一真值：静默载入，不出提醒条与对比层。
+                        if (_settingsStore.Current.AutoSave == true) ApplyExternalVersionSilently(incoming);
+                        else Protection.External = incoming;
                     }
                     return;
                 }
@@ -153,6 +156,25 @@ public sealed partial class MainWindowViewModel
             if (_activeFileReadEpoch == epoch) _activeFileReadEpoch = -1;
             if (epoch == _fileWatchEpoch && revision != Interlocked.Read(ref _fileEventRevision)) ScheduleCurrentFileCheck();
         }
+    }
+
+    // 自动保存开启时外部修改静默载入（2026-10-27 拍板：磁盘为唯一真值，绝不弹「请先比较」）。
+    // 先取消挂起的自动保存；未落盘键入随载入丢弃，载入前内容经统一内容通道进撤销栈可找回，toast 告知结果。
+    private void ApplyExternalVersionSilently(DocumentSnapshot incoming)
+    {
+        _autoSaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        var hadUnsavedEdits = DocumentInfo.IsModified;
+        var path = _document.FilePath;
+        if (Protection.External is not null) ++_externalCandidateRevision;
+        Protection.External = null;
+        _document = incoming;
+        _lastSavedMarkdown = incoming.Markdown;
+        Markdown = incoming.Markdown;
+        RefreshDocumentInfo();
+        if (!string.IsNullOrEmpty(path)) RefreshDocumentFileInList(path);
+        Protection.SaveError = null;
+        if (hadUnsavedEdits) _text.PublishExternalFileChangedWithUnsavedEdits();
+        else _text.PublishExternalFileReloaded(incoming.FileName);
     }
 
     private static (bool Exists, long Length, DateTimeOffset WriteTime) ReadFileStamp(string path)
