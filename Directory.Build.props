@@ -10,7 +10,7 @@
     <!-- <ArtifactsPath Condition="'$(CI)' != 'true'">$(MSBuildThisFileDirectory)..\..\temp_files\markdor-build\</ArtifactsPath> -->
     <!-- <ArtifactsPath Condition="'$(CI)' == 'true'">$(MSBuildThisFileDirectory)artifacts\</ArtifactsPath> -->
     <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\packages\</PackageOutputPath>
-    <Version>1.10.9</Version>
+    <Version>1.10.11</Version>
     <Authors>沙漠尽头的狼</Authors>
     <Company>CodeWF</Company>
     <Title>Markdor - 维刻</Title>

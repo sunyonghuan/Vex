@@ -522,7 +522,10 @@ public sealed class MarkdownEditorViewModel : ReactiveObject
         _syncingFromDocument = true;
         try
         {
-            editor.SetText(markdown);
+            // 直接替换文档对象，避免 MarkdownEditorView.SetText 在新文档更短时
+            // 走增量替换并把长度差误当成负的删除长度。
+            editor.Editor.Document = new AvaloniaEdit.Document.TextDocument(markdown);
+            editor.Editor.CaretOffset = 0;
         }
         finally
         {
