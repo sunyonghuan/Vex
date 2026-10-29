@@ -6,6 +6,7 @@
     xmlns:markdownThemes="https://codewf.com"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:semi="https://irihi.tech/semi"
+    xmlns:ursa="using:Ursa.Controls"
     xmlns:semiCp="using:Semi.Avalonia.ColorPicker">
     <prism:PrismApplication.Resources>
         <ResourceDictionary>
@@ -39,6 +40,11 @@
         <codewf:MarkdorControlsTheme />
         <StyleInclude Source="avares://Markdor/Modules/Shell/Views/WorkbenchStyles.axaml" />
         <StyleInclude Source="avares://Markdor/Modules/Workspace/Views/MarkdownDocumentStyles.axaml" />
+        <Style Selector="ursa|ToastCard">
+            <Style.Resources>
+                <FontWeight x:Key="ToastCardContentFontWeight">Normal</FontWeight>
+            </Style.Resources>
+        </Style>
         <Style Selector="Window"><Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI, Microsoft YaHei UI, PingFang SC, Noto Sans SC" /></Style>
     </prism:PrismApplication.Styles>
 </prism:PrismApplication>

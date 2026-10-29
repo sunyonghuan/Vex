@@ -17,14 +17,14 @@ public sealed partial class ShellWorkbenchViewModel
     public string PresentationProgress => $"{_presentationIndex + 1} / {PresentationSections.Count}";
     public bool PresentationOutline => IsPresenting && _presentationOutline;
     public bool PresentationMap => IsPresenting && _presentationMap;
-    public bool PresentationDocument => IsPresenting && !_presentationOutline && !_presentationMap;
+    public bool PresentationDocument => IsPresenting && !_presentationMap;
     public Avalonia.Thickness PresentationContentMargin => IsPresenting ? new(0, 70, 0, 20) : default;
     public bool CanPreviousPresentation => _presentationIndex > 0;
     public bool CanNextPresentation => _presentationIndex + 1 < PresentationSections.Count;
-    public void TogglePresentationOutline() { _presentationOutline = !_presentationOutline; _presentationMap = false; NotifyPresentation(); }
-    public void ShowPresentationDocument() { _presentationOutline = false; _presentationMap = false; NotifyPresentation(); }
-    public void ShowPresentationOutline() { _presentationOutline = true; _presentationMap = false; NotifyPresentation(); }
-    public void ShowPresentationMap() { _presentationOutline = false; _presentationMap = true; NotifyPresentation(); }
+    public void TogglePresentationOutline() { _presentationOutline = !_presentationOutline; NotifyPresentation(); }
+    public void ShowPresentationDocument() { _presentationMap = false; NotifyPresentation(); }
+    public void ShowPresentationOutline() { _presentationOutline = true; NotifyPresentation(); }
+    public void ShowPresentationMap() { _presentationMap = true; NotifyPresentation(); }
     public void PreviousPresentation() => NavigatePresentation(_presentationIndex - 1);
     public void NextPresentation() => NavigatePresentation(_presentationIndex + 1);
     public void NavigatePresentation(int index)
@@ -32,8 +32,6 @@ public sealed partial class ShellWorkbenchViewModel
         if (!IsPresenting || index < 0 || index >= PresentationSections.Count) return;
         if (_presentationIndex != index) _presentationMarkdown = _presentationDocument!.MarkdownAt(index);
         _presentationIndex = index;
-        _presentationOutline = false;
-        _presentationMap = false;
         NotifyPresentation();
     }
     private void BuildPresentation()

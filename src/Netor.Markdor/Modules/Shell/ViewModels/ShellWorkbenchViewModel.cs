@@ -42,6 +42,8 @@ public sealed partial class ShellWorkbenchViewModel : ReactiveObject
     private bool _isPresenting;
     private bool _reportedPresentationMap;
     private double _presentationZoom = 1.5;
+    private double _presentationInitialZoom = 1.5;
+    private double _presentationMapScale = 1;
     private string _mindMapLayout = "right";
     private string _mindMapStyle = "quiet";
     private (string View, string Edit, Avalonia.Controls.WindowState WindowState, MarkdownLiveEditorState? LiveState)? _presentationSnapshot;
@@ -56,6 +58,22 @@ public sealed partial class ShellWorkbenchViewModel : ReactiveObject
             this.RaisePropertyChanged(nameof(EditorSurfaceMargin));
         };
         _document = document; _settings = settings; _appearance = appearance; _layout = layout; _display = display;
+        layout.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ShellWindowLayoutViewModel.ShowOutlineSidebar))
+            {
+                this.RaisePropertyChanged(nameof(ShowOutlineSidebar));
+                this.RaisePropertyChanged(nameof(MapDockMargin));
+            }
+            if (e.PropertyName == nameof(ShellWindowLayoutViewModel.WorkspaceWidth))
+            {
+                this.RaisePropertyChanged(nameof(DeckNavWidth));
+                this.RaisePropertyChanged(nameof(DeckChromeMargin));
+                this.RaisePropertyChanged(nameof(DeckDockMargin));
+                this.RaisePropertyChanged(nameof(DeckOutlineToggleMargin));
+                this.RaisePropertyChanged(nameof(PresentationContentMargin));
+            }
+        };
         display.Changed += (_, _) => { if (_live is { } live) live.EnableAutoPair = display.EnableAutoPair; };
         _view = settings.Current.WorkbenchView is "read" or "mindmap" ? settings.Current.WorkbenchView : "edit";
         _edit = settings.Current.EditMode == "source" ? "source" : "instant";
@@ -70,6 +88,7 @@ public sealed partial class ShellWorkbenchViewModel : ReactiveObject
         _showCode = settings.Current.MindMapShowCode ?? false;
         _showTables = settings.Current.MindMapShowTables ?? false;
         _showLists = settings.Current.MindMapShowLists ?? false;
+        _presentationZoom = Preferences.PresentationScale;
         History.Reset(document.Markdown);
         document.DocumentChanged += (_, _) =>
         {
@@ -134,6 +153,57 @@ public sealed partial class ShellWorkbenchViewModel : ReactiveObject
     /// <summary>钉住的编辑工具条为占位行：工作区整体让出工具条高度；取消钉住时悬浮不占位。</summary>
     public Avalonia.Thickness EditorSurfaceMargin => ShowEditorOptions && Preferences.PinEditorToolbar ? new(0, 42, 0, 0) : default;
     public double PresentationZoom => _presentationZoom;
+    public double MapZoomPercent
+    {
+        get => Preferences.MapZoom;
+        set
+        {
+            var percent = Math.Round(Math.Clamp(value, 1, 200));
+            if (Math.Abs(Preferences.MapZoom - percent) < .5) return;
+            Preferences.MapZoom = percent;
+            this.RaisePropertyChanged();
+        }
+    }
+
+    public double PresentationMapScale
+    {
+        get => _presentationMapScale;
+        set
+        {
+            var scale = Math.Clamp(value, .15, 3);
+            if (Math.Abs(_presentationMapScale - scale) < .005) return;
+            _presentationMapScale = scale;
+            this.RaisePropertyChanged();
+            this.RaisePropertyChanged(nameof(DeckScale));
+        }
+    }
+
+    public double MapZoomFloor => IsPresenting ? .15 : .01;
+    public double MapZoomCeiling => IsPresenting ? 3 : 2;
+    public Avalonia.Thickness MapDockMargin => new(0, 0, ShowOutlineSidebar ? 12 : 31, 0);
+    public bool ShowOutlineSidebar => _layout.ShowOutlineSidebar;
+
+    public double DeckZoomMin => PresentationMap ? .15 : 1;
+    public double DeckZoomMax => PresentationMap ? 3 : 2.5;
+    public double DeckZoomStep => PresentationMap ? .05 : .1;
+    public double DeckScale
+    {
+        get => PresentationMap ? PresentationMapScale : PresentationZoom;
+        set
+        {
+            if (PresentationMap) PresentationMapScale = value;
+            else PresentationZoomValue = Math.Round(value, 1);
+        }
+    }
+
+    public string DeckZoomLabel => L(PresentationMap ? MarkdorL.ZoomMap : MarkdorL.ZoomPresentation);
+    public string DeckResetLabel => L(PresentationMap ? MarkdorL.WBFit : MarkdorL.ZoomRestoreFont);
+    public Avalonia.Thickness DeckChromeMargin => new(0, 0, DeckNavWidth, 0);
+    public Avalonia.Thickness DeckDockMargin => new(0, 0, PresentationOutline ? 12 : 40, 0);
+    public double DeckNavWidth => PresentationOutline ? Math.Min(280, Math.Max(0, _layout.WorkspaceWidth) * .25) : 0;
+    public Avalonia.Thickness DeckOutlineToggleMargin => new(0, 0, PresentationOutline ? Math.Max(0, DeckNavWidth - 32) : 8, 18);
+    public double PresentationProgressValue => PresentationSections.Count == 0 ? 1 : (_presentationIndex + 1.0) / PresentationSections.Count;
+    public void ResetPresentationZoom() => PresentationZoomValue = _presentationInitialZoom;
     public bool CanIncreasePresentationText => PresentationZoom < 2.5;
     public bool CanDecreasePresentationText => PresentationZoom > 1;
 
@@ -151,7 +221,9 @@ public sealed partial class ShellWorkbenchViewModel : ReactiveObject
         BuildPresentation();
         _view = "read";
         ShowTypography = false; ShowMapSettings = false; ShowLayouts = false; CloseInspector();
-        _presentationZoom = 1.5;
+        _presentationZoom = Preferences.PresentationScale;
+        _presentationInitialZoom = _presentationZoom;
+        _presentationMapScale = 1;
         _layout.CurrentWindowState = Avalonia.Controls.WindowState.FullScreen;
         // 先暂停副窗口，再通知布局变化，避免布局整理把原副窗口直接关闭。
         NotifyPresentation(true); NotifyModes();
@@ -176,14 +248,17 @@ public sealed partial class ShellWorkbenchViewModel : ReactiveObject
     public void DecreasePresentationText() => SetPresentationZoom(PresentationZoom - .1);
     private void SetPresentationZoom(double value)
     {
-        _presentationZoom = Math.Round(Math.Clamp(value, 1, 2.5), 1);
+        var zoom = Math.Round(Math.Clamp(value, 1, 2.5), 1);
+        if (Math.Abs(_presentationZoom - zoom) < .001) return;
+        _presentationZoom = zoom;
+        Preferences.PresentationScale = zoom;
         NotifyPresentation();
     }
     private void NotifyPresentation(bool modeChanged = false)
     {
         if (modeChanged) this.RaisePropertyChanged(nameof(IsPresenting));
         if (_reportedPresentationMap != PresentationMap) { _reportedPresentationMap = PresentationMap; this.RaisePropertyChanged(nameof(PresentationMap)); }
-        foreach (var name in new[] { nameof(ShowEditorOptions), nameof(PresentationZoom), nameof(PresentationZoomText), nameof(CanIncreasePresentationText), nameof(CanDecreasePresentationText), nameof(PresentationMarkdown), nameof(PresentationIndex), nameof(PresentationProgress), nameof(PresentationOutline), nameof(PresentationDocument), nameof(PresentationContentMargin), nameof(CanPreviousPresentation), nameof(CanNextPresentation), nameof(IsMapVisible), nameof(IsPreviewVisible) }) this.RaisePropertyChanged(name);
+        foreach (var name in new[] { nameof(ShowEditorOptions), nameof(PresentationZoom), nameof(PresentationZoomText), nameof(PresentationMapScale), nameof(DeckScale), nameof(DeckZoomMin), nameof(DeckZoomMax), nameof(DeckZoomStep), nameof(DeckZoomLabel), nameof(DeckResetLabel), nameof(DeckNavWidth), nameof(DeckChromeMargin), nameof(DeckDockMargin), nameof(DeckOutlineToggleMargin), nameof(MapZoomFloor), nameof(MapZoomCeiling), nameof(PresentationProgressValue), nameof(CanIncreasePresentationText), nameof(CanDecreasePresentationText), nameof(PresentationMarkdown), nameof(PresentationIndex), nameof(PresentationProgress), nameof(PresentationOutline), nameof(PresentationDocument), nameof(PresentationContentMargin), nameof(CanPreviousPresentation), nameof(CanNextPresentation), nameof(IsMapVisible), nameof(IsPreviewVisible) }) this.RaisePropertyChanged(name);
     }
     private static string L(string key) => CodeWF.Toolkit.Lang.I18nManager.Instance.GetResource(key) ?? string.Empty;
     public string EditingHint => L(IsInstantEditing ? MarkdorL.WBInstantDescription : IsReading ? MarkdorL.WBReadDescription : MarkdorL.WBSourceDescription);

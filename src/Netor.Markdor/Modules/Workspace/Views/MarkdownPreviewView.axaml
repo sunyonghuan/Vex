@@ -7,6 +7,7 @@
     xmlns:l="clr-namespace:Netor.Markdor"
     xmlns:vm="using:Netor.Markdor.Modules.Workspace.ViewModels"
     xmlns:views="using:Netor.Markdor.Modules.Workspace.Views"
+    xmlns:markdor="clr-namespace:Netor.Markdor.Controls;assembly=Markdor.Controls"
     x:DataType="vm:MarkdownPreviewViewModel">
 
     <Grid RowDefinitions="Auto,*" Background="{DynamicResource MarkdorPreviewBackgroundBrush}">
@@ -55,6 +56,12 @@
                                 Text="{Binding Preferences.WatermarkText}" Strength="{Binding Preferences.WatermarkOpacity}"
                                 FontSize="{Binding Preferences.WatermarkFontSize}" HexInk="{Binding Preferences.WatermarkColor}"
                                 WeightValue="{Binding Preferences.WatermarkWeight}" />
+        <markdor:MarkdorZoomDock x:Name="ReadingZoomDock" Grid.Row="1" ZIndex="50" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                 IsVisible="{Binding ShowReadingDock}" Margin="{Binding ReadingDockMargin}"
+                                 Minimum="50" Maximum="200" Step="5" Value="{Binding Preferences.ContentZoom, Mode=TwoWay}"
+                                 Label="{i18n:I18n {x:Static l:MarkdorL.PrefZoom}}"
+                                 ResetLabel="{i18n:I18n {x:Static l:MarkdorL.ZoomRestoreFont}}"
+                                 ResetGeometry="{StaticResource WBFitIcon}" markdor:MarkdorBottomAxis.CenterFromBottom="69" />
     </Grid>
 
 

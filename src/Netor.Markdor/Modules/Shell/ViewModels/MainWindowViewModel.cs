@@ -376,7 +376,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject
     private void ScheduleAutoSave()
     {
         _autoSaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-        if (_settingsStore.Current.AutoSave != true || _guideDocument is not null || _document.FilePath is null) return;
+        if (_settingsStore.Current.AutoSave == false || _guideDocument is not null || _document.FilePath is null) return;
         _autoSaveTimer ??= new Timer(state => Dispatcher.UIThread.Post(() => _ = AutoSaveCurrentAsync()), null,
             Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         _autoSaveTimer.Change(TimeSpan.FromSeconds(Math.Clamp(_settingsStore.Current.AutoSaveDelay ?? 2, 2, 60)), Timeout.InfiniteTimeSpan);
@@ -384,7 +384,7 @@ public sealed partial class MainWindowViewModel : ReactiveObject
 
     private async Task AutoSaveCurrentAsync()
     {
-        if (_autoSaveInProgress || Protection.HasExternal || Protection.HasFileReadError || _settingsStore.Current.AutoSave != true || _guideDocument is not null
+        if (_autoSaveInProgress || Protection.HasExternal || Protection.HasFileReadError || _settingsStore.Current.AutoSave == false || _guideDocument is not null
             || _document.FilePath is not { } path || !DocumentInfo.IsModified || !File.Exists(path)) return;
         // 外部写入应先由文件监控流程处理，自动保存不得覆盖未确认的磁盘改动。
         if (_watchedFileLastWriteTimeUtc is not { } watched || new DateTimeOffset(File.GetLastWriteTimeUtc(path)) != watched) return;

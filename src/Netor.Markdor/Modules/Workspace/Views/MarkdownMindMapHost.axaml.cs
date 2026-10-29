@@ -136,7 +136,8 @@ public partial class MarkdownMindMapHost : UserControl
         };
         Map.ChapterActionRequested += (_, action) => { if (_workbench is null) return; _workbench.SelectedNode = action.Node; if (action.Action == "rename") BeginRename(action.Node); else ExecuteChapter(action.Action); };
         Map.ChapterMoveRequested += (_, move) => { FlushInspector(); _workbench?.MoveChapter(move.Node.SourceStart, move.Target.SourceStart, move.Position); };
-        Map.ZoomChanged += (_, _) => ZoomLabel.Content = $"{Map.Zoom:P0}";
+        Map.ZoomChanged += (_, _) => PublishMapZoom();
+        MapZoomDock.ResetRequested += (_, _) => Map.Fit();
         Map.VisibleNodesChanged += (_, _) => { if (DataContext is MainWindowViewModel vm) vm.Workbench.VisibleNodeCount = Map.VisibleNodeCount; };
         DataContextChanged += (_, _) => AttachWorkbench();
         AttachedToVisualTree += (_, _) => { EventBus.Default.Subscribe(this); AttachWorkbench(); };
@@ -173,11 +174,14 @@ public partial class MarkdownMindMapHost : UserControl
         Map.IsChapterEditingEnabled = _workbench?.IsPresenting != true;
         RefreshInspector();
         RefreshHeadingsOnly();
+        ApplyMapZoom();
     }
     private void WorkbenchChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ShellWorkbenchViewModel.IsPresenting))
         { MapHint.IsVisible = Bounds.Width >= 480 && _workbench?.IsPresenting != true; Map.IsChapterEditingEnabled = _workbench?.IsPresenting != true; }
+        if (e.PropertyName is nameof(ShellWorkbenchViewModel.IsPresenting) or nameof(ShellWorkbenchViewModel.PresentationMap)
+            or nameof(ShellWorkbenchViewModel.MapZoomPercent) or nameof(ShellWorkbenchViewModel.PresentationMapScale)) ApplyMapZoom();
         if (e.PropertyName == nameof(ShellWorkbenchViewModel.SelectedNode))
         { Map.SelectNode(_workbench?.SelectedNode?.Id); RefreshInspector(); }
         if (e.PropertyName is nameof(ShellWorkbenchViewModel.ShowParagraphs) or nameof(ShellWorkbenchViewModel.ShowLists) or nameof(ShellWorkbenchViewModel.ShowCode) or nameof(ShellWorkbenchViewModel.ShowTables))
@@ -264,11 +268,32 @@ public partial class MarkdownMindMapHost : UserControl
         Map.RevealNode(node.Id);
         static IEnumerable<MarkdownMindMapNode> Flatten(MarkdownMindMapNode n) { yield return n; foreach (var c in n.Children) foreach (var d in Flatten(c)) yield return d; }
     }
+    private bool _applyingMapZoom;
+    private void PublishMapZoom()
+    {
+        if (_applyingMapZoom || _workbench is null) return;
+        if (_workbench.IsPresenting)
+        {
+            if (_workbench.PresentationMap) _workbench.PresentationMapScale = Map.Zoom;
+            return;
+        }
+        _workbench.MapZoomPercent = Map.Zoom * 100;
+    }
+    private void ApplyMapZoom()
+    {
+        if (_workbench is null) return;
+        var scale = _workbench.IsPresenting ? _workbench.PresentationMapScale : _workbench.MapZoomPercent / 100;
+        if (Math.Abs(Map.Zoom - scale) < .005) return;
+        _applyingMapZoom = true;
+        try { Map.SetZoom(scale); }
+        finally { _applyingMapZoom = false; }
+    }
     private void ZoomOutClick(object? sender, RoutedEventArgs e) => Map.ZoomOut();
     public void ZoomPresentation(bool increase) { if (increase) Map.ZoomIn(); else Map.ZoomOut(); }
     private void ZoomInClick(object? sender, RoutedEventArgs e) => Map.ZoomIn();
     private void ResetZoomClick(object? sender, RoutedEventArgs e) => Map.ResetZoom();
     private void FitClick(object? sender, RoutedEventArgs e) => Map.Fit();
+    public void FitMap() => Map.Fit();
     private void ExpandClick(object? sender, RoutedEventArgs e) => Map.ExpandAll();
     private void CollapseClick(object? sender, RoutedEventArgs e)
     {

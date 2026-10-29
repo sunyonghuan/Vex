@@ -67,6 +67,12 @@ public partial class MainWindow : CodeWFWindow
         };
         TitleMenuView.BeginGuideRequested += TitleMenuView_OnBeginGuideRequested;
         AddHandler(KeyDownEvent, WindowKeyDown, RoutingStrategies.Tunnel);
+        PresentationDeckDock.ResetRequested += (_, _) =>
+        {
+            if (DataContext is not MainWindowViewModel vm) return;
+            if (vm.Workbench.PresentationMap) MindMapGuideTarget.FitMap();
+            else vm.Workbench.ResetPresentationZoom();
+        };
         AddHandler(PointerPressedEvent, WorkbenchPointerPressed, RoutingStrategies.Tunnel);
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DragOverEvent, WindowDragOver);

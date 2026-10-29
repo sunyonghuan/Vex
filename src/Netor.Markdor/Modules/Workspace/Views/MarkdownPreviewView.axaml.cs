@@ -76,6 +76,10 @@ public partial class MarkdownPreviewView : UserControl
     public MarkdownPreviewView()
     {
         InitializeComponent();
+        ReadingZoomDock.ResetRequested += (_, _) =>
+        {
+            if (_viewModel is not null) _viewModel.Preferences.ContentZoom = 100;
+        };
         DataContextChanged += OnDataContextChanged;
         AttachedToVisualTree += OnAttachedToVisualTree;
         DetachedFromVisualTree += (_, _) => SetViewModel(null);

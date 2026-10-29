@@ -720,6 +720,9 @@ public static class MarkdorL
     public static readonly string PrefImageRelative = "Markdor.MarkdorL.PrefImageRelative";
     public static readonly string PrefImageFolder = "Markdor.MarkdorL.PrefImageFolder";
     public static readonly string PrefZoom = "Markdor.MarkdorL.PrefZoom";
+    public static readonly string ZoomRestoreFont = "Markdor.MarkdorL.ZoomRestoreFont";
+    public static readonly string ZoomMap = "Markdor.MarkdorL.ZoomMap";
+    public static readonly string ZoomPresentation = "Markdor.MarkdorL.ZoomPresentation";
     public static readonly string PrefWordCount = "Markdor.MarkdorL.PrefWordCount";
     public static readonly string PrefExportFormat = "Markdor.MarkdorL.PrefExportFormat";
     public static readonly string PrefExportFolder = "Markdor.MarkdorL.PrefExportFolder";

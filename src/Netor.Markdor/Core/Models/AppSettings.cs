@@ -118,6 +118,8 @@ public sealed record AppSettings
     public string? MindMapStyle { get; init; }
     public string? CustomTypographies { get; init; }
     public double? ContentZoom { get; init; }
+    public double? MapZoom { get; init; }
+    public double? PresentationScale { get; init; }
     public string? ExportFormat { get; init; }
     public string? ExportFolder { get; init; }
     public bool? ExportOpen { get; init; }

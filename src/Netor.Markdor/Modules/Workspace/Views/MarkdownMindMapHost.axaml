@@ -1,5 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:i18n="https://codewf.com" xmlns:l="clr-namespace:Netor.Markdor"
-             xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels" xmlns:mind="https://codewf.com"
+             xmlns:vm="using:Netor.Markdor.Modules.Shell.ViewModels" xmlns:mind="https://codewf.com" xmlns:markdor="using:Netor.Markdor.Controls"
              x:DataType="vm:MainWindowViewModel" x:Class="Netor.Markdor.Modules.Workspace.Views.MarkdownMindMapHost">
   <UserControl.Styles>
     <Style Selector="Button.map-tool, ToggleButton.map-tool"><Setter Property="FontSize" Value="10.5"/><Setter Property="Padding" Value="7,4"/><Setter Property="MinHeight" Value="26"/></Style>
@@ -104,14 +104,12 @@
           </StackPanel>
         </Border>
       </Border>
-      <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12,12,12,46" Classes="wb-popover" Padding="3">
-        <StackPanel Orientation="Horizontal" Spacing="1">
-          <Button Classes="wb-quiet" Content="−" Click="ZoomOutClick" Padding="9,4"/>
-          <Button x:Name="ZoomLabel" Classes="wb-quiet" Content="100%" Click="ResetZoomClick" Padding="6,4"/>
-          <Button Classes="wb-quiet" Content="+" Click="ZoomInClick" Padding="9,4"/>
-          <Button Classes="wb-quiet" Click="FitClick" ToolTip.Tip="{i18n:I18n {x:Static l:MarkdorL.WBFit}}" Padding="8,4"><Path Classes="wb-icon" Data="{StaticResource WBFitIcon}"/></Button>
-        </StackPanel>
-      </Border>
+      <markdor:MarkdorZoomDock x:Name="MapZoomDock" ZIndex="50" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                               IsVisible="{Binding !Workbench.IsPresenting}" Margin="{Binding Workbench.MapDockMargin}"
+                               Minimum="1" Maximum="200" Step="1" Value="{Binding Workbench.MapZoomPercent, Mode=TwoWay}"
+                               Label="{i18n:I18n {x:Static l:MarkdorL.ZoomMap}}"
+                               ResetLabel="{i18n:I18n {x:Static l:MarkdorL.WBFit}}"
+                               ResetGeometry="{StaticResource WBFitIcon}" markdor:MarkdorBottomAxis.CenterFromBottom="69" />
     </Grid>
   </Grid>
 </UserControl>

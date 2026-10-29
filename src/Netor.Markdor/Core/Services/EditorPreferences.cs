@@ -11,7 +11,7 @@ public sealed class EditorPreferences(IAppSettingsStore settings) : ReactiveObje
 {
     public event EventHandler? PreferencesChanged;
     public bool RestoreWorkspace { get => settings.Current.RestoreWorkspace ?? false; set => Set(s => s with { RestoreWorkspace = value }); }
-    public bool AutoSave { get => settings.Current.AutoSave ?? false; set => Set(s => s with { AutoSave = value }); }
+    public bool AutoSave { get => settings.Current.AutoSave ?? true; set => Set(s => s with { AutoSave = value }); }
     public int AutoSaveDelay { get => settings.Current.AutoSaveDelay ?? 2; set => Set(s => s with { AutoSaveDelay = Math.Clamp(value, 2, 60) }); }
     public bool RecoveryDrafts { get => settings.Current.RecoveryDrafts ?? true; set => Set(s => s with { RecoveryDrafts = value }); }
     public string DefaultEncoding { get => settings.Current.DefaultEncoding ?? "utf-8"; set => Set(s => s with { DefaultEncoding = value ?? "" }); }
@@ -36,6 +36,8 @@ public sealed class EditorPreferences(IAppSettingsStore settings) : ReactiveObje
     public bool PinReadingToolbar { get => settings.Current.PinReadingToolbar ?? true; set => Set(s => s with { PinReadingToolbar = value }); }
     public bool PinMapToolbar { get => settings.Current.PinMapToolbar ?? true; set => Set(s => s with { PinMapToolbar = value }); }
     public double ContentZoom { get => settings.Current.ContentZoom ?? 100; set => Set(s => s with { ContentZoom = Math.Clamp(value, 50, 200) }); }
+    public double MapZoom { get => settings.Current.MapZoom ?? 100; set => Set(s => s with { MapZoom = Math.Clamp(value, 1, 200) }); }
+    public double PresentationScale { get => settings.Current.PresentationScale ?? 1.5; set => Set(s => s with { PresentationScale = Math.Clamp(value, 1, 2.5) }); }
     public string ExportFormat { get => settings.Current.ExportFormat ?? "HTML"; set => Set(s => s with { ExportFormat = value ?? "" }); }
     public string ExportFolder { get => settings.Current.ExportFolder ?? ""; set => Set(s => s with { ExportFolder = value ?? "" }); }
     public bool ExportOpen { get => settings.Current.ExportOpen ?? true; set => Set(s => s with { ExportOpen = value }); }

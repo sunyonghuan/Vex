@@ -15,6 +15,8 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
     public bool IsTaskEditingEnabled => _workbench.IsSourceEditing;
     public bool IsPresenting => _workbench.IsPresenting;
     public double PresentationZoom => IsPresenting ? _workbench.PresentationZoom : 1;
+    public bool ShowReadingDock => !IsPresenting && _workbench.IsPreviewVisible;
+    public Avalonia.Thickness ReadingDockMargin => new(0, 0, 12, 0);
     private string? _imageBasePath;
     private string _markdown;
     private string _sourceMarkdown;
@@ -157,6 +159,8 @@ public sealed class MarkdownPreviewViewModel : ReactiveObject
         if (e.PropertyName is nameof(_workbench.IsPresenting) or nameof(_workbench.PresentationZoom)
             && _notifiedPresentationZoom != PresentationZoom)
         { _notifiedPresentationZoom = PresentationZoom; this.RaisePropertyChanged(nameof(PresentationZoom)); }
+        if (e.PropertyName is nameof(_workbench.IsPresenting) or nameof(_workbench.IsPreviewVisible))
+            this.RaisePropertyChanged(nameof(ShowReadingDock));
         if (e.PropertyName == nameof(_workbench.IsSourceEditing))
         {
             this.RaisePropertyChanged(nameof(IsTaskEditingEnabled));

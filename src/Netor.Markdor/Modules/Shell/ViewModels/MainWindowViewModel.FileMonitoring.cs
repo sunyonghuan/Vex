@@ -136,7 +136,7 @@ public sealed partial class MainWindowViewModel
                     {
                         ++_externalCandidateRevision;
                         // 自动保存开启时磁盘为唯一真值：静默载入，不出提醒条与对比层。
-                        if (_settingsStore.Current.AutoSave == true) ApplyExternalVersionSilently(incoming);
+                        if (_settingsStore.Current.AutoSave ?? true) ApplyExternalVersionSilently(incoming);
                         else Protection.External = incoming;
                     }
                     return;
